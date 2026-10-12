@@ -94,9 +94,12 @@ const get = (prefix, type, n = 0) => pick(section(gdd, prefix), type, n);
 const need = (cond, msg) => { if (!cond) throw new Error(msg); };
 
 // ---------------------------------------------------------------- renderers
-const tableHtml = (t, { classes = '', cell = {} } = {}) => {
+const tableHtml = (t, { classes = '', cell = {}, rowClass = () => '' } = {}) => {
   const head = t.header.map(h => `<th>${inline(h)}</th>`).join('');
-  const body = t.rows.map(r => `<tr>${r.map((c, i) => `<td>${(cell[i] || inline)(c)}</td>`).join('')}</tr>`).join('');
+  const body = t.rows.map(r => {
+    const cls = rowClass(r);
+    return `<tr${cls ? ` class="${cls}"` : ''}>${r.map((c, i) => `<td>${(cell[i] || inline)(c, r)}</td>`).join('')}</tr>`;
+  }).join('');
   return `<div class="table-wrap ${classes}"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
 };
 const list = (items, tag = 'ul', cls = '') => `<${tag}${cls ? ` class="${cls}"` : ''}>${items.map(i => `<li>${inline(i)}</li>`).join('')}</${tag}>`;
@@ -141,6 +144,16 @@ const feedback = get('### 5.4 ', 'p');
 const legibility = get('### 5.5 ', 'p');
 const milestones = get('## 14. ', 'table');
 need(milestones.rows.length === 7, 'Expected milestones M0 to M6');
+need(/status/i.test(milestones.header[3] || ''), 'Expected a Status column (4th) in the GDD 14 milestone table');
+// Progress, all derived from the Markdown: the milestone Status column, struck-through
+// next actions (~~) and decided open-decision rows ("**Decided").
+const milestoneState = r => (/^done/i.test(plain(r[3])) ? 'done' : /^in progress/i.test(plain(r[3])) ? 'progress' : 'todo');
+const isDoneAction = r => r.some(c => c.includes('~~'));
+const isDecided = r => /^\*\*Decided/.test(r[2]);
+const doneMark = '<span class="done-mark" aria-hidden="true">✓</span>';
+const milestoneIds = state => milestones.rows.filter(r => milestoneState(r) === state).map(r => plain(r[0]).split(' — ')[0]);
+const railProgress = [[milestoneIds('done'), 'done'], [milestoneIds('progress'), 'in progress']]
+  .filter(([ids]) => ids.length).map(([ids, word]) => `${ids.join(', ')} ${word}`).join(' · ') || 'Not started';
 const cap = get('### 14.1 ', 'table');
 const playtest = get('### 14.2 ', 'ul');
 const goNoGo = get('### 14.3 ', 'p');
@@ -172,14 +185,17 @@ const stepCard = (r, i) => {
 const pillarCard = r => `<article class="pillar${/\(new\)/.test(r[1]) ? ' is-new' : ''}"><span class="pillar-id">${esc(plain(r[0]))}</span><h3>${inline(r[1])}</h3><p>${inline(r[2])}</p><p class="anti"><b>Avoid</b> ${inline(r[3])}</p></article>`;
 const milestoneTask = r => {
   const [id, ...nameParts] = plain(r[0]).split(' — ');
-  return `<div class="task"><span>${esc(id)} · NOT STARTED</span><h3>${esc(nameParts.join(' — '))}</h3><p>${inline(r[1])}</p><p class="accept"><b>Done when</b> ${inline(r[2])}</p></div>`;
+  const state = milestoneState(r);
+  const label = { done: '✓ DONE', progress: 'IN PROGRESS', todo: 'NOT STARTED' }[state];
+  const note = state === 'todo' ? '' : `<p class="status-note">${inline(r[3])}</p>`;
+  return `<div class="task is-${state}"><span>${esc(id)} · ${label}</span><h3>${esc(nameParts.join(' — '))}</h3>${note}<p>${inline(r[1])}</p><p class="accept"><b>Done when</b> ${inline(r[2])}</p></div>`;
 };
 const column = (title, dot, rows) => `<article class="board-column"><h2><span class="column-dot ${dot}"></span>${title} <small>${rows.length}</small></h2>${rows.map(milestoneTask).join('')}</article>`;
 
-const handoff = `Read projects/Wildwright/README.md, then docs/02-gdd.md sections 1-3 and docs/04-decisions.md.
-Engine is UE 5.8.3 (D-07), the cast layer is GAS for casting only (D-08), and the project is at D:\\Wildwright\\ (D-09).
-Claim the area in the README, then build next action 3: a greybox valley and test range with target objects, in a test map, and report what you verified.
-Keep every elemental rule data-driven and keep the cast layer separate from world state. Do not copy Valley assets until OD-10 is resolved.
+const handoff = `Read projects/Wildwright/README.md, then docs/05-engineering-guide.md.
+Then do the next task in docs/07-handoff-action-5.md (the first three rules), following its acceptance checks.
+Claim the area in the README first, keep rules deterministic and data-driven, and ask the owner before committing.
+Keep the cast layer separate from world state, and never use NoAI Fab assets to generate content (D-10).
 Keep all output in English.`;
 
 const diagram = `<figure class="layer-diagram"><svg viewBox="0 0 760 300" role="img" aria-labelledby="ld-t ld-d">
@@ -263,9 +279,11 @@ const buildPage = `
 <div class="board">${column('Start here', 'ready', now)}${column('Then', 'next', soon)}${column('Later', 'later', later)}</div>
 <p class="muted">${inline(goNoGo.text)}</p>
 ${heading('Open decisions', 'GDD 16 · recommendations are not binding')}
-${tableHtml(openDecisions, { classes: 'decisions-table', cell: { 0: c => `<code>${esc(plain(c))}</code>` } })}
-${heading('Next actions', 'GDD 16.3')}
-${tableHtml(next)}
+${tableHtml(openDecisions, { classes: 'decisions-table progress-table', rowClass: r => (isDecided(r) ? 'is-done' : ''),
+  cell: { 0: (c, r) => `${isDecided(r) ? doneMark : ''}<code>${esc(plain(c))}</code>` } })}
+${heading('Next actions', 'GDD 16.3 · done items are ticked and struck through')}
+${tableHtml(next, { classes: 'progress-table', rowClass: r => (isDoneAction(r) ? 'is-done' : ''),
+  cell: { 0: (c, r) => `${isDoneAction(r) ? doneMark : ''}${inline(c)}` } })}
 ${heading('First-playable content cap', 'GDD 14.1')}
 ${tableHtml(cap)}
 <div class="editorial-grid"><article class="note-card"><h2>Playtest questions</h2>${list(playtest.items)}</article><article class="note-card"><h2>Definition of done</h2>${list(dod.items)}</article></div>
@@ -284,7 +302,7 @@ const html = `<!DOCTYPE html>
 <nav aria-label="Wildwright sections" aria-orientation="vertical" role="tablist">
 ${tabs.map(([id, name], i) => `<button aria-controls="${id}" aria-selected="${i === 0}" data-page="${id}" id="nav-${id}" role="tab"${i ? ' tabindex="-1"' : ''}><span>${String(i + 1).padStart(2, '0')}</span>${name}</button>`).join('\n')}
 </nav>
-<div class="rail-note"><span class="phase-dot"></span> Pre-production<p>Design is written.<br/>M0 project set up.</p></div>
+<div class="rail-note"><span class="phase-dot"></span> Pre-production<p>${esc(railProgress)}</p></div>
 <a class="rail-link" href="../../projects/Wildwright/README.md" rel="noopener" target="_blank">Project README ↗</a>
 <a class="rail-link" href="${DOCS}02-gdd.md" rel="noopener" target="_blank">Game design document ↗</a>
 <a class="rail-link" href="${DOCS}04-decisions.md" rel="noopener" target="_blank">Decision log ↗</a></aside>

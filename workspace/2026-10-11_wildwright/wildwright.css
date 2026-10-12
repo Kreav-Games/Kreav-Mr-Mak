@@ -125,6 +125,14 @@ html[data-mak-report=document] .step h3{margin:5px 0 7px;font-size:15px;display:
 .task>span{font-size:8px;letter-spacing:.1em;color:#9d8c9b}
 html[data-mak-report=document] .task h3{font-size:14px;margin:7px 0}
 .task p{font-size:11px;line-height:1.7!important;color:var(--mak-muted);margin:0 0 8px}.task .accept{border-top:1px solid var(--mak-border);padding-top:8px;margin:0}.task .accept b{color:#c2bac9;margin-right:5px;font-weight:600}
+/* Progress, generated from the GDD: done = ticked, struck through and dimmed; in progress = highlighted. */
+.task.is-done{opacity:.66}.task.is-done>span{color:#8fd19a}
+html[data-mak-report=document] .task.is-done h3{text-decoration:line-through;text-decoration-color:#ffffff66}
+.task.is-progress{border-color:#f0c36a66;background:linear-gradient(180deg,#f0c36a10,var(--mak-surface))}.task.is-progress>span{color:var(--spark)}
+.task .status-note{color:#d6cfdc!important;font-size:11px}
+.done-mark{display:inline-block;color:#8fd19a;font-weight:700;margin-right:6px}
+.progress-table tr.is-done td{color:#8f8797}
+.progress-table tr.is-done td:nth-child(2){text-decoration:line-through;text-decoration-color:#ffffff55}
 .handoff{border:1px solid #f0c36a2a;background:#f0c36a06;padding:26px;border-radius:12px;margin-top:28px}
 .handoff h2{margin:8px 0 14px!important;padding:0!important;font-size:23px!important}.handoff pre{white-space:pre-wrap;overflow-wrap:anywhere}.handoff p{color:var(--mak-muted);font-size:11px}
 

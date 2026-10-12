@@ -22,6 +22,7 @@
   .steps-line li:last-child{border-bottom:0}
   .steps-line b{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#8f8797;padding-top:2px}
   .steps-line li.here b{color:var(--spark)}.steps-line li.here{color:#eee8f1}
+  .steps-line li.done{color:#8f8797}.steps-line li.done b{color:#8fd19a}.steps-line li.done span{text-decoration:line-through;text-decoration-color:#ffffff55}
   .test-walk{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
   .test-walk li{counter-increment:s;border:1px solid var(--mak-border);border-radius:10px;background:var(--mak-surface);padding:14px;font-size:12px;color:#b9b0c1;margin:0;line-height:1.6}
   .test-walk li::before{content:counter(s);display:grid;place-content:center;width:24px;height:24px;border-radius:50%;background:#f0c36a1a;border:1px solid #f0c36a55;color:var(--spark);font-size:11px;font-weight:700;margin-bottom:10px}
@@ -73,9 +74,9 @@
   <article class="note-card">
     <div class="eyebrow">When the maps come alive</div>
     <ol class="steps-line">
-      <li><b>Done</b><span>Greybox: walk, look, judge scale and layout.</span></li>
-      <li class="here"><b>Now</b><span>Action 4: pick an element and aim it at a target. The game says whether the target is valid, and why not when it isn't.</span></li>
-      <li><b>Action 5</b><span>The first three rules give real results, e.g. water makes a patch wet and fire then refuses to light it.</span></li>
+      <li class="done"><b>✓ Done</b><span>Action 3: greybox. Walk, look, judge scale and layout.</span></li>
+      <li class="done"><b>✓ Done</b><span>Action 4: pick an element and aim it at a target. The game says whether the target is valid, and why not when it isn't.</span></li>
+      <li class="here"><b>Next</b><span>Action 5: the first three rules give real results, e.g. water makes a patch wet and fire then refuses to light it.</span></li>
       <li><b>Action 6</b><span>The first hero cast: the cinematic charge and release on top of a rule.</span></li>
       <li><b>Action 7</b><span>A debug overlay shows the hidden numbers (moisture, heat) so a test can be checked exactly.</span></li>
     </ol>

@@ -56,6 +56,7 @@ milestone IDs are stable; do not rename them.
 | Added spectacle risks, OD-01 to OD-10 and CR-001 | New direction creates new risks and decisions. |
 | Locked the engine to UE 5.8.3 and the cast layer to GAS (12.1, 12.2, 16) | Owner decisions D-07 and D-08 resolved OD-01 and OD-02 on 2026-10-11. |
 | 12.1: Blueprint-first replaced by C++ and CSV data for agent-built systems; Blueprints for owner-tuned content | Owner decision D-12 resolved OD-11 on 2026-10-12. |
+| Added a Status column to the milestone table (14) | Track progress on the Workspace card. |
 
 **Section map V0.1 → V0.2** (so old references still resolve)
 
@@ -835,15 +836,15 @@ prototype, but avoid tying all state changes to local-only cosmetic actors.
 > **Do not build the whole world first.** The first milestone is a small, testable
 > elemental laboratory proving cause and effect, persistence and player curiosity.
 
-| Milestone | Build | Acceptance evidence |
-|---|---|---|
-| **M0 — Foundation** | UE project, source control, input, movement, test map, naming conventions | Clean checkout opens; player moves; a change can be reverted |
-| **M1 — Element lab** | Four selectable elements, simple target types, six `ER_*` rules, **one hero cast** *(CR-001)* | Three interactions produce visible, repeatable outcomes; invalid targets explain failure; hero cast passes the spectacle contract (2.2) |
-| **M2 — World state** | Local variables, heat/moisture/soil state, debug overlay | Change persists for a defined duration or across save/load; values remain bounded |
-| **M3 — Ecosystem** | Two plant patches and one creature with state-driven behavior | Water/heat/disturbance changes suitability and causes an observable response |
-| **M4 — Survival/building** | Shelter, storage, health/stamina/exposure, placement validation | Player establishes a safe base and uses it to support an experiment |
-| **M5 — Journal/objective** | Observation entries, confirmed rules, one regional problem | Tester solves the objective using a learned rule and explains why |
-| **M6 — Vertical slice** | Polish, audio, onboarding, save/load, performance pass | External testers understand the premise and choose to run more experiments |
+| Milestone | Build | Acceptance evidence | Status |
+|---|---|---|---|
+| **M0 — Foundation** | UE project, source control, input, movement, test map, naming conventions | Clean checkout opens; player moves; a change can be reverted | Done 2026-10-12 |
+| **M1 — Element lab** | Four selectable elements, simple target types, six `ER_*` rules, **one hero cast** *(CR-001)* | Three interactions produce visible, repeatable outcomes; invalid targets explain failure; hero cast passes the spectacle contract (2.2) | In progress: greybox and element selection done; rules, hero cast and debug overlay next |
+| **M2 — World state** | Local variables, heat/moisture/soil state, debug overlay | Change persists for a defined duration or across save/load; values remain bounded | Not started |
+| **M3 — Ecosystem** | Two plant patches and one creature with state-driven behavior | Water/heat/disturbance changes suitability and causes an observable response | Not started |
+| **M4 — Survival/building** | Shelter, storage, health/stamina/exposure, placement validation | Player establishes a safe base and uses it to support an experiment | Not started |
+| **M5 — Journal/objective** | Observation entries, confirmed rules, one regional problem | Tester solves the objective using a learned rule and explains why | Not started |
+| **M6 — Vertical slice** | Polish, audio, onboarding, save/load, performance pass | External testers understand the premise and choose to run more experiments | Not started |
 
 ### 14.1 First playable content cap
 

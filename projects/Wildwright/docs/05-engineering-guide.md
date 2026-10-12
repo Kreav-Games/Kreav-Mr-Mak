@@ -265,6 +265,16 @@ Hooks into the template: `WildwrightCharacter.h/.cpp` (creates `Elements`, calls
     `Get-Content -Encoding UTF8` or `[IO.File]::ReadAllText` for UTF-8 files.
 20. Headless Edge will not lay out narrower than about 492 px; it crops instead.
 21. Higgsfield CLI is quarantined by Defender; do not add exclusions.
+22. `codex exec` failing with "Your access token could not be refreshed. Please log
+    out and sign in again" (and 401 errors) means Codex's ChatGPT sign-in expired. It
+    changes nothing. The owner runs `codex logout` then `codex login` (opens a
+    browser); then re-run. Seen 2026-10-12.
+23. On this Windows machine `codex exec -s workspace-write` still starts with
+    `sandbox: read-only` and `approval: never` (its Windows sandbox flags are
+    "removed" or "under development" in 0.162.1), so it cannot read or edit files
+    through its shell. Only `-s danger-full-access` (no sandbox at all) would let a
+    non-interactive Codex run work, and that is the owner's call. Interactive Codex
+    sessions started by the owner are unaffected *(unverified)*. Seen 2026-10-12.
 
 ## 8. Working as two agents (Claude Code and Codex)
 

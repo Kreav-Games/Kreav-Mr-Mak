@@ -112,3 +112,15 @@ the owner's approval, committed the `AGENTS.md` changes in the game repo
 repo (`f0b7f02`, Wildwright paths only; the owner's own staged and pending changes
 there were left untouched, including an un-pin of the "My Dream Game" sample card in
 `workspace.json`). **Next:** action 5 ([brief](07-handoff-action-5.md)).
+
+*2026-10-12, card progress.* The owner asked for everything done so far to be ticked
+off on the Wildwright Workspace card, by Codex if possible. Two `codex exec` runs
+failed: the first on an expired sign-in (the owner re-ran `codex login`), the second
+because non-interactive Codex on this machine is forced to a read-only sandbox
+(guide §7, items 22 and 23). Claude Code made the change instead: a Status column in
+the GDD milestone table (M0 done, M1 in progress), and the hub generator now ticks,
+strikes through and dims done milestones, done next actions and decided questions,
+highlights M1, shows "M0 done · M1 in progress" in the rail, and points its handoff
+example at action 5. The Greybox tab timeline shows actions 3 and 4 done and 5 next.
+**Verified:** the generator runs (8 done rows; labels ✓ DONE, IN PROGRESS, 5× NOT
+STARTED); both pages checked in headless Edge.
