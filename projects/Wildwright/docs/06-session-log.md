@@ -106,6 +106,9 @@ Codex never refer to that game. **Verified:** Codex's global folder has no
 instruction file, and its memories and goals stores contain no mention of the
 earlier game; its old session transcripts are only used if a chat is resumed. Added
 a rule (D-02) to `D:\Wildwright\AGENTS.md`, the README and the engineering guide:
-never use names, files, systems, lore or plans from an earlier game project. The
-`AGENTS.md` changes ("start here", D-02 and D-12 rules) and all design-record edits
-are **not committed yet**. **Next:** action 5 ([brief](07-handoff-action-5.md)).
+never use names, files, systems, lore or plans from an earlier game project. With
+the owner's approval, committed the `AGENTS.md` changes in the game repo
+(`44b82d9`) and the design record, handoff docs and Workspace card in the Mr. Mak
+repo (`f0b7f02`, Wildwright paths only; the owner's own staged and pending changes
+there were left untouched, including an un-pin of the "My Dream Game" sample card in
+`workspace.json`). **Next:** action 5 ([brief](07-handoff-action-5.md)).
