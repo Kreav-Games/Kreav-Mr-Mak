@@ -22,6 +22,10 @@ why they were rejected so they do not re-enter unnoticed (GDD 15.2).
 | D-10 | **Fab assets marked NoAI** ("Allows usage with AI: No"): "Never use any Fab asset marked as NoAI to generate, train, fine-tune, or create new content, and only allow AI operations that read, classify, tag, or organize the original files without producing new derivative output." | 2026-10-12 | The owner's rule, taken from Copilot's summary of the NoAI terms. Not yet checked against the Fab EULA text *(unverified)*. Applies to every NoAI Fab asset, including Valley of the Ancient (OD-10). Allowed: agents reading or inspecting the files and writing notes about how they are built. Not allowed: feeding them, or renders and captures of them, to image, video, 3D, audio or texture generation. |
 | D-11 | **Valley of the Ancient assets may be migrated into Wildwright**, modified and shipped inside the game under Fab's Standard License. Never redistribute them on their own or in an extractable form. Resolves OD-10 with D-10. | 2026-10-12 | Owner-supplied summary of the Standard License (Fab EULA 4(c)): commercial use, modification and distribution of a game that incorporates the content are allowed; resale, giveaway, inclusion in an extractable tool or template, and player extraction are not. **Consequences:** keep `D:\Wildwright` private (collaborators only), because a public repo would redistribute raw assets; ship only cooked, packaged builds and never raw `.uasset` files; consider pak encryption at the packaging milestone (M6); D-10 still applies. Migrate selected pieces only (feel reference, section 4), never the level, golems or bulk Megascans. |
 | D-12 | **Agent-built systems are C++ with data in CSV files** imported into data tables, and their assets come from editor-Python generators in `Tools/`. **Blueprints are for content the owner tunes**, with agent assistance. Resolves OD-11. | 2026-10-12 | Owner: "we can keep c++ and csv and blue prints i can do with assistance". Agents cannot edit Blueprint graphs or other binary assets; C++, CSV and scripts stay diffable, reviewable and testable by both Claude Code and Codex. For Blueprint work, agents give exact steps and use editor Python where it can do the job. Amends GDD 12.1. |
+| D-13 | The first hero cast (next action 6) is **Fire** | 2026-10-12 | The owner chose Fire over the Water recommendation. Fire shows `ER_FIRE_IGNITE`, its refusals (too wet, already burning or burnt, no effect on other targets) and a state-driven aftermath (burning, then smouldering). Plan: [08-hero-cast-plan.md](08-hero-cast-plan.md). A second hero cast may follow by M6 (GDD 14.1). |
+| D-14 | Hero cast controls: **hold left mouse to charge, release to cast, right mouse to cancel** | 2026-10-12 | The owner approved the recommended charge → release delivery for the hero cast. OD-04 stays open for the final delivery model after M1 play-tests. |
+| D-15 | Cast animation comes from **Valley's Echo LightDart animations, retargeted** to `SK_Mannequin` | 2026-10-12 | Echo has her own skeleton (`Echo_Skeleton`), so the four LightDart animations (charge, charge loop, release, cancel) are retargeted with an auto-generated IK retargeter and made into montages by the owner (owner guide, parts 2–3). Allowed by D-11. |
+| D-16 | **Valley effects, materials and sounds are starting points** for the Fire cast, as needed | 2026-10-12 | Selected LightDart and campfire Niagara assets, their materials, a smoke sprite sheet, heat distortion and four sounds are copied into `/Game/Wildwright/Imported/Valley/` and recoloured or adapted (plan, "Starting points"). D-10 still applies: never used with generative AI. Epic's Starter Content fire and smoke flipbooks are copied in too. |
 
 ## Accepted in principle
 
@@ -130,6 +134,36 @@ pending prototype validation.***
 | 4. Systems affected | New cast layer (animation, camera mode, targeting preview, Niagara/audio/haptic cues); `ElementDefinition` gains a cast profile; UI/accessibility (camera motion); performance budgets. |
 | 5. Acceptance test | One hero cast passes the spectacle contract: Appendix A tests 6 (VFX disabled, same state) and 9 (cancel is clean), and playtesters can say what the cast did. |
 | 6. Milestone impact | M1 gains a hero-cast deliverable; M2–M6 unchanged. No new milestone. |
+
+### CR-002 Clarify the first-playable build direction and project presentation
+
+*Raised 2026-10-12 by the owner's request to expand the GDD, improve the Workspace
+and design a game cover. Status: **applied to GDD 0.3 as proposed build detail;
+new gameplay choices and cover art await review.*** Locked owner decisions remain
+in force. This is authoring work, not a claim that the new gameplay is implemented.
+
+| Field | Entry |
+|---|---|
+| 1. Player problem solved | The broad premise needs a concrete first session, useful interventions and clear consequences; builders need bounded tasks and visible proof of completion. |
+| 2. Expected benefit | A spring-route session connects experiments, route choice, ecology, construction and knowledge into one playable arc; the Workspace makes current progress and next work easier to find. |
+| 3. Implementation cost | Documentation and presentation delivered now. Future density, suitability, finite flow, route integration and persistence require small briefs, tests and owner play-tests; no new runtime system was built in this refresh. |
+| 4. Systems affected | GDD rule contracts, valley/session design, ecology/journal/save requirements, milestone packets; Workspace hub generator/styles and an original cover concept. Existing action 5 behaviour remains unchanged. |
+| 5. Acceptance test | GDD clearly labels accepted versus proposed work and preserves the content cap; every build packet has dependencies and an exit check; Workspace tabs, media preview/downloads and source links work at wide/narrow sizes; owner reviews new direction and cover. |
+| 6. Milestone impact | M0–M6 and the six-rule cap stay intact. M1 closes with six effects and one hero cast. First-session detail links M2–M5 deliverables without adding regions, multiplayer, combat, recipes beyond the existing cap or additional creatures. |
+
+**Choices still proposed:** 20–30 minute pacing, four basic actions available in the
+first-playable test, the two plant archetypes, six recipe selection, density/soil/flow
+details, route integration, journal confirmation policy and frozen simulation while
+the application is closed. Record owner feedback before treating these as resolved
+OD-03/04/06/08/09 decisions. The cover's person and costume are not a character approval.
+
+## Validation notes
+
+*2026-10-12 — Action 5 accepted.* After the four automated tests and greybox
+verifier passed, the owner reported that the supplied `L_TestRange` play-test
+results “seems to match”. Recorded owner acceptance of the first three rules;
+M1 remains in progress, with the first hero cast next. This records validation,
+with no new design, balance or scope decision. Changes remain uncommitted.
 
 ## Inherited from GDD 0.1 (still in force, unvalidated)
 

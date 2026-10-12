@@ -112,211 +112,173 @@ const arrowChips = text => {
   return plain(bold || text).replace(/\.$/, '').split('→').map(s => chip(s.trim())).join('<i aria-hidden="true">→</i>');
 };
 
-// ---------------------------------------------------------------- data
+// ---------------------------------------------------------------- source data
 const version = (gdd.match(/GDD \d+\.\d+/) || ['GDD'])[0];
+const compass = get('### 1.6 ', 'table');
+const truth = get('### 1.7 ', 'table');
 const pillars = get('### 2.1 ', 'table');
-need(pillars.rows.length >= 6, 'Expected at least six pillars');
-const rhythm = get('### 2.3 ', 'table');
 const loop = get('### 2.4 ', 'p');
 const contractTable = get('### 2.2 ', 'table');
 const contractRules = get('### 2.2 ', 'ol');
 const elements = get('### 3.2 ', 'table');
-need(elements.rows.length === 4, 'Expected four elements');
 const model = get('### 3.3 ', 'table');
 const rules = get('### 3.4 ', 'table');
-const special = get('### 3.5 ', 'table');
-const conflict = get('### 3.6 ', 'ul');
-const isM1 = r => /\*\*M1\*\*/.test(r[5]);
-const firstRules = { header: rules.header, rows: rules.rows.filter(isM1) };
-const laterRules = { header: rules.header, rows: rules.rows.filter(r => !isM1(r)) };
-need(firstRules.rows.length >= 1, 'No M1 rules found');
+const ruleContracts = get('### 3.8 ', 'table');
+const ruleStatus = get('### 3.9 ', 'table');
+const firstRules = { header: rules.header, rows: rules.rows.filter(r => /\*\*M1\*\*/.test(r[5])) };
+const laterRules = { header: rules.header, rows: rules.rows.filter(r => !/\*\*M1\*\*/.test(r[5])) };
+const acceptedRules = ruleStatus.rows.filter(r => plain(r[1]) === 'Accepted').length;
 const variables = get('### 4.2 ', 'table');
 const cadence = get('### 4.3 ', 'table');
 const memory = get('### 4.4 ', 'ul');
-const stages = get('### 4.5 ', 'p');
-const weather = get('### 4.6 ', 'p');
-const creatures = get('### 8.1 ', 'table');
-const behavior = get('### 8.2 ', 'table');
-const habitat = get('### 8.3 ', 'p');
+const valley = get('### 4.7 ', 'table');
 const language = get('### 5.2 ', 'table');
 const heroCast = get('### 5.3 ', 'table');
-const feedback = get('### 5.4 ', 'p');
-const legibility = get('### 5.5 ', 'p');
+const session = get('### 6.6 ', 'table');
+const evidence = get('### 7.5 ', 'table');
+const ecology = get('### 8.6 ', 'table');
+const flows = get('### 10.3 ', 'table');
 const milestones = get('## 14. ', 'table');
-need(milestones.rows.length === 7, 'Expected milestones M0 to M6');
-need(/status/i.test(milestones.header[3] || ''), 'Expected a Status column (4th) in the GDD 14 milestone table');
-// Progress, all derived from the Markdown: the milestone Status column, struck-through
-// next actions (~~) and decided open-decision rows ("**Decided").
-const milestoneState = r => (/^done/i.test(plain(r[3])) ? 'done' : /^in progress/i.test(plain(r[3])) ? 'progress' : 'todo');
+const cap = get('### 14.1 ', 'table');
+const packets = get('### 14.4 ', 'table');
+const sessionChecks = get('### 14.5 ', 'table');
+const next = get('### 16.3 ', 'table');
+const openDecisions = get('## 16. ', 'table');
+const decided = pick(section(decisions, '## Decided'), 'table');
+const milestoneState = r => /^done/i.test(plain(r[3])) ? 'done' : /^in progress/i.test(plain(r[3])) ? 'progress' : 'todo';
 const isDoneAction = r => r.some(c => c.includes('~~'));
 const isDecided = r => /^\*\*Decided/.test(r[2]);
 const doneMark = '<span class="done-mark" aria-hidden="true">✓</span>';
-const milestoneIds = state => milestones.rows.filter(r => milestoneState(r) === state).map(r => plain(r[0]).split(' — ')[0]);
-const railProgress = [[milestoneIds('done'), 'done'], [milestoneIds('progress'), 'in progress']]
-  .filter(([ids]) => ids.length).map(([ids, word]) => `${ids.join(', ')} ${word}`).join(' · ') || 'Not started';
-const cap = get('### 14.1 ', 'table');
-const playtest = get('### 14.2 ', 'ul');
-const goNoGo = get('### 14.3 ', 'p');
-const dod = get('### 16.2 ', 'ul');
-const openDecisions = get('## 16. ', 'table');
-const next = get('### 16.3 ', 'table');
-const decided = pick(section(decisions, '## Decided'), 'table');
-
-// ---------------------------------------------------------------- layout bits
+need(elements.rows.length === 4, 'Expected four elements');
+need(firstRules.rows.length === 6 && ruleStatus.rows.length === 6, 'Expected six M1 rules and status rows');
+need(milestones.rows.length === 7 && packets.rows.length === 8, 'Expected M0–M6 and eight bounded packets');
+need(session.rows.length === 6, 'Expected six first-session beats');
+const current = packets.rows[0];
+const art = 'images/wildwright-cover-v1.png';
+const source = '<a href="' + DOCS + '02-gdd.md" target="_blank" rel="noopener">GDD source ↗</a>';
+const proposal = '<span class="status-label planned">Proposed build direction</span>';
+const tabs = [
+  ['overview', 'Vision'], ['direction', 'Play session'], ['elements', 'Elements'],
+  ['world', 'Valley'], ['spectacle', 'Spellcraft'], ['build', 'Build'],
+];
 const glyph = {
   fire: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.5-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 7-8 7-13z"/></svg>',
   water: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5s6 6.2 6 10.5a6 6 0 0 1-12 0C6 8.7 12 2.5 12 2.5z"/></svg>',
   earth: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20 9 7l4 7 3-4 6 10z"/></svg>',
   air: '<svg viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M3 9h11a3 3 0 1 0-3-3M3 14h15a3 3 0 1 1-3 3M3 19h7"/></svg>',
 };
-const tabs = [
-  ['overview', 'Overview'], ['elements', 'Elements'], ['world', 'World'], ['spectacle', 'Spectacle'], ['build', 'Build'],
-];
-
-const elementCard = r => {
-  const key = plain(r[0]).toLowerCase();
-  return `<article class="element-card ${key}"><div class="element-glyph">${glyph[key] || ''}</div><h3>${inline(r[0])}</h3>
-<dl><dt>Verbs</dt><dd>${inline(r[1])}</dd><dt>Targets</dt><dd>${inline(r[2])}</dd><dt>Trade-offs</dt><dd>${inline(r[3])}</dd></dl></article>`;
-};
-const stepCard = (r, i) => {
-  const layer = plain(r[2]).toLowerCase();
-  return `<li class="step" data-layer="${esc(layer)}"><span class="step-n">${String(i + 1).padStart(2, '0')}</span><h3>${inline(r[0])}</h3>${chip(plain(r[2]), `layer-${layer}`)}<p>${inline(r[1])}</p></li>`;
-};
-const pillarCard = r => `<article class="pillar${/\(new\)/.test(r[1]) ? ' is-new' : ''}"><span class="pillar-id">${esc(plain(r[0]))}</span><h3>${inline(r[1])}</h3><p>${inline(r[2])}</p><p class="anti"><b>Avoid</b> ${inline(r[3])}</p></article>`;
-const milestoneTask = r => {
-  const [id, ...nameParts] = plain(r[0]).split(' — ');
-  const state = milestoneState(r);
-  const label = { done: '✓ DONE', progress: 'IN PROGRESS', todo: 'NOT STARTED' }[state];
-  const note = state === 'todo' ? '' : `<p class="status-note">${inline(r[3])}</p>`;
-  return `<div class="task is-${state}"><span>${esc(id)} · ${label}</span><h3>${esc(nameParts.join(' — '))}</h3>${note}<p>${inline(r[1])}</p><p class="accept"><b>Done when</b> ${inline(r[2])}</p></div>`;
-};
-const column = (title, dot, rows) => `<article class="board-column"><h2><span class="column-dot ${dot}"></span>${title} <small>${rows.length}</small></h2>${rows.map(milestoneTask).join('')}</article>`;
-
-const handoff = `Read projects/Wildwright/README.md, then docs/05-engineering-guide.md.
-Then do the next task in docs/07-handoff-action-5.md (the first three rules), following its acceptance checks.
-Claim the area in the README first, keep rules deterministic and data-driven, and ask the owner before committing.
-Keep the cast layer separate from world state, and never use NoAI Fab assets to generate content (D-10).
-Keep all output in English.`;
-
-const diagram = `<figure class="layer-diagram"><svg viewBox="0 0 760 300" role="img" aria-labelledby="ld-t ld-d">
-<title id="ld-t">Cast layer and state layer</title><desc id="ld-d">The cast layer reads world state and requests changes through the rule resolver. Only the state layer is authoritative.</desc>
-<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="ah"/></marker></defs>
-<g class="box cast"><rect x="20" y="20" width="720" height="82" rx="12"/><text x="40" y="52" class="t1">CAST LAYER</text><text x="40" y="76" class="t2">Montage · camera · charge/release · Niagara · audio · haptics</text><text x="720" y="52" class="t3" text-anchor="end">transient · cosmetic · never authoritative</text></g>
-<g class="box resolver"><rect x="230" y="125" width="300" height="56" rx="10"/><text x="380" y="150" class="t1" text-anchor="middle">RULE RESOLVER</text><text x="380" y="169" class="t2" text-anchor="middle">deterministic · data-driven · logged</text></g>
-<g class="box state"><rect x="20" y="204" width="720" height="82" rx="12"/><text x="40" y="236" class="t1">STATE LAYER</text><text x="40" y="260" class="t2">World cells · tags · material and mesh state · journal</text><text x="720" y="236" class="t3" text-anchor="end">persistent · readable · the only source of truth</text></g>
-<path d="M330 102v23" class="arrow" marker-end="url(#ah)"/><text x="318" y="118" class="t3" text-anchor="end">requests</text>
-<path d="M380 181v23" class="arrow" marker-end="url(#ah)"/><text x="394" y="197" class="t3">resolves</text>
-<path d="M600 204V102" class="arrow dashed" marker-end="url(#ah)"/><text x="614" y="158" class="t3">cues read state</text>
-</svg><figcaption>The cast layer asks; the state layer decides. Disabling every effect must leave gameplay state identical.</figcaption></figure>`;
+const pageHead = (label, title, desc) => '<div class="page-heading"><div><div class="eyebrow">' + label + '</div><h1>' + title + '</h1></div><p>' + desc + '</p></div>';
+const panel = (id, body) => '<section class="game-page" id="' + id + '" role="tabpanel" aria-labelledby="nav-' + id + '" tabindex="0"' + (id === 'overview' ? '' : ' hidden') + '>' + body + '</section>';
+const statusLabel = text => '<span class="status-label ' + (/accepted|done/i.test(plain(text)) ? 'accepted' : 'planned') + '">' + inline(text) + '</span>';
+const details = (title, content) => '<details class="design-details"><summary>' + title + '</summary><div>' + content + '</div></details>';
+const routeCard = row => '<article class="route-card"><span class="eyebrow">' + inline(row[0]) + '</span><h3>' + inline(row[1]) + '</h3><p>' + inline(row[2]) + '</p><p class="route-aftermath"><b>Afterwards</b> ' + inline(row[3]) + '</p></article>';
+const nextCard = '<article class="next-build"><div><span class="eyebrow">Current build packet · action 6</span><h2>' + inline(current[0].split(' · ')[1]) + '</h2><p>' + inline(current[2]) + '</p></div><div><span class="eyebrow">Accepted when</span><p>' + inline(current[3]) + '</p><button class="text-action" data-open="build">Open the build path →</button></div></article>';
+const hero = '<figure class="cover-hero"><img src="' + art + '" width="1672" height="941" alt="Wildwright cover concept: a solitary spellcrafter guides water into scorched ground in a misty mountain valley at dawn." fetchpriority="high" decoding="async"><figcaption><span>Original cover concept · owner review</span><a href="cover.html">View cover &amp; source ↗</a><a href="' + art + '" download>Download PNG ↓</a></figcaption></figure>';
 
 // ---------------------------------------------------------------- pages
-const overview = `
-<section aria-labelledby="nav-overview" class="game-page" id="overview" role="tabpanel" tabindex="0">
-<div class="page-heading"><div><div class="eyebrow">Elemental ecosystem sandbox · ${esc(version)}</div><h1>Cast like a hero.<br/>Change a living world.</h1></div><p>Learn fire, water, earth and air. Every cast is a cinematic performance, and every cast leaves a readable mark on a valley that remembers.</p></div>
-<figure class="title-card"><div class="title-glyphs">${['fire', 'water', 'earth', 'air'].map(k => `<span class="glyph ${k}">${glyph[k]}</span>`).join('')}</div>
-<div class="title-copy"><span class="screen-kicker">AN ELEMENTAL ECOSYSTEM SANDBOX</span><div class="game-wordmark">WILD<b>WRIGHT</b></div><span class="screen-line">The world is not your resource. It is your creation, your adversary, and your memory.</span></div></figure>
-<div class="project-actions"><button class="primary-action" data-open="elements">The four elements <span>→</span></button><button class="secondary-action" data-open="spectacle">How a cast works <span>↗</span></button></div>
-<div class="game-stats"><div><strong>01</strong><span>valley in the first playable</span></div><div><strong>${String(elements.rows.length).padStart(2, '0')}</strong><span>elements to learn</span></div><div><strong>${String(firstRules.rows.length).padStart(2, '0')}</strong><span>rules in the first playable</span></div><div><strong>${String(milestones.rows.length).padStart(2, '0')}</strong><span>milestones, M0 to M6</span></div></div>
-<div class="editorial-grid"><article class="note-card"><div class="eyebrow">The loop</div><h2>Observe, cast, understand, return.</h2><div class="chip-row">${arrowChips(loop.text)}</div><p>Knowledge, recorded in a field journal, is the main progression. A discovered rule opens a route, a build site or a way to survive.</p><button class="text-action" data-open="elements">See the rules →</button></article>
-<article class="note-card"><div class="eyebrow">Decided so far</div><h2>The direction is set.</h2><ul class="decided">${decided.rows.map(r => `<li><b>${esc(plain(r[0]))}</b> ${inline(r[1])}</li>`).join('')}</ul><button class="text-action" data-open="build">Open decisions and milestones →</button></article></div>
-${heading('Seven pillars', 'GDD 2.1 · the last one is new')}
-<div class="pillar-grid">${pillars.rows.map(pillarCard).join('')}</div>
-${heading('The intended feeling', 'GDD 2.3')}
-${tableHtml(rhythm)}
-<p class="project-footnote">Generated from <a href="${DOCS}02-gdd.md" target="_blank" rel="noopener">${esc(version)}</a> and the decision log on ${new Date().toLocaleDateString('en-CA')}. The Markdown is the source; re-run <code>node projects/Wildwright/tools/build-workspace-card.mjs</code> after editing it. The Unreal project is at <code>D:\\Wildwright\\</code>.</p>
-</section>`;
+const overview = panel('overview', `
+${hero}
+<div class="vision-intro"><div><div class="eyebrow">One valley. Four forces. Lasting consequences.</div><h1>Shape the valley.<br>Learn what it remembers.</h1></div><p>Become a capable spellcrafter through observation and experiment. Make a route safer, bring water to a useful site, and return to read what changed.</p></div>
+<div class="progress-ribbon"><span><i class="phase-dot"></i>M0 complete · M1 in progress</span><span><b>${acceptedRules} / ${firstRules.rows.length}</b> rule effects accepted</span><a href="greybox.html">Play-test instructions ↗</a></div>
+<div class="project-actions"><button class="primary-action" data-open="direction">The first playable session <span>→</span></button><button class="secondary-action" data-open="build">What to build next <span>↗</span></button></div>
+${nextCard}
+<div class="game-stats"><div><strong>01</strong><span>valley</span></div><div><strong>04</strong><span>elements</span></div><div><strong>06</strong><span>core rules</span></div><div><strong>02</strong><span>plant archetypes proposed</span></div></div>
+<div class="editorial-grid"><article class="note-card"><div class="eyebrow">The repeatable loop</div><h2>Observe. Change. Return.</h2><div class="chip-row">${arrowChips(loop.text)}</div><p>Knowledge opens useful options. The cast is the performance; the changed ground, route or habitat is the consequence.</p></article><article class="note-card"><div class="eyebrow">Build compass · GDD 1.6</div><h2>A small game with a clear promise.</h2><p>Learn a rule, use it for something useful, then recognize the result when you return. The cover is a visual concept; the current build is the accepted element lab.</p><button class="text-action" data-open="direction">Read the direction →</button></article></div>
+${heading('What exists today', 'Accepted foundation and future work')}
+${tableHtml(truth)}
+${details('Design principles and owner decisions', '<div class="pillar-grid">' + pillars.rows.map(r => '<article class="pillar"><span class="pillar-id">' + inline(r[0]) + '</span><h3>' + inline(r[1]) + '</h3><p>' + inline(r[2]) + '</p></article>').join('') + '</div>' + tableHtml(decided))}
+<p class="project-footnote">Generated from ${source} and the decision log. ${esc(version)} · 2026-10-12. Readable sources and cover prompt are preserved; all changes remain local and uncommitted.</p>`);
 
-const elementsPage = `
-<section aria-labelledby="nav-elements" class="game-page" hidden id="elements" role="tabpanel" tabindex="0">
-<div class="page-heading"><div><div class="eyebrow">Elements / 01</div><h1>Four forces.<br/>One shared rulebook.</h1></div><p>Elements act on tagged targets through deterministic rules. They are not four spell trees.</p></div>
-<div class="element-grid">${elements.rows.map(elementCard).join('')}</div>
-${heading('From input to consequence', 'GDD 3.3 · an action has two layers')}
-<ol class="steps">${model.rows.map(stepCard).join('')}</ol>
-<p class="muted">A cancelled charge must clean up the cast layer and must not change state.</p>
-${heading('First-playable rules', `GDD 3.4 · ${firstRules.rows.length} rules at milestone M1`)}
-${tableHtml(firstRules, { classes: 'rules', cell: { 0: c => `<code>${esc(plain(c))}</code>` } })}
-${heading('Later rules', 'Scheduled, not built first')}
-${tableHtml(laterRules, { classes: 'rules muted-table', cell: { 0: c => `<code>${esc(plain(c))}</code>` } })}
-<div class="editorial-grid"><article class="note-card"><h2>When rules collide</h2>${list(conflict.items)}</article>
-<article class="note-card"><h2>Special states</h2>${tableHtml(special)}</article></div>
-</section>`;
+const direction = panel('direction', `
+${pageHead('First playable / design proposal', 'Reach the spring.<br>Choose what changes.', 'A focused 20–30 minute target session, built across M0–M5. The existing lab proves its first interactions.')}
+${proposal}
+<div class="direction-statement">Learn a rule → choose a route → make a useful intervention → return to its consequence.</div>
+<div class="session-timeline">${session.rows.map((r, i) => '<article class="session-beat"><span class="beat-number">' + String(i + 1).padStart(2, '0') + '</span><div><span class="eyebrow">' + inline(r[1]) + '</span><h2>' + inline(r[0]) + '</h2><p>' + inline(r[2]) + '</p><p class="beat-proof"><b>The build proves</b> ' + inline(r[3]) + '</p></div></article>').join('')}</div>
+${heading('Two routes, one destination', 'Proposed integration of the existing valley')}
+<div class="route-grid">${valley.rows.filter(r => /West brush|East hot/.test(r[0])).map(routeCard).join('')}</div>
+<article class="note-card"><h2>Let knowledge do useful work.</h2><p>The first objective needs a valid approach, not every spell. Stream and basin work become optional experiments after reaching the spring. Shelter, plants and the creature enter only when their systems exist.</p></article>
+${heading('Why build each feature?', 'GDD 1.6')}
+${tableHtml(compass)}
+${details('Session acceptance checks', tableHtml(sessionChecks))}
+${details('Player-facing flows', tableHtml(flows))}
+<p class="project-footnote">Pacing, starting access and detailed outcomes are proposals under CR-002. Open owner decisions remain open. ${source}</p>`);
 
-const worldPage = `
-<section aria-labelledby="nav-world" class="game-page" hidden id="world" role="tabpanel" tabindex="0">
-<div class="page-heading"><div><div class="eyebrow">World / 01</div><h1>A valley that<br/>remembers.</h1></div><p>A few bounded variables per cell, discrete stages, and creatures that react to what changed.</p></div>
-${heading('Regional state', 'GDD 4.2')}
-${tableHtml(variables)}
-<div class="editorial-grid"><article class="note-card"><div class="eyebrow">State transitions · GDD 4.5</div><h2>Stages, not numbers.</h2><div class="chip-row">${arrowChips(stages.text)}</div><p>Discrete tiers are cheaper, easier to debug and easier for players to read than a unique state for every value.</p></article>
-<article class="note-card"><div class="eyebrow">Ecological memory · GDD 4.4</div><h2>What the world keeps.</h2>${list(memory.items)}</article></div>
-${heading('How often things update', 'GDD 4.3')}
-${tableHtml(cadence)}
-<p class="muted">${inline(weather.text)}</p>
-${heading('Creatures', 'GDD 8.1 · working names')}
-${tableHtml(creatures)}
-<div class="editorial-grid"><article class="note-card"><h2>Behavior states</h2>${tableHtml(behavior)}</article><article class="note-card"><h2>Habitat suitability</h2><p>${inline(habitat.text)}</p></article></div>
-</section>`;
+const elementsPage = panel('elements', `
+${pageHead('Elemental rules / current foundation', 'Four forces.<br>Clear consequences.', 'Shared target tags, bounded state and deterministic resolution. Three effects are accepted; three still need implementation.')}
+<div class="element-grid">${elements.rows.map(r => { const key = plain(r[0]).toLowerCase(); return '<article class="element-card ' + key + '"><div class="element-glyph">' + glyph[key] + '</div><h3>' + inline(r[0]) + '</h3><p>' + inline(r[1]) + '</p><dl><dt>Works on</dt><dd>' + inline(r[2]) + '</dd></dl></article>'; }).join('')}</div>
+${heading('Six rules, tracked honestly', 'GDD 3.9 · accepted versus pending')}
+${tableHtml(ruleStatus, {classes:'rule-status', cell:{1:statusLabel}})}
+${heading('What each rule owns', 'Accepted behaviour and proposed bounded contracts')}
+${tableHtml(ruleContracts, {classes:'rules'})}
+<div class="callout"><b>Current limits.</b> Water wets burning fuel without extinguishing it. Steam is an event/message. Save/load, changed route collision, plant response and the remaining effects are pending.</div>
+${details('Application sequence', tableHtml(model))}
+${details('Full M1 interaction matrix', tableHtml(firstRules, {classes:'rules'}))}
+${details('Later combinations · outside the first-playable cap', tableHtml(laterRules, {classes:'rules muted-table'}))}
+<p class="project-footnote">Thresholds and rates live in CSV data. Presentation requests state changes and reads results. ${source}</p>`);
 
-const spectaclePage = `
-<section aria-labelledby="nav-spectacle" class="game-page" hidden id="spectacle" role="tabpanel" tabindex="0">
-<div class="page-heading"><div><div class="eyebrow">Spectacle / 01</div><h1>Power you can<br/>read.</h1></div><p>Action-fantasy weight on the outside, a legible simulation underneath. The two never trade places.</p></div>
-${diagram}
-<div class="editorial-grid"><article class="note-card"><div class="eyebrow">The spectacle contract · GDD 2.2</div><h2>Five rules.</h2>${list(contractRules.items, 'ol')}</article>
-<article class="note-card"><h2>The two layers</h2>${tableHtml(contractTable)}</article></div>
-${heading('Anatomy of a hero cast', 'GDD 5.3 · one in M1, then at most one per element')}
+const worldPage = panel('world', `
+${pageHead('The valley / encounter plan', 'One place worth<br>coming back to.', 'The greybox provides a layout. The next milestones give its routes, water and living patches consequences.')}
+${proposal}
+<div class="route-grid">${valley.rows.map(routeCard).join('')}</div>
+${heading('A small living cast', 'Two proposed plant archetypes · begin with one Mossback')}
+${tableHtml(ecology)}
+<div class="editorial-grid"><article class="note-card"><div class="eyebrow">Immediate change</div><h2>Read the aftermath.</h2><p>Wet ground darkens. Burnt fuel stays charred. Cooled stone changes tone. These state cues already work in the lab.</p></article><article class="note-card"><div class="eyebrow">Later memory</div><h2>Keep the consequence.</h2><p>M2 must preserve meaningful conditions when the player leaves, returns and reloads. M3 lets plants and the creature react on a timed cadence.</p></article></div>
+${details('Regional variables and cadence', tableHtml(variables) + tableHtml(cadence))}
+${details('What ecological memory stores', list(memory.items))}
+${details('Knowledge evidence', tableHtml(evidence))}
+<p class="project-footnote">Route collision and exposure are future integration work. Full fluids, a continent and a large creature roster remain outside the cap. ${source}</p>`);
+
+const spectaclePage = panel('spectacle', `
+${pageHead('Cinematic spellcraft / action 6', 'Power with<br>a readable result.', 'Anticipation, release, impact and aftermath. A cast earns its spectacle by making the rule easier to understand.')}
+<div class="layer-flow"><article><span class="eyebrow">Cast layer · transient</span><h2>The performance</h2><p>GAS, montage, camera, Niagara, audio and haptics.</p></article><span aria-hidden="true">→</span><article><span class="eyebrow">Resolver · authoritative</span><h2>The decision</h2><p>Validate current conditions, apply bounded rules and report the result.</p></article><span aria-hidden="true">→</span><article><span class="eyebrow">State layer · lasting</span><h2>The consequence</h2><p>Target conditions, materials, routes, ecology and knowledge.</p></article></div>
+${heading('One hero cast first', 'Water or fire · choice still open')}
 ${tableHtml(heroCast)}
-<div class="editorial-grid"><article class="note-card"><div class="eyebrow">Feedback stack · GDD 5.4</div><h2>Two signals, one that persists.</h2><p>${inline(feedback.text)}</p></article><article class="note-card"><div class="eyebrow">Legibility · GDD 5.5</div><h2>Beauty never hides the rule.</h2><p>${inline(legibility.text)}</p></article></div>
-${heading('How the reference feel is built', 'Valley of the Ancient')}
-<ol class="steps pipeline"><li class="step"><span class="step-n">01</span><h3>Ability</h3><p>Charge, aim, release and cancel with montages and an aim camera.</p></li><li class="step"><span class="step-n">02</span><h3>Tag</h3><p>An effect grants tags only; it carries no visuals.</p></li><li class="step"><span class="step-n">03</span><h3>Cue</h3><p>A cue reacts to the tag and spawns the presentation.</p></li><li class="step"><span class="step-n">04</span><h3>Presentation</h3><p>Niagara, layered audio and haptics. Cosmetic only.</p></li></ol>
-<div class="callout"><b>Scale warning.</b> The single LightDart ability in Valley of the Ancient has about 147 named assets, roughly 80 of them materials. Budget for one hero cast and reuse its structure for the rest. <a href="${DOCS}03-feel-reference-valley-of-the-ancient.md" target="_blank" rel="noopener">Feel reference ↗</a></div>
-${heading('Element language', 'GDD 5.2')}
-${tableHtml(language)}
-</section>`;
+<div class="editorial-grid"><article class="note-card"><div class="eyebrow">Spectacle contract</div><h2>Five rules for every cast.</h2>${list(contractRules.items, 'ol')}</article><article class="note-card"><div class="eyebrow">Review the look separately</div><h2>Tactile world. Expressive forces.</h2><p>The cover proposes grounded material detail, dawn atmosphere and restrained elemental light. It is not shipped-game imagery or final character approval.</p><a class="text-action" href="cover.html">View the cover concept ↗</a></article></div>
+${details('Two layers, one game', tableHtml(contractTable))}
+${details('Element visual and sound language', tableHtml(language))}
+<p class="project-footnote">Claude's action 6 research brief is owned separately. Start with <a href="${DOCS}03-feel-reference-valley-of-the-ancient.md" target="_blank" rel="noopener">the feel reference</a>; no licensed reference imagery was used for the cover.</p>`);
 
-const [now, soon, later] = [milestones.rows.slice(0, 2), milestones.rows.slice(2, 5), milestones.rows.slice(5)];
-const buildPage = `
-<section aria-labelledby="nav-build" class="game-page" hidden id="build" role="tabpanel" tabindex="0">
-<div class="page-heading"><div><div class="eyebrow">Build / 01</div><h1>Prove it small,<br/>then grow it.</h1></div><p>Do not build the world first. Build a laboratory that proves cause and effect, persistence and curiosity.</p></div>
-<div class="board">${column('Start here', 'ready', now)}${column('Then', 'next', soon)}${column('Later', 'later', later)}</div>
-<p class="muted">${inline(goNoGo.text)}</p>
-${heading('Open decisions', 'GDD 16 · recommendations are not binding')}
-${tableHtml(openDecisions, { classes: 'decisions-table progress-table', rowClass: r => (isDecided(r) ? 'is-done' : ''),
-  cell: { 0: (c, r) => `${isDecided(r) ? doneMark : ''}<code>${esc(plain(c))}</code>` } })}
-${heading('Next actions', 'GDD 16.3 · done items are ticked and struck through')}
-${tableHtml(next, { classes: 'progress-table', rowClass: r => (isDoneAction(r) ? 'is-done' : ''),
-  cell: { 0: (c, r) => `${isDoneAction(r) ? doneMark : ''}${inline(c)}` } })}
-${heading('First-playable content cap', 'GDD 14.1')}
-${tableHtml(cap)}
-<div class="editorial-grid"><article class="note-card"><h2>Playtest questions</h2>${list(playtest.items)}</article><article class="note-card"><h2>Definition of done</h2>${list(dod.items)}</article></div>
-<article class="handoff"><div class="eyebrow">A useful first agent task</div><h2>Give the next chat a concrete target.</h2><pre>${esc(handoff)}</pre><p>This is a handoff example. It does not start a chat or change an editor until you ask an agent to run it.</p></article>
-</section>`;
+const buildPage = panel('build', `
+${pageHead('Build direction / bounded packets', 'Build the next proof.<br>Keep the valley small.', 'Every packet names its dependencies, deliverable and exit check. Milestones advance on evidence and owner review.')}
+${nextCard}
+<div class="milestone-strip">${milestones.rows.map(r => '<article class="milestone is-' + milestoneState(r) + '"><span>' + inline(plain(r[0]).split(' — ')[0]) + '</span><h3>' + inline(plain(r[0]).split(' — ')[1]) + '</h3>' + statusLabel(milestoneState(r) === 'done' ? 'Done' : milestoneState(r) === 'progress' ? 'In progress' : 'Planned') + '</article>').join('')}</div>
+${heading('The build path', 'GDD 14.4 · no invented deadlines')}
+<div class="packet-grid">${packets.rows.map((r, i) => '<article class="packet' + (i === 0 ? ' current' : '') + '"><div class="packet-top"><span>' + String(i + 1).padStart(2, '0') + '</span>' + statusLabel(i === 0 ? 'Next' : 'Planned') + '</div><h2>' + inline(r[0]) + '</h2><p>' + inline(r[2]) + '</p><dl><dt>Depends on</dt><dd>' + inline(r[1]) + '</dd><dt>Accepted when</dt><dd>' + inline(r[3]) + '</dd></dl></article>').join('')}</div>
+${details('Completed work and immediate actions', tableHtml(next, {classes:'progress-table', rowClass:r=>isDoneAction(r)?'is-done':'', cell:{0:(c,r)=>(isDoneAction(r)?doneMark:'')+inline(c)}}))}
+${details('Milestone deliverables and evidence', tableHtml(milestones))}
+${details('First-playable content cap', tableHtml(cap))}
+${details('Open owner decisions', tableHtml(openDecisions, {rowClass:r=>isDecided(r)?'is-done':''}))}
+<article class="handoff"><div class="eyebrow">For the next implementation session</div><h2>Start with action 6.</h2><p>Read the README and engineering guide, then the hero-cast research brief when its owner releases it. Pick one cast, claim the files, preserve the resolver and follow the verification ladder. Keep changes uncommitted until the owner authorizes a commit.</p><a href="../../projects/Wildwright/README.md" target="_blank" rel="noopener">Open the current project state ↗</a></article>`);
 
-const html = `<!DOCTYPE html>
-<html data-mak-report="document" lang="en">
-<head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Wildwright · Elemental ecosystem sandbox</title>
-<link href="../_shared/report.css" rel="stylesheet"/><link href="../_shared/examples.css" rel="stylesheet"/><link href="wildwright.css" rel="stylesheet"/>
+const html = `<!doctype html>
+<html lang="en" data-mak-report="document">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wildwright · Game direction &amp; build</title>
+<link rel="stylesheet" href="../_shared/report.css"><link rel="stylesheet" href="../_shared/examples.css"><link rel="stylesheet" href="wildwright.css">
 <script defer src="../_shared/report.js"></script><script defer src="wildwright.js"></script></head>
 <body class="game-document"><div class="game-shell">
-<aside class="project-rail"><a class="project-brand" href="#overview"><span aria-hidden="true" class="brand-mark">W</span><span>WILDWRIGHT<small>Elemental ecosystem sandbox</small></span></a>
-<div class="rail-label">GAME DESIGN</div>
-<nav aria-label="Wildwright sections" aria-orientation="vertical" role="tablist">
-${tabs.map(([id, name], i) => `<button aria-controls="${id}" aria-selected="${i === 0}" data-page="${id}" id="nav-${id}" role="tab"${i ? ' tabindex="-1"' : ''}><span>${String(i + 1).padStart(2, '0')}</span>${name}</button>`).join('\n')}
-</nav>
-<div class="rail-note"><span class="phase-dot"></span> Pre-production<p>${esc(railProgress)}</p></div>
-<a class="rail-link" href="../../projects/Wildwright/README.md" rel="noopener" target="_blank">Project README ↗</a>
-<a class="rail-link" href="${DOCS}02-gdd.md" rel="noopener" target="_blank">Game design document ↗</a>
-<a class="rail-link" href="${DOCS}04-decisions.md" rel="noopener" target="_blank">Decision log ↗</a></aside>
-<main class="game-main">
-<div class="project-topline"><span>PROJECT / WILDWRIGHT</span><span class="sample-pill">${esc(version)} · pre-production</span></div>
-${overview}
-${elementsPage}
-${worldPage}
-${spectaclePage}
-${buildPage}
-</main></div></body></html>
-`;
+<aside class="project-rail"><a class="project-brand" href="#overview"><span class="brand-mark" aria-hidden="true">W</span><span>WILDWRIGHT<small>Shape a living valley</small></span></a>
+<div class="rail-label">PROJECT FIELD GUIDE</div><nav aria-label="Wildwright sections" role="tablist" aria-orientation="vertical">
+${tabs.map(([id,name],i)=>'<button role="tab" id="nav-'+id+'" aria-controls="'+id+'" aria-selected="'+(i===0)+'" data-page="'+id+'"'+(i?' tabindex="-1"':'')+'><span>'+String(i+1).padStart(2,'0')+'</span>'+name+'</button>').join('\n')}
+</nav><div class="rail-note"><span class="phase-dot"></span>M1 · Element lab<p>${acceptedRules} of 6 effects accepted<br>First hero cast next</p></div>
+<a class="rail-link" href="greybox.html">Greybox &amp; play-tests ↗</a><a class="rail-link" href="cover.html">Cover art ↗</a>
+<a class="rail-link" href="${DOCS}02-gdd.md" target="_blank" rel="noopener">GDD source ↗</a><a class="rail-link" href="${DOCS}04-decisions.md" target="_blank" rel="noopener">Decisions &amp; proposals ↗</a>
+</aside><main class="game-main"><div class="project-topline"><span>WILDWRIGHT / DEVELOPMENT FIELD GUIDE</span><span class="sample-pill">${esc(version)}</span></div>
+${overview}${direction}${elementsPage}${worldPage}${spectaclePage}${buildPage}
+</main></div></body></html>`;
 
-mkdirSync(cardDir, { recursive: true });
-writeFileSync(path.join(cardDir, 'index.html'), html, 'utf8');
-console.log(`Wrote ${path.relative(repo, path.join(cardDir, 'index.html'))}`);
-console.log(`  ${esc(version)}: ${pillars.rows.length} pillars, ${elements.rows.length} elements, ${firstRules.rows.length}+${laterRules.rows.length} rules, ${milestones.rows.length} milestones, ${openDecisions.rows.length} open decisions`);
+const coverHtml = `<!doctype html>
+<html lang="en" data-mak-report="document"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wildwright · Cover art</title>
+<link rel="stylesheet" href="../_shared/report.css"><link rel="stylesheet" href="../_shared/examples.css"><link rel="stylesheet" href="wildwright.css"><script defer src="../_shared/report.js"></script></head>
+<body class="cover-document"><main class="cover-main"><a class="back" href="index.html">← Wildwright field guide</a>
+<div class="page-heading"><div><div class="eyebrow">Original key art / concept 01</div><h1>Wildwright</h1></div><p>A spellcrafter, a damaged valley, and a change that remains after the cast.</p></div>
+<figure class="cover-showcase"><img src="${art}" width="1672" height="941" alt="Wildwright landscape cover with ivory lettering, a water spellcrafter, scorched earth, recovering ferns, stone cliffs and windblown leaves at dawn." decoding="async"><figcaption>Cover concept v1 · 1672 × 941 PNG · click to inspect at full size</figcaption></figure>
+<div class="project-actions"><a class="primary-action" href="${art}" download="wildwright-cover-v1.png">Download cover PNG ↓</a><a class="secondary-action" href="../../projects/Wildwright/art/cover-v1.prompt.md" target="_blank" rel="noopener">Open the generation prompt ↗</a></div>
+<div class="editorial-grid"><article class="note-card"><div class="eyebrow">The composition</div><h2>The environment is the promise.</h2><p>A readable title anchors the misty sky. Water leads from the traveller into scorched ground and recovering plants. Heat, stone and wind support one coherent valley scene.</p></article><article class="note-card"><div class="eyebrow">Review status</div><h2>A direction to react to.</h2><p>Generated from text with the built-in imagegen tool, without external reference images or Fab assets. This concept does not approve a character, settle OD-06 or represent current Unreal gameplay graphics.</p></article></div>
+<p class="project-footnote">Master raster and prompt are preserved. Workspace HTML/CSS and the hub generator remain editable. Later art revisions should retain this v1 rather than overwrite it.</p>
+</main></body></html>`;
+mkdirSync(cardDir, { recursive:true });
+writeFileSync(path.join(cardDir,'index.html'), html, 'utf8');
+writeFileSync(path.join(cardDir,'cover.html'), coverHtml, 'utf8');
+console.log('Generated Wildwright hub and cover page from ' + version);
+console.log(tabs.length + ' sections; ' + acceptedRules + '/6 accepted rules; ' + session.rows.length + ' session beats; ' + packets.rows.length + ' build packets');

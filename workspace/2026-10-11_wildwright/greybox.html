@@ -46,6 +46,7 @@
   .key i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #ffffff22}
   .key i.line{height:0;border:0;border-top:3px dashed;border-radius:0;width:18px}
   html[data-mak-report=document] .gb .table-wrap table{min-width:520px}
+  html[data-mak-report=document] .gb .table-wrap table.playtest-results{min-width:850px}
   .gb .table-wrap td:first-child{font-weight:700;color:var(--spark)}
   .ask{border:1px solid #f0c36a40;background:linear-gradient(135deg,#f0c36a0a,var(--mak-surface));border-radius:12px;padding:22px 24px;margin-top:34px}
   html[data-mak-report=document] .ask h2{margin:0 0 10px;padding:0;font-size:20px}
@@ -60,15 +61,15 @@
 <main class="gb">
 
 <a class="back" href="index.html">← Wildwright hub</a>
-<div class="eyebrow">Build / next actions 3 and 4 · greybox and element aiming</div>
+<div class="eyebrow">Build / actions 3–5 · greybox and elemental state</div>
 <h1>Reading the greybox maps</h1>
 <p class="lede">Two placeholder maps exist in the Unreal project. They are labs built <em>before</em> most of the systems they will test. This page explains what each block is for and how testing works as casting comes online.</p>
 
 <div class="now">
   <article class="note-card">
-    <div class="eyebrow">What works today (action 4)</div>
-    <p class="big">Pick an element, aim at a station, and the game tells you whether it would work, and why not.</p>
-    <p><b>1–4</b> or the mouse wheel picks Fire, Water, Earth or Air. <b>Left mouse</b> applies it. The crosshair shows a plus when the cast would work and an X when it would not, with the reason underneath. Nothing changes in the world yet: the effects arrive in action 5.</p>
+    <div class="eyebrow">What works today (action 5 · owner play-test passed)</div>
+    <p class="big">Water wets patches, fire burns dry fuel, and water cools hot surfaces with a Steam message.</p>
+    <p><b>1–4</b> or the mouse wheel picks Fire, Water, Earth or Air. <b>Left mouse</b> applies it. The crosshair shows a plus when the cast would work and an X when it would not, with the reason underneath. A second line shows moisture, temperature, fuel and stages. Materials keep the result visible. Air dispersal, soil growth and earth barriers still report “not implemented yet”.</p>
     <p><b>Test range</b> (<code>L_TestRange</code>): one thing per station, side by side, so each rule can be checked in isolation in seconds.<br><b>Valley</b> (<code>L_Valley_Greybox</code>): the same things in context, where the first objective will be played.</p>
   </article>
   <article class="note-card">
@@ -76,18 +77,18 @@
     <ol class="steps-line">
       <li class="done"><b>✓ Done</b><span>Action 3: greybox. Walk, look, judge scale and layout.</span></li>
       <li class="done"><b>✓ Done</b><span>Action 4: pick an element and aim it at a target. The game says whether the target is valid, and why not when it isn't.</span></li>
-      <li class="here"><b>Next</b><span>Action 5: the first three rules give real results, e.g. water makes a patch wet and fire then refuses to light it.</span></li>
-      <li><b>Action 6</b><span>The first hero cast: the cinematic charge and release on top of a rule.</span></li>
+      <li class="done"><b>✓ Done</b><span>Action 5: burning, wet-fire refusal and steam passed automated checks and the owner's play-test.</span></li>
+      <li class="here"><b>Next</b><span>Action 6: the first hero cast, the cinematic charge and release on top of a rule.</span></li>
       <li><b>Action 7</b><span>A debug overlay shows the hidden numbers (moisture, heat) so a test can be checked exactly.</span></li>
     </ol>
   </article>
 </div>
 
-<div class="section-heading"><h2>How one test will run</h2><span>Example: station 2, GDD test A.2 #1</span></div>
+<div class="section-heading"><h2>How one test runs</h2><span>Example: station 2, GDD test A.2 #1</span></div>
 <ol class="test-walk">
   <li><strong>Walk to station 2</strong>The brown patch with the sign "wet it first, then fire".</li>
   <li><strong>Read the sign</strong>It names the rule and says what should happen.</li>
-  <li><strong>Cast water</strong>The patch turns visibly wet. The overlay shows its moisture going up.</li>
+  <li><strong>Cast water</strong>The patch darkens. The HUD shows moisture 60 and Wet.</li>
   <li><strong>Cast fire</strong>Fire is refused, with a reason on screen: too wet to ignite.</li>
   <li><strong>Compare with station 1</strong>The dry patch next to it does ignite. Same rule, different state.</li>
 </ol>
@@ -96,22 +97,23 @@
   <div class="fail"><b>Fail</b>A different result, a different result on a repeat, or a refusal without a reason.</div>
 </div>
 
-<div class="section-heading"><h2>Try it now</h2><span>Action 4 · in <code>L_TestRange</code>, press Play</span></div>
-<div class="table-wrap"><table>
-  <thead><tr><th>Element</th><th>Aim at</th><th>Crosshair</th><th>Text under the crosshair</th></tr></thead>
+<div class="section-heading"><h2>Try it now</h2><span>Action 5 · in <code>L_TestRange</code>, press Play</span></div>
+<div class="table-wrap"><table class="playtest-results">
+  <thead><tr><th>Element</th><th>Aim at / action</th><th>Crosshair</th><th>Expected text and persistent result</th></tr></thead>
   <tbody>
-    <tr><td>1 Fire</td><td>Station 1, the dry brush</td><td>+ (fire colour)</td><td>Fire on ST01 Combustible patch (dry): ER_FIRE_IGNITE</td></tr>
+    <tr><td>1 Fire</td><td>Station 1, the dry brush; left-click once</td><td>+ then ×</td><td>ER_FIRE_IGNITE: Ignited. Bright orange; Temp 80, Fuel 100, Burning. Fuel falls by 10 each second. At 10 seconds Fuel 0, Burnt, near black. Fire again: Already burnt; cannot ignite again. Temperature cools to 20 over the next 6 seconds.</td></tr>
+    <tr><td>2 Water → 1 Fire</td><td>Station 2; water once, then aim Fire</td><td>+ then ×</td><td>ER_WATER_WET: Wetted. Darker patch; Moisture 60 · Temp 20 · Fuel 100 · Wet / Unburnt / Cool. Fire: Too wet to ignite (moisture 60, needs 30 or less). State stays unchanged. Compare with dry ST01 in a fresh Play session.</td></tr>
     <tr><td>1 Fire</td><td>Station 4, the hot rock</td><td>× (orange)</td><td>Fire has no effect on ST04 Hot surface</td></tr>
-    <tr><td>2 Water</td><td>Station 4, the hot rock</td><td>+</td><td>Water on ST04 Hot surface: ER_WATER_COOL</td></tr>
-    <tr><td>2 Water</td><td>Station 3, the soil</td><td>+</td><td>Water on ST03 Soil patch: ER_WATER_WET, ER_WATER_SOIL</td></tr>
-    <tr><td>3 Earth</td><td>Station 6, the yellow edge</td><td>+</td><td>Earth on ST06 Flow edge: ER_EARTH_BARRIER</td></tr>
-    <tr><td>4 Air</td><td>Station 5, the smoke (you can walk into it)</td><td>+</td><td>Air on ST05 Smoke: ER_AIR_DISPERSE</td></tr>
+    <tr><td>2 Water</td><td>Station 4, the hot rock; left-click once, then try again</td><td>+ then ×</td><td>ER_WATER_COOL: Steam. Temp 90 → 50, Hot → Warm; red dulls towards grey. Water again: Not hot enough for steam (temperature 50, needs 60). Temperature stays 50; no second Steam message.</td></tr>
+    <tr><td>2 Water</td><td>Station 3, the soil; left-click</td><td>+</td><td>ER_WATER_WET: Wetted; ER_WATER_SOIL: not implemented yet. Moisture 5 → 55, Wet; soil darkens. Further water caps moisture at 100; growth is pending.</td></tr>
+    <tr><td>3 Earth</td><td>Station 6, the yellow edge; left-click</td><td>+</td><td>ER_EARTH_BARRIER: not implemented yet. No state change.</td></tr>
+    <tr><td>4 Air</td><td>Station 5, the smoke (you can walk into it); left-click</td><td>+</td><td>ER_AIR_DISPERSE: not implemented yet. No state change.</td></tr>
     <tr><td>Any</td><td>Station 7, the plain rock</td><td>× (grey)</td><td>Not an elemental target: ST07_InvalidTarget</td></tr>
     <tr><td>Any</td><td>The 40 m patch, from the start</td><td>× (orange)</td><td>Too far: 40 m (… reaches 35 m)</td></tr>
     <tr><td>Any</td><td>The 20 m patch behind the wall</td><td>× (grey)</td><td>Not an elemental target: ST08_LOSWall (the wall is in the way)</td></tr>
   </tbody>
 </table></div>
-<p class="muted">Left mouse on a valid target shows "… reached … Its effect arrives with the rules in the next step" and a brief coloured sphere where it landed. Nothing in the world changes yet. Distances are measured from your character, so they vary a little with where you stand.</p>
+<p class="muted">Stop Play and press Play again, then repeat ST01, ST02 and ST04: initial values and results must match. State persists during Play; save/load arrives in M2. Steam is a state event and HUD message; Niagara arrives in action 6. Distances are measured from your character, so they vary a little with where you stand.</p>
 
 <div class="section-heading"><h2>Test range</h2><span>80 m × 60 m · you start at the bottom, facing north</span></div>
 <div class="map-block">

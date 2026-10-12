@@ -1,4 +1,4 @@
-# Wildwright — Game Design Document v0.2
+# Wildwright — Game Design Document v0.3
 
 > Single source of truth for design and implementation. The short pitch is in
 > [01-vision.md](01-vision.md). Decisions and open questions are logged in
@@ -7,8 +7,8 @@
 | Field | Value |
 |---|---|
 | Working title | **Wildwright** (formerly *Worldweave*, then *Elemental*; availability only lightly checked, see OD-05) |
-| Version | GDD 0.2 — 2026-10-11 (supersedes GDD 0.1 and Concept v1.1) |
-| Status | Pre-production. M0 foundation set up 2026-10-11: UE 5.8.3 C++ project at `D:\Wildwright\` with a Git baseline (D-09). |
+| Version | GDD 0.3 — 2026-10-12: build direction expansion; preserves the v0.2 section numbers and rule IDs |
+| Status | M0 complete; M1 in progress. Selection/targeting and the first three rules are owner-accepted. Hero cast, remaining rule effects, valley gameplay and persistence are pending. |
 | Genre | Third-person elemental ecosystem sandbox: exploration, survival, construction |
 | Presentation target | **Cinematic action-fantasy spectacle** on top of a systemic world |
 | Platform | Windows PC |
@@ -17,6 +17,11 @@
 | Audience | Players who enjoy discovery, simulation, exploration and creative problem-solving |
 
 Numeric values marked as targets are hypotheses to test, not balance commitments.
+
+**Reading status:** sections 1.6–1.7 distinguish the accepted foundation from the
+proposed build direction. New session, ecology and production detail is a design
+proposal under CR-002; it does not claim those systems exist or resolve the open
+art, delivery or combat decisions. The first-playable content cap is unchanged.
 
 ---
 
@@ -36,7 +41,8 @@ Numeric values marked as targets are hypotheses to test, not balance commitments
    of organisms.
 6. Build in milestones M0–M6. Each has an acceptance test (section 14).
 
-**If you are an implementer** read sections 2, 3, 12, 13 and 14, then Appendix A.
+**If you are an implementer** start with 1.6–1.7, 6.6 and 14.4, then read
+sections 2, 3, 12, 13 and Appendix A. Pick one build packet with its stated dependencies.
 **If you are designing content** read sections 3, 4, 7, 8 and Appendix A.
 
 **ID conventions.** `PIL-n` pillar, `ER_*` elemental rule, `M0–M6` milestone,
@@ -57,6 +63,10 @@ milestone IDs are stable; do not rename them.
 | Locked the engine to UE 5.8.3 and the cast layer to GAS (12.1, 12.2, 16) | Owner decisions D-07 and D-08 resolved OD-01 and OD-02 on 2026-10-11. |
 | 12.1: Blueprint-first replaced by C++ and CSV data for agent-built systems; Blueprints for owner-tuned content | Owner decision D-12 resolved OD-11 on 2026-10-12. |
 | Added a Status column to the milestone table (14) | Track progress on the Workspace card. |
+| Marked action 5 accepted and updated M1 progress (14, 16.3) | Automated checks passed and owner play-test results matched on 2026-10-12; first hero cast next. |
+| Expanded build direction in v0.3: player promise, first session, rule contracts, valley routes, ecology, journal and build packets | Owner requested a clearer game build direction. New details are proposals under CR-002; the content cap and accepted rules remain intact. |
+| Separated implemented behaviour from intended behaviour and aligned §12 with D-12 | Prevent agents from treating future capabilities or old Blueprint suggestions as existing systems. |
+| Added an original cover concept and refreshed the Workspace hub | Communicate elemental world change visually; cover is a concept for review, not shipped-game imagery or final art approval. |
 
 **Section map V0.1 → V0.2** (so old references still resolve)
 
@@ -117,6 +127,42 @@ The game does not promise physically perfect weather, fluid simulation, terrain
 deformation or creature intelligence. It delivers consistent, legible
 approximations that create convincing cause and effect. Players should be able to
 reason about outcomes even when the result surprises them.
+
+---
+
+### 1.6 Build compass
+
+The first playable should answer one question: **can a player learn a rule,
+use it to make a useful change, and recognize that change on returning?**
+Every scheduled feature must support at least one of the outcomes below.
+
+| Outcome | Player experience | Proof in the first playable |
+|---|---|---|
+| Understand | Read a target and predict an elemental outcome | Explain why a wet patch refuses fire and a dry patch burns |
+| Change | Make a route or site more useful | Cool the hot pass or clear the brush route to reach the spring |
+| Care | Notice a living response and a trade-off | Improved moisture helps one patch while the alternative route retains a different consequence |
+| Return | Recognize a result after effects end and after a reload | Burn state, redirected flow, journal and placed shelter restore correctly |
+
+Build choices favour short experiments, clear consequences and reusable rules.
+Add visual detail after a result is readable. Add gathering and survival when they
+give a reason to care about a site. Keep the six-rule cap, one valley and small
+organism cast in §14.1.
+
+### 1.7 Delivery truth
+
+This table describes the current project, not the cover's visual quality.
+“Proposed” means a future implementation needs its own brief and acceptance checks.
+
+| Capability | Current state | Next proof |
+|---|---|---|
+| Greybox test range and valley | Accepted layout; generated maps exist | Integrate route consequences without breaking layout checks |
+| Four-element selection and aiming | Accepted; C++ target checks and HUD | Preserve reasons through charge, release and cancellation |
+| Wet, ignite and cool | Accepted in `L_TestRange`; deterministic state, timers, materials and HUD | Regression-check them through the first hero cast |
+| Air dispersal, living soil, earth barrier | Matching exists; effects are unimplemented | Complete the three bounded contracts in §3.8 |
+| Hero cast | Pending action 6 | Spectacle contract; cosmetic toggle and clean cancel |
+| Ecological memory and save/load | Proposed M2 | Restore state and consequences after leaving and reloading |
+| Plants, creature, shelter and journal | Proposed M3–M5 | Connect them to the spring-route session in §6.6 |
+| Cover and grounded cinematic look | Concept for owner review | Review art direction separately from gameplay acceptance |
 
 ---
 
@@ -191,6 +237,20 @@ tutorial, not as the default sandbox structure.
 
 ---
 
+### 2.7 The repeatable moment
+
+An encounter begins with a legible local contrast: dry brush beside a damp patch,
+red stone beside cooler stone, or a stream bypassing a depleted basin. The player
+can inspect it without committing a cast. A valid cast has anticipation, one clear
+impact and an aftermath. The player then tests the same element under different
+conditions and uses the difference to solve a nearby problem.
+
+The preferred reward is an option: a safer route, a suitable growth site, a place
+to rest, or an observation that helps elsewhere. A discovery is useful even when
+the player chooses a different intervention.
+
+---
+
 ## 3. Elemental system
 
 ### 3.1 System principles
@@ -243,8 +303,8 @@ This is the one list of rules. Appendix A holds the test for each.
 | Rule ID | Input → target | Preconditions | Prototype outcome | Player use | Phase |
 |---|---|---|---|---|---|
 | ER_WATER_WET | Water → combustible patch / soil | Target accepts moisture | Moisture rises to a cap; ignition eligibility may fall | Fireproof, prepare soil | **M1** |
-| ER_FIRE_IGNITE | Fire → dry combustible patch | Fuel and dryness above threshold | Burn starts; temperature rises; fuel decreases over time | Clear brush, transform, heat | **M1** |
-| ER_WATER_COOL | Water → hot surface | Temperature above steam threshold | Temperature falls; **steam** (brief local cooling, reduced visibility) at threshold | Cool surfaces, obscure a short route, reveal airflow | **M1** |
+| ER_FIRE_IGNITE | Fire → dry combustible patch | Fuel >0, moisture at or below the ignition limit; not Burning or Burnt | Burn starts; temperature rises; fuel decreases over time | Clear brush, transform, heat | **M1** |
+| ER_WATER_COOL | Water → hot surface | Temperature at or above the steam threshold | Temperature falls; a **steam event** at the threshold; visible steam is presentation work | Cool surfaces; later steam can reveal airflow | **M1** |
 | ER_AIR_DISPERSE | Air → smoke / dust target | Target present | Particle volume shifts; bounded gameplay effect | Clear visibility, push hazards | **M1** |
 | ER_WATER_SOIL | Water → compatible soil patch | Moisture reaches soil with organic matter | Growth suitability rises within a cap (**living soil**) | Recover a depleted patch, cultivate | **M1** |
 | ER_EARTH_BARRIER | Earth → buildable flow edge | Edge is valid | Barrier modifies a simplified flow link | Redirect water, protect ground | **M1** |
@@ -281,6 +341,51 @@ Each must have consistent, discoverable rules, not arbitrary puzzle magic.
 Every meaningful result must be inferable from visual cues, audio, journal or
 inspection. Invisible numerical changes without a perceptible result are not
 acceptable, except deliberately signposted mysteries.
+
+---
+
+### 3.8 Bounded rule contracts
+
+The first three rows describe accepted action 5 behaviour. The remaining rows
+are proposed implementation contracts within the existing six-rule cap.
+Thresholds, strengths and update intervals belong in CSV data. No rule requires
+runtime AI, physical fluid simulation or terrain sculpting.
+
+| Rule | State contract | Refusal or limit | Required persistent cue |
+|---|---|---|---|
+| `ER_WATER_WET` | Add moisture to a compatible target; clamp 0–100; derive Dry/Wet | Reject targets that do not accept moisture; repeated applications cap at 100 | Darkened wet material and inspectable moisture |
+| `ER_FIRE_IGNITE` | Start Burning, consume fuel on a timer, finish Burnt and cool to ambient | Already burning, burnt, no fuel or too wet; no re-ignition of burnt fuel | Bright burn stage then lasting char; readable fuel trend |
+| `ER_WATER_COOL` | Lower temperature without crossing ambient; emit Steam when starting at the inclusive threshold | Below threshold gives a reason and changes nothing | Hot/Warm/Cool surface cue and result message |
+| `ER_AIR_DISPERSE` | Proposed: reduce an authored smoke/dust target's density in bounded steps; derive Dense/Thin/Clear | Empty target has no material left to disperse; stronger authored airflow reduces more than calm airflow | The target remains thinner after the transient gust ends |
+| `ER_WATER_SOIL` | Proposed: derive growth suitability from moisture, organic quality and temperature on compatible soil | Unsuitable conditions can give no suitability gain; record why | Moisture still darkens soil; a later plant stage follows sustained suitability |
+| `ER_EARTH_BARRIER` | Proposed: place or activate one authored barrier at a valid flow edge; disable that edge and recompute a finite flow graph | Occupied/invalid edge refuses; cycles cannot create water or run indefinitely | Barrier mesh and a readable wet/dry change downstream |
+
+For soil, `ER_WATER_WET` resolves before the suitability outcome. A lack of growth
+benefit must not silently reverse compatible wetting. Define and test this partial
+outcome policy in the remaining-rule brief before implementing it; the accepted
+action 5 transaction behaviour stays unchanged in the meantime.
+
+Air acts on an authored density value, not arbitrary world particles. Earth acts
+at authored sockets, not any point on the landscape. The flow solver conserves
+available authored input and visits a bounded set of links. Plant recovery belongs
+to the plant system; a water cast does not instantly spawn mature vegetation.
+
+### 3.9 Rule delivery status
+
+| Rule | Status | Evidence or next acceptance |
+|---|---|---|
+| `ER_WATER_WET` | Accepted | ST02 moisture 10→60, Wet, then fire refusal; automated and owner checks |
+| `ER_FIRE_IGNITE` | Accepted | ST01 Burning→Burnt on a timer; fuel 100→0; cools to ambient |
+| `ER_WATER_COOL` | Accepted | ST04 90→50 and Steam, then refusal; inclusive 60 threshold tested |
+| `ER_AIR_DISPERSE` | Pending | ST05 calm/strong comparison, persistent thinning and empty-target refusal |
+| `ER_WATER_SOIL` | Pending | ST03 wetting plus suitability; plant response after the authored delay |
+| `ER_EARTH_BARRIER` | Pending | ST06 valid branch change, invalid/occupied refusal and bounded loop test |
+
+Action 5 hypotheses currently in data: moisture +50, ignition limit 30, ignition
+temperature 80, fuel use 10/second, steam threshold 60, cooling −40, ambient 20.
+Wet/Hot/Warm thresholds are 50/60/35. Water on burning fuel currently adds moisture;
+it does not extinguish fire. Steam is currently an event/message. Save/load and
+route collision changes are not part of action 5.
 
 ---
 
@@ -351,6 +456,41 @@ authored terrain or place discrete earthworks.
 
 ---
 
+### 4.7 Valley encounter plan
+
+Use the existing valley greybox as the spatial foundation. Prove each consequence
+in the test range before wiring it into a route. These are proposed gameplay roles
+for placed locations; the map's existence does not imply its systems are finished.
+
+| Site | Readable question | Intervention | Lasting consequence |
+|---|---|---|---|
+| South entrance and shelter site | Where can I return safely? | Establish the small shelter when construction exists | A reliable rest point and storage landmark |
+| West brush route | Can I clear a dry obstruction? | Ignite the authored combustible patch | A charred route; consuming this patch's fuel is irreversible in the session |
+| East hot pass | Can I make the stone safe enough to cross? | Cool the tagged hot surface | A cooler route with a visibly changed surface |
+| Side stream and flow edge | Why does water miss the basin? | Activate an earth barrier at the valid edge | A branch gains water while the other loses some supply |
+| Depleted basin | What makes this ground suitable? | Bring moisture to compatible soil | A delayed plant response and a potential forage site |
+| Dust hollow | Is this haze a target I can change? | Disperse the authored dust volume with air | A thinner, readable path through the hollow |
+| Spring and ruins | Can I reach water by a route I understand? | Use the chosen route and record the intervention | The first regional objective and a reason to return |
+
+The short east route asks for a heat intervention; the west route asks for a fuel
+intervention and costs more walking. Both reach the same spring. Never require
+every rule to solve this first objective. Optional stream/basin experiments show
+the broader ecosystem after the player has achieved something useful.
+
+Proposed route integration: Burnt brush changes pawn blocking on its authored
+gate; a cooled pass uses a data-defined safe temperature. Preserve aim collision
+so changed targets remain inspectable. Neither rule currently changes collision
+or applies player damage; these are explicit future integration tasks.
+
+### 4.8 Persistence boundary
+
+Keep three kinds of persistence distinct: materials that remain changed after a
+cast, state that remains while a region is dormant, and state restored from a save.
+Action 5 proves the first. M2 must prove the latter two before the valley can be
+described as remembering across sessions. Cover art is not evidence of any of them.
+
+---
+
 ## 5. Presentation: spectacle, audio and visual direction
 
 *(Merges V0.1 §13, the feedback stack from V0.1 §10.1 and the new cinematic direction.)*
@@ -417,6 +557,30 @@ a flashy effect did, the effect fails acceptance.
 
 ---
 
+### 5.7 Visual direction proposal and cover
+
+Proposed art direction: tactile stone, fabric, soil and foliage; a grounded valley
+with expressive elemental light and motion. Dawn mist, cool water and warm heat
+provide contrast. The spellcrafter's pose and the changed environment should carry
+the image before decorative symbols do. This is a candidate for OD-06, not its resolution.
+
+The original cover concept is in the Workspace card's Cover art tab; its source
+prompt is [cover-v1.prompt.md](../art/cover-v1.prompt.md). It was generated from
+text without Fab assets or reference-game imagery. It communicates exploration,
+elemental agency and ecological change. Character appearance and final costume
+remain open; cover fidelity does not set a promise for the prototype's graphics.
+
+### 5.8 Presentation acceptance
+
+Each important impact needs a transient cue plus a persistent result. Review from
+ordinary play distance, with reduced motion and with cosmetic effects disabled.
+The player should name the affected target, the change and the next useful option.
+Tune framing and brightness if the cast hides the target. A hero cast passes only
+when its normal release, invalid target, cancellation and VFX-off cases preserve
+the same state-layer decisions.
+
+---
+
 ## 6. Core gameplay loop and survival systems
 
 ### 6.1 Exploration
@@ -466,6 +630,49 @@ punitive loss.
 
 ---
 
+### 6.6 First playable session
+
+Target a focused **20–30 minute** session when M0–M5 are integrated. These times
+are pacing hypotheses, not a current playable demo or a shipping commitment.
+The objective is **reach the spring, make the chosen route useful, and return
+to recognize what changed**. The test range remains the separate development lab.
+
+| Beat | Intended pacing | What the player does | What the build must prove |
+|---|---|---|---|
+| Arrive | First 2 minutes | Identify the shelter landmark, valley and spring destination | Move/look comfortably; understand where to return |
+| Learn a contrast | Minutes 2–6 | Wet one patch, compare fire on wet and dry fuel | Clear refusal and a visible consequence without reading a long tutorial |
+| Choose a route | Minutes 6–12 | Cool the hot pass or clear brush on the longer route | At least two valid approaches reach the same destination |
+| Reach the spring | Minutes 12–16 | Confirm access and record what made the route work | A useful knowledge reward and regional objective progress |
+| Make a site useful | Minutes 16–23 | Try stream/basin work or establish shelter/storage | Construction or ecological response supports a practical need |
+| Return and compare | Minutes 23–30 | Revisit the intervention, observe plants/creature, save and reload | Selected consequences and knowledge survive; player can explain cause and trade-off |
+
+Later beats appear only when their dependencies exist. A lab build with three
+working rules is not the complete session. Introduce one question at a time:
+read a local cue, try something, compare, then give the knowledge a practical use.
+
+### 6.7 Starting conditions and recovery proposal
+
+In the lab, all four element slots remain available. For the first-playable test,
+prefer access to the four basic actions from the start, with knowledge and control
+earned through practice; full-game element unlock pacing remains open. Start near
+the south landmark with generous exposure margins and no hunger drain. Gathering
+and survival enter only when their milestone is under test.
+
+Failed casts explain the condition and spend no experimental resource in the lab.
+The owner may tune later costs after observing spam. Keep a safe return point,
+avoid unavoidable damage during instruction, and provide a development reset
+separate from normal recovery. Refusing a cast is not a punishment.
+
+### 6.8 Objective completion
+
+Completion requires reaching the spring by an eligible route and returning to
+observe its state. Walking into a trigger alone is insufficient proof of the
+gameplay promise. Record which intervention enabled the route, allow the other
+route to remain viable, and avoid an automatic reset or celebratory cutscene that
+removes the consequence. A short journal update and changed landmark are enough.
+
+---
+
 ## 7. Progression, knowledge and objectives
 
 ### 7.1 Philosophy
@@ -509,6 +716,27 @@ Use problem-led objectives rather than generic errands. A regional objective ask
 the player to diagnose a system and choose an intervention. **First major
 objective:** restore a reliable route to a water source by understanding a local
 obstacle, applying at least one elemental rule and observing a persistent change.
+
+---
+
+### 7.5 Evidence and confirmation proposal
+
+Use authored evidence conditions, never an LLM judgment or arbitrary cast count.
+A result first creates an Observation. A repeated controlled result can become
+Repeated; a contrasting state that explains success/refusal supports Confirmed.
+Track rule ID, target type, relevant before/after conditions and confidence.
+
+| Discovery | Evidence to collect | Knowledge payoff |
+|---|---|---|
+| Wet fuel resists ignition | Wetting succeeds; wet fire refuses; comparable dry fuel ignites | Prepare a patch when preserving fuel matters |
+| Water cools eligible hot surfaces | Cooling emits Steam above the threshold; repeat below it refuses | Recognize a route that can be made safer |
+| Flow supports a suitable patch | A valid branch gains moisture; a compatible plant responds later | Choose a useful cultivation/forage site |
+
+The first journal has a small authored entry set, filters and readable confidence
+labels. Free-text notes, procedural prose and a large research tree are deferred.
+Discoveries describe causes; they do not reveal all unknown interactions at spawn.
+The single prototype knowledge milestone can be confirming one useful route rule,
+without adding another element or raising the rule cap.
 
 ---
 
@@ -560,6 +788,26 @@ spawning dozens of actors.
 - Do not let off-screen creatures alter the world in ways the player cannot discover.
 - Do not make elemental rules inconsistent to protect a scripted encounter.
 - Expose state, target, suitability and intent in debug overlays.
+
+---
+
+### 8.6 Small ecology proposal
+
+Use two patch archetypes and begin with the existing Mossback working creature.
+The names below are working content labels. Species tuning belongs in data.
+
+| Prototype content | Need and response | First observable role |
+|---|---|---|
+| Spring moss patch | Favours sustained moisture and moderate temperature; stresses outside its band | Shows whether the basin became suitable |
+| Ridge grass patch | Tolerates drier ground; excessive moisture or heat reduces suitability | Makes the choice of intervention a trade-off |
+| One Mossback | Chooses suitable forage, avoids recent fire/disturbance and relocates within authored bounds | Visits the recovering patch after its conditions improve |
+
+A cast updates conditions immediately; growth and movement respond on timed
+cadences. A single watering does not instantly regrow a mature patch. Show
+Healthy/Stressed/Dormant/Recovering stages before adding finer detail.
+Keep the initial creature to Idle, Forage, Flee and Relocate behaviours as needed.
+Seed dispersal, breeding, food webs and a predator encounter are later work.
+Save meaningful patch conditions; do not require every creature footstep to persist.
 
 ---
 
@@ -617,6 +865,25 @@ creates a compelling planning decision.
 
 ---
 
+### 9.6 First construction slice
+
+Choose **six** useful recipes from §9.2 for the first integrated slice: hand tool,
+water container, simple shelter, storage rack, heat-safe vessel and a flow
+barrier/marker. Costs remain data hypotheses. Add each only when its purpose
+exists; a recipe is not accepted solely because an inventory can manufacture it.
+
+Shelter supports rest/exposure, storage supports a return site, and the flow item
+uses the same authored-edge validation as earth intervention. Resolve the
+relationship between a crafted barrier and the earth cast in that system's brief,
+so two unrelated flow systems are not built. The water container must not gate
+basic elemental testing. Field kit and further recipes wait for a demonstrated need.
+
+First build flow: choose an item, inspect cost, place a footprint preview, rotate,
+read any refusal, confirm, then observe the structure's use. Missing materials,
+blocked space and invalid support must preserve inventory and world state.
+
+---
+
 ## 10. User interface, feedback and accessibility
 
 | UI element | Purpose | Priority |
@@ -646,6 +913,25 @@ creates a compelling planning decision.
 Development builds need toggleable overlays for cell variables, active rules,
 creature states, target eligibility, region IDs and save versions. These tools
 shorten debugging time and distinguish gameplay bugs from visual bugs.
+
+---
+
+### 10.3 Player-facing flows
+
+| Flow | Information the player needs | Acceptance |
+|---|---|---|
+| Explore | Landmark, selected element and urgent survival state | Quiet HUD with an understandable destination |
+| Aim/cast | Target name, eligibility and one clear refusal | Valid/invalid shapes as well as colour; cancellation returns control |
+| Inspect aftermath | Named stage and relevant condition trend | Can distinguish Wet, Burning, Burnt and Hot/Warm/Cool after VFX ends |
+| Read journal | Cause, evidence and confidence | Find a discovery without reviewing a raw event log |
+| Build | Footprint, orientation, cost and placement reason | A failed confirmation consumes nothing |
+| Save/reload | Completion or clear failure message | No silent loss of a meaningful intervention |
+
+The existing numeric target line is a development aid. Keep it available for
+testing; production inspection may express stages first and numbers when useful.
+Charge/release input is still an OD-04 proposal, and current action 5 applies on
+left-click. Input remapping, text scaling and reduced camera motion belong to
+the production controls pass, without disabling state clarity.
 
 ---
 
@@ -733,13 +1019,13 @@ guide](05-engineering-guide.md).
 
 | System | Suggested UE implementation | Responsibility |
 |---|---|---|
-| Player | Character Blueprint + focused Actor Components | Input, movement, interaction request, survival attributes |
-| Element system | Element component + data assets/data table | Selected element, cost, target validation, rule dispatch |
+| Player | C++ Character and focused Actor Components; owner-tuned content Blueprints | Input, movement, interaction request, survival attributes |
+| Element system | C++ element component + CSV-imported tables | Selected element, cost, target validation, rule dispatch |
 | **Cast layer** *(new)* | Gameplay Ability System (D-08): gameplay abilities + Gameplay Tags + Gameplay Cues. Holds no world-cell state | Montages, camera mode, charge/release, Niagara/audio/haptic cues |
-| Rule resolver | Subsystem or dedicated manager + data-driven rules | Resolve compatible inputs, priority, events |
+| Rule resolver | C++ World Subsystem + pure rules and CSV-imported tables | Resolve compatible inputs, priority, events |
 | World cell state | Subsystem/manager with spatial grid or cell map | Store local variables, bounded transitions |
-| Target interface | Blueprint Interface + Gameplay Tags | Expose supported effects and queryable state |
-| Plant patches | Actor Blueprint + species data | Visual stage, growth suitability, harvest, recovery |
+| Target interface | C++ native interface + Gameplay Tags | Expose supported effects and queryable state |
+| Plant patches | C++ Actor/state component + CSV species data; owner-tuned visuals | Visual stage, growth suitability, harvest, recovery |
 | Creature AI | AI Controller + StateTree or Behavior Tree + perception | Bounded state, navigation, stimulus response |
 | Construction | Build component + placeable actor data | Preview, validation, cost, persistence |
 | Journal | Data model + UMG widget | Observations, discovered rules, region records |
@@ -749,7 +1035,7 @@ guide](05-engineering-guide.md).
 
 | Data object | Minimum fields | Note |
 |---|---|---|
-| ElementDefinition | ElementID, display name, icon, action profile, cost, cooldown, **cast profile** | Designer-editable data asset |
+| ElementDefinition | ElementID, display name, icon, action profile, cost, cooldown, **cast profile** | CSV element row; presentation references may point to owner-tuned assets |
 | InteractionRule | RuleID, input elements, target tags, preconditions, outputs, priority, feedback ID | Deterministic and debuggable |
 | WorldCellState | CellID, temperature, moisture, soil stability, airflow tier, vegetation/pressure summary | Bounded values; versioned serialization |
 | SpeciesDefinition | SpeciesID, habitat weights, thresholds, resource outputs, visual references | Tune without editing AI graphs |
@@ -757,6 +1043,9 @@ guide](05-engineering-guide.md).
 | StructureDefinition | StructureID, mesh, footprint, cost, placement tags, connections | Instance stores transform and mutable state |
 | JournalEntry | EntryID, type, related IDs, evidence count, confidence, region | Persist data, not UI text alone |
 | **CastProfile** *(new)* | Montages, camera mode, targeting preview, cue tag(s), audio, haptics | Data-driven; one per element action |
+
+These are desired data contracts. The current C++ struct names and imported rows
+are listed in the engineering guide; future fields must not be assumed to exist.
 
 ### 12.4 Event-driven state changes
 
@@ -778,7 +1067,7 @@ schedules only necessary work. Cues (cast layer) subscribe to the same events.
 - Ask AI for exact asset names, variables, node flow, preconditions, failure cases
   and test steps.
 - Implement one small system at a time; avoid project-wide rewrites.
-- Use source control before major changes and commit each working system.
+- Use source control before major changes; commit a working system only with owner approval.
 - Ask for dependencies and regression tests before changing architecture.
 - Keep game project files separate from unrelated personal data and credentials.
 - Binary `.uasset` files cannot be hand-edited by an agent. Agents propose exact
@@ -791,6 +1080,21 @@ Git LFS for large binary assets. Exclude generated caches (`Saved`,
 `Intermediate`, `DerivedDataCache`, `Binaries` unless deliberately shipped).
 Test a clean clone before treating the repository as a reliable backup. Evaluate
 any starter framework in a disposable branch or copy first.
+
+---
+
+### 12.8 Implementation packet contract
+
+Every packet in §14.4 must name its player purpose, current dependencies, source
+files/data, state owner, events, normal case, two failure cases, map and owner
+steps. Include exact visible result text or stages. Reuse the accepted element
+resolver and target interface rather than introducing parallel per-element state.
+Keep source CSVs and idempotent generators; binary assets are produced by the editor.
+
+For a proposed behaviour, write the small feature brief before implementation.
+Report the engineering verification ladder with log evidence. Keep implemented,
+automated-verified, owner-accepted and committed as separate states. Shared agents
+claim their area before editing and preserve the other's claims.
 
 ---
 
@@ -831,6 +1135,26 @@ prototype, but avoid tying all state changes to local-only cosmetic actors.
 
 ---
 
+### 13.4 First save/load contract
+
+Persist stable target/region IDs, bounded values and discrete stages, changed flow
+edges, placed structure records, player position and journal evidence. Store a
+schema/simulation version. Rebuild derived materials, route access, suitability
+and timer scheduling after restoring state.
+
+For a burning target, save fuel, temperature and stage, not a timer handle. The
+prototype recommendation is to freeze simulation while the application is closed;
+on load, schedule the next bounded update. Any dormant-region catch-up uses a
+documented limit and the same deterministic rules. Do not let cosmetic effects
+advance burning or growth.
+
+Acceptance includes saving while Burning, reloading a burnt target, a wet-fire
+refusal after reload, restored branch state and a missing/unknown record handled
+with a clear diagnostic. An incompatible version must not overwrite the known
+good save. Offline elapsed-time simulation is deferred.
+
+---
+
 ## 14. Prototype scope, milestones and acceptance tests
 
 > **Do not build the whole world first.** The first milestone is a small, testable
@@ -839,7 +1163,7 @@ prototype, but avoid tying all state changes to local-only cosmetic actors.
 | Milestone | Build | Acceptance evidence | Status |
 |---|---|---|---|
 | **M0 — Foundation** | UE project, source control, input, movement, test map, naming conventions | Clean checkout opens; player moves; a change can be reverted | Done 2026-10-12 |
-| **M1 — Element lab** | Four selectable elements, simple target types, six `ER_*` rules, **one hero cast** *(CR-001)* | Three interactions produce visible, repeatable outcomes; invalid targets explain failure; hero cast passes the spectacle contract (2.2) | In progress: greybox and element selection done; rules, hero cast and debug overlay next |
+| **M1 — Element lab** | Four selectable elements, simple target types, six `ER_*` rules, **one hero cast** *(CR-001)* | Three interactions produce visible, repeatable outcomes; invalid targets explain failure; hero cast passes the spectacle contract (2.2) | In progress: greybox, element selection and first three rules accepted; hero cast, debug overlay and remaining rule effects pending |
 | **M2 — World state** | Local variables, heat/moisture/soil state, debug overlay | Change persists for a defined duration or across save/load; values remain bounded | Not started |
 | **M3 — Ecosystem** | Two plant patches and one creature with state-driven behavior | Water/heat/disturbance changes suitability and causes an observable response | Not started |
 | **M4 — Survival/building** | Shelter, storage, health/stamina/exposure, placement validation | Player establishes a safe base and uses it to support an experiment | Not started |
@@ -878,6 +1202,47 @@ prototype, but avoid tying all state changes to local-only cosmetic actors.
 Expand only if most testers understand cause and effect, use the journal
 voluntarily, and try a second experiment without prompting. If not, improve
 feedback and reduce variables before adding creatures, regions or recipes.
+
+---
+
+### 14.4 Build packets and dependencies
+
+These packets make the milestone path concrete. They are bounded work briefs,
+not permission to implement all systems at once. Do the current packet, verify
+it, then integrate. Action 6 research is owned separately in
+[08-hero-cast-plan.md](08-hero-cast-plan.md); preserve that agent's claim.
+
+| Packet | Depends on | Deliverable | Exit check |
+|---|---|---|---|
+| M1-A · First hero cast | Accepted targeting and first three rules | One water or fire cast with anticipation, release, impact and aftermath | Normal cast, invalid target, cancel and VFX-off preserve resolver results; owner reviews feel |
+| M1-B · State inspection | Existing target state and rule logs | Action 7 overlay: state, matched rules, eligibility and decisions | Explain success/refusal from displayed evidence without reading C++ |
+| M1-C · Complete six rules | Contracts in §3.8; required density/suitability/flow data | Remaining three effects in ST03, ST05 and ST06 | Normal outcomes, two failure cases each, idempotence/limits and loop protection |
+| M2 · Valley memory | Six rules and reliable inspection | Stable IDs, sparse state, route consequences, bounded dormancy and save/load | Leave/return, save/quit/reload and burning-save tests preserve consequences |
+| M3 · Living response | Suitable persistent patch conditions | Two plant archetypes and one Mossback | A controlled intervention changes plant stage and forage choice after a readable delay |
+| M4 · Useful home | Player exposure and persistence | Shelter/storage, minimal survival and six useful recipes | Failed placement preserves resources; shelter helps a practical valley need |
+| M5 · Knowledge and objective | Route consequences and journal evidence foundation | Small journal and the spring-route objective | Two approaches work; player can explain their intervention and recognize its consequence |
+| M6 · Cohesive slice | M0–M5 integrated and accepted | Presentation, controls, audio, performance and packaged play-test | New tester completes the intended session; issues and measurements recorded |
+
+A journal evidence record can be introduced alongside M2 persistence before its
+M5 UI. This prevents save work from depending on a finished journal screen.
+M1 closes only when all six effects and one hero cast are accepted; three accepted
+rules do not close M1.
+
+### 14.5 Session acceptance checklist
+
+| Check | Evidence required |
+|---|---|
+| Discovery | Tester predicts a repeat outcome and explains one refusal |
+| Choice | Both authored routes to the spring work; neither requires all six rules |
+| Aftermath | Tester finds a persistent material, route or ecological change after VFX ends |
+| Living response | A plant/creature response follows the authored state conditions, not a cinematic trigger |
+| Return | Leaving and reloading preserve selected consequences and knowledge |
+| Agency | Tester voluntarily tries another intervention or uses learned knowledge elsewhere |
+| Readability | Reduced motion and cosmetic-effects-off preserve playability and state results |
+
+Observe hesitation, missed cues and repeated invalid casts. Record the build,
+route chosen, discoveries, completion time and tester explanation. Completion
+time alone is insufficient evidence of understanding.
 
 ---
 
@@ -968,7 +1333,7 @@ milestone impact. A good idea is not automatically a production priority.
 - Result is readable to the player.
 - Feature survives save/load if intended to persist.
 - No known severe performance/stability issue in the test map.
-- Project is committed and can reopen from the repository.
+- Changes are reviewed and ready for an owner-approved commit; commit only when authorized.
 
 ### 16.3 Immediate next actions
 
@@ -978,8 +1343,8 @@ milestone impact. A good idea is not automatically a production priority.
 | 2 | ~~Create the clean UE 5.8.3 project at `D:\Wildwright\` (D-09) with a Git baseline~~ Done 2026-10-11; clean clone verified 2026-10-12 (M0 met) | Versioned project that opens and runs |
 | 3 | ~~Create greybox valley and test range~~ Done 2026-10-12 | Small map with target objects and test cases |
 | 4 | ~~Build target interface and element selection~~ Done 2026-10-12 (`7b9712f`) | Player selects and applies one element to one target |
-| 5 | Implement first three `ER_*` rules only | Deterministic resolution and visible outcomes |
-| 6 | Build the first hero cast (water or fire) | Passes the spectacle contract |
+| 5 | ~~Implement first three `ER_*` rules only~~ Done 2026-10-12; owner play-test accepted; uncommitted | Deterministic resolution and visible outcomes |
+| 6 | Build the first hero cast: **Fire** (D-13); plan in [08-hero-cast-plan.md](08-hero-cast-plan.md), owner steps in [09-hero-cast-owner-guide.md](09-hero-cast-owner-guide.md) | Passes the spectacle contract |
 | 7 | Add world-state debug overlay | Inspect variables and rule decisions |
 | 8 | Test and document fun/confusing points | Evidence-based decision on expanding rules |
 
@@ -989,14 +1354,16 @@ milestone impact. A good idea is not automatically a production priority.
 
 ### A.1 Targets
 
-| Target | Properties | Initial reactions |
+| Target | Properties | Prototype response and status |
 |---|---|---|
-| Combustible patch | Fuel tier, moisture, burn state, regrow state | Fire ignites if dry enough; water cools/wets; air affects spread tendency |
-| Soil patch | Moisture, stability, organic quality | Water raises moisture; earth changes barrier/stability; air can dry exposed soil |
-| Hot surface | Temperature, heat capacity tier, material tag | Water cools and may create steam; air alters cooling within bounds |
-| Loose mineral deposit | Material ID, exposed/buried state, heat response | Earth exposes/covers; fire transforms compatible material |
-| Plant patch | Species ID, health stage, suitability thresholds | Moisture/soil/temperature affect growth; fire damages; recovery over time |
-| Creature | Species ID, current state, habitat score, threat response | Investigates stimuli, flees or relocates at explicit thresholds |
+| Combustible patch | Bounded fuel, moisture, temperature and burn stage | Accepted: fire ignites eligible fuel, water wets; fire spread/regrowth are later work |
+| Soil patch | Moisture; proposed organic quality and growth suitability | Wetting accepted; living-soil effect pending in M1-C |
+| Hot surface | Temperature, ambient value and Hot/Warm/Cool stage | Cooling and Steam event/message accepted; visible steam is presentation work |
+| Smoke/dust target | Proposed density stage and authored airflow tier | Air dispersal pending in M1-C |
+| Flow edge | Proposed valid socket, flow links and edge state | Earth barrier and branch response pending in M1-C |
+| Plant patch | Species, stage, suitability and recovery conditions | Proposed M3 response after sustained conditions; no instant mature regrowth |
+| Creature | Species, current state, habitat score and threat response | Proposed M3 grazer behaviour at explicit thresholds |
+| Loose mineral deposit | Material, exposed/buried state and heat response | Elemental exposure/transformation deferred beyond the six-rule first playable |
 
 ### A.2 Test scenarios
 
@@ -1004,8 +1371,8 @@ Each scenario maps to a rule ID or a system guarantee.
 
 | # | Scenario | Verifies |
 |---|---|---|
-| 1 | Water dry soil, then apply fire nearby; the wet/dry difference is visible and deterministic | `ER_WATER_WET`, `ER_FIRE_IGNITE` |
-| 2 | Water a hot surface; temperature changes and steam feedback appears at the declared threshold | `ER_WATER_COOL` |
+| 1 | Wet a combustible patch, then try fire; compare with dry fuel: wet refuses and dry burns with visible, deterministic state | `ER_WATER_WET`, `ER_FIRE_IGNITE` |
+| 2 | Water a hot surface at/above the declared threshold; cooling emits Steam; a repeat below threshold refuses without change | `ER_WATER_COOL` |
 | 3 | Change a cell, leave its area, return; state remains correct | Dormant/catch-up rules |
 | 4 | Save, quit, reload; journal, structures and modified cell state persist | Save system |
 | 5 | Place a small earth barrier; the simplified flow changes without an endless loop | `ER_EARTH_BARRIER`, conflict handling |

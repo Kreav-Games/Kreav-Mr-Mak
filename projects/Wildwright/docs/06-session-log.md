@@ -124,3 +124,154 @@ highlights M1, shows "M0 done · M1 in progress" in the rail, and points its han
 example at action 5. The Greybox tab timeline shows actions 3 and 4 done and 5 next.
 **Verified:** the generator runs (8 done rows; labels ✓ DONE, IN PROGRESS, 5× NOT
 STARTED); both pages checked in headless Edge.
+
+*2026-10-12, action 5 (Codex).* Implemented `ER_WATER_WET`,
+`ER_FIRE_IGNITE` and `ER_WATER_COOL` in the Unreal repo. Targets now have
+bounded moisture/temperature/fuel and independent moisture, burn and temperature
+stages. Added `Data/TargetTypes.csv` → `DT_TargetTypes`, extended the rule CSV
+with effects/preconditions/rates, and kept all tuning in data. Pure logic is in
+`WildwrightStateRules.*`; `EvaluateTarget` previews ordered preconditions before
+apply, and the subsystem rechecks live state and matching rules. The subsystem
+owns burn/cool timers and target state writes; dynamic materials and the one-line
+HUD state readout only read it. Steam is a state event and HUD message. The other
+three effects report “not implemented yet” without changing state.
+
+Used the handoff's proposed values as tuning hypotheses, with burnt cooling at
+10 temperature units/second to ambient. No new design decision or scope expansion.
+No map rebuild or Blueprint graph edit was needed. Added Resolution and Runtime
+tests; extended TargetCheck and ProjectData. Updated the engineering guide,
+Tools/Elements README, action 5 brief, Workspace Greybox maps “Try it now” table
+and Wildwright card description (`updated` remains the current date, 2026-10-12).
+The owner confirmed Unreal was closed before editor builds. **No commits.**
+
+**Verified, in the engineering ladder.** Logs below are under
+`D:\Wildwright\Saved\CodexScratch\` (ignored by Git):
+
+| Check | Evidence |
+|---|---|
+| Game target | `action5-game-build.log`: `Result: Succeeded`, 16.46 s; no compiler warnings/errors in Wildwright code |
+| Editor target | `action5-editor-build.log`: `Result: Succeeded`, 9.08 s; only the 20 existing HyperAIStudio dependency warnings |
+| Generator | `action5-elements.log`: `[WWElements] RESULT ok`; `DT_Elements` 4 rows, `DT_ElementRules` 6, `DT_TargetTypes` 5; each `Imported DataTable ... 0 Problems`; exit 0 |
+| Automation | `action5-tests.log`: all four `Wildwright.Elements.*` tests have `Result={Success}` (ProjectData, Resolution, Runtime, TargetCheck); no new test warnings/errors; exit 0 |
+| Greybox | `action5-greybox.log`: `[WWVerify] SUMMARY 33 passed, 0 failed`; Map Check 0 errors/0 warnings for both maps; exit 0 |
+| Workspace page | Headless Edge at 1440×1060 and 540×1060: no page errors/overflow, dark surface, styles loaded, exact wet/steam refusal text and restart instructions present; all five local links/assets resolve; screenshots inspected |
+| Change review | Game repo `git diff --check` passed. Only claimed source/data/config/tools and the two generated rule/target-type tables changed; maps, template assets and plugin descriptors untouched |
+
+Resolution tests include dry ignition, wet refusal, already-burning/no-fuel/burnt
+refusals, burn completion and ambient cooling, 90→50 Steam then refusal, the inclusive
+60 threshold, clamps at 0/100, moisture/heat stage boundaries, rule priority,
+unimplemented no-ops and determinism. Runtime tests verify real targets, clamped
+placed overrides, live rejection of repeated requests, notifications, persistent
+material parameters, fuel consumption by the timer manager and cooling to ambient.
+An initial test-world setup failure was corrected; the engine lifecycle needed
+`InitializeActorsForPlay` before interface events and `EndPlay` before cleanup.
+Automation can exit 0 on failure, so results were checked individually.
+
+**Not verified:** rendered material appearance, in-game HUD/crosshair readability
+and repeat Play sessions; these require the owner. No VFX, charged cast or save/load
+was added. Headless material checks verify parameters, not rendered appearance.
+
+**Next:** open `L_TestRange`, select with 1–4 and apply with left mouse.
+ST01 + Fire: orange, Temp 80, fuel 100→0 in 10 seconds, near black/Burnt,
+“Already burnt; cannot ignite again”; cool to Temp 20 in another 6 seconds.
+ST02 + Water: moisture 60/Wet and darker; Fire shows X and
+“Too wet to ignite (moisture 60, needs 30 or less)”, with unchanged state.
+ST04 + Water: “Steam”, Temp 90→50/Warm and duller red; repeat Water shows X and
+“Not hot enough for steam (temperature 50, needs 60)”, with unchanged state.
+Stop Play, start again and repeat to confirm reset and determinism.
+Owner acceptance is pending, then action 6. Ownership claim released at session end.
+
+*2026-10-12, action 5 owner play-test.* The owner reported “seems to match”
+after receiving the ST01 burning, ST02 wet-fire refusal, ST04 steam/cooling and
+repeat Play checklist. Recorded overall owner acceptance of action 5. This is
+owner-reported gameplay evidence; the build/import/test/verifier evidence remains
+in the preceding entry.
+
+Updated the README, completed brief, GDD M1 progress and action 5 row, validation
+note in the decision log, hub handoff prompt, Greybox timeline and card description.
+Regenerated the hub from its sources. M1 remains in progress: only the first three
+rule effects are accepted. **Verified:** hub generator completed; headless Edge at
+1440 and 540 pixels checked both Workspace pages, all five hub tabs, action 5's
+checked row and action 6 handoff; no page errors or page overflow; five Greybox
+local links/assets resolve; selected-file `git diff --check` passed.
+No game code or assets changed, so the previous engineering checks remain applicable.
+**Next:** action 6, first hero cast (water or fire), with owner review of its look
+and the spectacle contract. **No commits.** Documentation ownership claim released.
+
+*2026-10-12, GDD and Workspace direction refresh (Codex).* On the owner's request,
+expanded the authoritative GDD to **v0.3** and refreshed the Wildwright card.
+Added a build compass and delivery-truth table; a proposed six-beat, 20–30 minute
+spring-route session; two authored approaches; bounded contracts and status for
+all six rules; plant/creature, journal, construction, player-flow and save detail;
+eight build packets with dependencies and exit checks; and session acceptance.
+Aligned the technical suggestions and target matrix with D-12 and actual action 5
+behaviour. CR-002 records the proposed choices and preserves locked decisions,
+M0–M6 and the existing content cap.
+
+Reworked the source-driven hub into Vision, Play session, Elements, Valley,
+Spellcraft and Build sections, with clear accepted/pending status and the current
+hero-cast packet. Added a Cover art outer tab, original key art on the landing
+page, a native project emblem, full-size media preview/downloads, and a responsive
+dark field-guide layout. Sources are the GDD, decision log, hub generator and CSS;
+the Greybox page and its regression steps remain together in the existing card.
+The Wildwright registry keeps its ID/default tab and current updated date.
+
+**Cover:** one built-in imagegen generation, from an original text prompt only.
+Saved `workspace/2026-10-11_wildwright/images/wildwright-cover-v1.png` (1672×941 RGB
+PNG, 3,218,975 bytes). The exact prompt is preserved in
+`projects/Wildwright/art/cover-v1.prompt.md`. No Fab assets, game screenshots or
+external image references were supplied. Inspected the title spelling,
+spellcrafter, water/heat/stone/wind composition and environmental aftermath.
+The cover is a concept for owner review; character identity/costume, OD-06 and
+actual Unreal graphics are not approved by this illustration.
+
+**Verified:** generator JavaScript syntax check and regeneration pass:
+`6 sections; 3/6 accepted rules; 6 session beats; 8 build packets`.
+GDD audit: 96 unique numbered subsections, 50 well-formed tables and 8 resolving
+local Markdown links. Headless Edge at **1440, 760 and 540 pixels** checked all
+three reports and 18 hub panels, keyboard navigation, the session CTA, table
+scrolling, image loading, full-size/100% preview, six successful PNG downloads
+and 33 local report links; no page errors, missing requests or page overflow.
+The three-step registry and project emblem resolve. Wide/narrow screenshots
+were inspected. Selected-file `git diff --check` passes.
+
+**Not verified:** owner approval of the proposed new play direction and cover;
+implementation or playability of the new design detail; display inside the
+owner's running desktop window. This refresh modifies design and Workspace
+assets; Unreal builds/tests were not rerun. The accepted action 5 verification
+record remains in the earlier entry.
+
+**Next:** review the Play session and Cover art tabs, then continue action 6
+through its separately owned research brief. Claude Code's
+`docs/08-hero-cast-plan.md` was read for context and left untouched.
+**No commits.** Codex's ownership claim released; the other agent's claim preserved.
+
+*2026-10-12, action 6 plan and .uproject fix (Claude Code).* Researched Epic's
+Niagara and Gameplay Ability System documentation and inventoried Valley of the
+Ancient read-only (LightDart and campfire Niagara assets, their `User.` parameters
+and materials, Echo's own `Echo_Skeleton` and LightDart animations, fire sounds).
+The owner decided D-13 (Fire first), D-14 (hold to charge, release, right mouse to
+cancel), D-15 (Echo animations retargeted) and D-16 (Valley pieces as starting
+points). Wrote [08-hero-cast-plan.md](08-hero-cast-plan.md) (Fire design, cue map,
+starting points, C++ pieces, budget, acceptance checks) and
+[09-hero-cast-owner-guide.md](09-hero-cast-owner-guide.md) (the owner's
+step-by-step: retarget, montages, Effect Type, six Niagara systems, cue Blueprints).
+Updated the decision log, GDD 16.3 row 6, the README and the game repo's
+`AGENTS.md`; fixed the guide's `Select-String` examples (they had the pattern and
+path swapped) and added gotchas 24–25.
+
+Found and fixed a regression in `D:\Wildwright\Wildwright.uproject`: Visual Studio's
+Unreal integration had installed `VisualStudioTools` into the engine at 09:50 and
+rewritten the file, dropping every `TargetAllowList: Editor` (Unreal MCP would have
+shipped in the game). Restored the committed file, added `VisualStudioTools` as
+editor-only and **disabled**, because with it enabled the editor target fails with a
+`RulesError`. Added `Tools/Checks/check_editor_only_plugins.ps1`. **Verified:** the
+check passes on the fixed file and fails on a copy with the allow-list removed;
+editor target `Result: Succeeded` (with the plugin disabled); game target
+`Result: Succeeded` and its link contains no MCP, AI or editor-tool module. Engine
+API names in the plan were checked against the 5.8.3 source. **Not verified:** the
+5.8 menu labels in the owner guide (written from the documentation; flagged where
+unsure); retargeting quality. **Not done:** part 1 of the guide (copying the Valley
+pieces) and the GAS plumbing; action 5 and these fixes are **uncommitted**.
+**Next:** the owner chooses who does part 1 and the GAS work; the owner then follows
+guide parts 2–6.

@@ -4,6 +4,16 @@
 Codex). Read the [README](../README.md) and the
 [engineering guide](05-engineering-guide.md) first.*
 
+**Status, 2026-10-12 (Codex): implemented; automated acceptance passed; owner
+play-test accepted.** The owner reported the supplied checks “seems to match”.
+Both targets build, three tables import with 0 problems,
+four tests pass (TargetCheck, ProjectData, Resolution, Runtime), and the greybox
+verifier passes 33/33. See [session log](06-session-log.md) for evidence.
+All changes remain local and uncommitted at the owner's request. The brief below
+is the implementation contract; do not repeat action 5 from scratch.
+The supplied play-test checks remain below and in the Workspace Greybox maps tab
+for regression testing. Next is action 6, the first hero cast.
+
 ## Before you start
 
 - **Implementation is decided (D-12):** C++ with data in CSV files, assets from the
@@ -109,10 +119,12 @@ Keep thresholds and effects in data (extend `Data/Rules.csv`, and add for exampl
 |---|---|
 | `Source/Wildwright/Elements/WildwrightElementTypes.h` | State struct and stage enums; new rule-row columns; new verdict |
 | `Source/Wildwright/Elements/WildwrightElementRules.*` | Precondition check; pure `ResolveRule(state, rule) → new state + events` |
+| `Source/Wildwright/Elements/WildwrightStateRules.*` | Implemented pure initial-state, clamp/stage, rule resolution, timer-step and state-description functions |
 | `Source/Wildwright/Elements/WildwrightRuleSubsystem.*` | Apply resolution, log before/after, run burn timers, broadcast events |
 | `Source/Wildwright/Elements/WildwrightTargetActor.*` | Own the state; initial values; dynamic material from stage |
 | `Source/Wildwright/Elements/WildwrightHUD.cpp` | One-line state readout for the aimed target |
 | `Source/Wildwright/Elements/Tests/WildwrightElementTests.cpp` | New tests (below) |
+| `Source/Wildwright/Elements/Tests/WildwrightRuleRuntimeTests.cpp` | Real targets, placed overrides, resolver notifications, material parameters and timer progression in an isolated Game world |
 | `Data/Rules.csv`, new `Data/TargetTypes.csv` | Thresholds, effects, initial state |
 | `Tools/Elements/build_elements.py` | Import the new table |
 | `Tools/Elements/README.md`, engineering guide §4 | Document the new data and flow |

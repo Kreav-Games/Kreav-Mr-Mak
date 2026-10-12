@@ -3,7 +3,8 @@
     {
       "id": "wildwright",
       "title": "Wildwright",
-      "description": "Elemental ecosystem sandbox with cinematic action-fantasy spectacle: the game design hub, built from GDD 0.2 and the decision log.",
+      "icon": "wildwright-mark.svg",
+      "description": "Shape a living valley through fire, water, earth and air. GDD 0.3: clear first-session direction, eight build packets, accepted rule progress and an original cover concept.",
       "type": "group",
       "category": "project",
       "created": "2026-10-11",
@@ -17,6 +18,10 @@
         {
           "name": "Greybox maps",
           "path": "greybox.html"
+        },
+        {
+          "name": "Cover art",
+          "path": "cover.html"
         }
       ],
       "status": "active",

@@ -26,14 +26,14 @@ Design intent is in the [GDD](02-gdd.md); decisions in the [log](04-decisions.md
 |---|---|---|
 | `Source/Wildwright/` | Template character, controller, game mode (lightly edited) | C++ |
 | `Source/Wildwright/Elements/` | Element system (action 4); `Tests/` holds automation tests | C++ |
-| `Data/*.csv` | Elements and rules | **These CSVs.** Imported into data tables by a script |
+| `Data/*.csv` | Elements, rules, target types (initial state, thresholds and colours) | **These CSVs.** Imported into data tables by a script |
 | `Tools/Greybox/` | `build_greybox.py`, `verify_greybox.py`, README | Python |
 | `Tools/Elements/` | `build_elements.py`, README | Python |
 | `Config/DefaultGame.ini` | `[/Script/Wildwright.WildwrightSettings]` points the game at the generated assets | Text |
 | `Content/Wildwright/Maps/` | `L_TestRange`, `L_Valley_Greybox` | **Generated** by `build_greybox.py` |
 | `Content/Wildwright/Greybox/Materials/` | `MI_GB_*` | **Generated** by `build_greybox.py` |
 | `Content/Wildwright/Input/` | `IA_Element*`, `IMC_Elements` | **Generated** by `build_elements.py` |
-| `Content/Wildwright/Data/` | `DT_Elements`, `DT_ElementRules` | **Generated** from `Data/*.csv` |
+| `Content/Wildwright/Data/` | `DT_Elements`, `DT_ElementRules`, `DT_TargetTypes` | **Generated** from `Data/*.csv` |
 | `Content/` (other) | Template content (character, input, LevelPrototyping, ThirdPerson map) | Template |
 | `AGENTS.md`, `CLAUDE.md`, `.mcp.json`, `.codex/`, `.hyperai/` | HyperAIStudio agent files plus the hand-written "Wildwright project rules" in `AGENTS.md` | Do not delete the hand-written section |
 
@@ -72,27 +72,32 @@ New-Item -ItemType Directory -Force $S | Out-Null
 
 # Element assets from Data/*.csv (input actions, IMC, data tables)
 Invoke-WWEditor @('-ExecutePythonScript="D:\Wildwright\Tools\Elements\build_elements.py"') "$S\elements.log"
-Select-String "$S\elements.log" '\[WWElements\]|Traceback|Imported DataTable'
+Select-String -Path "$S\elements.log" -Pattern '\[WWElements\]|Traceback|Imported DataTable'
 
 # Greybox maps (skips existing maps unless forced; a forced rebuild replaces only Greybox-tagged actors)
 $env:WW_GREYBOX_FORCE = "1"
 Invoke-WWEditor @('-ExecutePythonScript="D:\Wildwright\Tools\Greybox\build_greybox.py"') "$S\greybox.log"
 Remove-Item Env:WW_GREYBOX_FORCE
-Select-String "$S\greybox.log" '\[WWGreybox\]|Traceback'
+Select-String -Path "$S\greybox.log" -Pattern '\[WWGreybox\]|Traceback'
 
 # Automation tests (all tests whose path starts with "Wildwright")
 Invoke-WWEditor @('-ExecCmds="Automation RunTests Wildwright"', '-TestExit="Automation Test Queue Empty"') "$S\tests.log"
-Select-String "$S\tests.log" 'Found \d+ automation tests|Test Completed'
+Select-String -Path "$S\tests.log" -Pattern 'Found \d+ automation tests|Test Completed'
 
 # Layout and wiring verifier (read-only; ends with a SUMMARY line)
 Invoke-WWEditor @('-ExecutePythonScript="D:\Wildwright\Tools\Greybox\verify_greybox.py"') "$S\verify.log"
-Select-String "$S\verify.log" '\[WWVerify\] (FAIL|SUMMARY)|Traceback'
+Select-String -Path "$S\verify.log" -Pattern '\[WWVerify\] (FAIL|SUMMARY)|Traceback'
 ```
 
-Expected today: `DT_Elements: 4 rows`, `DT_ElementRules: 6 rows`, both
-`Imported DataTable ... 0 Problems`; tests `Wildwright.Elements.TargetCheck` and
-`Wildwright.Elements.ProjectData` `Result={Success}`; verifier
+Expected today: `DT_Elements: 4 rows`, `DT_ElementRules: 6 rows`,
+`DT_TargetTypes: 5 rows`, all `Imported DataTable ... 0 Problems`; tests
+`Wildwright.Elements.TargetCheck`, `Wildwright.Elements.ProjectData`,
+`Wildwright.Elements.Resolution`, `Wildwright.Elements.Runtime` all
+`Result={Success}`; verifier
 `SUMMARY 33 passed, 0 failed`.
+
+Automation can exit 0 even when a test reports `Result={Fail}`. Inspect every
+`Test Completed` line and reject any failure; process exit status alone is insufficient.
 
 Headless runs can happen while the owner's editor is open (they only write the
 assets listed above), **except** regenerating a map the owner has open. Check first:
@@ -109,6 +114,8 @@ close the editor.
 Do these in order and report each result with its evidence (GDD 16.2):
 
 1. Game target builds; editor target builds (editor closed). No new warnings.
+   `powershell -NoProfile -File D:\Wildwright\Tools\Checks\check_editor_only_plugins.ps1`
+   prints `PASS` (no AI, MCP or editor-tool plugin can reach the game).
 2. Generators run with `RESULT ok` and 0 import problems.
 3. Automation tests pass. **New behaviour needs a new test**, with the normal case
    and at least two failure cases.
@@ -130,13 +137,16 @@ Do these in order and report each result with its evidence (GDD 16.2):
     apply, HUD state)                                   reasons for every refusal
         │ apply (valid only)
         ▼
- UWildwrightRuleSubsystem::ResolveApplication   ◄── DT_Elements, DT_ElementRules (from Data/*.csv)
-   (world subsystem = state layer entry point;          via UWildwrightSettings (DefaultGame.ini)
-    logs, notifies target, broadcasts OnElementApplied)
+ UWildwrightRuleSubsystem::ResolveApplication   ◄── DT_Elements, DT_ElementRules, DT_TargetTypes
+   (rechecks live state, resolves in table order;       via UWildwrightSettings (DefaultGame.ini)
+    owns burn/cool timers, logs before/after)
         │
         ▼
- IWildwrightElementTarget::OnElementResolved    implemented by AWildwrightTargetActor
-                                                 (greybox targets; plants and creatures later)
+ AWildwrightTargetActor::SetResolvedState       private; only the subsystem can write it
+   (bounded state → persistent dynamic material)
+        │
+        ▼
+ OnElementResolved / OnSteam / OnElementApplied  notifications after successful resolution
 ```
 
 The cast layer (montages, Niagara, camera, GAS abilities; action 6) must only
@@ -147,15 +157,17 @@ The cast layer (montages, Niagara, camera, GAS abilities; action 6) must only
 | File | Role |
 |---|---|
 | `WildwrightTags.h/.cpp` | Native Gameplay Tags: `Element.Fire/Water/Earth/Air`, `Target.CombustiblePatch/SoilPatch/HotSurface/SmokeDust/FlowEdge` |
-| `WildwrightElementTypes.h` | `FWildwrightElementRow`, `FWildwrightRuleRow` (table rows), `FWildwrightTargetInfo`, `EWildwrightTargetVerdict`, `FWildwrightTargetCheck`, `FWildwrightElementApplication`; log category `LogWildwrightElements` |
-| `WildwrightElementRules.h/.cpp` | `FindMatchingRules`, `EvaluateTarget`. Plain functions, no world. Check order: no element, nothing aimed at, not elemental, no rule, too far, recharging |
+| `WildwrightElementTypes.h` | Element/rule/target-type table rows; bounded target state and moisture/burn/temperature stages; checks, applications and `PreconditionFailed`; log category `LogWildwrightElements` |
+| `WildwrightElementRules.h/.cpp` | `FindMatchingRules`, `EvaluateTarget`. Plain functions, no world. Check order: no element, nothing aimed at, not elemental, no rule, too far, recharging, ordered state preconditions |
+| `WildwrightStateRules.h/.cpp` | Pure `InitialState`, `NormalizeState`, `ResolveRule`, `AdvanceBurn`, `DescribeState`; thresholds/effects come from data |
 | `WildwrightElementTarget.h` | `IWildwrightElementTarget`: `GetElementTargetInfo`, `OnElementResolved` |
-| `WildwrightTargetActor.h/.cpp` | Placed target: `Mesh`, `DisplayName`, `TargetTags`, `bWalkThrough` (aim hits it, pawns pass), `SetTargetTagsFromNames` for scripts |
-| `WildwrightRuleSubsystem.h/.cpp` | Loads tables, `ResolveApplication`, `OnElementApplied`; Game and PIE worlds only |
+| `WildwrightTargetActor.h/.cpp` | Placed target with private state, optional `bOverrideInitialState`/`InitialStateOverride`, data profile and a dynamic material; actor tick stays disabled |
+| `WildwrightRuleSubsystem.h/.cpp` | Loads three tables, initializes targets, rechecks applications, applies ordered rules, owns fixed burn/cool timers, broadcasts `OnSteam`/`OnElementApplied`; Game and PIE worlds only |
 | `WildwrightElementComponent.h/.cpp` | On `AWildwrightCharacter`: input binding from settings, per-frame aim trace (starts level with the character), apply, last message |
-| `WildwrightHUD.h/.cpp` | Canvas HUD: plus/X crosshair, reason, element bar, last result, controls hint. Set as `HUDClass` in `AWildwrightGameMode` |
+| `WildwrightHUD.h/.cpp` | Canvas HUD: plus/X crosshair, reason, one-line aimed target state, element bar, last result, controls hint |
 | `WildwrightSettings.h` | `UDeveloperSettings` (Project Settings > Game > Wildwright) |
-| `Tests/WildwrightElementTests.cpp` | `Wildwright.Elements.TargetCheck`, `Wildwright.Elements.ProjectData` |
+| `Tests/WildwrightElementTests.cpp` | TargetCheck, ProjectData (all table values), Resolution (boundaries, refusals, order, determinism) |
+| `Tests/WildwrightRuleRuntimeTests.cpp` | Runtime: isolated Game world, real target initialization, placed overrides, resolver, material parameters and timer progression |
 
 Hooks into the template: `WildwrightCharacter.h/.cpp` (creates `Elements`, calls
 `SetupInput`), `WildwrightGameMode.cpp` (sets `HUDClass`). The template Blueprints
@@ -170,6 +182,27 @@ Hooks into the template: `WildwrightCharacter.h/.cpp` (creates `Elements`, calls
   to `TARGET_TYPES` in `build_greybox.py`, place targets, extend the verifier counts.
 - **An element property:** add a `UPROPERTY` to `FWildwrightElementRow`, a column to
   `Data/Elements.csv`, re-run `build_elements.py`.
+- **Target state or tuning:** edit `Data/TargetTypes.csv` (initial state, stage
+  thresholds, colours) or `Data/Rules.csv` (effect, eligibility, rates/cadence),
+  update the ProjectData reference values, then regenerate and run the ladder.
+  The first matching target-type row supplies a profile if an actor has several tags.
+
+Action 5 uses the handoff's proposed values as tuning hypotheses: water adds 50,
+fire requires moisture ≤30 and fuel >0, ignition sets temperature 80, fuel falls
+10 per 1-second timer step, then burnt targets cool 10 per second to ambient 20.
+Steam cooling requires temperature ≥60, removes 40, and never goes below ambient.
+Wet/Hot/Warm thresholds are 50/60/35. Water on a burning patch increases moisture;
+extinguishing and fire spread are outside this action. Unimplemented matching rules
+log and report “not implemented yet”. State persists for the current Play session;
+save/load is M2.
+
+Runtime tests create a world with `CreateWorld(..., &InitializationValues)` (which
+already initializes it), register an engine world context, configure targets,
+then call `InitializeActorsForPlay` and `WorldSettings::NotifyBeginPlay`. Calling
+`InitializeNewWorld` again duplicates WorldSettings; omitting actor initialization
+suppresses interface notifications in `AActor::ProcessEvent`. Finish with
+`EndPlay` before context/world destruction. Latent phases advance the timer on
+separate engine frames without changing `GFrameCounter`.
 
 ## 5. Conventions
 
@@ -275,6 +308,18 @@ Hooks into the template: `WildwrightCharacter.h/.cpp` (creates `Elements`, calls
     through its shell. Only `-s danger-full-access` (no sandbox at all) would let a
     non-interactive Codex run work, and that is the owner's call. Interactive Codex
     sessions started by the owner are unaffected *(unverified)*. Seen 2026-10-12.
+24. **Visual Studio's Unreal integration** (2026-10-12) installed its
+    `VisualStudioTools` plugin into `D:\UE_5.8\Engine\Plugins\VisualStudioTools` (not
+    `Plugins\Marketplace`) and rewrote `Wildwright.uproject` with its own formatting,
+    **dropping every `TargetAllowList: Editor`**. With that plugin enabled, the editor
+    target fails with `RulesError: Expecting to find a type ... 'VisualStudioTools'`
+    (an installed engine only compiles add-on plugins under `Plugins\Marketplace`; the
+    likely cause, not confirmed). It is now disabled in the `.uproject`. Moving the
+    plugin into `Engine\Plugins\Marketplace\` might fix it *(unverified; an engine-wide
+    change, owner's call)*. After any Visual Studio prompt about Unreal, run the
+    plugin check below.
+25. `Select-String` without parameter names takes the **pattern first**: always write
+    `Select-String -Path <file> -Pattern <regex>`.
 
 ## 8. Working as two agents (Claude Code and Codex)
 
