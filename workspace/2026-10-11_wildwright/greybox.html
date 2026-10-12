@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en" data-mak-report="document">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greybox maps</title>
+<link rel="stylesheet" href="../_shared/report.css">
+<link rel="stylesheet" href="../_shared/examples.css">
+<link rel="stylesheet" href="wildwright.css">
+<script defer src="../_shared/report.js"></script>
+<style>
+  :root{--gb-ground:#3a3a40;--gb-rock:#57504a;--gb-ledge:#6a6158;--gb-ramp:#4b4b53;--gb-deep:#121216;--gb-combustible:#c08f3e;--gb-soil:#4a3020;--gb-drybed:#a58e6c;--gb-hot:#e2552c;--gb-smoke:#b9b9c6;--gb-water:#3f7fdc;--gb-edge:#f2cc22;--gb-landmark:#22a090;--gb-shelter:#4b9a52}
+  html[data-mak-report=document] body.gb-doc{font-size:14px}
+  .gb{max-width:1180px;margin:0 auto}
+  .gb .eyebrow{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#a99ea9;margin-bottom:12px}
+  .gb .lede{max-width:70ch;color:#c9c2cf;font-size:15px;margin:0 0 26px}
+  .now{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:20px;margin:0 0 10px}
+  .now .note-card h2{margin-top:0}
+  .now .big{font-size:22px;font-weight:600;color:#f5f1f6;letter-spacing:-.02em;line-height:1.35;margin:0 0 10px}
+  .steps-line{list-style:none;padding:0;margin:0;display:grid;gap:0}
+  .steps-line li{display:grid;grid-template-columns:86px minmax(0,1fr);gap:14px;padding:10px 0;border-bottom:1px solid var(--mak-border);font-size:12px;color:#b2a9ba;margin:0}
+  .steps-line li:last-child{border-bottom:0}
+  .steps-line b{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#8f8797;padding-top:2px}
+  .steps-line li.here b{color:var(--spark)}.steps-line li.here{color:#eee8f1}
+  .test-walk{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+  .test-walk li{counter-increment:s;border:1px solid var(--mak-border);border-radius:10px;background:var(--mak-surface);padding:14px;font-size:12px;color:#b9b0c1;margin:0;line-height:1.6}
+  .test-walk li::before{content:counter(s);display:grid;place-content:center;width:24px;height:24px;border-radius:50%;background:#f0c36a1a;border:1px solid #f0c36a55;color:var(--spark);font-size:11px;font-weight:700;margin-bottom:10px}
+  .test-walk li strong{display:block;color:#eee8f1;margin-bottom:4px;font-size:13px}
+  .verdict-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0 0}
+  .verdict-row div{border:1px solid var(--mak-border);border-radius:10px;padding:12px 14px;font-size:12px;color:#b9b0c1}
+  .verdict-row .pass{border-color:#4b9a5266;background:#4b9a520d}.verdict-row .fail{border-color:#e2552c55;background:#e2552c0b}
+  .verdict-row b{display:block;color:#eee8f1;margin-bottom:2px}
+  .map-block{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:22px;align-items:start;margin:0 0 8px}
+  .map-figure{margin:0;border:1px solid var(--mak-border);border-radius:12px;background:#0f1014;padding:14px}
+  .map-figure svg{display:block;width:100%;height:auto;max-height:78vh}
+  .map-figure figcaption{font-size:11px;color:var(--mak-muted);margin-top:10px;line-height:1.6}
+  .map-svg text{font-family:var(--mak-font);fill:#e9e4ee}
+  .map-svg .lbl{font-size:12px;font-weight:600;paint-order:stroke;stroke:#0f1014;stroke-width:4px;stroke-linejoin:round}
+  .map-svg .small{font-size:10px;fill:#c4bccb;paint-order:stroke;stroke:#0f1014;stroke-width:3px}
+  .map-svg .badge circle{fill:#0f1014;stroke:var(--spark);stroke-width:1.5}
+  .map-svg .badge text{font-size:11px;font-weight:700;fill:var(--spark);text-anchor:middle;dominant-baseline:central;stroke:none}
+  .map-svg .route{fill:none;stroke-width:3;stroke-dasharray:7 6;stroke-linecap:round;stroke-linejoin:round}
+  .key{display:flex;flex-wrap:wrap;gap:8px 14px;margin:10px 0 0;padding:0;list-style:none}
+  .key li{display:flex;align-items:center;gap:6px;font-size:11px;color:#b9b0c1;margin:0}
+  .key i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #ffffff22}
+  .key i.line{height:0;border:0;border-top:3px dashed;border-radius:0;width:18px}
+  html[data-mak-report=document] .gb .table-wrap table{min-width:520px}
+  .gb .table-wrap td:first-child{font-weight:700;color:var(--spark)}
+  .ask{border:1px solid #f0c36a40;background:linear-gradient(135deg,#f0c36a0a,var(--mak-surface));border-radius:12px;padding:22px 24px;margin-top:34px}
+  html[data-mak-report=document] .ask h2{margin:0 0 10px;padding:0;font-size:20px}
+  .ask ul{margin:0;padding-left:18px}.ask li{font-size:13px;color:#c9c2cf}
+  .back{display:inline-block;font-size:12px;margin-bottom:22px}
+  .now>*,.map-block>*{min-width:0}
+  @media(max-width:900px){.now,.map-block{grid-template-columns:minmax(0,1fr)}.test-walk{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:520px){.test-walk,.verdict-row{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body class="gb-doc">
+<main class="gb">
+
+<a class="back" href="index.html">← Wildwright hub</a>
+<div class="eyebrow">Build / next actions 3 and 4 · greybox and element aiming</div>
+<h1>Reading the greybox maps</h1>
+<p class="lede">Two placeholder maps exist in the Unreal project. They are labs built <em>before</em> most of the systems they will test. This page explains what each block is for and how testing works as casting comes online.</p>
+
+<div class="now">
+  <article class="note-card">
+    <div class="eyebrow">What works today (action 4)</div>
+    <p class="big">Pick an element, aim at a station, and the game tells you whether it would work, and why not.</p>
+    <p><b>1–4</b> or the mouse wheel picks Fire, Water, Earth or Air. <b>Left mouse</b> applies it. The crosshair shows a plus when the cast would work and an X when it would not, with the reason underneath. Nothing changes in the world yet: the effects arrive in action 5.</p>
+    <p><b>Test range</b> (<code>L_TestRange</code>): one thing per station, side by side, so each rule can be checked in isolation in seconds.<br><b>Valley</b> (<code>L_Valley_Greybox</code>): the same things in context, where the first objective will be played.</p>
+  </article>
+  <article class="note-card">
+    <div class="eyebrow">When the maps come alive</div>
+    <ol class="steps-line">
+      <li><b>Done</b><span>Greybox: walk, look, judge scale and layout.</span></li>
+      <li class="here"><b>Now</b><span>Action 4: pick an element and aim it at a target. The game says whether the target is valid, and why not when it isn't.</span></li>
+      <li><b>Action 5</b><span>The first three rules give real results, e.g. water makes a patch wet and fire then refuses to light it.</span></li>
+      <li><b>Action 6</b><span>The first hero cast: the cinematic charge and release on top of a rule.</span></li>
+      <li><b>Action 7</b><span>A debug overlay shows the hidden numbers (moisture, heat) so a test can be checked exactly.</span></li>
+    </ol>
+  </article>
+</div>
+
+<div class="section-heading"><h2>How one test will run</h2><span>Example: station 2, GDD test A.2 #1</span></div>
+<ol class="test-walk">
+  <li><strong>Walk to station 2</strong>The brown patch with the sign "wet it first, then fire".</li>
+  <li><strong>Read the sign</strong>It names the rule and says what should happen.</li>
+  <li><strong>Cast water</strong>The patch turns visibly wet. The overlay shows its moisture going up.</li>
+  <li><strong>Cast fire</strong>Fire is refused, with a reason on screen: too wet to ignite.</li>
+  <li><strong>Compare with station 1</strong>The dry patch next to it does ignite. Same rule, different state.</li>
+</ol>
+<div class="verdict-row">
+  <div class="pass"><b>Pass</b>The result matches the sign, every time you repeat it.</div>
+  <div class="fail"><b>Fail</b>A different result, a different result on a repeat, or a refusal without a reason.</div>
+</div>
+
+<div class="section-heading"><h2>Try it now</h2><span>Action 4 · in <code>L_TestRange</code>, press Play</span></div>
+<div class="table-wrap"><table>
+  <thead><tr><th>Element</th><th>Aim at</th><th>Crosshair</th><th>Text under the crosshair</th></tr></thead>
+  <tbody>
+    <tr><td>1 Fire</td><td>Station 1, the dry brush</td><td>+ (fire colour)</td><td>Fire on ST01 Combustible patch (dry): ER_FIRE_IGNITE</td></tr>
+    <tr><td>1 Fire</td><td>Station 4, the hot rock</td><td>× (orange)</td><td>Fire has no effect on ST04 Hot surface</td></tr>
+    <tr><td>2 Water</td><td>Station 4, the hot rock</td><td>+</td><td>Water on ST04 Hot surface: ER_WATER_COOL</td></tr>
+    <tr><td>2 Water</td><td>Station 3, the soil</td><td>+</td><td>Water on ST03 Soil patch: ER_WATER_WET, ER_WATER_SOIL</td></tr>
+    <tr><td>3 Earth</td><td>Station 6, the yellow edge</td><td>+</td><td>Earth on ST06 Flow edge: ER_EARTH_BARRIER</td></tr>
+    <tr><td>4 Air</td><td>Station 5, the smoke (you can walk into it)</td><td>+</td><td>Air on ST05 Smoke: ER_AIR_DISPERSE</td></tr>
+    <tr><td>Any</td><td>Station 7, the plain rock</td><td>× (grey)</td><td>Not an elemental target: ST07_InvalidTarget</td></tr>
+    <tr><td>Any</td><td>The 40 m patch, from the start</td><td>× (orange)</td><td>Too far: 40 m (… reaches 35 m)</td></tr>
+    <tr><td>Any</td><td>The 20 m patch behind the wall</td><td>× (grey)</td><td>Not an elemental target: ST08_LOSWall (the wall is in the way)</td></tr>
+  </tbody>
+</table></div>
+<p class="muted">Left mouse on a valid target shows "… reached … Its effect arrives with the rules in the next step" and a brief coloured sphere where it landed. Nothing in the world changes yet. Distances are measured from your character, so they vary a little with where you stand.</p>
+
+<div class="section-heading"><h2>Test range</h2><span>80 m × 60 m · you start at the bottom, facing north</span></div>
+<div class="map-block">
+  <figure class="map-figure">
+    <svg class="map-svg" viewBox="-30 -30 660 860" role="img" aria-labelledby="tr-t tr-d">
+      <title id="tr-t">Test range, top-down</title>
+      <desc id="tr-d">An 80 by 60 metre floor. The player starts at the bottom centre facing north. A range lane runs straight ahead with markers at 5 to 40 metres. Stations 1 to 4 are on the left, stations 5 to 7 on the right.</desc>
+      <rect x="0" y="0" width="600" height="800" rx="6" fill="var(--gb-ground)" stroke="var(--gb-rock)" stroke-width="10"/>
+      <text class="small" x="300" y="-12" text-anchor="middle">N ↑</text>
+      <!-- ST08 range lane -->
+      <line x1="300" y1="728" x2="300" y2="322" stroke="#ffffff22" stroke-width="40"/>
+      <g fill="var(--gb-edge)">
+        <circle cx="332" cy="690" r="4"/><circle cx="332" cy="640" r="4"/><circle cx="332" cy="540" r="4"/><circle cx="332" cy="440" r="4"/><circle cx="332" cy="340" r="4"/>
+      </g>
+      <g class="small"><text x="342" y="694">5 m</text><text x="342" y="644">10 m</text><text x="342" y="544">20 m</text><text x="342" y="444">30 m</text><text x="342" y="344">40 m</text></g>
+      <rect x="232" y="556" width="36" height="7" fill="var(--gb-rock)" stroke="#000" stroke-width=".5"/>
+      <text class="small" x="226" y="572" text-anchor="end">wall</text>
+      <rect x="240" y="530" width="20" height="20" fill="var(--gb-combustible)"/>
+      <rect x="290" y="430" width="20" height="20" fill="var(--gb-combustible)"/>
+      <rect x="290" y="330" width="20" height="20" fill="var(--gb-combustible)"/>
+      <!-- ST01-ST04 -->
+      <rect x="65" y="505" width="30" height="30" fill="var(--gb-combustible)"/>
+      <rect x="165" y="505" width="30" height="30" fill="var(--gb-combustible)"/>
+      <rect x="105" y="335" width="50" height="50" fill="var(--gb-soil)" stroke="#000" stroke-width=".5"/>
+      <rect x="115" y="185" width="30" height="30" fill="var(--gb-hot)"/>
+      <!-- ST05 smoke -->
+      <circle cx="470" cy="200" r="20" fill="var(--gb-smoke)" opacity=".85"/>
+      <!-- ST06 flow channel -->
+      <rect x="540" y="345" width="30" height="30" fill="var(--gb-drybed)"/>
+      <rect x="480" y="350" width="60" height="20" fill="var(--gb-drybed)"/>
+      <rect x="455" y="260" width="30" height="30" fill="var(--gb-drybed)"/>
+      <rect x="460" y="290" width="20" height="70" fill="var(--gb-water)"/>
+      <rect x="460" y="360" width="20" height="60" fill="var(--gb-water)"/>
+      <rect x="450" y="420" width="40" height="40" fill="var(--gb-water)"/>
+      <rect x="452" y="341" width="36" height="7" fill="var(--gb-edge)"/>
+      <text class="small" x="550" y="398">B</text><text class="small" x="440" y="276" text-anchor="end">A</text>
+      <!-- ST07 -->
+      <rect x="455" y="505" width="30" height="30" fill="var(--gb-rock)" stroke="#000" stroke-width=".5"/>
+      <!-- start -->
+      <path d="M300 760 l-11 14 h22 z" fill="var(--spark)"/>
+      <path d="M300 752 v-20" stroke="var(--spark)" stroke-width="3"/><path d="M293 738 l7 -9 7 9" fill="none" stroke="var(--spark)" stroke-width="3"/>
+      <text class="lbl" x="300" y="796" text-anchor="middle">You start here</text>
+      <!-- badges -->
+      <g class="badge"><circle cx="80" cy="488" r="11"/><text x="80" y="488">1</text></g>
+      <g class="badge"><circle cx="180" cy="488" r="11"/><text x="180" y="488">2</text></g>
+      <g class="badge"><circle cx="130" cy="318" r="11"/><text x="130" y="318">3</text></g>
+      <g class="badge"><circle cx="130" cy="168" r="11"/><text x="130" y="168">4</text></g>
+      <g class="badge"><circle cx="470" cy="164" r="11"/><text x="470" y="164">5</text></g>
+      <g class="badge"><circle cx="520" cy="440" r="11"/><text x="520" y="440">6</text></g>
+      <g class="badge"><circle cx="470" cy="488" r="11"/><text x="470" y="488">7</text></g>
+      <g class="badge"><circle cx="262" cy="640" r="11"/><text x="262" y="640">8</text></g>
+      <g class="lbl"><text x="96" y="492" font-size="11">Dry</text><text x="196" y="492" font-size="11">Wet first</text><text x="146" y="322">Soil</text><text x="146" y="172">Hot rock</text><text x="486" y="168">Smoke</text><text x="536" y="444">Channel</text><text x="486" y="492">Plain rock</text><text x="200" y="644" text-anchor="end">Range lane</text></g>
+    </svg>
+    <figcaption>Top-down, north up. Each target has a sign behind or beside it. Signs never stand between you and a target.</figcaption>
+    <ul class="key">
+      <li><i style="background:var(--gb-combustible)"></i>Brush</li><li><i style="background:var(--gb-soil)"></i>Soil</li><li><i style="background:var(--gb-hot)"></i>Hot</li><li><i style="background:var(--gb-smoke)"></i>Smoke</li><li><i style="background:var(--gb-water)"></i>Water</li><li><i style="background:var(--gb-drybed)"></i>Dry channel</li><li><i style="background:var(--gb-edge)"></i>Buildable edge</li><li><i style="background:var(--gb-rock)"></i>Rock</li>
+    </ul>
+  </figure>
+  <div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>What's there</th><th>Once elements work, you…</th><th>It passes when…</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Dry brush patch</td><td>Cast fire at it. Also start a cast and cancel it</td><td>It catches fire. A cancelled cast changes nothing</td></tr>
+        <tr><td>2</td><td>Brush patch</td><td>Water it, then try fire</td><td>Fire is refused with a reason. Compare with 1</td></tr>
+        <tr><td>3</td><td>Depleted soil</td><td>Water it</td><td>The soil darkens, then its growth score rises</td></tr>
+        <tr><td>4</td><td>Hot rock</td><td>Water it</td><td>It cools; steam appears at the set temperature</td></tr>
+        <tr><td>5</td><td>Smoke column (walk-through)</td><td>Push air through it, gently then hard</td><td>The smoke shifts, more with stronger wind</td></tr>
+        <tr><td>6</td><td>Water channel, yellow edge, two dry basins</td><td>Raise an earth barrier on the yellow edge</td><td>Water switches from branch A to B and does not loop</td></tr>
+        <tr><td>7</td><td>Plain rock</td><td>Cast anything</td><td>Every cast is refused, with a reason</td></tr>
+        <tr><td>8</td><td>Range lane, markers at 5–40 m; one target hidden behind a wall</td><td>Aim at each target</td><td>Hidden or too-far targets are refused, with a reason</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">Station numbers match the in-game signs (ST01–ST08) and the tests in the GDD, Appendix A.2.</p>
+  </div>
+</div>
+
+<div class="section-heading"><h2>Valley</h2><span>240 m × 140 m · you enter at the south gate</span></div>
+<div class="map-block">
+  <figure class="map-figure">
+    <svg class="map-svg" viewBox="-20 -20 465 690" role="img" aria-labelledby="va-t va-d">
+      <title id="va-t">Valley greybox, top-down</title>
+      <desc id="va-d">A long valley with the entrance at the bottom and the spring at the top. A collapsed ravine crosses the middle. Two dashed routes lead to the spring: a short one over a hot land bridge on the east, and a long one up a ramp and along a ledge on the west.</desc>
+      <!-- boundaries -->
+      <rect x="0" y="0" width="425" height="37.5" fill="var(--gb-rock)"/>
+      <rect x="0" y="37.5" width="37.5" height="600" fill="var(--gb-rock)"/>
+      <rect x="387.5" y="37.5" width="37.5" height="600" fill="var(--gb-rock)"/>
+      <!-- floors and ravine -->
+      <rect x="37.5" y="37.5" width="350" height="300" fill="var(--gb-ground)"/>
+      <rect x="37.5" y="412.5" width="350" height="225" fill="var(--gb-ground)"/>
+      <rect x="37.5" y="337.5" width="350" height="75" fill="var(--gb-deep)"/>
+      <text class="small" x="230" y="380" text-anchor="middle">ravine, 15 m deep</text>
+      <rect x="150" y="342.5" width="25" height="70" fill="var(--gb-ramp)"/>
+      <text class="small" x="146" y="406" text-anchor="end">ramp out</text>
+      <!-- south wall and gate -->
+      <rect x="37.5" y="637.5" width="112.5" height="6" fill="var(--gb-rock)"/>
+      <rect x="275" y="637.5" width="112.5" height="6" fill="var(--gb-rock)"/>
+      <!-- west ledge -->
+      <rect x="37.5" y="37.5" width="25" height="600" fill="var(--gb-ledge)"/>
+      <rect x="62.5" y="462.5" width="25" height="100" fill="var(--gb-ramp)"/>
+      <rect x="62.5" y="200" width="25" height="100" fill="var(--gb-ramp)"/>
+      <g fill="var(--gb-combustible)"><rect x="62.5" y="531" width="25" height="12.5"/><rect x="62.5" y="506" width="25" height="12.5"/><rect x="62.5" y="481" width="25" height="12.5"/></g>
+      <!-- east land bridge and hot pass -->
+      <rect x="312.5" y="337.5" width="37.5" height="75" fill="var(--gb-rock)"/>
+      <rect x="312.5" y="365" width="37.5" height="20" fill="var(--gb-hot)"/>
+      <!-- river, spring, dry bed -->
+      <rect x="205" y="87.5" width="15" height="250" fill="var(--gb-water)"/>
+      <circle cx="212.5" cy="75" r="20" fill="var(--gb-water)"/>
+      <rect x="202.5" y="412.5" width="20" height="150" fill="var(--gb-drybed)"/>
+      <!-- side stream, spillway, basin -->
+      <rect x="317.5" y="432.5" width="62.5" height="10" fill="var(--gb-water)"/>
+      <circle cx="311" cy="437.5" r="7.5" fill="#050507" stroke="var(--gb-rock)"/>
+      <rect x="332.5" y="442.5" width="10" height="95" fill="var(--gb-drybed)"/>
+      <rect x="287.5" y="532.5" width="45" height="10" fill="var(--gb-drybed)"/>
+      <rect x="335" y="429" width="5" height="17" fill="var(--gb-edge)"/>
+      <g fill="var(--gb-soil)" stroke="#000" stroke-width=".5"><rect x="265" y="547.5" width="15" height="15"/><rect x="277.5" y="530" width="15" height="15"/><rect x="265" y="512.5" width="15" height="15"/></g>
+      <!-- dust hollow -->
+      <path d="M310 197.5 H340 V227.5 H310" fill="none" stroke="var(--gb-rock)" stroke-width="3"/>
+      <circle cx="325" cy="212.5" r="10" fill="var(--gb-smoke)" opacity=".85"/>
+      <!-- ruins -->
+      <g fill="var(--gb-landmark)"><rect x="137.5" y="132.5" width="10" height="10"/><rect x="127.5" y="102.5" width="10" height="10"/><rect x="142.5" y="77.5" width="10" height="10"/></g>
+      <rect x="248.75" y="82.5" width="7.5" height="60" fill="var(--gb-rock)"/>
+      <!-- entrance -->
+      <rect x="153.75" y="596.25" width="7.5" height="7.5" fill="var(--gb-landmark)"/>
+      <rect x="97.5" y="557.5" width="30" height="30" fill="var(--gb-shelter)" opacity=".85"/>
+      <!-- routes -->
+      <path class="route" stroke="var(--fire)" d="M218 610 L300 560 L331 450 L331 337 L300 300 L224 100"/>
+      <path class="route" stroke="var(--air)" d="M207 612 L75 566 L75 466 L50 456 L50 300 L75 296 L75 204 L200 96"/>
+      <!-- start -->
+      <path d="M212.5 626 l-9 12 h18 z" fill="var(--spark)"/>
+      <text class="lbl" x="212.5" y="662" text-anchor="middle">You start here</text>
+      <!-- badges -->
+      <g class="badge"><circle cx="246" cy="610" r="10"/><text x="246" y="610">A</text></g>
+      <g class="badge"><circle cx="252" cy="520" r="10"/><text x="252" y="520">B</text></g>
+      <g class="badge"><circle cx="366" cy="458" r="10"/><text x="366" y="458">C</text></g>
+      <g class="badge"><circle cx="236" cy="470" r="10"/><text x="236" y="470">D</text></g>
+      <g class="badge"><circle cx="110" cy="375" r="10"/><text x="110" y="375">E</text></g>
+      <g class="badge"><circle cx="368" cy="375" r="10"/><text x="368" y="375">F</text></g>
+      <g class="badge"><circle cx="108" cy="512" r="10"/><text x="108" y="512">G</text></g>
+      <g class="badge"><circle cx="360" cy="212" r="10"/><text x="360" y="212">H</text></g>
+      <g class="badge"><circle cx="180" cy="62" r="10"/><text x="180" y="62">I</text></g>
+      <text class="small" x="212.5" y="-6" text-anchor="middle">N ↑</text>
+    </svg>
+    <figcaption>Top-down, north up. Dashed lines are the two ways to the spring.</figcaption>
+    <ul class="key">
+      <li><i class="line" style="border-color:var(--fire)"></i>Short way: hot pass</li><li><i class="line" style="border-color:var(--air)"></i>Long way: west ledge</li><li><i style="background:var(--gb-water)"></i>Water</li><li><i style="background:var(--gb-drybed)"></i>Dry bed / spillway</li><li><i style="background:var(--gb-hot)"></i>Hot</li><li><i style="background:var(--gb-combustible)"></i>Brush</li><li><i style="background:var(--gb-soil)"></i>Soil</li><li><i style="background:var(--gb-edge)"></i>Buildable edge</li><li><i style="background:var(--gb-landmark)"></i>Landmark / ruin</li>
+    </ul>
+  </figure>
+  <div>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>Zone</th><th>What it is for</th></tr></thead>
+      <tbody>
+        <tr><td>A</td><td>Entrance</td><td>Where you start. The tall teal pillar is a landmark; the green pad is a future shelter site (M4)</td></tr>
+        <tr><td>B</td><td>Depleted basin</td><td>Three dark soil patches. When water reaches them they should darken and plants should return. A grazing creature may move in later (M3)</td></tr>
+        <tr><td>C</td><td>Side stream</td><td>Flows west into a sinkhole. An earth barrier on the yellow edge sends it south down the dry spillway and into the basin (B)</td></tr>
+        <tr><td>D</td><td>Dry riverbed</td><td>Where the river used to run. Shows that something upstream went wrong</td></tr>
+        <tr><td>E</td><td>Collapsed ravine</td><td>The obstacle: 15 m deep, the river falls into it. A ramp on the west lets you climb out if you fall</td></tr>
+        <tr><td>F</td><td>Hot pass</td><td>The short way north: a land bridge blocked by hot rock. Cool it with water to cross</td></tr>
+        <tr><td>G</td><td>West ledge</td><td>The long way north: a ramp up to a 6 m shelf that spans the ravine. Dense brush blocks the ramp until you burn it</td></tr>
+        <tr><td>H</td><td>Dust hollow</td><td>A walled hollow full of dust. Air clears it</td></tr>
+        <tr><td>I</td><td>Spring and ruins</td><td>The goal of the first objective: a reliable route to this water. The ruins' old stone channel hints at how water was once moved</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">Two routes on purpose: the GDD wants every challenge to have at least two valid solutions (GDD 2.6, 14.1).</p>
+  </div>
+</div>
+
+<section class="ask">
+  <h2>Tell me what to change</h2>
+  <ul>
+    <li>Scale: did the valley feel too big, too small, or about right on foot?</li>
+    <li>Readability: were the signs readable and the right way round in the game?</li>
+    <li>Anything you expected to see that isn't there, or that should go.</li>
+  </ul>
+</section>
+
+<p class="project-footnote">Both maps are generated by <code>D:\Wildwright\Tools\Greybox\build_greybox.py</code>; its README lists every station and zone. Layout checked by <code>verify_greybox.py</code> (25 collision checks, all passing on 2026-10-12). Diagrams are drawn to scale from the generator's coordinates.</p>
+</main>
+</body>
+</html>

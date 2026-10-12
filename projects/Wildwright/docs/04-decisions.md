@@ -11,11 +11,17 @@ why they were rejected so they do not re-enter unnoticed (GDD 15.2).
 | ID | Decision | Date | Notes |
 |---|---|---|---|
 | D-01 | ~~The game and its folder are called **Elemental**~~ *(superseded by D-06)* | 2026-10-11 | Replaced the working title *Worldweave*. "The Weave", "the Sundering" and "Wayfinder" remain working lore terms. |
-| D-02 | Wildwright replaces **Tharrn** as the active game idea | 2026-10-11 | Owner was not happy with Tharrn's direction. Tharrn files stay in `projects/tharrn-game/` and are not modified. |
+| D-02 | Wildwright is the **only active game project** | 2026-10-11, updated 2026-10-12 | It replaced the owner's earlier game idea. On 2026-10-12 the owner had everything related to that idea removed from the workspace; do not reintroduce it. |
 | D-03 | Target feel is **cinematic, action-fantasy spectacle** | 2026-10-11 | Reference: Valley of the Ancient (intensity, Niagara effects, fluid animation, the cast and levitate skill). |
 | D-04 | Build with **Claude Code and Codex** together | 2026-10-11 | Codex is available through the owner's ChatGPT subscription. |
 | D-05 | Project docs live in `projects/Wildwright/`; original PDFs are kept in `source/` | 2026-10-11 | Markdown in `docs/` is the working version. |
-| D-06 | The game and its folder are called **Wildwright** | 2026-10-11 | Owner floated *Elementor* and delegated a better name if one existed. *Elementor* is Elementor Ltd.'s WordPress page builder (10M+ installs) and would dominate search. Also checked: Emberwake (existing PC game), Fourfold (existing studio name), Elemancer (several games). *Wildwright* returned no game, studio or product in two searches. This is a web search, not a trademark clearance (OD-05). **Tharn** (the owner's earlier game) was also considered and not chosen: it is welded to a different design (a persistent-world faction-war survival MMO with its own lore, "the Fall" and "the Hum"), it says nothing about this game, and the owner's own files spell it two ways (*Tharn* in the documents, *Tharrn* in folder names). It stays reserved for that original concept. Flip back at any time if brand continuity matters more than clarity. |
+| D-06 | The game and its folder are called **Wildwright** | 2026-10-11 | Owner floated *Elementor* and delegated a better name if one existed. *Elementor* is Elementor Ltd.'s WordPress page builder (10M+ installs) and would dominate search. Also checked: Emberwake (existing PC game), Fourfold (existing studio name), Elemancer (several games). *Wildwright* returned no game, studio or product in two searches. This is a web search, not a trademark clearance (OD-05). |
+| D-07 | The prototype engine is **UE 5.8.3** (`D:\UE_5.8`, changelist 58210709). Resolves OD-01. | 2026-10-11 | The owner chose this over the 5.4.4 recommendation. **Blocks every C++ build until Visual Studio is updated:** 5.8 bans MSVC 14.40–14.43 (`Engine/Config/Windows/Windows_SDK.json`). The installed compiler is 14.43.34808 (VS 2022 17.13.3). It needs VS 2022 17.14 with MSVC 14.44.35211 or later, or VS 2026 with 14.50.35723 or later. The Valley reference stays on 5.4.4. Any asset migrated from it after OD-10 is upgraded one-way when saved in 5.8. C++ patterns adapted from Valley may need API changes *(unverified)*. |
+| D-08 | The cast layer uses **GAS for casting only**. World-cell state, the rule resolver and the journal live outside GAS. Resolves OD-02. | 2026-10-11 | The owner took the recommendation. GAS provides abilities, costs, cooldowns, tag blocking and Gameplay Cues, the same pattern as Valley's `GA_LightDart`. It needs a small C++ module (attribute sets) by M1, a stated exception to Blueprint-first (GDD 12.1). |
+| D-09 | The Unreal project lives at **`D:\Wildwright\`** as its own Git repository with LFS. `projects/Wildwright/` stays the design record. | 2026-10-11 | It had been proposed in the README. Keeping the project out of the Mr. Mak repo keeps large binaries out of its history. D: has about 3.5 TB free; C: is low. |
+| D-10 | **Fab assets marked NoAI** ("Allows usage with AI: No"): "Never use any Fab asset marked as NoAI to generate, train, fine-tune, or create new content, and only allow AI operations that read, classify, tag, or organize the original files without producing new derivative output." | 2026-10-12 | The owner's rule, taken from Copilot's summary of the NoAI terms. Not yet checked against the Fab EULA text *(unverified)*. Applies to every NoAI Fab asset, including Valley of the Ancient (OD-10). Allowed: agents reading or inspecting the files and writing notes about how they are built. Not allowed: feeding them, or renders and captures of them, to image, video, 3D, audio or texture generation. |
+| D-11 | **Valley of the Ancient assets may be migrated into Wildwright**, modified and shipped inside the game under Fab's Standard License. Never redistribute them on their own or in an extractable form. Resolves OD-10 with D-10. | 2026-10-12 | Owner-supplied summary of the Standard License (Fab EULA 4(c)): commercial use, modification and distribution of a game that incorporates the content are allowed; resale, giveaway, inclusion in an extractable tool or template, and player extraction are not. **Consequences:** keep `D:\Wildwright` private (collaborators only), because a public repo would redistribute raw assets; ship only cooked, packaged builds and never raw `.uasset` files; consider pak encryption at the packaging milestone (M6); D-10 still applies. Migrate selected pieces only (feel reference, section 4), never the level, golems or bulk Megascans. |
+| D-12 | **Agent-built systems are C++ with data in CSV files** imported into data tables, and their assets come from editor-Python generators in `Tools/`. **Blueprints are for content the owner tunes**, with agent assistance. Resolves OD-11. | 2026-10-12 | Owner: "we can keep c++ and csv and blue prints i can do with assistance". Agents cannot edit Blueprint graphs or other binary assets; C++, CSV and scripts stay diffable, reviewable and testable by both Claude Code and Codex. For Blueprint work, agents give exact steps and use editor Python where it can do the job. Amends GDD 12.1. |
 
 ## Accepted in principle
 
@@ -23,26 +29,55 @@ why they were rejected so they do not re-enter unnoticed (GDD 15.2).
 |---|---|---|
 | A-01 | **Spectacle contract**: the cast is a cinematic *input*; the simulation is the *consequence* (GDD 2.2). | The owner wants the spectacle to work with the new design. The mechanism is accepted in principle and written into GDD 0.2 as CR-001. It is not yet validated by a prototype. |
 
+## Resolved open decisions (kept for history)
+
+### OD-01 Engine version for the prototype → D-07
+| Option | For | Against |
+|---|---|---|
+| UE 5.4.4 *(was recommended; not chosen)* | Installed; opens Valley; the 5.4.4 build tool accepts the installed MSVC 14.43 (warning only); Valley reference works in the same engine | Older; newer features unavailable |
+| UE 5.7.4 *(not chosen)* | Newer engine | MSVC 14.43 is banned; needs a Visual Studio update; one-way asset upgrades |
+| **UE 5.8.3** *(chosen)* | Newest installed engine | MSVC 14.43 is banned; needs VS 2022 17.14 (MSVC 14.44.35211+) or VS 2026 (14.50.35723+) before any C++ builds; one-way asset upgrades |
+
+**Decided 2026-10-11 by the owner: UE 5.8.3.** The owner gave no reason for
+choosing it over the recommendation.
+
+### OD-02 Cast-layer technology → D-08
+| Option | For | Against |
+|---|---|---|
+| **GAS for casting only; world-cell state in a separate subsystem** *(recommended, chosen)* | Gives abilities, costs, cooldowns, tag blocking and Gameplay Cues; matches the pattern behind the feel the owner loves; both agents know it | Needs a small C++ module (attribute sets); more concepts to learn |
+| Lightweight Blueprint-only (Gameplay Tags + Blueprint Interface + cue actors) *(not chosen)* | No C++, faster to start | Re-implements cooldown/cost/cancel logic; weaker fit if combat grows |
+
+**Decided 2026-10-11 by the owner: GAS for casting only.** The world-cell state
+must **not** live in GAS.
+
+### OD-10 Asset licensing → D-10, D-11
+License source: the [Fab listing](https://www.fab.com/listings/0c19880e-21bd-42ba-8287-1caccc3951b1)
+for Valley of the Ancient. The owner's screenshot (2026-10-11) shows Epic Games,
+free, **Standard License**, Unreal Engine format, **"Allows usage with AI: No"**.
+Epic's Fab docs define the NoAI tag as "must not be used for generative AI data
+collection". Agents get HTTP 403 from Fab, so the license terms came to the log
+through the owner. The 2026-10-12 summary quotes the Standard License (Fab EULA
+section 4(c)): "Use the assets commercially or privately", "Modify and adjust the
+assets in order to incorporate them into your Projects", "Use the assets with any
+compatible tools", and "You may Distribute a Project that incorporates Content to
+end users, including software applications such as video games." Forbidden:
+redistributing the asset on its own (resale, giveaway, or inclusion in a tool or
+template where others can extract it), letting players extract it, and using NoAI
+content in training data, as input to generative models, or to develop generative
+AI systems. No agent has read the EULA text itself *(quotes unverified)*.
+
+**Resolved 2026-10-12 by the owner:** AI use by D-10, migration and shipping by D-11.
+
+### OD-11 How agent-built systems are implemented → D-12
+*Raised 2026-10-12 during next action 4.* GDD 12.1 said Blueprint-first, but agents
+cannot edit Blueprint graphs, so the element system was written in C++ with CSV
+data. Recommendation: C++ plus CSV-sourced data tables for agent-built systems;
+Blueprint for content the owner tunes. **Accepted by the owner 2026-10-12**, with
+Blueprint work done by the owner with agent assistance.
+
 ## Open decisions
 
 Recommendations are mine unless noted; none is binding until moved to **Decided**.
-
-### OD-01 Engine version for the prototype
-| Option | For | Against |
-|---|---|---|
-| **UE 5.4.4** *(recommended)* | Installed; opens Valley; the 5.4.4 build tool accepts the installed MSVC 14.43 (warning only); Valley reference works in the same engine | Older; newer features unavailable |
-| UE 5.7.4 / 5.8.3 | Newer engine | MSVC 14.43 is banned; needs Visual Studio 2022 17.14.4+ (or VS 2026) before any C++ builds; one-way asset upgrades |
-
-Newer engines open older assets, so starting on 5.4.4 does not lock the project
-out of 5.8 later. **Resolve before M0.**
-
-### OD-02 Cast-layer technology
-| Option | For | Against |
-|---|---|---|
-| **GAS for casting only; world-cell state in a separate subsystem** *(recommended)* | Gives abilities, costs, cooldowns, tag blocking and Gameplay Cues; matches the pattern behind the feel the owner loves; both agents know it | Needs a small C++ module (attribute sets); more concepts to learn |
-| Lightweight Blueprint-only (Gameplay Tags + Blueprint Interface + cue actors) | No C++, faster to start | Re-implements cooldown/cost/cancel logic; weaker fit if combat grows |
-
-Either way the world-cell state must **not** live in GAS. **Resolve before M1.**
 
 ### OD-03 Combat role under the action-fantasy direction
 GDD 0.1 says the player is "not simply its strongest fighter". The new direction
@@ -62,7 +97,7 @@ product with that name. That is **not** a trademark clearance. Before any public
 branding, search trademark registries, Steam/itch/console storefronts, domains and
 social handles. Names that were checked and rejected: *Elementor* (WordPress
 page builder), *Elemental* (Pixar film, Stardock strategy series), *Emberwake*
-(existing PC game), *Fourfold* (existing studio), *Elemancer* (several games). *Tharn* (the owner's earlier game) found no conflict but was set aside; see D-06.
+(existing PC game), *Fourfold* (existing studio), *Elemancer* (several games).
 
 ### OD-06 Art direction
 Candidates from the concept document: grounded naturalism, dark fantasy,
@@ -80,11 +115,6 @@ rules are fun.
 ### OD-09 Death penalty
 Prototype default: safe respawn, journal retained. Whether carried resources are
 lost stays open until the survival loop is tested.
-
-### OD-10 Asset licensing
-License terms for Valley of the Ancient and its Megascans content are **unchecked**.
-No asset is to be migrated into Wildwright until this is resolved. Patterns and
-architecture are not assets.
 
 ## Change requests
 

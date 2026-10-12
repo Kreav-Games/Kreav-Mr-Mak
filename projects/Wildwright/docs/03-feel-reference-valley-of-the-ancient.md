@@ -21,6 +21,9 @@ editor check.
 | Engine | UE **5.4.4** at `D:\UE_5.4` (`EngineAssociation` is `5.4`) |
 | Pristine copy | `C:\ProgramData\Epic\EpicGamesLauncher\VaultCache\AncientGame_5.4\data` (Epic launcher vault, 90 GB) |
 | Size | about 70 GB without the derived-data cache; the cache inside the project is another ~20 GB |
+| Fab listing (license source) | <https://www.fab.com/listings/0c19880e-21bd-42ba-8287-1caccc3951b1> (supplied by the owner 2026-10-11) |
+| Niagara documentation | <https://dev.epicgames.com/documentation/unreal-engine/creating-visual-effects-in-niagara-for-unreal-engine?lang=en-US> (supplied by the owner 2026-10-12): Epic's Niagara VFX and fluids guides and tutorials. Study it for the hero cast (next action 6); Codex can work through the tutorials in parallel. Niagara Fluids may drive visuals only; GDD 4.6 forbids a fluid solver as a rule driver |
+| Epic documentation | <https://dev.epicgames.com/documentation/unreal-engine/valley-of-the-ancient-sample-game-for-unreal-engine?application_version=5.0>. Written for UE 5.0 Early Access; the local copy is 5.4.4, so names and paths may differ *(unverified)* |
 
 **Open it** (double-clicking the `.uproject` will not resolve the engine; see
 traps below):
@@ -48,6 +51,23 @@ The cast is a **tag-driven pipeline**: ability → tag → cue → presentation.
 
 Other abilities present: `GA_ForceWalk`, `GE_ForceWalk`, `GE_LightDartDamage`, and
 (in the base content) `GA_SitStand`, `GA_TouchInteract`, `GA_Vault`, `GE_Walk`.
+
+### What Epic's documentation confirms
+
+From the official walkthrough (link in section 1, read 2026-10-11). It describes
+UE 5.0 Early Access, so treat details as likely but check them in the 5.4.4 copy.
+
+| Topic | Documented fact | Relevance to Wildwright |
+|---|---|---|
+| Abilities | `GA_Vault` is a GameplayAbility. Light Dart is added to Echo by a Game Feature through Game Feature Data; Echo's base actor already supports gaining and using abilities | Confirms the GAS pattern behind D-08. Hero casts could be granted the same way, but Game Features are not required for M1 |
+| Motion Warping | `VaultOver_Montage` uses MotionWarping notify states with three sync points (FrontEdge, BackEdge, BackFloor), computed in one custom Blueprint node from the vaultable actor and set through `VaultingTriggerVolume` on `BP_EchoCharacter` | Model for cast anticipation that must line up with a target (GDD 5.3) |
+| Full-Body IK | A node in each character's Control Rig *Forwards Solve* graph, after animation. Echo's feet adapt to slopes and her hips to uneven ground. Rigs: `AncientContent/Characters/Echo/Rig`, `AncientBattle/Characters/AncientOne/Rig` | Grounded movement in the valley |
+| Niagara | Three painted volumetric systems (`BP_NiagaraPainted_FarFog`, `BP_NiagaraPainted_FogDetail`, `BP_NiagaraPainted_SandStripe`) drive 100,000+ GPU particles from painted density and velocity maps | Ambient atmosphere, not cast cues; mind the GPU budget (GDD 15.1) |
+| Audio | MetaSound `sfx_Golem_RobotBlast_Meta` drives the beam charge-up. Quartz, through the Underscore subsystem, syncs events such as laser fire to the music | Charge/release audio layering for a hero cast |
+| World | One File Per Actor, World Partition, Data Layers, Packed Level Instances | Not needed for one small valley (GDD 14.1) |
+
+The docs do **not** cover gameplay cues, camera modes or the levitate skill. The
+rows about those in the table above still come from package references only.
 
 **Scale warning.** The single LightDart ability has **147 assets with
 "LightDart" in the name**: about 80 materials, 20 `LightDart_*` animation and
@@ -128,16 +148,64 @@ static meshes and 33 GB of Megascans content.
 6. **Binary assets.** `.uasset` files cannot be hand-edited from text. Agents
    can propose exact steps, C++, editor Python and data tables.
 
-## 6. Licensing *(unverified; must be resolved: OD-10)*
+## 6. Licensing *(resolved: D-10, D-11)*
 
-The license terms for Valley of the Ancient and its bundled Megascans content
-have **not been checked**. Before migrating any asset into a game that may be
-shipped or sold, read the license on its Epic/Fab listing. Patterns and
+**Migration (D-11, owner, 2026-10-12):** selected Valley assets may be migrated
+into Wildwright, modified and shipped inside the game. They must never be
+redistributed on their own or in an extractable form. Keep the game repo private,
+ship only cooked, packaged builds, and consider pak encryption at M6. Patterns and
 architecture described in this note are not assets.
+
+**What the Fab listing says** (owner's screenshot of the listing, 2026-10-11;
+agents get HTTP 403 from Fab):
+
+| Field | Value |
+|---|---|
+| Seller | Epic Games |
+| Price | Free |
+| License terms | **Standard License** |
+| Included formats | Unreal Engine |
+| **Allows usage with AI** | **No** |
+| Generated with AI | No |
+| Promotional content | Yes |
+| Published / last update | 2021-04-20 / 2025-11-12 |
+
+**What "Allows usage with AI: No" means.** Epic's Fab documentation
+(*Licenses and pricing in Fab*) says: "The NoAI meta tag indicates that an asset
+must not be used for generative AI data collection." The binding text is the
+Fab EULA (<https://www.fab.com/eula>), which has not been read by an agent.
+
+**Wildwright's rule (D-10, owner, 2026-10-12):** "Never use any Fab asset marked
+as NoAI to generate, train, fine-tune, or create new content, and only allow AI
+operations that read, classify, tag, or organize the original files without
+producing new derivative output." For this sample that means:
+
+- **Allowed:** agents reading and inspecting Valley files and graphs, and writing
+  notes like this one about how they are built.
+- **Not allowed:** feeding Valley meshes, textures, animations, audio or Niagara
+  systems, or renders, screenshots and videos of them, into generation tools
+  (fal, Higgsfield, image, video, 3D or texture generation, `img2threejs`,
+  `image-reference-workflow`).
+
+**Standard License terms** *(owner-supplied summary quoting Fab EULA section
+4(c), 2026-10-12; no agent has read the EULA text)*: you may "Use the assets
+commercially or privately", "Modify and adjust the assets in order to incorporate
+them into your Projects", "Use the assets with any compatible tools", and
+"Distribute a Project that incorporates Content to end users, including software
+applications such as video games". You may share assets privately with
+collaborators on the same project. You may not resell the asset, give the raw
+asset away, include it in a tool or template where others can extract it, let
+players extract it, or use NoAI content in training data, as input to generative
+models or to develop generative AI. Price tiers (Personal under $100,000 revenue
+in 12 months, Professional above) apply to paid listings; this one is free.
+
+**Megascans.** Epic's documentation page has no license terms. It only says the
+environment assets "are available in the Canyons of Utah Megascans pack". The
+Fab listing covers the sample as one package under the Standard License.
 
 ## 7. How to learn more from the project
 
-Ask the editor, not the file system:
+Start with Epic's walkthrough (section 1), then ask the editor, not the file system:
 
 - Open `GA_LightDart` and read the event graph top to bottom.
 - Open `GC_AncientBattle_LightDart_Levitating` and `NS_GroundFX`.

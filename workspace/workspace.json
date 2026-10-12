@@ -1,6 +1,29 @@
 {
   "entities": [
     {
+      "id": "wildwright",
+      "title": "Wildwright",
+      "description": "Elemental ecosystem sandbox with cinematic action-fantasy spectacle: the game design hub, built from GDD 0.2 and the decision log.",
+      "type": "group",
+      "category": "project",
+      "created": "2026-10-11",
+      "updated": "2026-10-12",
+      "folder": "2026-10-11_wildwright",
+      "steps": [
+        {
+          "name": "Wildwright",
+          "path": "index.html"
+        },
+        {
+          "name": "Greybox maps",
+          "path": "greybox.html"
+        }
+      ],
+      "status": "active",
+      "pinned": true,
+      "defaultStep": 0
+    },
+    {
       "id": "my-dream-game",
       "title": "My Dream Game",
       "description": "Mr. Mak 64: a small Sky Islands adventure, with character studies, world layouts and a development board.",

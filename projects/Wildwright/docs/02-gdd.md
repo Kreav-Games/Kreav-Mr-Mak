@@ -8,11 +8,11 @@
 |---|---|
 | Working title | **Wildwright** (formerly *Worldweave*, then *Elemental*; availability only lightly checked, see OD-05) |
 | Version | GDD 0.2 — 2026-10-11 (supersedes GDD 0.1 and Concept v1.1) |
-| Status | Pre-production. Design only; no Unreal project exists yet. |
+| Status | Pre-production. M0 foundation set up 2026-10-11: UE 5.8.3 C++ project at `D:\Wildwright\` with a Git baseline (D-09). |
 | Genre | Third-person elemental ecosystem sandbox: exploration, survival, construction |
 | Presentation target | **Cinematic action-fantasy spectacle** on top of a systemic world |
 | Platform | Windows PC |
-| Engine | Unreal Engine 5.x (version not locked, see OD-01) |
+| Engine | Unreal Engine **5.8.3** (D-07); cast layer on GAS (D-08) |
 | Mode | Single-player prototype. Multiplayer is out of scope. |
 | Audience | Players who enjoy discovery, simulation, exploration and creative problem-solving |
 
@@ -54,6 +54,8 @@ milestone IDs are stable; do not rename them.
 | Moved the element system ahead of the world simulation | The player's actions are the entry point. |
 | Unified the two rule lists (old §5.3 and Appendix A) into one table | They disagreed. See Appendix A. |
 | Added spectacle risks, OD-01 to OD-10 and CR-001 | New direction creates new risks and decisions. |
+| Locked the engine to UE 5.8.3 and the cast layer to GAS (12.1, 12.2, 16) | Owner decisions D-07 and D-08 resolved OD-01 and OD-02 on 2026-10-11. |
+| 12.1: Blueprint-first replaced by C++ and CSV data for agent-built systems; Blueprints for owner-tuned content | Owner decision D-12 resolved OD-11 on 2026-10-12. |
 
 **Section map V0.1 → V0.2** (so old references still resolve)
 
@@ -711,9 +713,16 @@ causes open until the wider narrative is designed.
 
 ### 12.1 Strategy
 
-Blueprint-first for the prototype; add C++ only when measured needs or
-maintainability justify it. Prefer focused components and data assets over one
-giant player Blueprint.
+**Systems the agents build are C++, with their data in CSV files imported into
+data tables, and their assets made by editor-Python generators (D-12).** Agents
+cannot edit Blueprint graphs or other binary assets, and C++, CSV and scripts stay
+diffable, reviewable and testable by both Claude Code and Codex. **Blueprints are
+for content the owner tunes** (looks, sounds, cast presentation, level dressing),
+with agent assistance: exact steps, and editor Python where it can do the job.
+Prefer focused components and data over one giant player class. The cast layer uses
+GAS (D-08). UE 5.8.3 (D-07) only compiles C++ with MSVC 14.44.35211+ (VS 2022
+17.14) or 14.50.35723+ (VS 2026). How to build and test: [engineering
+guide](05-engineering-guide.md).
 
 > **Implementation principle:** prove each rule in a small test map before
 > integrating it into the valley. Keep elemental rules deterministic and keep AI
@@ -725,7 +734,7 @@ giant player Blueprint.
 |---|---|---|
 | Player | Character Blueprint + focused Actor Components | Input, movement, interaction request, survival attributes |
 | Element system | Element component + data assets/data table | Selected element, cost, target validation, rule dispatch |
-| **Cast layer** *(new)* | Gameplay ability or lightweight component + Gameplay Tags + cue interface (OD-02) | Montages, camera mode, charge/release, Niagara/audio/haptic cues |
+| **Cast layer** *(new)* | Gameplay Ability System (D-08): gameplay abilities + Gameplay Tags + Gameplay Cues. Holds no world-cell state | Montages, camera mode, charge/release, Niagara/audio/haptic cues |
 | Rule resolver | Subsystem or dedicated manager + data-driven rules | Resolve compatible inputs, priority, events |
 | World cell state | Subsystem/manager with spatial grid or cell map | Store local variables, bounded transitions |
 | Target interface | Blueprint Interface + Gameplay Tags | Expose supported effects and queryable state |
@@ -932,8 +941,8 @@ The live list is in [04-decisions.md](04-decisions.md). This table is the summar
 
 | ID | Decision | Current recommendation | Resolve when |
 |---|---|---|---|
-| OD-01 | Engine version for the prototype | UE 5.4.4 | Before M0 |
-| OD-02 | Cast-layer technology | GAS for casting only; world state separate | Before M1 |
+| OD-01 | Engine version for the prototype | **Decided (D-07): UE 5.8.3** | Resolved 2026-10-11 |
+| OD-02 | Cast-layer technology | **Decided (D-08): GAS for casting only; world state separate** | Resolved 2026-10-11 |
 | OD-03 | Combat role | No player-vs-creature combat in M1–M2 | After M3 |
 | OD-04 | Element delivery | Aimed cast with charge → release | After M1 playtests |
 | OD-05 | Title availability | "Wildwright" is a working title; a quick search found no conflicts | Before public branding |
@@ -941,7 +950,8 @@ The live list is in [04-decisions.md](04-decisions.md). This table is the summar
 | OD-07 | Terrain approach | Authored states and discrete earthworks | After M2 |
 | OD-08 | Costs/cooldowns | Minimal at first; tune if spam undermines decisions | After core rules are fun |
 | OD-09 | Death penalty | Preserve journal; safe respawn | After survival loop tests |
-| OD-10 | Valley asset licensing | Verify before reusing any Epic or Megascans asset | Before any asset migration |
+| OD-10 | Valley asset licensing | **Decided (D-10, D-11):** Standard License; migrate selected assets and ship them inside the game only, never extractable; no generative AI use | Resolved 2026-10-12 |
+| OD-11 | Implementation for agent-built systems | **Decided (D-12):** C++ and CSV-sourced data tables; Blueprints for owner-tuned content, with agent assistance | Resolved 2026-10-12 |
 
 ### 16.1 Change control
 
@@ -963,10 +973,10 @@ milestone impact. A good idea is not automatically a production priority.
 
 | Order | Action | Deliverable |
 |---|---|---|
-| 1 | Decide OD-01 and OD-02 | Recorded in 04-decisions.md |
-| 2 | Create clean UE project and Git baseline | Versioned project that opens and runs |
-| 3 | Create greybox valley and test range | Small map with target objects and test cases |
-| 4 | Build target interface and element selection | Player selects and applies one element to one target |
+| 1 | ~~Decide OD-01 and OD-02~~ Done 2026-10-11 | D-07, D-08 in 04-decisions.md |
+| 2 | ~~Create the clean UE 5.8.3 project at `D:\Wildwright\` (D-09) with a Git baseline~~ Done 2026-10-11; clean clone verified 2026-10-12 (M0 met) | Versioned project that opens and runs |
+| 3 | ~~Create greybox valley and test range~~ Done 2026-10-12 | Small map with target objects and test cases |
+| 4 | ~~Build target interface and element selection~~ Done 2026-10-12 (`7b9712f`) | Player selects and applies one element to one target |
 | 5 | Implement first three `ER_*` rules only | Deterministic resolution and visible outcomes |
 | 6 | Build the first hero cast (water or fire) | Passes the spectacle contract |
 | 7 | Add world-state debug overlay | Inspect variables and rule decisions |
