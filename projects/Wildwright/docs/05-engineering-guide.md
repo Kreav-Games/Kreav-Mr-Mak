@@ -321,6 +321,18 @@ separate engine frames without changing `GFrameCounter`.
     plugin check below.
 25. `Select-String` without parameter names takes the **pattern first**: always write
     `Select-String -Path <file> -Pattern <regex>`.
+26. **Editor Python scripts that build a Landscape must drop their module-level Unreal
+    references before quitting** (2026-10-13). `build_world_proof.py` crashed the editor
+    in Python's own shutdown (`EXCEPTION_ACCESS_VIOLATION` in `python311.dll`, exit 3)
+    *after* the map was saved. Twelve bisection runs showed no single cause: the C++
+    landscape call, saving, asset loads, subsystems, tags and imports were each clean
+    alone. Popping the globals that hold Unreal objects (subsystems, loaded assets) and
+    running `gc.collect()` in the script's `finally`, before `quit_editor()`, made it exit
+    0. Copy that pattern into any new generator.
+27. A Landscape can be created from code only in the editor:
+    `ALandscapeProxy::Import` is editor-only and has no Blueprint or Python wrapper. Use
+    `UWildwrightWorldBuildLibrary::CreateLandscapeFromHeights` (module
+    `WildwrightEditor`), which follows the engine's New Landscape tool.
 
 ## 8. Working as two agents (Claude Code and Codex)
 

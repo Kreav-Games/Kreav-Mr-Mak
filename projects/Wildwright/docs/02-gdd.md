@@ -329,10 +329,10 @@ permanent wasteland or a world that visibly resets behind the player.
 
 ### 4.2 Change classes
 
-| Class | Examples | Behaviour | Single-player time (OD-13) | Future server time |
+| Class | Examples | Behaviour | Single-player time (D-21) | Future server time |
 |---|---|---|---|---|
 | Temporary disturbance | A small fire, a soaked patch, trampled growth | Recovers by itself | Minutes to one game day | Minutes to days |
-| Ecological change | A burned hillside, a drained or flooded area | Staged succession; may settle into a different ecosystem | Several game days | Days to weeks |
+| Ecological change | A burned hillside, a drained or flooded area | Staged succession; may settle into a different ecosystem | Severe damage heals in about 10 game days | Days to weeks |
 | Structural change | Channels, berms, a diverted stream | Persists until another process or player changes it | Permanent | Permanent |
 
 Player restoration (watering, replanting later) speeds recovery. The future-server
@@ -500,8 +500,11 @@ is stored. Large geology is static.
 
 ### 4.12 Time, rest and catch-up
 
-- **Game clock.** A day-night cycle; recommended 1 game day = 24 real minutes
-  (OD-13).
+- **Game clock.** A day-night cycle; **1 game day = 60 real minutes** (D-21).
+- **Healing target.** Severe damage (a burned grove, a flooded meadow) heals in
+  about **10 game days** without help: living cover and soil health back above
+  their healthy thresholds, not necessarily the original stage. Player help
+  shortens it. Process rates in CSV are tuned to hit this target (D-21).
 - **Rest.** At the camp the player can rest one to three days. The world advances
   in bounded catch-up steps using the same deterministic processes, then shows the
   result.
@@ -1047,13 +1050,13 @@ unrestricted digging; fluid simulation; runtime AI; a story campaign.
 | OD-06 | Art direction | Grounded land, heightened elements | After the first look test in MVP-4 |
 | OD-08 | Costs and earthwork budget | Minimal casts; a daily earthwork budget | MVP-1 step 1.5 |
 | OD-09 | Death penalty | No death in the MVP | After the MVP |
-| OD-13 | Single-player time scale | 24 real minutes per game day; severe burns heal in 5–10 days | Before MVP-2 |
 | OD-14 | Cutting below the terrain | Landscape hole plus runtime terrain tile | Spike S-1 |
 | OD-15 | Drawing channel water | Custom ribbons | Spike S-2 |
 | OD-16 | Cast animation source | Decide at MVP-3 | MVP-3 |
 
 Decided: OD-01 (D-07), OD-02 (D-08), OD-07 (A-02), OD-10 (moot, D-18), OD-11 (D-12),
-OD-12 (D-20: this §14 is the approved MVP plan).
+OD-12 (D-20: this §14 is the approved MVP plan), OD-13 (D-21: 60 real minutes per
+game day; severe damage heals in about 10 game days).
 
 ### 16.1 Change control
 

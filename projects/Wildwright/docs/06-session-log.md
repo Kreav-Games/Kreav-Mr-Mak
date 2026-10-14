@@ -522,3 +522,28 @@ the game repo's working tree. **Next:** owner approves OD-12 (and answers OD-13)
 the commits; then MVP-1 step 1.1 and spikes S-1 and S-2. Ownership claim released.
 
 *2026-10-13, approval and commits.* The owner approved the MVP plan (**D-20**, GDD §14) and said to commit everything. Game repo: `f15110e` (Valley rules removed from `AGENTS.md`, box valley retired, editor preview profile) and `361f279` (cast-layer plumbing, parked for MVP-3); working tree clean; both commit messages were recreated once to strip a byte-order mark PowerShell had written, with trees verified identical. Design record and Workspace card committed in the Mr. Mak repo (Wildwright paths and the card registry only; the owner's other pending changes there were left untouched). Added a direct MVP-plan link at the top of the README. **Next:** OD-13 before MVP-2; MVP-1 step 1.1 and spikes S-1 and S-2.
+
+*2026-10-13, MVP-1 step 1.1 (Claude Code).* The owner set the time scale (**D-21**:
+60 real minutes per game day; severe damage heals in about 10 game days) and said to
+start MVP-1. Wrote the MVP-1 brief ([10-mvp1-world-proof.md](10-mvp1-world-proof.md))
+for steps 1.1–1.3. Added the editor-only module `WildwrightEditor` with
+`UWildwrightWorldBuildLibrary::CreateLandscapeFromHeights` (follows the engine's New
+Landscape tool, `ALandscapeProxy::Import`; no Blueprint or Python wrapper exists).
+Added `Tools/WorldProof/`: `proof_terrain.py` (the terrain as one function plus the
+layout), `build_world_proof.py`, `verify_world_proof.py`, `preview_terrain.py` (relief
+map, now in the brief) and a README. `L_WorldProof`: a 126 m Landscape with a spring,
+a stream along the north, a bank falling to a basin, a 42 m × 36 m soft-ground zone
+between them, a camp and placeholders (water slabs, zone posts, slope-blend ground
+material). The generator crashed in Python's own shutdown after saving; twelve
+bisection runs ruled out every single suspect, and dropping module-level Unreal
+references before quitting fixed it (guide gotcha 26). Two verifier bugs of my own
+fixed along the way: posts on the test-channel line, and a test channel that started
+inside the stream.
+
+**Verified** (logs in `D:\Wildwright\Saved\ClaudeScratch\`): editor target with the new
+module `Result: Succeeded`; generator `RESULT ok 75`, exit 0, forced rebuild
+reproduces it; world-proof verifier **10/10**; automation **11/11**; `L_TestRange`
+verifier **16/16**; game target `Result: Succeeded` with no editor-module code in its
+link; editor-only plugin check PASS. **Not verified:** the scene's look and feel (owner
+walk-through). **Not done:** commits. **Next:** owner walks the scene; spikes S-1
+(diggable ground) and S-2 (channel water). Claim kept for S-1 and S-2.

@@ -31,6 +31,7 @@ entries; strike them through and say why, so old ideas do not re-enter unnoticed
 | D-18 | **Valley of the Ancient is dropped entirely.** No assets, animations, effects, tags, redirects, tools or documents from it. Wildwright learns general techniques from Epic's documentation and builds its own versions. | 2026-10-13 | Owner: "remove any of the valley stuff we tried to use as i think we are better off just looking at how things are done then making our own version thats better suited to WildWright". Removed: 406 imported packages (1.6 GB, uncommitted; sent to the Recycle Bin), the import tools, the Valley tag file, 406 package redirects, the `AudioModulation` plugin enabled only for them, the feel-reference document, the Fire hero-cast plan built on Valley starting points and the Valley FX diagnosis. Supersedes D-11, D-15, D-16; OD-10 is moot. The Valley project itself (`Documents\Unreal Projects\ValleyoftheAncient`) is the owner's and was not touched. |
 | D-19 | **Claude Code leads the game design** (GDD, decision log, build order). | 2026-10-13 | Owner: "codex i feel messed about alot in the game design so i upgraded you so we can get higher quality work done". Recommendation (not yet confirmed): Codex works from written briefs on bounded tasks (research, tutorials, isolated implementation) and does not restructure the GDD. |
 | D-20 | **The MVP plan is approved**: GDD 0.4 §14 (MVP definition, content cap, milestones MVP-0 to MVP-5, the MVP-1/MVP-2 build order and the technical proof). Resolves OD-12. | 2026-10-13 | Owner: "approve the plan, commit everything". Rough sizes in §14.3 remain estimates, revised after each milestone. |
+| D-21 | **Single-player time scale: 1 game day = 60 real minutes; severe world damage heals in about 10 game days.** Resolves OD-13. | 2026-10-13 | Owner: "use 60 real minutes per game day, with severe world damage healing in 10 game days" (over the 24-minute recommendation). "Heals" means living cover and soil health return above their healthy thresholds without player help; the land may settle into a different stage or ecosystem (GDD 4.1). Player help shortens it. All rates are CSV data tuned to hit this target. |
 
 ## Accepted in principle
 
@@ -69,6 +70,11 @@ proof, MVP-2 living ground), then casting (MVP-3), the demo valley (MVP-4) and
 polish (MVP-5); survival, crafting, construction beyond earthworks, creatures,
 combat and multiplayer after the MVP. **Approved by the owner 2026-10-13.**
 
+### OD-13 Single-player time scale → D-21
+Recommended 24 real minutes per game day with severe burns healing in 5–10 game
+days. **The owner chose 60 real minutes per game day and about 10 game days for
+severe damage** (2026-10-13).
+
 ### OD-11 How agent-built systems are implemented → D-12
 C++ plus CSV-sourced data tables for agent-built systems; Blueprints for content
 the owner tunes. Accepted 2026-10-12.
@@ -77,13 +83,6 @@ the owner tunes. Accepted 2026-10-12.
 
 Recommendations are Claude Code's unless noted; none is binding until moved to
 **Decided**.
-
-### OD-13 Single-player time scale — *needs the owner*
-The concept's recovery targets (days to weeks of real time) are for a future
-persistent server. A single-player session needs compressed game time.
-**Recommendation:** 1 game day = 24 real minutes; light disturbance recovers in
-under a game day, severe burns take 5–10 game days; resting at camp skips 1–3
-days. All values are CSV data and test hypotheses.
 
 ### OD-14 How a channel is cut below the terrain surface — *spike decides*
 UE 5.8 cannot edit Landscape at runtime in a shipped game (`LandscapePatch` is

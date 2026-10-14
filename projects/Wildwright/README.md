@@ -20,6 +20,7 @@ recovers on its own terms. This is the owner's **only active game project** (D-0
 | 2 | [docs/02-gdd.md](docs/02-gdd.md) | **GDD 0.4, the authoritative design**: world model §4, MVP and build order §14 | 30 min |
 | 3 | [docs/04-decisions.md](docs/04-decisions.md) | What is decided, accepted, open | 5 min |
 | 4 | [docs/05-engineering-guide.md](docs/05-engineering-guide.md) | How to build, generate, test, verify; gotchas | 15 min |
+| 5 | [docs/10-mvp1-world-proof.md](docs/10-mvp1-world-proof.md) | **Current work:** MVP-1 brief (proof scene, spikes) with evidence and the relief map | 5 min |
 | — | [docs/01-vision.md](docs/01-vision.md) | The idea in two minutes | 2 min |
 | — | [docs/09-hero-cast-owner-guide.md](docs/09-hero-cast-owner-guide.md) | Optional: the owner's Niagara learning track (Fire effects) | as needed |
 | — | [docs/07-handoff-action-5.md](docs/07-handoff-action-5.md) | Completed action 5 brief (object rules) | as needed |
@@ -42,8 +43,8 @@ recovers on its own terms. This is the owner's **only active game project** (D-0
 | Item | State |
 |---|---|
 | Design | **GDD 0.4** rebased on the owner's Dynamic World Systems concept (A-02, CR-003). **MVP plan (§14) approved** (D-20) |
-| Milestone | **MVP-0 done** (project, Git, character, element selection, three object rules). **MVP-1 World-change proof** is next |
-| Unreal project | `D:\Wildwright\`, UE 5.8.3 C++, GAS enabled, own Git repo with LFS, local only. Valley of the Ancient fully removed (D-18). Box valley greybox retired. `L_TestRange` kept as the object-rules regression lab |
+| Milestone | **MVP-0 done.** **MVP-1 World-change proof in progress:** step 1.1 proof scene `L_WorldProof` built and verified (10/10), owner walk-through pending; spikes S-1 and S-2 next ([brief](docs/10-mvp1-world-proof.md)) |
+| Unreal project | `D:\Wildwright\`, UE 5.8.3 C++, GAS enabled, own Git repo with LFS, local only. Valley of the Ancient fully removed (D-18). Box valley greybox retired. `L_TestRange` kept as the object-rules regression lab. New editor-only module `WildwrightEditor` (Landscape creation for generators); `Tools/WorldProof/` builds and verifies `L_WorldProof` (uncommitted) |
 | Element system | Select (1–4, wheel, Q/E), aim, left mouse to apply; reasons for every refusal. Water wets, Fire ignites and burns on a timer, Water cools with Steam: on **object** targets. Committed (`7b9712f`, `a4049ae`) and owner-accepted |
 | Parked work | Cast-layer C++ (`Source/Wildwright/Cast/`, cast profiles, cast input assets): committed `361f279`; **builds and its 7 automation tests pass** (cancel, effects-off parity, timing, data); not play-tested. Belongs to MVP-3 |
 | Owner learning track | Optional: Fire Niagara effects with fresh UE 5.8 emitters ([guide](docs/09-hero-cast-owner-guide.md), D-17) |
@@ -63,7 +64,8 @@ assets** never used to generate content (D-10) · **C++ with CSV data** for
 agent-built systems, Blueprints for owner-tuned content (D-12) · first hero cast is
 **Fire** (D-13) with hold-release-cancel controls (D-14) · **our own Niagara
 effects** (D-17) · **no Valley of the Ancient content** (D-18) · **MVP plan
-approved** (D-20).
+approved** (D-20) · **60 real minutes per game day; severe damage heals in ~10 game
+days** (D-21).
 
 **Accepted in principle:** the spectacle contract (A-01); the **Dynamic World
 Systems direction** (A-02).
@@ -72,7 +74,6 @@ Systems direction** (A-02).
 
 | ID | Question | Recommendation |
 |---|---|---|
-| OD-13 | Single-player time scale | 24 real minutes per game day; severe burns heal in 5–10 game days |
 | OD-14 | Cutting below the terrain | Landscape hole filled by a runtime terrain tile; spike S-1 decides |
 | OD-15 | Drawing water in player channels | Custom water ribbons; spike S-2 decides |
 | OD-16 | Cast animation source | Decide at MVP-3 |
@@ -119,15 +120,15 @@ release it when you stop.** One agent per area. `docs/02-gdd.md` is authoritativ
 
 | Area | Owner (agent) | Since | Notes |
 |---|---|---|---|
-| *(nothing claimed)* | | | The 2026-10-13 rebase and cleanup are done and await commit approval |
+| MVP-1 steps 1.1–1.3: `D:\Wildwright\Source\` (new editor module), `Tools/WorldProof/`, `Content/Wildwright/WorldProof/`, `Data/` (new world CSVs), `Config/`; brief `docs/10-mvp1-world-proof.md` | Claude Code | 2026-10-13 | Proof scene and spikes S-1, S-2 |
 
 ## Next actions
 
 | # | Action | Needs the owner? | Output |
 |---|---|---|---|
 | 1 | ~~Approve the MVP plan (OD-12) and the commits~~ Done 2026-10-13: D-20; game repo `f15110e`, `361f279`; design record committed | — | — |
-| 2 | Answer the single-player time scale (OD-13) | **Yes**, before MVP-2 | Decision in the log |
-| 3 | MVP-1 step 1.1: proof scene `L_WorldProof` (stream bank, basin, soft-ground zone) | Possibly one terrain import step | A rebuildable proof map |
+| 2 | ~~Answer the single-player time scale (OD-13)~~ Done 2026-10-13: D-21, 60 real minutes per game day, severe damage heals in ~10 game days | — | — |
+| 3 | MVP-1 step 1.1: proof scene `L_WorldProof` — **built and verified 2026-10-13** (no terrain import step needed: the Landscape is created from code) | **Walk the scene** (camp → stream → basin) and approve the commit | A rebuildable proof map |
 | 4 | Spikes S-1 (cutting below terrain) and S-2 (channel water) | Review the look | OD-14, OD-15 decided on measurements |
 | 5 | Steps 1.4–1.9 in GDD §14.4 | Reviews and play-tests | MVP-1 technical proof (§14.5) |
 
