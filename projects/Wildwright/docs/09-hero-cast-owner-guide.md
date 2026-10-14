@@ -1,339 +1,370 @@
-# Fire hero cast — owner's step-by-step guide
+# Fire hero cast — manual creation guide
 
-*For the owner, written by Claude Code on 2026-10-12. The plan behind it is
-[08-hero-cast-plan.md](08-hero-cast-plan.md). It follows Epic's Niagara documentation
-(template first, User parameters, Effect Types, fixed bounds, pooling) and reuses
-Valley of the Ancient's LightDart pieces. Menu labels are from UE 5.8 as far as they
-could be checked; where a label may differ slightly it says so.*
+*Claude Code's 2026-10-12 guide, revised by Codex for D-17 (make Wildwright's own
+Niagara effects) and on 2026-10-13 for D-18 (no Valley of the Ancient content).
+These are manual recipes, not effects already created or visually verified.*
 
-## How to use this guide
+> **Status 2026-10-13: optional learning track, off the critical path.** GDD 0.4
+> builds the world systems first; the cast layer and its hero cast come later
+> (GDD §14). Effects made now are still useful then. The gameplay tests at the end
+> of this guide wait for that milestone.
 
-- Do the parts in order. Each part ends with a **check** so you know it worked.
-- Agents do the code and file copying (part 1). You do the hands-on editor work
-  (parts 2–6). If a check fails, tell the agent which step and what you see.
-- **Never edit `L_TestRange` or `L_Valley_Greybox` to try effects.** They are
-  rebuilt by a script. Use the sandbox level made in part 3.
-- Save often (**Ctrl+Shift+S** saves everything).
+## Start here
 
-### Names and folders
+**Do part 5A first.** Make a visible stock emitter, assign our ember material,
+then add the Charge slider. Stop at that preview check before building more.
+Everything happens inside Unreal; no Python command is needed to view the effect.
 
-| What | Folder | Prefix |
-|---|---|---|
-| Copied Valley and Epic assets | `/Game/Wildwright/Imported/` | keep their names |
-| Retargeted animations and montages | `/Game/Wildwright/Cast/Animations/` | `A_` and `AM_FireCast_` |
-| Niagara systems | `/Game/Wildwright/Cast/Niagara/` | `NS_FireCast_`, `NS_Fire_` |
-| Materials you recolour | `/Game/Wildwright/Cast/Materials/` | `MI_Fire_` |
-| Effect Type | `/Game/Wildwright/Cast/Niagara/` | `ET_HeroCast` |
-| Cue Blueprints | `/Game/Wildwright/Cast/Cues/` | `GC_` |
-| Sandbox level | `/Game/Wildwright/Cast/` | `L_FXSandbox` |
+Effects use UE 5.8 built-in emitters and original procedural materials
+(**D-17**). If a name already exists, name the fresh asset `..._Original_v1`; do
+not replace your previous work. Tell the agent the final paths before integration.
 
-### Fire colours (use everywhere)
+Build order: charge → bolt → impact → fizzle → burning → smoulder. Animation and
+GAS can follow. VFX never decide ignition, fuel consumption or Water cooling.
 
-| Role | Linear colour (R, G, B) | Notes |
-|---|---|---|
-| Core (hottest) | 1.0, 0.85, 0.55 × 20 | ×20 = emissive strength (HDR) |
-| Flame | 1.0, 0.38, 0.08 × 10 | Main orange |
-| Edge | 0.9, 0.16, 0.03 × 5 | Red-orange rim |
-| Ember spark | 1.0, 0.45, 0.1 × 30 | Tiny, very bright |
-| Smoke | 0.12, 0.11, 0.10, alpha 0.5 | Never emissive |
+### Where to work
 
----
-
-## Part 1 — Get the Valley pieces into Wildwright (agent does this)
-
-Tell the agent **"do part 1 of the owner guide"**. It will copy these assets from
-Valley of the Ancient, with everything they depend on, into
-`/Game/Wildwright/Imported/Valley/`, add a package redirect so their internal links
-still work, and check every one loads in 5.8. Valley itself is not changed.
-
-| Kind | Assets |
+| What | Content Browser folder |
 |---|---|
-| Animations | `LightDart_Charge_1_5s`, `LightDart_Charge_1_5s_Loop`, `LightDart_Release`, `LightDart_Release_Montage`, `LightDart_Charge_Cancel`, `LightDart_Charge_Cancel_Montage`, plus Echo's skeleton and skeletal mesh (needed as the retarget source) |
-| Niagara | `NS_LightdartHandCharge`, `NS_LightdartCore2`, `NS_LightDartCoreChargeTrail`, `NS_HotSpotImpact`, `NE_Campfire_Sparks` |
-| Textures and materials | `MAP_SmokeSprites`, `M_HeatDistortion`, and every material the systems above use |
-| Sounds | `sfx_Ability_LightDart_ImpactShared_FireHit_nl_01`, `sfx_Ability_LightDart_ImpactShared_FireTail_nl_01`, `sfx_amb_poi_campfire_main_lp`, `sfx_amb_poi_campfire_spark_nl_01` |
-| Epic flipbooks | `T_Fire_SubUV`, `T_Smoke_SubUV`, `M_Fire_SubUV` (Epic's Starter Content, shipped inside an engine plugin) into `/Game/Wildwright/Imported/Epic/` |
+| New systems | `Wildwright/Cast/Niagara` |
+| New materials | `Wildwright/Cast/Materials` |
+| Animations and montages | `Wildwright/Cast/Animations` |
+| FX sandbox | `Wildwright/Cast/L_FXSandbox` |
+| Cue Blueprints, after C++ exists | `Wildwright/Cast/Cues` |
 
-Remember the rule (D-10): these are **NoAI** assets. Use them in the game; never put
-them, or screenshots of them, into an AI image or video tool.
+Create missing folders in Content Browser. Use **Ctrl+S** in the asset you are
+editing. Test in `L_FXSandbox`; `L_TestRange` is a generated map and must not be
+edited for FX experiments. You can make the sandbox now:
+**File → New Level → Basic**, save under `Wildwright/Cast`, add a floor if needed.
+Place effects above the floor and enable real-time updates or Simulate.
 
-**Check:** open the editor, Content Browser → `Wildwright/Imported/Valley`. Double-click
-`NS_LightdartHandCharge`: it plays in the preview with no "missing" warnings.
+### Find the controls
 
----
+- Content Browser → right-click → **FX → Niagara System**. Search the creation
+  browser for the named built-in emitter/template and create a system from it.
+  The 5.8 wizard may say **Create** or **Create System**. Enable **Show Engine
+  Content** and **Show Plugin Content** if engine entries are hidden. Choose
+  `/Niagara/` entries.
+- Niagara's **System Overview** → right-click empty space → **Add Emitter**.
+- Select an emitter, then edit its stack in the **Selection** panel. Groups are
+  Emitter Update, Particle Spawn, Particle Update and Render. Add modules with
+  the group's **+** button.
+- Open **User Parameters** through Niagara's **Window** menu if hidden. Parameter
+  definitions are also available under **Parameters → User Exposed**.
+- **Compile**, reset, then **Play** the timeline. Wait for shaders; use **F** in
+  the preview viewport to frame the effect. Use **Niagara Log** for red errors.
 
-## Part 2 — Retarget Echo's cast animations onto the mannequin
+Emitter/module files and User Parameters/Niagara Log tab names were checked in
+installed UE 5.8 source/content. Wizard layouts and these recipes have not been
+exercised through the owner's UI. Report a missing control by its label.
+Epic demonstrates the workflow in its [Niagara Quick Start](https://dev.epicgames.com/documentation/en-us/unreal-engine/quick-start-for-niagara-effects-in-unreal-engine).
 
-Echo has her own skeleton (`Echo_Skeleton`); the Wildwright character uses
-`SK_Mannequin`. Retargeting copies the motion from one to the other.
+## Parts 1–3 — Sandbox level (animation retired)
 
-1. Content Browser → `Wildwright/Imported/Valley/.../Echo/Animations`.
-2. Hold **Ctrl** and click these four: `LightDart_Charge_1_5s`,
-   `LightDart_Charge_1_5s_Loop`, `LightDart_Release`, `LightDart_Charge_Cancel`.
-3. Right-click one of them → **Retarget Animations** (in some versions under
-   *Animation* or *Retarget*).
-4. In the window that opens:
-   - **Source Skeletal Mesh:** Echo's skeletal mesh (it should already be filled in).
-   - **Target Skeletal Mesh:** `SK_Mannequin` (`/Game/Characters/Mannequins/Meshes/`).
-   - **Retargeter:** leave empty so it **auto-generates** one (5.4 and later can do this
-     for human skeletons).
-5. Look at the preview: the mannequin should copy Echo's pose. Scrub through
-   `LightDart_Release`: the right hand should sweep forward and open, as Echo's does.
-6. **Export**: folder `/Game/Wildwright/Cast/Animations/`, add the prefix `A_`, click
-   **Export Animations**.
-7. If arms or wrists look twisted: tell the agent which animation and frame. The fix
-   is in the generated retargeter (chain settings for the arms), and the agent can
-   walk you through it.
+Earlier versions imported and retargeted Valley of the Ancient's Echo animations.
+That is withdrawn (**D-18**): no Valley content is used. The cast animation source
+is chosen when the casting milestone starts; effects do not need it.
 
-**Check:** in `Cast/Animations` you have four `A_LightDart_...` assets; double-click
-`A_LightDart_Release`: the mannequin performs the throw cleanly.
+Make the sandbox now if you have not already:
 
-## Part 3 — Montages and the sandbox level
+1. **File → New Level → Basic**, save as `/Game/Wildwright/Cast/L_FXSandbox`.
+2. Drag a cube in as a floor if the template has none. This level is yours:
+   nothing rebuilds it.
 
-### Montages
+## Part 4 — Effect Type and bounds, after the first visible preview
 
-8. Right-click `A_LightDart_Charge_1_5s` → **Create → Create AnimMontage**. Name it
-   `AM_FireCast_Charge`.
-9. Open it. In the **Montage Sections** panel, add a section named `Loop`. Drag
-   `A_LightDart_Charge_1_5s_Loop` from the Asset Browser onto the montage track, right
-   after the charge clip, and place the `Loop` section marker at its start.
-10. In **Montage Sections**, set `Default` → next: `Loop`, and `Loop` → next: `Loop`
-    (click `Loop` to make it repeat). The charge now plays once, then loops while you
-    hold.
-11. Right-click `A_LightDart_Release` → Create AnimMontage → `AM_FireCast_Release`.
-12. In `AM_FireCast_Release`, scrub to the frame where the hand fully opens. Right-click
-    the **Notifies** track → **Add Notify → New Notify…** → name it `WW_CastRelease`.
-    The bolt leaves the hand on this notify.
-13. Right-click `A_LightDart_Charge_Cancel` → Create AnimMontage → `AM_FireCast_Cancel`.
-14. All three montages use the slot `DefaultGroup.DefaultSlot` (the default). The
-    character's animation Blueprint already has that slot, so nothing else is needed.
+During the first charge check leave **Effect Type unassigned**, **Fixed Bounds
+off**, **Warmup Time 0**. Add budgeting after visibility is proven.
 
-For this first pass you cast **standing still**: the montage drives the whole body. Upper
-body only, so you can walk while casting, comes later (the agent will give steps).
+1. Create **FX → Niagara Effect Type**, `ET_HeroCast`, in `Cast/Niagara`.
+2. Assign it in each system's **System Properties → Effect Type**.
+3. Start with distance limit **6000 cm (60 m)** and **6 instances** per effect
+   kind. Medium halves spawn counts and disables any lights. Exact scalability
+   array labels may differ; leave lights out of this first pass.
+4. Stationary systems: turn on Fixed Bounds and enter explicit **Min/Max** that
+   cover all particles. Each recipe has a starting box. Leave bolt bounds dynamic.
+5. Pan around each sandbox effect and move away/back. It must remain visible
+   while on-screen and in range; expand bounds if particles clip.
 
-### Sandbox level
+These settings need later profiling. Epic describes the controls in
+[System Settings](https://dev.epicgames.com/documentation/en-us/unreal-engine/system-settings-reference-for-niagara-effects-in-unreal-engine).
 
-15. **File → New Level → Basic**. Save it as `/Game/Wildwright/Cast/L_FXSandbox`.
-16. Drag a cube in as a floor if the template has none. This level is yours: nothing
-    rebuilds it.
+## Part 5 — Create six original Niagara effects
 
-**Check:** opening `AM_FireCast_Charge` and pressing play shows the charge, then the
-loop repeating.
+### Our two procedural materials
 
-## Part 4 — The Effect Type (the budget for every fire effect)
+Make the ember material during charge checkpoint B. Make smoke when reaching
+fizzle. No imported assets, generated images, textures or flipbooks are needed.
 
-17. Content Browser → `Wildwright/Cast/Niagara` → right-click → **FX → Niagara Effect
-    Type**. Name it `ET_HeroCast`.
-18. Open it. Under the scalability settings for **each quality level** (Epic, High,
-    Medium):
-    - **Max Distance:** 6000 (60 m).
-    - **Max Instances** (system instances of the same kind alive at once): 6.
-    - Medium only: tick the option that reduces spawn counts, and note that lights will
-      be removed on Medium in each system (step 22).
-19. Save.
+**`M_WW_Ember`**, in `Cast/Materials`:
 
-**Check:** `ET_HeroCast` exists in `Cast/Niagara`.
+1. Create a Material. Set **Blend Mode = Additive**, **Shading Model = Unlit**,
+   **Two Sided = true**. Leave depth testing enabled.
+2. Add **Particle Color**, **RadialGradientExponential**, three scalar constants
+   (**12**, **0.5**, **2**) and two **Multiply** nodes. Connect constant **0.5** to
+   the gradient's **Radius**, and **2** to **Density**. Leave UVs and CenterPosition
+   unconnected so their built-in defaults apply.
+3. Connect **Particle Color RGB × 12 → Emissive Color**.
+4. Connect **gradient Result × Particle Color A → Opacity**.
+5. Apply and save. Niagara supplies the colour; a white material preview is OK.
 
-## Part 5 — Build the six Niagara systems
+| Material path | Wiring |
+|---|---|
+| Light and colour | Particle Color RGB → Multiply (B = 12) → Emissive Color |
+| Soft edge and fade | Gradient Result × Particle Color A → Opacity |
 
-### Do this for every system (the common steps)
+**`M_WW_Smoke`**: create a new Material with **Translucent**, **Unlit**, **Two Sided**.
+Use the same gradient. **Particle Color RGB → Emissive Color**; **gradient Result
+× Particle Color A → Opacity**. Emitters supply grey RGB and alpha 0.35. This
+first pass is a soft puff, not a realistic smoke flipbook.
 
-20. **System properties** (click the system name at the top of the stack):
-    - **Effect Type:** `ET_HeroCast`.
-    - **Fixed Bounds:** on, with a box that just covers the effect (use the bounds
-      preview; the bolt is the exception, see its steps).
-    - **Warmup Time:** 0.
-21. **User parameters**: in the **Parameters** panel, under **User Exposed**, click
-    **+** and add the parameters listed for that system, with the type and default
-    given. Use exactly these names: the code looks for them.
-22. **Lights**: if the system has a **Light Renderer**, open its scalability settings
-    and turn it off for Medium.
-23. **Recolour a Valley material**: in a renderer, click the material → **Browse to
-    asset**. Right-click it → **Create Material Instance**, name it `MI_Fire_...`,
-    move it to `Cast/Materials`, open it, and change every colour parameter to the fire
-    colours above. Back in the renderer, pick your `MI_Fire_...` instead.
-24. **Recolour a module**: in each emitter, look for modules called **Initialize
-    Particle** (its *Color*), **Color**, or **Scale Color**. Set them to the fire
-    colours. Particle colours are multiplied by the material, so do both.
-25. **Test** in `L_FXSandbox`: drag the system into the level, select it, and in the
-    **Details** panel under **User Parameters** change values while watching. For
-    one-shot systems, right-click the actor → **Reset** to replay.
+The gradient is procedural; [Epic's gradient reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/gradient-material-functions-in-unreal-engine)
+describes its radius/density controls.
 
-### 5.1 `NS_FireCast_Charge` — embers gathering in the hand
+### Shared emitter rules
 
-Start from Valley's `NS_LightdartHandCharge`.
+Use linear RGBA: **ember (1,0.38,0.08,1)**, **warm core (1,0.85,0.55,1)**,
+**flame (1,0.24,0.04,1)**, **smoke (0.12,0.11,0.10,0.35)**. The ember material
+already supplies brightness ×12; do not multiply particle colour by 12 again.
 
-26. Right-click `NS_LightdartHandCharge` → **Duplicate**, name `NS_FireCast_Charge`,
-    move it to `Cast/Niagara`.
-27. Open it. In **User Exposed**, right-click `energy` → **Rename** → `Charge`. Leave
-    `handPosition` and `probability` as they are (the code sets `handPosition` every
-    frame).
-28. Common steps 20–24. Bounds: about 60 × 60 × 60.
-29. Add sparks: in the system overview, right-click empty space → **Add Emitter** →
-    pick `NE_Campfire_Sparks`. In its **Spawn Rate** module, click the dropdown next to
-    *SpawnRate* → **Multiply Float**; set A = 40 and link B to `User.Charge` (dropdown →
-    **Link Inputs → User → Charge**). The hand throws more sparks as the charge grows.
-30. User parameters: `Charge` (float, 0), `handPosition` (vector, 0,0,0).
+- Use **CPU simulation** for this pass. No ribbons, fluids, event handlers,
+  collision or distance-field modules are needed.
+- Keep **Particle State** so particles expire, and **Solve Forces and Velocity**
+  below force modules. Remove a force with its trash button when instructed;
+  do not delete the solver to stop motion.
+- Set lifetime, colour and size modes explicitly in **Initialize Particle**.
+  Use **Direct Set** for single values and **Random** for ranges. A hidden field
+  usually means its mode is unset or different.
+- For a range outside Initialize Particle, such as velocity speed 20–50, open
+  that input's dropdown, choose **Random Range Float**, and set Min/Max. For a
+  constant vector, enter X/Y/Z directly.
+- Use **Scale Color** with RGB scale 1 and alpha fading from 1 at normalized age
+  0 to 0 at age 1. ChargeCore uses Charge directly instead of an alpha curve.
+  Use the Alpha input's **Float from Curve** dynamic input, with two keys at
+  (time 0, value 1) and (time 1, value 0), sampled by **Particles.NormalizedAge**.
+- User parameters are **Float**, except Target and Extent (**Vector3**).
+  For a linked input use its dropdown → **Link Inputs → User → name**.
+  For a linked rate use **Multiply Float**: A = rate, B = linked parameter.
+  Adding a User parameter alone does not make the emitter read it.
+- Burst Spawn Count is an **integer** input. To drive it with Charge, use a
+  **Float to Int** / **Make Int From Float** conversion dynamic input, then
+  inside its float input use Multiply Float (A = count, B = User.Charge).
+  Search the input dropdown for the conversion; do not link a float directly
+  to an integer or leave a red type mismatch.
+- A recipe's numeric values are starting points, not accepted final tuning.
 
-**Check:** in the sandbox, raise `Charge` from 0 to 1: a fire-coloured swirl grows and
-sparks increase.
+### Part 5A — Charge: prove this first
 
-### 5.2 `NS_FireCast_Bolt` — the fire bolt
+#### Checkpoint A: a visible fresh template
 
-Start from Valley's `NS_LightdartCore2`; add a ribbon trail from an engine template.
+1. Create a new system from the built-in **Fountain** emitter. Name it
+   `NS_FireCast_Charge` in `Cast/Niagara`; use `_Original_v1` if the name is taken.
+   The engine asset is `/Niagara/DefaultAssets/Templates/Emitters/Fountain`;
+   choose the ordinary emitter rather than the Fountain Lightweight system.
+2. Open it and press Play. Leave its default material/renderer alone.
+3. Expected: ordinary template particles appear. If blank, check Niagara Log,
+   emitter enabled checkbox, timeline Play and viewport framing. **Stop here if
+   the stock template is blank.** Do not add more changes to it.
 
-31. Duplicate `NS_LightdartCore2` → `NS_FireCast_Bolt` in `Cast/Niagara`.
-32. Open it. In **User Exposed**, set defaults: `charged` = 1, `moving` = 1,
-    `energy` = 1, `dissapate` = 0 (Valley's spelling). These put it in its "flying"
-    look.
-33. Add user parameters: `Target` (vector) and `TravelTime` (float, 0.6). The bolt
-    actor that carries this system moves itself; these are for any part that wants the
-    end point.
-34. Common steps 20–24. **Bounds:** leave this one **dynamic** (it travels; Epic's
-    guide names this exception).
-35. Trail: right-click the overview → **Add Emitter** → template **Location Based
-    Ribbon**. In its **Ribbon Renderer**, pick a recoloured ribbon material (step 23 on
-    the material the Valley system's ribbon uses). Set ribbon width to about 18 with a
-    **Scale Ribbon Width** curve from 1 to 0 over the ribbon's length.
-36. Light: if the system has no **Light Renderer**, add one to the core emitter (radius
-    250, colour Flame, intensity 4). Common step 22.
+#### Checkpoint B: our visible ember material
 
-**Check:** drag it into the sandbox and move it with the gizmo while simulating: a
-bright fire core with a trailing ribbon.
+4. Create `M_WW_Ember` above. Rename the Fountain emitter **ChargeEmbers**.
+   Assign the material in **Sprite Renderer → Material**.
+5. Configure ChargeEmbers below. Keep Spawn Rate a constant **40** for now.
 
-### 5.3 `NS_FireCast_Impact` — the ignition flash
+| Stack location | Setting |
+|---|---|
+| Emitter Properties | Local Space **on**, CPU sim |
+| Emitter Update → Emitter State | Life Cycle Mode **Self**, Loop Behavior **Infinite** |
+| Particle Spawn → Initialize Particle | Lifetime Random **0.4–0.7 s**; Color Direct Set **ember**; Sprite Size Random Uniform **2–4 cm** |
+| Particle Spawn → Shape Location | Sphere, radius **12 cm**, centred at emitter origin |
+| Particle Spawn → Add Velocity | Cone about local +Z, speed **20–50 cm/s**, angle about **30°** |
+| Particle Update | Remove Gravity Force; Curl Noise strength **10**; keep solver; Scale Color alpha fades 1 → 0 |
+| Render | Sprite Renderer, `M_WW_Ember`, ordinary camera-facing sprites |
 
-Start from Valley's `NS_HotSpotImpact`.
+6. Compile, reset, Play. Expected: orange embers floating in a small area. Check
+   beside a mannequin hand in the sandbox and save this stage. If the material
+   makes it blank, switch back to the template material to isolate the issue;
+   check both Emissive and Opacity connections.
 
-37. Duplicate `NS_HotSpotImpact` → `NS_FireCast_Impact` in `Cast/Niagara`.
-38. In **User Exposed**: `headshot` = 0, `headshotScale` = 1, `BurstParticleRing` as is.
-39. Turn off emitters that look like crystal or glass for this effect (untick the
-    emitter's checkbox in the overview). Keep flares, glow, the burst ring and the
-    shockwave.
-40. Common steps 20–24. Bounds: about 400 × 400 × 300.
-41. Add embers: **Add Emitter** → template **Omnidirectional Burst**. Set:
-    - **Spawn Burst Instantaneous → Spawn Count:** 40.
-    - **Initialize Particle:** Lifetime random 0.4–0.9; Color Ember; Sprite Size 2–5.
-    - **Add Velocity:** speed 300–700.
-    - Add **Gravity Force** (−980 Z) and **Drag** (1.5).
-    - **Sprite Renderer → Alignment:** Velocity Aligned.
-42. User parameter: `Charge` (float, 1). In the burst emitters' spawn counts, multiply
-    by `User.Charge` (as in step 29) so a full charge gives a bigger flash.
+#### Checkpoint C: Charge control and a warm core
 
-**Check:** reset it in the sandbox: a quick bright fire flash with flying embers, gone
-in about a second.
+7. Add **User.Charge**, Float, temporary default **1**. Replace Spawn Rate's
+   constant 40 with **Multiply Float**, A **40**, B linked to **User.Charge**.
+8. Add **Single Looping Particle**, rename **ChargeCore**. Local Space on,
+   `M_WW_Ember`. Emitter State Self/Infinite; keep its one-particle burst.
+   Lifetime **1 s**, Color **warm core**, Sprite Size Direct Set Uniform **16 cm**.
+   Remove position/velocity offsets so it stays at the component origin. If the
+   emitter exposes Loop Duration, set **1 s**.
+9. In ChargeCore's Particle Update, add/use **Scale Sprite Size**, Uniform Scale
+   linked to **User.Charge**. Add/use **Scale Color**, RGB scale 1, Alpha linked
+   directly to **User.Charge**. Keep Particle State. Update links make the core
+   respond as the slider changes.
+10. Compile, reset, Play. Try Charge **0**, **0.25**, **1** in User Parameters or
+    the sandbox Niagara actor's Details. Reset if a changed asset default is not
+    reflected immediately.
 
-### 5.4 `NS_FireCast_Fizzle` — refused cast
+**Charge acceptance:**
 
-From the engine template.
+| Input | Expected |
+|---|---|
+| Charge 0, wait 1 second | No new embers; remaining particles expire; core invisible |
+| Charge 0.25 | Small warm glow, sparse orange embers |
+| Charge 1 | Larger glow and roughly four times the ember emission rate |
+| Reset/play repeatedly | Same behaviour; no red compile errors |
 
-43. Content Browser → `Cast/Niagara` → right-click → **FX → Niagara System** → **New
-    system from selected emitter(s)** → **Omnidirectional Burst** → name
-    `NS_FireCast_Fizzle`.
-44. Smoke (the emitter you have):
-    - **Spawn Burst Instantaneous:** 16.
-    - **Initialize Particle:** Lifetime 0.8–1.4; Color Smoke; Sprite Size 40–90.
-    - **Add Velocity:** speed 60–140; add **Acceleration Force** Z = +60 (smoke rises).
-    - Add **Drag** 2 and **Curl Noise Force** (strength 30).
-    - **Scale Sprite Size:** grow to 2.5× over life. **Scale Color:** alpha fades to 0.
-    - **Sprite Renderer → Material:** a smoke material using `MAP_SmokeSprites`
-      (step 23; if the texture is a grid of frames, add **SubUV Animation** and set
-      *Sub Image Size* to the grid, e.g. 8 × 8; open the texture to count).
-45. Dying sparks: **Add Emitter** → **Omnidirectional Burst**: 6 sparks, Lifetime
-    0.3–0.6, Color Ember, Size 2–4, speed 200–400, Gravity −980, Velocity Aligned.
-46. Common steps 20–22. Bounds: about 250 × 250 × 250.
+Save the working system. Return the **asset default Charge to 0** for gameplay;
+keep the sandbox **actor override = 1** to demonstrate it. A blank preview at
+Charge 0 is expected. This first pass proves control/visibility; swirling motion,
+rich flame shapes and camera response come later.
 
-**Check:** a small grey puff with a few sparks that die out. It must read as "failed".
+After visibility passes, start fixed bounds at **Min (-100,-100,-100),
+Max (100,100,100)** and check camera clipping. The component will attach to
+`hand_r`; no User.handPosition parameter is needed.
 
-### 5.5 `NS_Fire_Burning` — the patch on fire
+**Stop and report checkpoint C before continuing.** This is not connected to
+left mouse or GAS yet; test in Niagara/the sandbox.
 
-From the engine template with Epic's fire flipbook.
+### Part 5B — Bolt
 
-47. New Niagara System → **New system from selected emitter(s)** → **Fountain** → name
-    `NS_Fire_Burning`. Rename the emitter `Flames`.
-48. Flames:
-    - **Spawn Rate:** Multiply Float, A = 50, B linked to `User.Fuel`.
-    - Replace the spawn shape: **Shape Location** → Box; *Box Size* linked to
-      `User.Extent` (multiply by 2 if it asks for full size).
-    - **Initialize Particle:** Lifetime 0.6–1.0; Color Flame; Sprite Size 60–120.
-    - **Add Velocity:** straight up, speed 80–160, cone angle about 15°.
-    - Remove **Gravity Force**. Add **Curl Noise Force** (strength 40).
-    - **Scale Sprite Size:** curve up then down over life. **Scale Color:** alpha fades
-      out near the end.
-    - **SubUV Animation:** Sub Image Size to match `T_Fire_SubUV` (open the texture and
-      count the grid, for example 6 × 6); play once over life.
-    - **Sprite Renderer → Material:** `M_Fire_SubUV` from `Imported/Epic` (or an
-      `MI_Fire_` instance of it).
-49. Sparks: **Add Emitter** → `NE_Campfire_Sparks`.
-50. Thin smoke: **Add Emitter** → **Hanging Particulates**; recolour to Smoke, spawn
-    about 4 per second, rising slowly.
-51. Light: add a **Light Renderer** to `Flames` (radius 300, colour Flame, intensity
-    linked to `User.Fuel` × 5). Common step 22.
-52. User parameters: `Extent` (vector, 150, 150, 10), `Fuel` (float, 1). Loops forever
-    until the code removes it.
-53. Optional heat haze: **Add Emitter** → **Single Looping Particle**, one large sprite
-    with a recoloured `M_HeatDistortion`.
-54. Common steps 20–21. Bounds: about 350 × 350 × 300.
+Create from **Single Looping Particle**, `NS_FireCast_Bolt`. Warm core colour,
+our ember material, Local Space on, Sprite Size **12 cm**. Add Float
+**TravelTime = 0.6** and Vector3 **Target = (0,0,0)**. Target is reserved for
+future travel code; this particle graph does not read it.
 
-**Check:** drop it on a cube in the sandbox: flames, sparks and a little smoke. Lower
-`Fuel` to 0.2: the fire dies down.
+Core Emitter State **Self / Once**, Loop Duration linked to **User.TravelTime**;
+one-particle burst; Lifetime also linked to TravelTime. It lasts 0.6 s after reset.
 
-### 5.6 `NS_Fire_Smoulder` — after it has burnt
+Add **Fountain**, rename **BoltTrail**. Local Space **off**; Self/Once, Loop
+Duration linked to TravelTime. Spawn Rate **90**, Lifetime **0.15–0.3 s**, size
+**2–4 cm**, ember colour/material, sphere radius **2 cm**. Remove initial velocity,
+gravity and curl noise; keep Particle State/solver and fade alpha. World-space
+particles remain where emitted as the actor moves.
 
-55. New Niagara System → **Hanging Particulates** → name `NS_Fire_Smoulder`.
-56. Smoke: spawn rate 6 × `User.Heat`; lifetime 2–3; rising 20–40; size 40–100; Color
-    Smoke with alpha × `User.Heat` (Scale Color, link the alpha to `User.Heat`).
-57. Embers: **Add Emitter** → **Hanging Particulates**: spawn rate 3 × `User.Heat`,
-    size 2–4, Color Ember, small random drift; flicker by fading alpha in and out.
-58. User parameter: `Heat` (float, 1).
-59. Common steps 20–22. Bounds: about 300 × 300 × 300.
+**Check:** reset while previewing/simulating in the sandbox, then move its actor
+with the transform gizmo. Core follows; a short fading trail stays behind.
+TravelTime 1.2 lasts longer than 0.6. Leave bounds dynamic. Future C++ moves the
+component and owns arrival/cleanup; particles never trigger rule resolution.
 
-**Check:** with `Heat` 1 there is smoke and glowing embers; at 0 it is gone.
+### Part 5C — Impact
 
-## Part 6 — The cue Blueprints (after the agent's C++ is in)
+Create from **Omnidirectional Burst**, `NS_FireCast_Impact`, emitter **ImpactEmbers**.
+Add Float **Charge = 1**.
 
-The agent first adds two C++ cue classes (**WildwrightCueBurst** and
-**WildwrightCueLooping**) and the cue tags. Then, for each row below:
+| Setting | Value |
+|---|---|
+| Emitter State | Self / Once, Loop Duration **0.5 s** |
+| Spawn Burst Instantaneous | Spawn Count **40 × User.Charge**, Burst Time 0 |
+| Initialize Particle | Lifetime **0.35–0.75 s**, ember colour, Sprite Size **2–5 cm** |
+| Add Velocity | Outward/spherical directions, speed **250–500 cm/s** |
+| Particle Update | Gravity Z **-980**, Drag **1.5**, solver, alpha fade |
+| Renderer | `M_WW_Ember`; start camera-facing, velocity alignment optional |
 
-60. Content Browser → `Wildwright/Cast/Cues` → right-click → **Blueprint Class** →
-    **All Classes** → search for the parent class → name it as below.
-61. Open it → **Class Defaults**:
-    - **Gameplay Cue Tag:** the tag in the table.
-    - **Niagara System:** the system in the table.
-    - **Sound** (optional): the Valley sound in the table.
-62. **Compile**, **Save**.
+Add **Simple Sprite Burst** for the flash: Spawn Count **1**, Self/Once, Lifetime
+**0.12 s**, warm core colour, size **80 cm**, zero velocity, our ember material,
+alpha fade. Scale size by Charge in Particle Update. Bounds start Min
+**(-400,-400,-300)**, Max **(400,400,300)**.
 
-| Blueprint | Parent | Gameplay Cue Tag | Niagara System | Sound |
-|---|---|---|---|---|
-| `GC_Fire_Charge` | WildwrightCueLooping | `GameplayCue.Cast.Fire.Charge` | `NS_FireCast_Charge` | — |
-| `GC_Fire_Release` | WildwrightCueBurst | `GameplayCue.Cast.Fire.Release` | `NS_FireCast_Bolt` | `..._FireTail_nl_01` |
-| `GC_Fire_Impact` | WildwrightCueBurst | `GameplayCue.Cast.Fire.Impact` | `NS_FireCast_Impact` | `..._FireHit_nl_01` |
-| `GC_Fire_Fizzle` | WildwrightCueBurst | `GameplayCue.Cast.Fire.Fizzle` | `NS_FireCast_Fizzle` | — |
-| `GC_Target_Burning` | WildwrightCueLooping | `GameplayCue.Target.Burning` | `NS_Fire_Burning` | `sfx_amb_poi_campfire_main_lp` |
-| `GC_Target_Smoulder` | WildwrightCueLooping | `GameplayCue.Target.Smoulder` | `NS_Fire_Smoulder` | `sfx_amb_poi_campfire_spark_nl_01` |
+**Check:** reset → short warm flash and outward embers, gone in about one second.
+Charge 0.25 is smaller/sparser than 1. Keep the persistent target state readable.
 
-**Check:** play `L_TestRange` (after the agent says the ability is in): hold left mouse
-at ST01, release, and watch the whole cast.
+### Part 5D — Fizzle
 
-## Part 7 — Optional: better flames with Niagara Fluids (later)
+Create from **Omnidirectional Burst**, `NS_FireCast_Fizzle`. Make `M_WW_Smoke`
+and assign it. Self/Once, Spawn Count **12**, Lifetime **0.5–0.9 s**, smoke
+colour, size **20–40 cm**, outward speed **30–70 cm/s**. Remove gravity; add
+upward **Acceleration Force Z = 30**, solver, alpha fade. Scale Sprite Size grows
+from 1 to **1.5** over life.
 
-Niagara Fluids is a **Beta** plugin in 5.8 and costly to run live, so Wildwright only
-uses it to **bake** a flipbook texture once. Follow Epic's
-[Fluids Quick Start](https://dev.epicgames.com/documentation/en-us/unreal-engine/niagara-fluids-quick-start-guide-for-unreal-engine)
-with a **2D Gas** fire template, then the
-[Flipbook Baker Quick Start](https://dev.epicgames.com/documentation/en-us/unreal-engine/niagara-flipbook-baker-quick-start-guide-in-unreal-engine)
-to bake it, and swap the texture in step 48. Enabling the plugin needs an editor
-restart; tell the agent first, because plugin changes touch the `.uproject`.
+Add another Omnidirectional Burst for embers: **6** particles, lifetime
+**0.2–0.4 s**, size **2 cm**, speed **40–90 cm/s**, ember material and alpha fade.
+No large flash, lights or persistent flames. Bounds start Min **(-150,-150,-50)**,
+Max **(150,150,150)**.
 
-## When you are done
+**Check:** small grey puff with dying embers, weaker than impact, gone within
+about one second. Future code supplies the HUD refusal reason.
 
-Tell the agent: "Parts 2–6 done". It will run the automated checks (cancel leaves
-nothing behind, effects off gives the same result, timing) and give you the play-test
-list from the plan.
+### Part 5E — Burning patch
 
-## Learning links (Epic)
+Create from **Fountain**, `NS_Fire_Burning`, emitter **Flames**. Add Vector3
+**Extent = (150,150,10)** and Float **Fuel = 1**. Extent is target half-size in
+centimetres; Fuel is normalized remaining fuel, not a value the effect changes.
 
-- [Quick Start for Niagara Effects](https://dev.epicgames.com/documentation/en-us/unreal-engine/quick-start-for-niagara-effects-in-unreal-engine): a dust puff on Third Person footsteps; do this first if Niagara is new.
-- [Key Concepts](https://dev.epicgames.com/documentation/unreal-engine/key-concepts-in-niagara-effects-for-unreal-engine): systems, emitters, modules, the User namespace.
-- [Scalability and Best Practices](https://dev.epicgames.com/documentation/unreal-engine/scalability-and-best-practices-for-niagara?lang=en-US) and [Effect Types](https://dev.epicgames.com/documentation/en-us/unreal-engine/performance-budgeting-using-effect-types-in-niagara-for-unreal-engine).
-- [Lightweight Emitters](https://dev.epicgames.com/documentation/unreal-engine/niagara-lightweight-emitters-overview): cheaper emitters for simple sparks and smoke.
+| Setting | Value |
+|---|---|
+| Emitter State | Self / Infinite |
+| Spawn Rate | **50 × User.Fuel** |
+| Shape Location | Box; Box Size **2 × User.Extent**, using Multiply Vector with B = (2,2,2) |
+| Initialize Particle | Lifetime **0.4–0.8 s**, flame colour, Sprite Size Random Non-Uniform Min **(16,35)**, Max **(30,65)** |
+| Add Velocity | Narrow cone up +Z, speed **60–120 cm/s** |
+| Particle Update | Remove gravity; Curl Noise strength **15**; solver; alpha fade |
+| Renderer | `M_WW_Ember` |
+
+Add fresh Fountain sparks: **8 × Fuel** per second, size **2–3 cm**, lifetime
+**0.5–0.9 s**, upward speed **100–180 cm/s**, ember colour/material.
+Optional Hanging Particulates smoke: **3 × Fuel** per second, lifetime **1–2 s**,
+size **35–60 cm**, upward velocity **20–40 cm/s**, smoke colour/material.
+For the default Extent, bounds start Min **(-250,-250,-50)**,
+Max **(250,250,350)**; enlarge when using larger extents.
+
+**Check:** above a sandbox cube, Fuel 1 gives lively upward flame-like sprites;
+0.2 much less emission; 0 stops new particles and fades within two seconds.
+Extent changes the emitting footprint. Realistic flame textures/heat distortion
+are optional later polish, not prerequisites for this readable first pass.
+
+### Part 5F — Smoulder
+
+Create from **Hanging Particulates**, `NS_Fire_Smoulder`. Add Float **Heat = 1**.
+Self/Infinite, Spawn Rate **5 × Heat**, Lifetime **1–2 s**, size **30–50 cm**,
+upward velocity **15–30 cm/s**, smoke colour/material and alpha fade.
+
+Add fresh Fountain embers: **2 × Heat** per second, lifetime **0.3–0.6 s**,
+size **2 cm**, ember material, upward velocity **10–25 cm/s**. No flame emitter
+or bright core. Bounds start Min **(-150,-150,-50)**, Max **(150,150,250)**.
+
+**Check:** Heat 1 gives low smoke/scattered embers; Heat 0 stops emission and
+fades within two seconds. It reads as residual heat, not a flame loop.
+
+## Part 6 — Cue Blueprints, after the agent's C++ exists
+
+The agent first adds **WildwrightCueBurst**, **WildwrightCueLooping**, cue tags,
+scan paths, bolt travel owner and ability/cancel/state-change integration. These
+classes do not exist yet. Do not replace them with Blueprint gameplay logic.
+
+Then create Blueprints from the named C++ parents. In Class Defaults pick the
+Gameplay Cue Tag and the **new** Niagara system.
+
+| Blueprint | Parent | Tag | System |
+|---|---|---|---|
+| `GC_Fire_Charge` | WildwrightCueLooping | `GameplayCue.Cast.Fire.Charge` | `NS_FireCast_Charge` |
+| `GC_Fire_Release` | WildwrightCueBurst | `GameplayCue.Cast.Fire.Release` | `NS_FireCast_Bolt` |
+| `GC_Fire_Impact` | WildwrightCueBurst | `GameplayCue.Cast.Fire.Impact` | `NS_FireCast_Impact` |
+| `GC_Fire_Fizzle` | WildwrightCueBurst | `GameplayCue.Cast.Fire.Fizzle` | `NS_FireCast_Fizzle` |
+| `GC_Target_Burning` | WildwrightCueLooping | `GameplayCue.Target.Burning` | `NS_Fire_Burning` |
+| `GC_Target_Smoulder` | WildwrightCueLooping | `GameplayCue.Target.Smoulder` | `NS_Fire_Smoulder` |
+
+Use `_Original_v1` paths if those were your chosen names. Code owns hand
+attachment, travel, cancel and loop removal. The release cue's spawn ownership
+must connect to the travelling bolt actor; a standalone cue does not move it.
+
+## Part 7 — Polish after acceptance
+
+Optional: charge vortex, travel streaks/ribbons, richer smoke, original flame
+flipbooks, heat distortion and a small scalable light. Add one layer at a time.
+Niagara Fluids is optional later baking work. No plugin changes or restarts are
+required for this guide.
+
+## What to report and play-test
+
+First report **“Charge checkpoint C passed”** and the final asset name. If it
+fails, give **A, B or C**, the first red Niagara Log error, and whether the plain
+template/default material is visible. No screenshots are needed to answer that.
+
+After all six, report paths, parameter-check results and warnings. The agent can
+inspect the new systems' compile/dependency results.
+
+Only **after GAS integration**, test in `L_TestRange`: ST01 charge → bolt →
+ignition → burning → smoulder; ST02 after Water fizzles with the too-wet reason;
+ST04 fizzles with its Fire refusal; cancel leaves state unchanged and removes
+charge; all effects disabled still gives the same states/logs. A sandbox preview
+alone does not prove those gameplay checks.

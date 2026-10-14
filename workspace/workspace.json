@@ -4,11 +4,11 @@
       "id": "wildwright",
       "title": "Wildwright",
       "icon": "wildwright-mark.svg",
-      "description": "Shape a living valley through fire, water, earth and air. GDD 0.3: clear first-session direction, eight build packets, accepted rule progress and an original cover concept.",
+      "description": "Shape a living valley through fire, water, earth and air. GDD 0.4 world-systems design, MVP build order, original cover concept and an optional Niagara learning track.",
       "type": "group",
       "category": "project",
       "created": "2026-10-11",
-      "updated": "2026-10-12",
+      "updated": "2026-10-13",
       "folder": "2026-10-11_wildwright",
       "steps": [
         {
@@ -16,12 +16,12 @@
           "path": "index.html"
         },
         {
-          "name": "Greybox maps",
-          "path": "greybox.html"
-        },
-        {
           "name": "Cover art",
           "path": "cover.html"
+        },
+        {
+          "name": "Fire FX guide",
+          "path": "fire-fx-guide.md"
         }
       ],
       "status": "active",
@@ -44,7 +44,7 @@
         }
       ],
       "status": "active",
-      "pinned": true,
+      "pinned": false,
       "sample": true,
       "defaultStep": 0
     },

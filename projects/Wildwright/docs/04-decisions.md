@@ -1,10 +1,11 @@
 # Wildwright — Decision log
 
 Keep this file current. When something is decided, move it from **Open** to
-**Decided** with a date and the reason. Do not delete rejected options; record
-why they were rejected so they do not re-enter unnoticed (GDD 15.2).
+**Decided** with a date and the reason. Do not delete rejected or superseded
+entries; strike them through and say why, so old ideas do not re-enter unnoticed
+(GDD 15.2).
 
-*Last updated: 2026-10-11.*
+*Last updated: 2026-10-13.*
 
 ## Decided (by the owner)
 
@@ -12,161 +13,170 @@ why they were rejected so they do not re-enter unnoticed (GDD 15.2).
 |---|---|---|---|
 | D-01 | ~~The game and its folder are called **Elemental**~~ *(superseded by D-06)* | 2026-10-11 | Replaced the working title *Worldweave*. "The Weave", "the Sundering" and "Wayfinder" remain working lore terms. |
 | D-02 | Wildwright is the **only active game project** | 2026-10-11, updated 2026-10-12 | It replaced the owner's earlier game idea. On 2026-10-12 the owner had everything related to that idea removed from the workspace; do not reintroduce it. |
-| D-03 | Target feel is **cinematic, action-fantasy spectacle** | 2026-10-11 | Reference: Valley of the Ancient (intensity, Niagara effects, fluid animation, the cast and levitate skill). |
-| D-04 | Build with **Claude Code and Codex** together | 2026-10-11 | Codex is available through the owner's ChatGPT subscription. |
-| D-05 | Project docs live in `projects/Wildwright/`; original PDFs are kept in `source/` | 2026-10-11 | Markdown in `docs/` is the working version. |
+| D-03 | Target feel is **cinematic, action-fantasy spectacle** | 2026-10-11 | The feel target stands. Its original reference project was dropped by D-18; Wildwright builds its own spectacle. |
+| D-04 | Build with **Claude Code and Codex** together | 2026-10-11 | Codex is available through the owner's ChatGPT subscription. Roles refined by D-19. |
+| D-05 | Project docs live in `projects/Wildwright/`; original source documents are kept in `source/` | 2026-10-11 | Markdown in `docs/` is the working version. `source/` also holds the Dynamic World Systems Concept v0.1 (2026-10-13). |
 | D-06 | The game and its folder are called **Wildwright** | 2026-10-11 | Owner floated *Elementor* and delegated a better name if one existed. *Elementor* is Elementor Ltd.'s WordPress page builder (10M+ installs) and would dominate search. Also checked: Emberwake (existing PC game), Fourfold (existing studio name), Elemancer (several games). *Wildwright* returned no game, studio or product in two searches. This is a web search, not a trademark clearance (OD-05). |
-| D-07 | The prototype engine is **UE 5.8.3** (`D:\UE_5.8`, changelist 58210709). Resolves OD-01. | 2026-10-11 | The owner chose this over the 5.4.4 recommendation. **Blocks every C++ build until Visual Studio is updated:** 5.8 bans MSVC 14.40–14.43 (`Engine/Config/Windows/Windows_SDK.json`). The installed compiler is 14.43.34808 (VS 2022 17.13.3). It needs VS 2022 17.14 with MSVC 14.44.35211 or later, or VS 2026 with 14.50.35723 or later. The Valley reference stays on 5.4.4. Any asset migrated from it after OD-10 is upgraded one-way when saved in 5.8. C++ patterns adapted from Valley may need API changes *(unverified)*. |
-| D-08 | The cast layer uses **GAS for casting only**. World-cell state, the rule resolver and the journal live outside GAS. Resolves OD-02. | 2026-10-11 | The owner took the recommendation. GAS provides abilities, costs, cooldowns, tag blocking and Gameplay Cues, the same pattern as Valley's `GA_LightDart`. It needs a small C++ module (attribute sets) by M1, a stated exception to Blueprint-first (GDD 12.1). |
-| D-09 | The Unreal project lives at **`D:\Wildwright\`** as its own Git repository with LFS. `projects/Wildwright/` stays the design record. | 2026-10-11 | It had been proposed in the README. Keeping the project out of the Mr. Mak repo keeps large binaries out of its history. D: has about 3.5 TB free; C: is low. |
-| D-10 | **Fab assets marked NoAI** ("Allows usage with AI: No"): "Never use any Fab asset marked as NoAI to generate, train, fine-tune, or create new content, and only allow AI operations that read, classify, tag, or organize the original files without producing new derivative output." | 2026-10-12 | The owner's rule, taken from Copilot's summary of the NoAI terms. Not yet checked against the Fab EULA text *(unverified)*. Applies to every NoAI Fab asset, including Valley of the Ancient (OD-10). Allowed: agents reading or inspecting the files and writing notes about how they are built. Not allowed: feeding them, or renders and captures of them, to image, video, 3D, audio or texture generation. |
-| D-11 | **Valley of the Ancient assets may be migrated into Wildwright**, modified and shipped inside the game under Fab's Standard License. Never redistribute them on their own or in an extractable form. Resolves OD-10 with D-10. | 2026-10-12 | Owner-supplied summary of the Standard License (Fab EULA 4(c)): commercial use, modification and distribution of a game that incorporates the content are allowed; resale, giveaway, inclusion in an extractable tool or template, and player extraction are not. **Consequences:** keep `D:\Wildwright` private (collaborators only), because a public repo would redistribute raw assets; ship only cooked, packaged builds and never raw `.uasset` files; consider pak encryption at the packaging milestone (M6); D-10 still applies. Migrate selected pieces only (feel reference, section 4), never the level, golems or bulk Megascans. |
-| D-12 | **Agent-built systems are C++ with data in CSV files** imported into data tables, and their assets come from editor-Python generators in `Tools/`. **Blueprints are for content the owner tunes**, with agent assistance. Resolves OD-11. | 2026-10-12 | Owner: "we can keep c++ and csv and blue prints i can do with assistance". Agents cannot edit Blueprint graphs or other binary assets; C++, CSV and scripts stay diffable, reviewable and testable by both Claude Code and Codex. For Blueprint work, agents give exact steps and use editor Python where it can do the job. Amends GDD 12.1. |
-| D-13 | The first hero cast (next action 6) is **Fire** | 2026-10-12 | The owner chose Fire over the Water recommendation. Fire shows `ER_FIRE_IGNITE`, its refusals (too wet, already burning or burnt, no effect on other targets) and a state-driven aftermath (burning, then smouldering). Plan: [08-hero-cast-plan.md](08-hero-cast-plan.md). A second hero cast may follow by M6 (GDD 14.1). |
-| D-14 | Hero cast controls: **hold left mouse to charge, release to cast, right mouse to cancel** | 2026-10-12 | The owner approved the recommended charge → release delivery for the hero cast. OD-04 stays open for the final delivery model after M1 play-tests. |
-| D-15 | Cast animation comes from **Valley's Echo LightDart animations, retargeted** to `SK_Mannequin` | 2026-10-12 | Echo has her own skeleton (`Echo_Skeleton`), so the four LightDart animations (charge, charge loop, release, cancel) are retargeted with an auto-generated IK retargeter and made into montages by the owner (owner guide, parts 2–3). Allowed by D-11. |
-| D-16 | **Valley effects, materials and sounds are starting points** for the Fire cast, as needed | 2026-10-12 | Selected LightDart and campfire Niagara assets, their materials, a smoke sprite sheet, heat distortion and four sounds are copied into `/Game/Wildwright/Imported/Valley/` and recoloured or adapted (plan, "Starting points"). D-10 still applies: never used with generative AI. Epic's Starter Content fire and smoke flipbooks are copied in too. |
+| D-07 | The prototype engine is **UE 5.8.3** (`D:\UE_5.8`, changelist 58210709). Resolves OD-01. | 2026-10-11 | The owner chose this over the 5.4.4 recommendation. C++ needs MSVC 14.44.35211+ (VS 2022 17.14) or 14.50.35723+ (VS 2026); the machine has VS 2022 17.14.41 with `cl.exe` 14.44.35229. |
+| D-08 | The cast layer uses **GAS for casting only**. World state, the rule resolver and the journal live outside GAS. Resolves OD-02. | 2026-10-11 | GAS provides abilities, costs, cooldowns, tag blocking and Gameplay Cues. Under GDD 0.4 "world state" means the environmental cells, earthworks, flow network and object state. |
+| D-09 | The Unreal project lives at **`D:\Wildwright\`** as its own Git repository with LFS. `projects/Wildwright/` stays the design record. | 2026-10-11 | Keeps large binaries out of the Mr. Mak repo. D: has about 3.5 TB free; C: is low. |
+| D-10 | **Fab assets marked NoAI** ("Allows usage with AI: No"): "Never use any Fab asset marked as NoAI to generate, train, fine-tune, or create new content, and only allow AI operations that read, classify, tag, or organize the original files without producing new derivative output." | 2026-10-12 | The owner's rule, taken from Copilot's summary of the NoAI terms; not checked against the Fab EULA text *(unverified)*. Applies to every NoAI Fab asset. |
+| D-11 | ~~Valley of the Ancient assets may be migrated into Wildwright~~ *(superseded by D-18)* | 2026-10-12 | Withdrawn: no Valley content is used. The general Fab Standard License obligations still apply to **any** Fab asset the project uses: never redistribute it on its own or in extractable form, keep `D:\Wildwright` private, ship only cooked builds (game repo `AGENTS.md`). |
+| D-12 | **Agent-built systems are C++ with data in CSV files** imported into data tables, and their assets come from editor-Python generators in `Tools/`. **Blueprints are for content the owner tunes**, with agent assistance. Resolves OD-11. | 2026-10-12 | Owner: "we can keep c++ and csv and blue prints i can do with assistance". Agents cannot edit Blueprint graphs or other binary assets; C++, CSV and scripts stay diffable, reviewable and testable. |
+| D-13 | The first hero cast is **Fire** | 2026-10-12 | Still the choice. GDD 0.4 schedules the hero cast in the casting milestone (MVP-3), after the world systems it acts on exist. |
+| D-14 | Hero cast controls: **hold left mouse to charge, release to cast, right mouse to cancel** | 2026-10-12 | Stands for aimed casts. Earth's path drawing (GDD 3.4) uses its own input, to be specified in MVP-3. |
+| D-15 | ~~Cast animation comes from Valley's Echo animations, retargeted~~ *(superseded by D-18)* | 2026-10-12 | Withdrawn. The animation source is open again (OD-16). |
+| D-16 | ~~Valley effects, materials and sounds are starting points for the Fire cast~~ *(superseded by D-17, then D-18)* | 2026-10-12 | Withdrawn. |
+| D-17 | **Create Wildwright's own Niagara effects and VFX materials**, with a **manual owner guide** | 2026-10-12 | Owner: "we will just make our own niagra effects". Fresh UE 5.8 emitters and original procedural materials. The guide (`09-hero-cast-owner-guide.md`) is now an optional learning track until MVP-3. |
+| D-18 | **Valley of the Ancient is dropped entirely.** No assets, animations, effects, tags, redirects, tools or documents from it. Wildwright learns general techniques from Epic's documentation and builds its own versions. | 2026-10-13 | Owner: "remove any of the valley stuff we tried to use as i think we are better off just looking at how things are done then making our own version thats better suited to WildWright". Removed: 406 imported packages (1.6 GB, uncommitted; sent to the Recycle Bin), the import tools, the Valley tag file, 406 package redirects, the `AudioModulation` plugin enabled only for them, the feel-reference document, the Fire hero-cast plan built on Valley starting points and the Valley FX diagnosis. Supersedes D-11, D-15, D-16; OD-10 is moot. The Valley project itself (`Documents\Unreal Projects\ValleyoftheAncient`) is the owner's and was not touched. |
+| D-19 | **Claude Code leads the game design** (GDD, decision log, build order). | 2026-10-13 | Owner: "codex i feel messed about alot in the game design so i upgraded you so we can get higher quality work done". Recommendation (not yet confirmed): Codex works from written briefs on bounded tasks (research, tutorials, isolated implementation) and does not restructure the GDD. |
+| D-20 | **The MVP plan is approved**: GDD 0.4 §14 (MVP definition, content cap, milestones MVP-0 to MVP-5, the MVP-1/MVP-2 build order and the technical proof). Resolves OD-12. | 2026-10-13 | Owner: "approve the plan, commit everything". Rough sizes in §14.3 remain estimates, revised after each milestone. |
 
 ## Accepted in principle
 
 | ID | Proposal | Status |
 |---|---|---|
-| A-01 | **Spectacle contract**: the cast is a cinematic *input*; the simulation is the *consequence* (GDD 2.2). | The owner wants the spectacle to work with the new design. The mechanism is accepted in principle and written into GDD 0.2 as CR-001. It is not yet validated by a prototype. |
+| A-01 | **Spectacle contract**: the cast is a cinematic *input*; the simulation is the *consequence* (GDD 2.2). | Accepted 2026-10-11 as CR-001. Partly proven: actions 4–5 keep state in the resolver and presentation reads it; the cast layer itself is not built. |
+| A-02 | **Dynamic World Systems direction** (owner's Concept v0.1, 2026-10-13): scars, not resets; change classes; tiered simulation; authoritative environmental cells; Landscape for permanent geography plus controlled, material-limited earthworks; spline-based procedural earthworks; a custom flow graph that drives visible water; cell-based fire; PCG vegetation with recovery stages; physics only while active; no voxel terrain or fluid simulation; prove the world-change loop in one small technical test first. | Supplied by the owner and integrated as the backbone of **GDD 0.4** (CR-003). Resolves OD-07. Specific choices it left open are OD-12 (approved as D-20) to OD-16. |
 
 ## Resolved open decisions (kept for history)
 
-### OD-01 Engine version for the prototype → D-07
-| Option | For | Against |
-|---|---|---|
-| UE 5.4.4 *(was recommended; not chosen)* | Installed; opens Valley; the 5.4.4 build tool accepts the installed MSVC 14.43 (warning only); Valley reference works in the same engine | Older; newer features unavailable |
-| UE 5.7.4 *(not chosen)* | Newer engine | MSVC 14.43 is banned; needs a Visual Studio update; one-way asset upgrades |
-| **UE 5.8.3** *(chosen)* | Newest installed engine | MSVC 14.43 is banned; needs VS 2022 17.14 (MSVC 14.44.35211+) or VS 2026 (14.50.35723+) before any C++ builds; one-way asset upgrades |
-
-**Decided 2026-10-11 by the owner: UE 5.8.3.** The owner gave no reason for
-choosing it over the recommendation.
+### OD-01 Engine version → D-07
+UE 5.4.4 was recommended (installed, accepted the old compiler); 5.7.4 not chosen;
+**UE 5.8.3 chosen** by the owner on 2026-10-11.
 
 ### OD-02 Cast-layer technology → D-08
-| Option | For | Against |
-|---|---|---|
-| **GAS for casting only; world-cell state in a separate subsystem** *(recommended, chosen)* | Gives abilities, costs, cooldowns, tag blocking and Gameplay Cues; matches the pattern behind the feel the owner loves; both agents know it | Needs a small C++ module (attribute sets); more concepts to learn |
-| Lightweight Blueprint-only (Gameplay Tags + Blueprint Interface + cue actors) *(not chosen)* | No C++, faster to start | Re-implements cooldown/cost/cancel logic; weaker fit if combat grows |
+**GAS for casting only** (recommended, chosen 2026-10-11) over a Blueprint-only
+tags-and-interfaces system, which would have re-implemented cooldown, cost and
+cancel logic.
 
-**Decided 2026-10-11 by the owner: GAS for casting only.** The world-cell state
-must **not** live in GAS.
+### OD-07 Terrain approach → A-02
+GDD 0.2–0.3 recommended authored terrain states and discrete earthworks at
+authored sockets. Superseded on 2026-10-13 by the owner's concept: Landscape for
+permanent geography and spline-based procedural earthworks on deformable
+materials; voxel terrain only if unrestricted digging ever becomes a pillar. How
+a cut is made below the terrain surface is OD-14.
 
-### OD-10 Asset licensing → D-10, D-11
-License source: the [Fab listing](https://www.fab.com/listings/0c19880e-21bd-42ba-8287-1caccc3951b1)
-for Valley of the Ancient. The owner's screenshot (2026-10-11) shows Epic Games,
-free, **Standard License**, Unreal Engine format, **"Allows usage with AI: No"**.
-Epic's Fab docs define the NoAI tag as "must not be used for generative AI data
-collection". Agents get HTTP 403 from Fab, so the license terms came to the log
-through the owner. The 2026-10-12 summary quotes the Standard License (Fab EULA
-section 4(c)): "Use the assets commercially or privately", "Modify and adjust the
-assets in order to incorporate them into your Projects", "Use the assets with any
-compatible tools", and "You may Distribute a Project that incorporates Content to
-end users, including software applications such as video games." Forbidden:
-redistributing the asset on its own (resale, giveaway, or inclusion in a tool or
-template where others can extract it), letting players extract it, and using NoAI
-content in training data, as input to generative models, or to develop generative
-AI systems. No agent has read the EULA text itself *(quotes unverified)*.
+### OD-10 Asset licensing → D-10, D-11 → moot under D-18
+The Valley of the Ancient Fab listing showed Standard License and "Allows usage
+with AI: No" (owner's screenshot, 2026-10-11). D-10 (NoAI rule) still applies to
+any Fab asset; D-11 was withdrawn when Valley was dropped.
 
-**Resolved 2026-10-12 by the owner:** AI use by D-10, migration and shipping by D-11.
+### OD-12 MVP definition and build order → D-20
+GDD 0.4 §14: one ~400 m valley, single player, four element actions acting on
+terrain, water, vegetation and objects; world systems first (MVP-1 world-change
+proof, MVP-2 living ground), then casting (MVP-3), the demo valley (MVP-4) and
+polish (MVP-5); survival, crafting, construction beyond earthworks, creatures,
+combat and multiplayer after the MVP. **Approved by the owner 2026-10-13.**
 
 ### OD-11 How agent-built systems are implemented → D-12
-*Raised 2026-10-12 during next action 4.* GDD 12.1 said Blueprint-first, but agents
-cannot edit Blueprint graphs, so the element system was written in C++ with CSV
-data. Recommendation: C++ plus CSV-sourced data tables for agent-built systems;
-Blueprint for content the owner tunes. **Accepted by the owner 2026-10-12**, with
-Blueprint work done by the owner with agent assistance.
+C++ plus CSV-sourced data tables for agent-built systems; Blueprints for content
+the owner tunes. Accepted 2026-10-12.
 
 ## Open decisions
 
-Recommendations are mine unless noted; none is binding until moved to **Decided**.
+Recommendations are Claude Code's unless noted; none is binding until moved to
+**Decided**.
 
-### OD-03 Combat role under the action-fantasy direction
-GDD 0.1 says the player is "not simply its strongest fighter". The new direction
-raises the question of how much combat exists.
-Recommendation: no player-vs-creature combat in M1–M2. In M3 creatures respond to
-the same element rules (fire as a temporary barrier, etc.). Revisit after M3.
-**Owner input welcome.**
+### OD-13 Single-player time scale — *needs the owner*
+The concept's recovery targets (days to weeks of real time) are for a future
+persistent server. A single-player session needs compressed game time.
+**Recommendation:** 1 game day = 24 real minutes; light disturbance recovers in
+under a game day, severe burns take 5–10 game days; resting at camp skips 1–3
+days. All values are CSV data and test hypotheses.
+
+### OD-14 How a channel is cut below the terrain surface — *spike decides*
+UE 5.8 cannot edit Landscape at runtime in a shipped game (`LandscapePatch` is
+editor-time). **Recommendation:** soft-ground zones are holes in the Landscape
+filled by runtime terrain tiles (Geometry Script, production status in 5.8) that
+are rebuilt when an earthwork changes them; berms can sit on top as meshes. MVP-1
+spike S1 proves or rejects this against a fallback (all-mesh terrain for the soft
+zone). The agent decides on measured results; the owner reviews the look.
+
+### OD-15 How water in player-made channels is drawn — *spike decides*
+The Water plugin is **Experimental** in 5.8. **Recommendation:** custom water
+ribbon meshes along flow links for player channels, driven by the flow graph; the
+Water plugin only for authored lakes and rivers if it holds up. MVP-1 spike S2
+decides.
+
+### OD-16 Cast animation source — *decide at MVP-3*
+D-15 was withdrawn. Options: owner-made animations, Epic's free animation content
+(check each Fab listing's NoAI flag, D-10), or licensed libraries. Casts work
+without animation until then.
+
+### OD-03 Combat role
+No player-vs-creature combat in the MVP. Revisit after creatures exist
+(post-MVP).
 
 ### OD-04 Element delivery
-Aimed cast with charge → release → impact (matches the Valley feel) vs placed
-field vs tool-like ability. Recommendation: aimed cast as the M1 default, with the
-element API kept independent of input (GDD 3.3). Resolve after M1 playtests.
+Partly settled: aimed casts use hold-to-charge, release, right-mouse cancel
+(D-14); Earth draws a path over the ground (GDD 3.4). Final feel is tuned after
+MVP-3 play-tests.
 
 ### OD-05 Title availability
-"Wildwright" is a working title. A quick web search (2026-10-11) found no game, studio or
-product with that name. That is **not** a trademark clearance. Before any public
-branding, search trademark registries, Steam/itch/console storefronts, domains and
-social handles. Names that were checked and rejected: *Elementor* (WordPress
-page builder), *Elemental* (Pixar film, Stardock strategy series), *Emberwake*
-(existing PC game), *Fourfold* (existing studio), *Elemancer* (several games).
+"Wildwright" is a working title. A quick web search (2026-10-11) found no game,
+studio or product with that name. That is **not** a trademark clearance. Before
+public branding, search trademark registries, Steam/itch/console storefronts,
+domains and social handles. Rejected names: *Elementor*, *Elemental*,
+*Emberwake*, *Fourfold*, *Elemancer*.
 
 ### OD-06 Art direction
-Candidates from the concept document: grounded naturalism, dark fantasy,
-post-apocalyptic ecology, or another distinct identity. Valley of the Ancient is
-the anchor for tone and spectacle. Resolve after M1 look tests.
-
-### OD-07 Terrain approach
-Authored terrain states and discrete earthworks (GDD 4.6) vs selective deformation.
-Recommendation: authored states and earthworks. Revisit after M2.
+Candidates: grounded naturalism, dark fantasy, post-apocalyptic ecology, or
+another distinct identity. Proposed in GDD 5.1: grounded, tactile land with
+heightened elemental light and motion. Resolve after the first look test in MVP-4.
 
 ### OD-08 Costs and cooldowns
-Minimal at first; tune only if spam undermines decisions. Resolve after the core
-rules are fun.
+Minimal at first; tune only if spam undermines decisions. Earthworks need a
+budget so a player cannot reshape the whole valley at once (GDD 4.7).
 
 ### OD-09 Death penalty
-Prototype default: safe respawn, journal retained. Whether carried resources are
-lost stays open until the survival loop is tested.
+The MVP has no death. Revisit when hazards or survival arrive (post-MVP).
 
 ## Change requests
 
 ### CR-001 Add cinematic spectacle (cast layer) to the design
-*Raised 2026-10-11 by the owner's direction D-03. Status: **applied to GDD 0.2,
-pending prototype validation.***
+*Raised 2026-10-11 by D-03. Status: applied (GDD 2.2, 5.3); the cast layer is
+scheduled in MVP-3.*
 
 | Field | Entry |
 |---|---|
 | 1. Player problem solved | A purely systemic game risks feeling mechanical; the owner wants the intensity and power fantasy of an action-fantasy hero. |
 | 2. Expected benefit | Casting feels powerful and memorable, and strengthens the "I changed the world" payoff. |
-| 3. Implementation cost | High if unconstrained (Valley's single LightDart ability is about 147 named assets). Mitigated by capping to one hero cast in M1 and a shared cast-profile structure. |
-| 4. Systems affected | New cast layer (animation, camera mode, targeting preview, Niagara/audio/haptic cues); `ElementDefinition` gains a cast profile; UI/accessibility (camera motion); performance budgets. |
-| 5. Acceptance test | One hero cast passes the spectacle contract: Appendix A tests 6 (VFX disabled, same state) and 9 (cancel is clean), and playtesters can say what the cast did. |
-| 6. Milestone impact | M1 gains a hero-cast deliverable; M2–M6 unchanged. No new milestone. |
+| 3. Implementation cost | High if unconstrained: a production-grade hero cast in an Epic sample used about 150 named assets. Mitigated by one hero cast first and a shared cast-profile structure. |
+| 4. Systems affected | Cast layer (animation, camera mode, targeting preview, Niagara/audio/haptic cues); cast profiles; UI/accessibility; performance budgets. |
+| 5. Acceptance test | The hero cast passes the spectacle contract: Appendix A tests for VFX-off parity and clean cancel, and play-testers can say what the cast did. |
+| 6. Milestone impact | Hero cast is part of MVP-3. |
 
 ### CR-002 Clarify the first-playable build direction and project presentation
+*Raised 2026-10-12 (Codex). Status: **superseded by CR-003** on 2026-10-13.*
+Its proposals (a 20–30 minute spring-route session gated by a hot pass and burnable
+brush, two plant archetypes, six recipes, authored flow sockets, eight build
+packets) were written for discrete targets on box geometry. GDD 0.4 replaces them
+with a terrain-based world model and MVP plan. The cover concept and Workspace
+refresh from CR-002 remain.
 
-*Raised 2026-10-12 by the owner's request to expand the GDD, improve the Workspace
-and design a game cover. Status: **applied to GDD 0.3 as proposed build detail;
-new gameplay choices and cover art await review.*** Locked owner decisions remain
-in force. This is authoring work, not a claim that the new gameplay is implemented.
+### CR-003 Rebase the design on the Dynamic World Systems direction
+*Raised 2026-10-13 by the owner's concept document (A-02) and request: "we need to
+really get a good grip on this game and its design … build this right, system by
+system so the goal for a true demo or mvp is realistic". Status: **applied to GDD
+0.4; MVP plan approved (D-20).***
 
 | Field | Entry |
 |---|---|
-| 1. Player problem solved | The broad premise needs a concrete first session, useful interventions and clear consequences; builders need bounded tasks and visible proof of completion. |
-| 2. Expected benefit | A spring-route session connects experiments, route choice, ecology, construction and knowledge into one playable arc; the Workspace makes current progress and next work easier to find. |
-| 3. Implementation cost | Documentation and presentation delivered now. Future density, suitability, finite flow, route integration and persistence require small briefs, tests and owner play-tests; no new runtime system was built in this refresh. |
-| 4. Systems affected | GDD rule contracts, valley/session design, ecology/journal/save requirements, milestone packets; Workspace hub generator/styles and an original cover concept. Existing action 5 behaviour remains unchanged. |
-| 5. Acceptance test | GDD clearly labels accepted versus proposed work and preserves the content cap; every build packet has dependencies and an exit check; Workspace tabs, media preview/downloads and source links work at wide/narrow sizes; owner reviews new direction and cover. |
-| 6. Milestone impact | M0–M6 and the six-rule cap stay intact. M1 closes with six effects and one hero cast. First-session detail links M2–M5 deliverables without adding regions, multiplayer, combat, recipes beyond the existing cap or additional creatures. |
-
-**Choices still proposed:** 20–30 minute pacing, four basic actions available in the
-first-playable test, the two plant archetypes, six recipe selection, density/soil/flow
-details, route integration, journal confirmation policy and frozen simulation while
-the application is closed. Record owner feedback before treating these as resolved
-OD-03/04/06/08/09 decisions. The cover's person and costume are not a character approval.
+| 1. Player problem solved | Elements acted on isolated objects in a box world, so "shaping a living landscape" (the core fantasy) could not happen. Persistence and recovery had no model. |
+| 2. Expected benefit | Elements shape terrain, water, vegetation and air; the world keeps scars and recovers on its own terms; the plan proves the hardest technology first, so the MVP is realistic. |
+| 3. Implementation cost | New state systems (cells, earthworks, flow graph, fire, succession, time), two technical spikes, a terrain-based proof scene. Existing element selection, targeting, resolver and object rules are reused for object targets. |
+| 4. Systems affected | GDD 1–4, 12–16 and Appendix A rewritten; rules: `ER_AIR_DISPERSE` becomes `ER_AIR_GUST`, `ER_EARTH_BARRIER` becomes `ER_EARTH_BERM`, `ER_EARTH_CHANNEL` added, `ER_WATER_SOIL` becomes world process `WP_GROWTH`; milestones M1–M6 retired in favour of MVP-0 to MVP-5; the box valley greybox retired; `L_TestRange` kept as the object-rules regression lab. |
+| 5. Acceptance test | GDD 0.4 §14.5: the concept's nine-step technical proof passes in `L_WorldProof`, with measured cost. |
+| 6. Milestone impact | Replaces M1–M6 with MVP-1 to MVP-5 (GDD 14.3). The six-rule cap is kept. |
 
 ## Validation notes
 
-*2026-10-12 — Action 5 accepted.* After the four automated tests and greybox
-verifier passed, the owner reported that the supplied `L_TestRange` play-test
-results “seems to match”. Recorded owner acceptance of the first three rules;
-M1 remains in progress, with the first hero cast next. This records validation,
-with no new design, balance or scope decision. Changes remain uncommitted.
+*2026-10-12 — Action 5 accepted.* The owner reported that the `L_TestRange`
+play-test results "seem to match" for wet, ignite and cool. These object rules
+remain valid under GDD 0.4.
 
-## Inherited from GDD 0.1 (still in force, unvalidated)
+## Inherited from GDD 0.1 (still in force)
 
-Third-person camera for the prototype; single player; one valley; no runtime
-LLM dependency for core gameplay; narrative cause of the Sundering kept partly
-open; world scale decided after simulation and streaming benchmarks.
+Third-person camera for the prototype; single player for the MVP; one valley; no
+runtime LLM dependency for gameplay; the cause of the Sundering kept partly open.

@@ -275,3 +275,250 @@ unsure); retargeting quality. **Not done:** part 1 of the guide (copying the Val
 pieces) and the GAS plumbing; action 5 and these fixes are **uncommitted**.
 **Next:** the owner chooses who does part 1 and the GAS work; the owner then follows
 guide parts 2–6.
+
+*2026-10-12, owner guide part 1 — selected asset migration (Codex).*
+The owner requested part 1 and confirmed Unreal was closed before the editor build.
+Claimed the import tools/content, required config/plugin dependencies and handoff
+records. Inventoried original Valley package headers in an isolated UE 5.4 scratch
+project, mounting source directories for metadata reads only. Queried hard and
+soft package dependencies using Asset Registry; the source project was never
+launched, edited or saved. Inspected Epic's engine flipbooks separately in UE 5.8.
+
+Copied **402 Valley and 4 Epic packages**, **1,677,079,875 bytes (1.56 GiB)**, into
+`D:\Wildwright\Content\Wildwright\Imported\`. The 22 requested roots bring their
+transitive dependencies, including Echo materials, physics/post-process rigs and
+animation-notify audio. No source levels, golems, robots or Megascans were copied.
+Preserved source mount subfolders (`Valley/AncientBattle`,
+`Valley/Game/AncientContent`); Epic assets are under `Epic/Art/Effects/Proto/Shared`.
+Added **406 exact PackageRedirects** in `Config/DefaultEngine.ini`, enabled the
+engine's `AudioModulation` plugin for imported sound/control-bus dependencies, and
+preserved the two original LightDart notify tags in `Config/Tags/ValleyImportTags.ini`.
+NoAI assets stayed inside the private game project; no generation tool received
+them or their previews. Original asset bytes were copied without conversion/resaving.
+
+Added `Tools/Import/README.md`, `selected-assets.json`, `import_assets.py`,
+`inventory_dependencies.py`, `verify_imports.py` and `test_import_assets.py`.
+The manifest records relative source paths, classes, dependency edges, destination
+paths, file sizes and hashes. The copier validates the whole set before writing,
+refuses edited destinations or changed sources, confines writes to Imported and
+skips identical assets. Replays copied **0 files**; all source/destination SHA-256
+hashes still match. Absolute-path inventory settings, scratch editor project,
+build/test logs and JSON load evidence are ignored under
+`D:\Wildwright\Saved\CodexScratch\OwnerGuidePart1\`.
+
+**Verification ladder evidence:**
+
+| Check | Evidence and result |
+|---|---|
+| Game / editor targets | `Game-build.log`, `Editor-build.log`: `Result: Succeeded`; editor closed. Game has no warnings; editor's 20 HyperAIStudio dependency warnings match the prior `action5-editor-build.log`, with no new build warnings |
+| Editor-only plugin guard | `Tools/Checks/check_editor_only_plugins.ps1`: `PASS`, every AI/MCP/editor-tool plugin remains editor-only |
+| Import integrity and loading | `Verify.log` and `load-verification.json`: **406 loaded, 22 roots, 406 redirects, 164/164 external assets, 0 failures**, `RESULT ok`; Echo skeleton links and **2 original notify tags** pass. No missing-package/invalid-tag warnings |
+| Element generator | `Generate.log`: `DT_Elements` 4, `DT_ElementRules` 6, `DT_TargetTypes` 5 rows; all **0 Problems**; `[WWElements] RESULT ok` |
+| Greybox generator | `GenerateGreybox.log`: `[WWGreybox] RESULT ok`; run without force, both existing maps skipped. No generated game content changed in Git |
+| Gameplay automation | `Tests.log`: ProjectData, Resolution, Runtime and TargetCheck each `Result={Success}`, **4/4** |
+| Import safety checks | `python Tools/Import/test_import_assets.py`: **4/4**; original copy/idempotent replay, changed-source refusal, preservation of owner-edited imports and destination containment |
+| Greybox layout / wiring | `Greybox.log`: `[WWVerify] SUMMARY 33 passed, 0 failed` |
+
+**Known limit:** headless `-nullrhi` loading does not verify Niagara's rendered
+appearance or GPU shader compilation, retargeting quality or packaged cooking.
+Four copied Epic originals emit their original empty engine-version header warnings;
+they load and remain byte-identical. Corrected verifier API access during this
+session: UE 5.8 uses `AnimationLibrary.get_animation_notify_events`, and the
+Blueprint notify property is `EventTag`. Final verification passes and overwrites
+failure evidence rather than leaving a stale success report.
+
+**Owner check:** open Content Browser →
+`Wildwright/Imported/Valley/AncientBattle/FX/Niagara/NS_LightdartHandCharge`.
+Wait for shaders; play/reset the original charge preview. Expected: effect appears,
+no missing references or Niagara compile errors. Scrub/play
+`Valley/AncientBattle/Characters/Echo/Animations/LightDart_Release`: Echo performs
+the throw. Then continue owner-guide **part 2**; Echo's source mesh is under
+`Valley/Game/AncientContent/Characters/Echo/Meshes`.
+
+For the ladder's gameplay regression, open `L_TestRange`, press Play: **ST01 + Fire**
+burns down to Burnt/fuel 0; **ST02 + Water, then Fire** becomes Wet and refuses
+with “Too wet to ignite …”; **ST04 + Water** reports Steam and temperature **90 → 50**,
+then another Water application refuses because it is below the Steam threshold.
+Stop/start Play to confirm the same initial state and results. Owner acceptance
+of these checks for this import session and the Niagara preview remains pending.
+
+**Next:** owner preview and guide parts 2–6; an agent can separately claim the GAS
+work from `08-hero-cast-plan.md`. Part 1 creates no retargeted animations, cast
+abilities or owner FX sandbox. Updated README state/next actions and owner-guide
+status; existing history was found at game `2341639` (including action 5 `a4049ae`)
+and design `3c66a31`, correcting stale “uncommitted” labels without making a commit.
+
+Regenerated the existing Workspace hub/cover using its authoring workflow; outputs
+are byte-identical, so no report layout, media or registry changes were needed.
+Final selected-file whitespace checks, import Python syntax and manifest JSON pass.
+Imported `.uasset` files use LFS; `Saved/` evidence is ignored. Reviewed the changed
+file scope: import tools/content, redirects, the two tag definitions, Audio
+Modulation and these three design records. **No commits. Ownership claim released.**
+
+*2026-10-12, charge preview diagnosis after the owner's part 1 check (Codex).*
+Owner reported `NS_LightdartHandCharge` blank with errors, `LightDart_Release`
+passed and `L_TestRange` OK. Recorded the animation/gameplay acceptance and kept
+the charge visual check failed. Claimed import diagnostics and the related
+records before editing. The owner's subsequent reply said the file location did
+not provide a way to see the revised preview. Explained that the optional Python
+command belongs in Unreal's Output Log, and replaced the required check with
+click-by-click steps entirely inside Unreal, on the owner's Cast copy.
+
+Read the owner's editor log and ran isolated headless UE 5.8 diagnostics without
+saving assets or maps. Added `Tools/Import/preview_charge.py` (transient preview
+inputs) and `verify_niagara.py` (settled compile-state and simulation-cache checks),
+and documented their limits. The helper correctly supplies energy 1, probability
+1 and vector handPosition 0; a fresh component still sees the original energy 0.
+This **does not repair ribbon width**. A later component reinitialize discards
+deferred input writes, so the helper populates a fresh inactive component before
+activation. The verifier explicitly fails on absent or zero ribbon width.
+
+**Verification ladder and current evidence:**
+
+| Check | Evidence / result |
+|---|---|
+| Native game/editor builds | Preceding migration session's `Game-build.log` and `Editor-build.log`: both `Result: Succeeded`, with only the 20 pre-existing HyperAI editor warnings. **Not rerun this session**: native source, build settings and game assets unchanged by this diagnosis; no editor-target build attempted |
+| Plugin guard | Rerun `Tools/Checks/check_editor_only_plugins.ps1`: **PASS**, editor-only restrictions preserved |
+| Generators | Preceding `Generate.log` / `GenerateGreybox.log`: both `RESULT ok`, 0 table problems, existing maps skipped. **Not rerun** for read-only diagnostic tools |
+| Gameplay / copy safety | Prior `Tests.log`: gameplay **4/4**. Current `test_import_assets.py`: copy-safety **4/4**; prior gameplay tests not rerun |
+| Greybox verifier / owner check | Prior `Greybox.log`: **33/33**. Owner now reports `L_TestRange` OK and release animation passed; no changes to generated maps |
+| Source/copy integrity | Current `import_assets.py --check-only`: **406 packages, 0 copied files, all source/import SHA-256 hashes match; RESULT ok** |
+| Actual Niagara compilation | Current `charge-VerifyCompile.log` / `niagara-verification.json`: all four systems settled, not stale/compiling, **zero errors**. Warning events: charge 20, core 16, trail 6, impact 0 |
+| Charge simulation | Same report, final run 19:30 UTC: default energy 0 gives **81** ribbons; energy 1 gives **35**. Every sampled **Initial.RibbonWidth** and **RibbonWidth** equals **0**, colour alpha 1. **RESULT failed**, “Charged preview has no visible ribbon width” |
+| Input inspection | `ribbon-inputs.json`: LocationBasedRibbon InitializeParticle Ribbon Width Mode **Unset**. Read-only text export shows stored rapid-iteration width **3** and `RibbonUserEffect` reads initial ribbon width. Original loaded in isolated UE 5.4 also has Unset, so no UE 5.8-only cause established |
+
+All diagnostic evidence above is under the ignored
+`D:/Wildwright/Saved/CodexScratch/OwnerGuidePart1/`. The original Valley project
+was not launched or edited; an existing isolated UE 5.4 scratch project mounted
+its files for diagnostic reads only. No NoAI asset or render was sent to a
+generation tool, and no graph was modified or resaved. Preserved the owner's
+`Config/DefaultEditor.ini` preview-profile additions. Did not change import
+redirects, dependencies, tags or plugin settings this session.
+
+**Owner check next:** duplicate/reuse `Cast/Niagara/NS_FireCast_Charge`, temporarily
+set energy (or Charge) 1, select LocationBasedRibbon → Particle Spawn → Initialize
+Particle → Ribbon Attributes, set **Ribbon Width Mode = Direct Set**,
+**Ribbon Width = 3**, then Compile/reset/Play. Expected: visible thin charge
+ribbons. This is an **unexecuted repair hypothesis**, not a verified fix. Save
+only the Cast copy if it works, return energy/Charge to 0, and reuse this copy at
+guide step 26. If still blank, record the first red Niagara Log error separately
+from yellow warnings. No need to redo the accepted animation/gameplay checks.
+
+**Not verified:** rendered charge appearance, manual repair, owner-error text
+if it differs from reproduced compiler warnings, retargeting, cooking and the
+action 6 spectacle contract. D-10 limits agents to reading/classifying/tagging/
+organizing NoAI originals without derivative output; hands-on graph repair stays
+with the owner under guide parts 2–6. An agent may continue the diagnostics under
+a fresh claim using [07-handoff-charge-preview.md](07-handoff-charge-preview.md).
+Updated README state/next actions and owner-guide status. No commits.
+
+Final selected-file whitespace, Import Python syntax and manifest JSON checks pass.
+Reran integrity after the UE 5.4 diagnostic reads: **406 hashes match**, 0 copies.
+Import tools now ignore their local Python bytecode cache. Regenerated the
+existing Workspace hub/cover under the workspace-authoring workflow; both outputs
+are byte-identical, so no changed tabs or card registry update were required.
+Stopped only the owned headless diagnostic processes; the owner's editor remains
+open. **No commits. Ownership claim released.**
+
+*2026-10-12, original Niagara direction and manual creation guide (Codex).*
+Owner reported the proposed Valley charge repair still failed and chose to make
+Wildwright's own Niagara effects. Asked which deliverable would help next; owner
+selected **“Write the manual creation guide”** rather than an agent-built charge
+prototype. Claimed the relevant design records, card generator/outputs and
+Wildwright card metadata before editing. No game assets, source, config, plugins
+or import tools were edited in this session; no application was restarted.
+
+Recorded **D-17** and marked D-16's Niagara/material reuse as superseded. Updated
+the GDD's change table and hero-cast production direction, the Fire plan, README
+state/next actions, and the old charge handoff's superseded banner. Fire controls,
+six-effect cap, Echo retargeting, optional audio and the resolver remain intact.
+The failed repair stays as historical evidence, not an active prerequisite.
+
+Rewrote `09-hero-cast-owner-guide.md` around fresh UE 5.8 emitters and original
+procedural ember/smoke materials. Charge is first: **A** visible Fountain template,
+**B** our orange ember material, **C** Charge-controlled emission and warm core.
+The guide then covers finite bolt travel, impact, fizzle, Fuel-driven burning and
+Heat-driven smoulder. It separates sandbox visibility from later GAS/state tests,
+defers Effect Type/fixed-bounds tuning until a visible baseline, documents float
+to integer conversion for burst counts, and preserves previous Cast experiments
+by offering `_Original_v1` names. It explicitly labels recipes/menu layouts as
+unverified until the owner exercises them.
+
+Added **Fire FX guide** to the existing Wildwright Workspace card. The hub
+generator now copies the authoritative guide to `fire-fx-guide.md`, resolving its
+relative document links for the card; changed its stale “Water or fire / choice
+open” label to Fire selected / original Niagara. Preserved the cover and Greybox
+tabs and the editable source docs. Applied the plan and workspace-authoring skills;
+used feature-handoff to retire the old continuation without deleting its evidence.
+
+**Verification ladder, scaled to documentation-only changes:**
+
+| Check | Evidence / result |
+|---|---|
+| Game / editor builds and plugin guard | **Not rerun**: no game/native/build/config changes. Prior migration build/guard evidence remains in the earlier entry. No editor-target build attempted; owner's editor left open |
+| Asset generators, gameplay tests, greybox verifier | **Not rerun**: no new or changed Unreal assets, rules, CSVs or maps. Previous 4/4 gameplay and 33/33 greybox evidence remains baseline |
+| Guide/API references | Fresh emitter/module, curve, conversion and Multiply assets exist in installed UE 5.8 content; User Parameters/Niagara Log tab names checked in source. Epic Niagara Quick Start, gradients and system settings checked. No Valley FX used as a construction reference |
+| Card generator | `node projects/Wildwright/tools/build-workspace-card.mjs` succeeds: 6 sections, 3/6 accepted rules, 6 session beats, 8 build packets. `node --check` passes; generated Markdown guide registered as the fourth tab |
+| Actual browser preview | Isolated headless Edge, **1440 and 540 px**: guide tab selected, all A/B/C checkpoints present, 7 tables render, no document/hub horizontal overflow, local guide links HTTP 200, **zero page errors**. Inspected screenshots; own sessions not restored or interrupted |
+| Preview evidence | `.cache/wildwright-manual-ui-O5YITu/verification.json` and guide/Spellcraft screenshots; ignored local scratch. Native FX rendering was not tested |
+| Selected-file review | Markdown/link consistency and selected-file whitespace checks pass. Changed only the claimed design/card scope; game Git status retains prior imports/tools and the owner's preview-profile config additions |
+
+**Exact owner check:** Workspace → **Wildwright → Fire FX guide**, start **part
+5A**. Check A must show plain Fountain particles before material changes. At C,
+try Charge **0** (wait one second: invisible), **0.25** (small glow/sparse embers),
+**1** (larger glow/more embers), reset/replay with no red compile errors. Report
+**“Charge checkpoint C passed”** and the final asset path, or the failing checkpoint
+and first red error. Do not redo Valley repair or the accepted release/gameplay
+checks. Full hero-cast gameplay tests wait for GAS integration.
+
+**Not verified:** the manually authored Niagara recipes, final appearance,
+performance, new asset dependencies and the spectacle contract. **No new FX
+created. No commits. Ownership claim released.**
+
+*2026-10-13, design rebase and Valley removal (Claude Code).* The owner supplied the
+Dynamic World Systems Concept v0.1, said Codex had "messed about" in the design, and
+asked for a firm grip on the game, removal of everything from Valley of the Ancient,
+new test maps if the old ones would not work, and a system-by-system path to a
+realistic MVP. Recorded **D-18** (no Valley content), **D-19** (Claude Code leads the
+design), **A-02** (the concept as working direction) and **CR-003**; withdrew D-11,
+D-15 and D-16; resolved OD-07; opened OD-12 to OD-16.
+
+Rewrote the GDD as **v0.4** (design only; status moved to the README): world model of
+environmental cells, spline earthworks, a flow network driving visible water, cell
+fire, vegetation succession, simulation tiers and time; elements act on ground, path
+and object targets; six cast rules (`ER_AIR_GUST`, `ER_EARTH_CHANNEL`,
+`ER_EARTH_BERM` replace three v0.3 rows) plus seven world processes; MVP definition,
+content cap, milestones MVP-0 to MVP-5 with rough sizes, a 14-step MVP-1/MVP-2 build
+order with two spikes, and the concept's nine-step technical proof as MVP-1
+acceptance. Checked UE 5.8.3 for the stack: Landscape cannot be edited at runtime in
+a shipped game (`LandscapePatch` is editor-time), Geometry Script and PCG are
+production, the Water plugin is Experimental; this drives OD-14 and OD-15. Rewrote the
+vision and README; retired the Workspace "Greybox maps" tab; rewrote the hub
+generator for GDD 0.4 (status now read from the README).
+
+Game repo: sent to the Recycle Bin the 406 imported Valley/Epic packages (1.6 GB,
+never committed), `Tools/Import/`, `Config/Tags/ValleyImportTags.ini` and 47 MB of
+Valley diagnostics; restored `DefaultEngine.ini` (removes 406 redirects); removed the
+`AudioModulation` plugin; updated `AGENTS.md` (D-18 rule, generic Fab rules). Retired
+the box valley greybox (`L_Valley_Greybox`, its generator and verifier code); kept
+`L_TestRange` as the object-rules regression lab. Design record: recycled
+`03-feel-reference-valley-of-the-ancient.md`, `07-handoff-charge-preview.md` and
+`08-hero-cast-plan.md`; cut the Valley parts from the owner's Niagara guide (now an
+optional learning track); copied the concept into `source/`. The Valley project
+itself was not touched.
+
+**Verified** (logs in `D:\Wildwright\Saved\ClaudeScratch\`): editor target
+`Result: Succeeded` (27.8 s) and game target `Result: Succeeded` (25.2 s) with the
+parked cast-layer work in the tree; automation **11/11** `Result={Success}` (4
+`Wildwright.Elements.*`, 7 `Wildwright.Cast.*`); `verify_greybox.py` **16/16**;
+editor-only plugin check **PASS**; no remaining Valley references in game-repo text
+files; hub generator runs (6 sections, 6 cast rules, 7 processes, 14 steps, 6
+milestones); headless Edge at 1440 px (Vision, World, Elements, Build inspected) and
+492 px (no horizontal overflow on any of the six tabs).
+
+**Not verified:** anything in GDD 0.4 beyond the existing object rules; the parked
+cast work in play. **Not done:** no commits; the parked cast-layer work is still in
+the game repo's working tree. **Next:** owner approves OD-12 (and answers OD-13) and
+the commits; then MVP-1 step 1.1 and spikes S-1 and S-2. Ownership claim released.
+
+*2026-10-13, approval and commits.* The owner approved the MVP plan (**D-20**, GDD §14) and said to commit everything. Game repo: `f15110e` (Valley rules removed from `AGENTS.md`, box valley retired, editor preview profile) and `361f279` (cast-layer plumbing, parked for MVP-3); working tree clean; both commit messages were recreated once to strip a byte-order mark PowerShell had written, with trees verified identical. Design record and Workspace card committed in the Mr. Mak repo (Wildwright paths and the card registry only; the owner's other pending changes there were left untouched). Added a direct MVP-plan link at the top of the README. **Next:** OD-13 before MVP-2; MVP-1 step 1.1 and spikes S-1 and S-2.

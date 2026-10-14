@@ -1,88 +1,81 @@
 # Wildwright — Vision
 
-> *The world is not your resource. It is your creation, your adversary, and your memory.*
+> *Read the land. Change it with your own hands. Come back and see what it became.*
 
-**Read this first (two minutes).** The full specification is in
-[02-gdd.md](02-gdd.md). Decisions are in [04-decisions.md](04-decisions.md).
+**Read this first (two minutes).** The full design is [02-gdd.md](02-gdd.md);
+decisions are in [04-decisions.md](04-decisions.md).
 
 ## The idea
 
-Wildwright is a third-person action-fantasy sandbox in which you learn to wield
-**fire, water, earth and air** and use them to change a living, damaged valley.
-Every cast is a cinematic performance. Every cast also changes the world in a way
-you can read, remember and build on.
+Wildwright is a third-person sandbox in which you learn to wield **fire, water,
+earth and air** and use them to shape a living valley. Earth cuts channels and
+raises berms in soft ground. Water follows the new course and wets the land it
+reaches. Fire burns what is dry and leaves scars. Air turns the wind, and the fire
+with it. Every cast is a cinematic performance, and every cast changes the
+landscape in a way you can see, understand and come back to.
 
-> **Player fantasy:** "I understand this world better than I did yesterday. I can
-> now do things that once seemed impossible, and the landscape itself shows the
-> consequences of my decisions."
+> **Player fantasy:** "I read this valley, I changed it with my own hands, and when
+> I came back it had become something new, partly because of me."
+
+## Scars, not resets
+
+The valley remembers. A burned slope stays burned, then slowly greens through
+grass, scrub and woodland. A diverted stream keeps its new course. A flooded hollow
+may become a marsh and stay one. Nature pushes back, but recovery does not have to
+recreate the original: changed conditions can settle into a new, stable landscape.
+Nothing quietly resets behind you.
 
 ## What makes it different
 
-| Typical survival game | Wildwright |
+| Typical sandbox | Wildwright |
 |---|---|
-| Gather → craft → fight stronger enemies | Observe → experiment → understand → reshape |
-| Progression is gear and numbers | Progression is **knowledge** of how the world works |
-| Spells are damage | Spells change moisture, heat, soil, airflow and habitat |
-| World resets or ignores you | The world **remembers** selected consequences |
-| Effects are decoration | Effects are a performance *and* are backed by readable state |
+| Elements are damage | Elements change terrain, water, vegetation and wind |
+| Build on top of a fixed world | Shape the world itself, within readable limits: soft earth moves, bedrock resists |
+| The world resets or ignores you | The world keeps scars and recovers on its own terms |
+| Progress is gear and numbers | Progress is understanding how the land works |
+| Water and fire are decoration | A flow network decides where water goes; cells decide what burns; the visuals follow |
 
 ## Two layers, one game
 
-This is the central design idea, and it is what makes the cinematic direction
-compatible with a systemic game.
-
 | Cast layer | State layer |
 |---|---|
-| The performance: charge, release, camera, Niagara, audio, haptics | The consequence: moisture, heat, soil, vegetation, creature habitat |
+| Charge, release, camera, Niagara, sound | Terrain cells, earthworks, flow network, vegetation, scars |
 | Transient, spectacular | Persistent, readable |
-| Cosmetic, never authoritative | The only source of truth |
+| Never decides what happened | The only source of truth |
 
 *You cast with the weight of an action-fantasy hero. The valley responds like an
-ecosystem.* Full rules: GDD section 2.2.
+ecosystem.* (GDD §2.2)
 
 ## The loop
 
-**Observe → hypothesize → cast → read the result → record it → use the new option
-→ come back to a changed region.**
+**Read the land → choose an intervention → shape it → watch it work → let the world
+respond → return and read the consequence → adapt.**
 
-Example: a river vanishes into a collapsed ravine. You find a smaller stream
-nearby, redirect it with an earth barrier, watch soil darken and plants return,
-and later notice a grazing creature has claimed the new green patch. The new
-route is harder to cross. You decide how to adapt.
+Example: a meadow below the stream has dried out. You draw a channel from the stream
+down the slope, and water finds it. The banks darken; the old stream bed thins.
+A fire starts upwind of the grove; your channel stops it on one side and burns
+through the other. You rest at camp for two days. The meadow is green; the burned
+slope shows the first new grass.
 
-## Scope guard
+## Built to scale
 
-The first playable is **one small valley**: four elements, six rules, two plant
-types, one or two creatures, a shelter, a journal and save/load. It is not an open
-world and not a combat game. See GDD sections 14 and 15.3.
+The whole world never runs at full detail: rich simulation only where you are,
+compact numbers everywhere else, and no fluid or voxel simulation. That keeps a
+single valley fast today, and leaves the door open to a shared world many players
+shape together later.
 
-## Directions considered
+## The MVP
 
-Five concept directions were explored while the idea was developed. One became
-the core; the others are borrowed selectively.
-
-| Concept | Role in Wildwright |
-|---|---|
-| **The World That Learns** | Primary foundation (ecological memory) |
-| Elemental Cartographer | Traversal and environmental puzzles |
-| The Wild Engine | Selective: living infrastructure, ecosystem systems |
-| After the Elements | Regional identity and exploration |
-| The Elemental Legacy | Possible future shared-world expansion |
-
-Do not merge all five into separate major systems.
-
-## Where the "feel" comes from
-
-The target for spectacle, animation fluidity and cast presentation is Epic's
-*Valley of the Ancient* sample. It is a **reference for feel and pipeline, not a
-base project**. See
-[03-feel-reference-valley-of-the-ancient.md](03-feel-reference-valley-of-the-ancient.md).
+One valley about 400 m across, four element actions, the world systems underneath
+them, two objectives and save and load. Built **system by system, hardest
+technology first**: prove that a channel can be cut, carry water and be saved
+before adding fire, growth and spells (GDD §14).
 
 ## Open at the vision level
 
-- Final title (Wildwright is a working title; only a quick web check has been done).
-- How much combat the action-fantasy direction implies (OD-03).
+- Final title (Wildwright is a working title; OD-05).
 - Art direction (OD-06).
-- Whether a shared world is ever a goal (currently: no).
+- Whether a shared multiplayer world becomes a goal (designed for, not built).
 
-*Originals of the concept document and GDD v0.1 are preserved in `../source/`.*
+*Original source documents, including the Dynamic World Systems Concept v0.1, are in
+`../source/`.*

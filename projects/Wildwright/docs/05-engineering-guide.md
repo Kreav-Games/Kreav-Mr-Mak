@@ -13,11 +13,11 @@ Design intent is in the [GDD](02-gdd.md); decisions in the [log](04-decisions.md
 | What | Where |
 |---|---|
 | Design record (docs, decisions, Workspace hub source) | `D:\Mr.MakRepo\Kreav-Mr-Mak\projects\Wildwright\` (inside the Mr. Mak repo) |
-| Unreal project (game repo) | `D:\Wildwright\` — its own Git repo on `main`, Git LFS, **local only, no remote** (D-11: keep it private) |
+| Unreal project (game repo) | `D:\Wildwright\` — its own Git repo on `main`, Git LFS, **local only, no remote** (keep it private: Fab license obligations, D-11 notes) |
 | Engine | UE **5.8.3** at `D:\UE_5.8` (D-07). Launch the exe directly; never double-click the `.uproject` |
 | Compiler | VS 2022 17.14.41; `cl.exe` 14.44.35229 (accepted by 5.8; see gotchas) |
-| Feel reference (read-only) | `%USERPROFILE%\Documents\Unreal Projects\ValleyoftheAncient` (UE 5.4.4). See [03](03-feel-reference-valley-of-the-ancient.md) |
-| Workspace hub | `workspace\2026-10-11_wildwright\` in the Mr. Mak repo. `index.html` is generated (`node projects/Wildwright/tools/build-workspace-card.mjs`); `greybox.html` is hand-written |
+| Reference projects | None. Valley of the Ancient was dropped on 2026-10-13 (D-18): no assets, animations, effects or files from it. Learn techniques from Epic's documentation |
+| Workspace hub | `workspace\2026-10-11_wildwright\` in the Mr. Mak repo. `index.html`, `cover.html` and `fire-fx-guide.md` are generated (`node projects/Wildwright/tools/build-workspace-card.mjs`) from the GDD, decision log, README and owner guide |
 | Agent scratch files | `D:\Wildwright\Saved\<Agent>Scratch\` (ignored by Git). Never the project root |
 
 ### Inside the game repo
@@ -30,7 +30,7 @@ Design intent is in the [GDD](02-gdd.md); decisions in the [log](04-decisions.md
 | `Tools/Greybox/` | `build_greybox.py`, `verify_greybox.py`, README | Python |
 | `Tools/Elements/` | `build_elements.py`, README | Python |
 | `Config/DefaultGame.ini` | `[/Script/Wildwright.WildwrightSettings]` points the game at the generated assets | Text |
-| `Content/Wildwright/Maps/` | `L_TestRange`, `L_Valley_Greybox` | **Generated** by `build_greybox.py` |
+| `Content/Wildwright/Maps/` | `L_TestRange` (object-rules regression lab; the box valley greybox was retired 2026-10-13) | **Generated** by `build_greybox.py` |
 | `Content/Wildwright/Greybox/Materials/` | `MI_GB_*` | **Generated** by `build_greybox.py` |
 | `Content/Wildwright/Input/` | `IA_Element*`, `IMC_Elements` | **Generated** by `build_elements.py` |
 | `Content/Wildwright/Data/` | `DT_Elements`, `DT_ElementRules`, `DT_TargetTypes` | **Generated** from `Data/*.csv` |
@@ -93,8 +93,9 @@ Expected today: `DT_Elements: 4 rows`, `DT_ElementRules: 6 rows`,
 `DT_TargetTypes: 5 rows`, all `Imported DataTable ... 0 Problems`; tests
 `Wildwright.Elements.TargetCheck`, `Wildwright.Elements.ProjectData`,
 `Wildwright.Elements.Resolution`, `Wildwright.Elements.Runtime` all
-`Result={Success}`; verifier
-`SUMMARY 33 passed, 0 failed`.
+`Result={Success}` (plus seven `Wildwright.Cast.*` tests while the parked cast-layer
+work is in the working tree); verifier `SUMMARY 16 passed, 0 failed` (the box
+valley's checks were removed with it on 2026-10-13).
 
 Automation can exit 0 even when a test reports `Result={Fail}`. Inspect every
 `Test Completed` line and reject any failure; process exit status alone is insufficient.

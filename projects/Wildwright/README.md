@@ -1,164 +1,144 @@
 # Wildwright
 
-A third-person **elemental ecosystem sandbox with cinematic action-fantasy
-spectacle**, built in Unreal Engine 5.8. The player learns fire, water, earth and air
-and uses them on a living valley that remembers what was done to it. This is the
-owner's **only active game project** (D-02).
+A third-person **elemental landscape sandbox**, built in Unreal Engine 5.8: wield
+fire, water, earth and air to shape a living valley that keeps its scars and
+recovers on its own terms. This is the owner's **only active game project** (D-02).
+
+> **MVP plan:** [GDD §14](docs/02-gdd.md#14-mvp-scope-build-order-and-acceptance),
+> approved by the owner on 2026-10-13 (D-20). Also on the Workspace card, **Build** tab.
 
 > **New chat (Claude Code or Codex)? Start here.** Read this file, then the
-> [engineering guide](docs/05-engineering-guide.md) before touching the Unreal
-> project, then whatever the task needs from the GDD. Next is action 6, the first
-> hero cast (GDD §2.2 and §5.3; feel reference §1). Action 5's completed brief is
-> [docs/07-handoff-action-5.md](docs/07-handoff-action-5.md).
+> [GDD 0.4](docs/02-gdd.md) §1–4 and §14, then the [decision log](docs/04-decisions.md).
+> Read the [engineering guide](docs/05-engineering-guide.md) before touching the
+> Unreal project. Claude Code leads the design (D-19); Codex works from written briefs.
 
 ## Reading order
 
 | # | File | Read it for | Time |
 |---|---|---|---|
 | 1 | this README | Current state, rules, ownership, next actions | 5 min |
-| 2 | [docs/05-engineering-guide.md](docs/05-engineering-guide.md) | **How to build, generate, test, verify; architecture; gotchas** | 15 min |
-| 3 | [docs/02-gdd.md](docs/02-gdd.md) | **GDD 0.3: authoritative design**; start with 1.6–1.7, the session in 6.6 and build packets in 14.4 | 30 min |
-| 4 | [docs/04-decisions.md](docs/04-decisions.md) | What is decided, accepted, open | 5 min |
-| 5 | [docs/07-handoff-action-5.md](docs/07-handoff-action-5.md) | Completed action 5 contract and acceptance evidence | 5 min |
-| 6 | [docs/08-hero-cast-plan.md](docs/08-hero-cast-plan.md) | **Next task:** the Fire hero cast (action 6): design, cue map, Valley starting points, C++ pieces, acceptance checks | 10 min |
-| 7 | [docs/09-hero-cast-owner-guide.md](docs/09-hero-cast-owner-guide.md) | The owner's step-by-step for action 6 (retargeting, montages, Niagara, cues) | 10 min |
-| — | [docs/01-vision.md](docs/01-vision.md) | The idea and the two-layer principle | 2 min |
-| — | [docs/03-feel-reference-valley-of-the-ancient.md](docs/03-feel-reference-valley-of-the-ancient.md) | How the target feel is built; licensing; Niagara docs link | 10 min |
+| 2 | [docs/02-gdd.md](docs/02-gdd.md) | **GDD 0.4, the authoritative design**: world model §4, MVP and build order §14 | 30 min |
+| 3 | [docs/04-decisions.md](docs/04-decisions.md) | What is decided, accepted, open | 5 min |
+| 4 | [docs/05-engineering-guide.md](docs/05-engineering-guide.md) | How to build, generate, test, verify; gotchas | 15 min |
+| — | [docs/01-vision.md](docs/01-vision.md) | The idea in two minutes | 2 min |
+| — | [docs/09-hero-cast-owner-guide.md](docs/09-hero-cast-owner-guide.md) | Optional: the owner's Niagara learning track (Fire effects) | as needed |
+| — | [docs/07-handoff-action-5.md](docs/07-handoff-action-5.md) | Completed action 5 brief (object rules) | as needed |
 | — | [docs/06-session-log.md](docs/06-session-log.md) | Dated history of every session | as needed |
-| — | `source/` | Original PDFs (Concept v1.1, GDD v0.1). Read-only history | — |
+| — | `source/` | Original documents, including the Dynamic World Systems Concept v0.1 | — |
 
 ## What this is, in five lines
 
-1. Fire, water, earth, air act on **tagged targets** through deterministic,
-   data-driven rules (`ER_*`).
-2. Every cast has a **cast layer** (cinematic, transient, cosmetic) and a
-   **state layer** (persistent, readable, authoritative). The cast layer never
-   decides state (GDD 2.2).
-3. The world stores sparse **ecological memory** per region and responds.
-4. Knowledge, recorded in a **field journal**, is the main progression.
-5. First playable: one valley, four elements, six rules, two plant types, one or
-   two creatures. Not open world, not a combat game.
+1. Earth cuts channels and raises berms in soft ground; water follows a flow
+   network; fire burns what is dry; air turns the wind (GDD §3).
+2. The valley's state lives in **environmental cells, earthworks and a flow
+   network**; terrain, water, vegetation and effects are drawn from it (§4).
+3. **Scars, not resets:** consequences persist and nature recovers, sometimes into
+   a different landscape (§4.1).
+4. Simulation is **tiered**: full detail near the player only (§4.4).
+5. Every cast has a cinematic **cast layer** that never decides state (§2.2).
 
-## Where things stand (2026-10-12)
+## Where things stand (2026-10-13)
 
 | Item | State |
 |---|---|
-| Milestone | **M0 done.** M1 (element lab) in progress: actions 3, 4 and 5 accepted; first hero cast next; three remaining rule effects still pending |
-| Unreal project | `D:\Wildwright\`, UE 5.8.3 C++ (Third Person template, variants removed), GAS enabled, own Git repo with LFS, local only. 2026-10-12: editor-only plugin settings restored after Visual Studio rewrote the `.uproject`; `VisualStudioTools` disabled (it breaks the editor build); `Tools/Checks/check_editor_only_plugins.ps1` guards this (guide gotcha 24) |
-| Greybox (action 3) | `L_TestRange` (stations ST01–ST08) and `L_Valley_Greybox`, generated by `Tools/Greybox/`. Committed `54be2e4`. Explained in the Workspace card tab "Greybox maps" |
-| Element system (action 4) | Select an element (1–4, wheel, Q/E), aim, left mouse to apply; every refusal has a reason. Interface base now used by action 5. Owner play-test passed; committed `7b9712f` |
-| First three rules (action 5) | Water wets, Fire ignites and burns fuel on a timer, Water cools with a Steam event/message. Bounded state, precondition refusals, persistent material cues and aimed-state HUD. Both targets build, three table imports have 0 problems, tests 4/4, verifier 33/33. **Owner play-test accepted 2026-10-12; uncommitted.** Evidence in [session log](docs/06-session-log.md) |
-| Build direction | GDD **0.3** adds a first-session arc, two spring routes, bounded remaining-rule contracts, ecology/journal/construction/save detail and eight build packets with dependencies. New choices are proposals under CR-002; the six-rule cap is unchanged |
-| Next | Action 6: first hero cast (water or fire), starting from Epic's Niagara docs in the feel reference §1 |
-| Game repo commits | `e33140c` baseline · `27adc42` HyperAI agent files · `c43a81a` variants removed · `54c4520` D-10/D-11 in `AGENTS.md` · `54be2e4` greybox · `7b9712f` element system · `44b82d9` `AGENTS.md` start-here and D-02/D-12 rules |
-| Design record | This folder, in the Mr. Mak repo. Committed through `f0b7f02`; action 5 records, GDD 0.3, CR-002 and Workspace refresh are local and uncommitted |
-| Workspace hub | Pinned card `workspace/2026-10-11_wildwright/`: six-section illustrated field guide, Greybox maps and Cover art tabs. `index.html` and `cover.html` are generated by `node projects/Wildwright/tools/build-workspace-card.mjs`; `greybox.html` is hand-written |
-| Cover concept | Original text-generated `images/wildwright-cover-v1.png` (1672×941); prompt in [art/cover-v1.prompt.md](art/cover-v1.prompt.md). Preserved v1, full-size preview and download. Final look/character approval pending |
-| Playtests | Owner: greybox layout OK; action 4 targeting behaves as intended; action 5 results “seems to match” the supplied `L_TestRange` checks (2026-10-12) |
+| Design | **GDD 0.4** rebased on the owner's Dynamic World Systems concept (A-02, CR-003). **MVP plan (§14) approved** (D-20) |
+| Milestone | **MVP-0 done** (project, Git, character, element selection, three object rules). **MVP-1 World-change proof** is next |
+| Unreal project | `D:\Wildwright\`, UE 5.8.3 C++, GAS enabled, own Git repo with LFS, local only. Valley of the Ancient fully removed (D-18). Box valley greybox retired. `L_TestRange` kept as the object-rules regression lab |
+| Element system | Select (1–4, wheel, Q/E), aim, left mouse to apply; reasons for every refusal. Water wets, Fire ignites and burns on a timer, Water cools with Steam: on **object** targets. Committed (`7b9712f`, `a4049ae`) and owner-accepted |
+| Parked work | Cast-layer C++ (`Source/Wildwright/Cast/`, cast profiles, cast input assets): committed `361f279`; **builds and its 7 automation tests pass** (cancel, effects-off parity, timing, data); not play-tested. Belongs to MVP-3 |
+| Owner learning track | Optional: Fire Niagara effects with fresh UE 5.8 emitters ([guide](docs/09-hero-cast-owner-guide.md), D-17) |
+| Game repo commits | `e33140c` baseline · `27adc42` agent files · `c43a81a` variants removed · `54c4520` Fab rules · `54be2e4` greybox · `7b9712f` element system · `44b82d9` agent rules · `a4049ae` object rules · `2341639` plugin check · `f15110e` Valley removal and box valley retired · `361f279` cast-layer plumbing. Working tree clean |
+| Design record | This folder in the Mr. Mak repo. The 2026-10-13 rebase is committed |
+| Workspace hub | Pinned card `workspace/2026-10-11_wildwright/`, generated by `node projects/Wildwright/tools/build-workspace-card.mjs` |
 
 ## Decisions
 
 Full detail: [docs/04-decisions.md](docs/04-decisions.md).
 
-**Decided by the owner:** name **Wildwright** (D-06) · only active game project
-(D-02) · target feel **cinematic action-fantasy** (D-03) · built with **Claude Code
-and Codex** (D-04) · engine **UE 5.8.3** (D-07) · cast layer **GAS for casting
-only**, world state outside GAS (D-08) · project at **`D:\Wildwright\`**, own repo with
-LFS (D-09) · **NoAI Fab assets** (Valley included) are never used to generate,
-train or create content; AI may only read, classify, tag or organize them (D-10) ·
-**Valley assets** may ship inside the game, never redistributed, repo stays private
-(D-11) · **agent-built systems are C++ with CSV data**; **Blueprints are for content
-the owner tunes**, with agent assistance (D-12).
+**Decided by the owner:** name **Wildwright** (D-06) · only active game (D-02) ·
+cinematic action-fantasy feel (D-03) · Claude Code and Codex (D-04), with **Claude
+Code leading the design** (D-19) · **UE 5.8.3** (D-07) · **GAS for casting only**,
+world state outside GAS (D-08) · project at `D:\Wildwright\` (D-09) · **NoAI Fab
+assets** never used to generate content (D-10) · **C++ with CSV data** for
+agent-built systems, Blueprints for owner-tuned content (D-12) · first hero cast is
+**Fire** (D-13) with hold-release-cancel controls (D-14) · **our own Niagara
+effects** (D-17) · **no Valley of the Ancient content** (D-18) · **MVP plan
+approved** (D-20).
 
-**Accepted in principle:** the spectacle contract (GDD 2.2, CR-001). Not yet
-prototyped.
+**Accepted in principle:** the spectacle contract (A-01); the **Dynamic World
+Systems direction** (A-02).
 
 **Open**
 
 | ID | Question | Recommendation |
 |---|---|---|
-| OD-03 | How much combat | None in M1–M2 |
-| OD-04 | Element delivery | Aimed cast, charge → release |
-| OD-05 | Title availability | Run a real trademark and storefront search before public branding |
+| OD-13 | Single-player time scale | 24 real minutes per game day; severe burns heal in 5–10 game days |
+| OD-14 | Cutting below the terrain | Landscape hole filled by a runtime terrain tile; spike S-1 decides |
+| OD-15 | Drawing water in player channels | Custom water ribbons; spike S-2 decides |
+| OD-16 | Cast animation source | Decide at MVP-3 |
+| OD-03, 04, 05, 06, 08, 09 | Combat, delivery, title, art, costs, death | See the log |
 
 ## Environment (summary)
 
-Windows 11 · UE 5.8.3 at `D:\UE_5.8` (also 5.4.4 and 5.7.4 installed) · VS 2022
-17.14.41, `cl.exe` 14.44.35229 · Git 2.47.1, Git LFS 3.6.0 · Codex CLI 0.162.1 ·
-D: has ~3.5 TB free, C: is low. Details, commands and known problems: [engineering
-guide](docs/05-engineering-guide.md) §1, §2 and §7. Unreal MCP runs in the open
-editor on `127.0.0.1:8000` but has **never been tested from an agent**; do not assume
-you can drive the editor live. Higgsfield CLI is blocked by Defender.
+Windows 11 · UE 5.8.3 at `D:\UE_5.8` · VS 2022 17.14.41, `cl.exe` 14.44.35229 ·
+Git 2.47.1, Git LFS 3.6.0 · Codex CLI · D: ~3.5 TB free, C: low. Details, commands and
+known problems: [engineering guide](docs/05-engineering-guide.md). Unreal MCP runs
+in the open editor on `127.0.0.1:8000` but has never been tested from an agent.
+Higgsfield CLI is blocked by Defender.
 
 ## Working agreement
 
 **Do**
-- Work **one small system at a time**, behind a test map, with an acceptance check
-  (GDD 12.1, 15.2, 16.2), and follow the verification ladder (guide §3).
-- Keep rules **deterministic and data-driven**; keep the **cast layer separate from
-  state** (GDD 2.2). VFX are never the source of truth.
-- Agents cannot hand-edit binary assets: write C++, CSV data and editor-Python
-  generators; the editor produces `.uasset` files.
-- Log decisions in `docs/04-decisions.md`; use the change-control fields (GDD 16.1)
-  for anything that adds a system, raises the content cap or changes a rule.
-- Mark anything you did not verify as *(unverified)*. Keep content in English.
+- Build **one system at a time**, in a small test map, with automated checks and an
+  exit check (GDD §14.4, §16.2); follow the verification ladder (guide §3).
+- Keep simulation **deterministic and data-driven**; keep the **cast layer separate
+  from state** (GDD §2.2). Visuals never decide state.
+- Agents write C++, CSV data and editor-Python generators; the editor produces
+  `.uasset` files (D-12).
+- Log decisions in `docs/04-decisions.md`; anything that adds a system, raises the
+  content cap or changes a rule needs a change request (GDD §16.1).
+- Mark anything not verified as *(unverified)*. Keep content in English.
 - Ask the owner before every commit.
 
 **Do not**
-- Use names, files, systems, lore, data or plans from any earlier game project, even
-  if they exist elsewhere on this machine or in old chats. Wildwright is the only
-  game (D-02).
-- Build Wildwright inside the Valley project, or port Valley to 5.7/5.8.
-- Redistribute Valley or other Fab assets outside the game (D-11): no public repo or
-  remote for `D:\Wildwright`, no sharing raw `.uasset` files beyond collaborators,
-  ship only cooked builds.
-- Migrate the Valley level, golems or bulk Megascans; selected pieces only.
-- Use NoAI Fab assets (check "Allows usage with AI" on every new one) to generate,
-  train, fine-tune or create new content (D-10).
-- Expand scope beyond GDD 14.1 without a change request.
-- Make AI/LLM calls part of runtime gameplay; keep AI/MCP plugins editor-only.
-- Restart the owner's applications or end an active agent session to apply a change;
-  prepare it and ask first.
+- Use anything from an earlier game project (D-02) or from Valley of the Ancient
+  (D-18).
+- Redistribute Fab assets outside the game: no public repo or remote for
+  `D:\Wildwright`, no raw `.uasset` sharing beyond collaborators, cooked builds only.
+- Use NoAI Fab assets to generate, train or create content (D-10).
+- Expand beyond the MVP cap (GDD §14.2) without a change request.
+- Put AI or LLM calls in runtime gameplay; keep AI and MCP plugins editor-only.
+- Restart the owner's applications or end an agent session to apply a change.
 - Commit `Saved/`, `Intermediate/`, `DerivedDataCache/`, `Binaries/`, `.env`, logins
-  or tokens. Modify `source/` or the Valley project in place.
+  or tokens. Modify `source/`.
 
 ## Ownership
 
-Claude Code and Codex share these folders. **Claim an area here before editing it
-and release it when you stop.** One agent per area. `docs/02-gdd.md` is
-authoritative: edit it (note the change in its "What changed" table and the
-decision log), do not fork it.
+Claude Code and Codex share these folders. **Claim an area before editing it and
+release it when you stop.** One agent per area. `docs/02-gdd.md` is authoritative.
 
 | Area | Owner (agent) | Since | Notes |
 |---|---|---|---|
-| *(nothing claimed)* | | | |
+| *(nothing claimed)* | | | The 2026-10-13 rebase and cleanup are done and await commit approval |
 
 ## Next actions
 
-Per GDD 16.3. Done so far: OD-01/OD-02 decided; Visual Studio updated; project
-created with a Git baseline; template variants removed; clean-clone check (M0);
-greybox (3); element selection and target interface (4); OD-11 decided (D-12).
-Action 5's first three rules passed automated checks and the owner's play-test.
-The other three M1 effects remain unimplemented.
-Follow the proposed dependency path in GDD §14.4. Review the new first-session
-direction and cover concept before treating their open design choices as decided.
-
 | # | Action | Needs the owner? | Output |
 |---|---|---|---|
-| 5 | ~~First three `ER_*` rules~~ ([completed brief](docs/07-handoff-action-5.md)) | Done | Both builds, imports, 4/4 tests, 33/33 verifier and owner play-test passed; uncommitted |
-| 6 | First hero cast: **Fire** (D-13 to D-16). Agent: part 1 of the [owner guide](docs/09-hero-cast-owner-guide.md) (copy Valley pieces), then the GAS plumbing in the [plan](docs/08-hero-cast-plan.md). Owner: guide parts 2–6 (retarget Echo animations, montages, six Niagara systems, cue Blueprints) | Yes: guide parts 2–6, look review | Passes the spectacle contract |
-| 7 | World-state debug overlay | No | Inspect variables and rule decisions |
-| — | Optional: try Unreal MCP from an agent (approve `.mcp.json`) | Yes | Agent lists the current level's actors |
+| 1 | ~~Approve the MVP plan (OD-12) and the commits~~ Done 2026-10-13: D-20; game repo `f15110e`, `361f279`; design record committed | — | — |
+| 2 | Answer the single-player time scale (OD-13) | **Yes**, before MVP-2 | Decision in the log |
+| 3 | MVP-1 step 1.1: proof scene `L_WorldProof` (stream bank, basin, soft-ground zone) | Possibly one terrain import step | A rebuildable proof map |
+| 4 | Spikes S-1 (cutting below terrain) and S-2 (channel water) | Review the look | OD-14, OD-15 decided on measurements |
+| 5 | Steps 1.4–1.9 in GDD §14.4 | Reviews and play-tests | MVP-1 technical proof (§14.5) |
 
 ## Useful repo skills
 
 | Skill | Path | Use |
 |---|---|---|
-| feature-handoff | `.agents/skills/feature-handoff/SKILL.md` | Hand work between Claude and Codex |
-| plan | `.agents/skills/plan/SKILL.md` | Turn a milestone into deliverables with checks |
+| plan | `.agents/skills/plan/SKILL.md` | Turn a milestone step into deliverables with checks |
+| feature-handoff | `.agents/skills/feature-handoff/SKILL.md` | Write a brief for Codex or the next session |
 | workspace-authoring | `.agents/skills/workspace-authoring/SKILL.md` | Workspace cards and pages |
-| image-reference-workflow | `.agents/skills/image-reference-workflow/SKILL.md` | Concept art exploration (never with NoAI assets) |
-| fal-ai-generation | `.agents/skills/fal-ai-generation/SKILL.md` | Image/video/3D generation via fal (never with NoAI assets) |
+| fal-ai-generation | `.agents/skills/fal-ai-generation/SKILL.md` | Image or 3D generation (never with NoAI assets) |
 
 ## Handoff checklist (end of every session)
 
@@ -168,5 +148,5 @@ direction and cover concept before treating their open design choices as decided
 3. Add an entry to [docs/06-session-log.md](docs/06-session-log.md): what was done,
    what was verified (with evidence), what was not, what is next.
 4. Release your ownership claim.
-5. If you stop mid-task, write or update a brief in `docs/07-*.md` (feature-handoff
-   skill) so the other agent can continue cold.
+5. If you stop mid-task, write a brief in `docs/07-*.md` so the other agent can
+   continue cold.
