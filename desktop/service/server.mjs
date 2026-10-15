@@ -5,7 +5,7 @@ import { watch } from 'node:fs';
 import { WebSocketServer, WebSocket } from 'ws';
 import { parse as parseEnv } from 'dotenv';
 import { Sessions } from './sessions.mjs';
-import { Coordinator } from './coordinator.mjs';
+import { Coordinator, openChatArguments } from './coordinator.mjs';
 import { Files, serveFile } from './files.mjs';
 import { importFile, dragFiles, moveFile, recyclePath, MAX_FILE_BYTES } from './file-transfers.mjs';
 import { inventory } from './agents.mjs';
@@ -13,26 +13,48 @@ import { Attachments, attachmentText, MAX_IMAGE_BYTES } from './attachments.mjs'
 import { ContextLibrary } from './context.mjs';
 import { taskTitle } from './titles.mjs';
 import { taskEffort } from './effort.mjs';
-import { Workspace, localDay } from './workspace.mjs';
+import { Workspace, localDay, metadataPatch } from './workspace.mjs';
 import { QuickActions } from './quick-actions.mjs';
 import { defaultVoiceStyle, voiceSession } from './voice-profile.mjs';
 import { NativeSettings } from './native-settings.mjs';
 import { McpInventory } from './mcp.mjs';
 import { body, equalSecret, json, publicError, readJson, realFile, saveJson, secret } from './util.mjs';
+import { ProjectAdapterRegistry } from './project-adapters/registry.mjs';
+import { KnowledgeManager, MarkdownKnowledgeProvider } from './knowledge/providers.mjs';
+import { IntegrationManager } from './integrations/manager.mjs';
+import { MobileDictation } from './mobile-dictation.mjs';
+import { MobileGateway } from './mobile.mjs';
 
 const listen = server => new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', () => resolve(`http://127.0.0.1:${server.address().port}`)); });
 
-export async function createService({ repo, uiDir, stateDir, token = secret(), native = () => {}, restoreSessions = false, mcpOptions }) {
+export async function createService({ repo, uiDir, stateDir, token = secret(), native = () => {}, restoreSessions = false, mcpOptions, mobileOptions }) {
   repo = await realpath(repo);
   stateDir ||= path.join(repo, '.mrmak');
+  const dictation = mobileOptions?.dictation || new MobileDictation(repo);
   const files = new Files(repo);
   const attachments = new Attachments(repo);
   const library = new ContextLibrary(repo);
+  const knowledgeSources = await readJson(path.join(stateDir, 'knowledge-sources.json'), []);
+  const knowledgeProviders = (Array.isArray(knowledgeSources) ? knowledgeSources : []).filter(item => typeof item?.root === 'string').map(item => new MarkdownKnowledgeProvider(item.root, { id: item.id, label: item.label }));
+  const knowledge = new KnowledgeManager(library, knowledgeProviders);
+  const projects = new ProjectAdapterRegistry();
+  const integrations = await new IntegrationManager(stateDir).init();
   const mcp = new McpInventory(repo, mcpOptions);
   const sessions = await new Sessions(repo, stateDir).init();
   const environment = parseEnv(await readFile(path.join(repo, '.env'), 'utf8').catch(() => ''));
   const settingsPath = path.join(stateDir, 'settings.json');
-  let settings = { defaultAgent: 'codex', defaultBypass: false, coordinatorModel: environment.MRMAK_COORDINATOR_MODEL?.trim() || null, terminalFontSize: 13, terminalAppearance: 'focus', coordinatorEffort: 'medium', voiceName: 'cedar', voiceStyle: defaultVoiceStyle, ...await readJson(settingsPath, {}) };
+  const savedSettings = await readJson(settingsPath, null);
+  let settings = { defaultAgent: 'codex', defaultBypass: false, coordinatorModel: environment.MRMAK_COORDINATOR_MODEL?.trim() || null, terminalFontSize: 13, terminalAppearance: 'original', workspaceTheme: 'dark', coordinatorEffort: 'medium', voiceName: 'cedar', voiceStyle: defaultVoiceStyle, ...savedSettings };
+  if (await dictation.initializeProvider?.(settings, savedSettings !== null)) await saveJson(settingsPath, settings);
+  dictation.providerChoice = () => settings.transcribeProvider || null;
+  const chooseDictation = async provider => {
+    if (!['local', 'openai', 'openrouter', 'off'].includes(provider)) throw Object.assign(new Error('Choose a supported speech-to-text provider.'), { status: 400 });
+    settings.transcribeProvider = provider; await saveSettings();
+    const info = await dictation.status();
+    broadcast('settings', { settings }); broadcast('dictation', { dictation: info });
+    mobile?.broadcast({ type: 'dictation', dictation: info });
+    return info;
+  };
   let selectedId = sessions.active().some(item => item.id === settings.selectedId) ? settings.selectedId : sessions.active()[0]?.id || null;
   let workspaceRoute = settings.workspaceRoute || null;
   let settingsTimer;
@@ -45,6 +67,7 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
   let voiceOwner = null;
   let closing = false;
   const clients = new Set();
+  let mobile;
   const notices = [];
   const send = (ws, type, value) => { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type, ...value })); };
   const broadcast = (type, value) => { for (const ws of clients) send(ws, type, value); };
@@ -76,7 +99,12 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
         case 'reopen_chat': { const session = await sessions.resume(args.id); focus(session.id); return session; }
         case 'close_chat': return closeChat(args.id);
         case 'pin_chat': return sessions.pin(args.id, args.pinned);
-        case 'open_chat': { const session = await sessions.create({ ...args, name: taskTitle(args.name), effort: taskEffort(latestRequest, args.effort), bypass: args.bypass ?? settings.defaultBypass }); focus(session.id); return session; }
+        case 'open_chat': {
+          args = openChatArguments(args);
+          if (args.bypass === true && settings.defaultBypass !== true) throw new Error('To enable bypass, choose it yourself in New chat or Settings. Mr. Mak cannot raise the selected permission level.');
+          const session = await sessions.create({ agent: args.agent, cwd: args.cwd, name: taskTitle(args.name), effort: taskEffort(latestRequest, args.effort), bypass: args.bypass === false ? false : settings.defaultBypass === true });
+          focus(session.id); return session;
+        }
         case 'read_chat': return sessions.read(args.id);
         case 'send_to_chat': return sessions.input(args.id, args.text, { coordinator: true, submit: true });
         case 'attach_files': return attach(args.id, args.paths, true);
@@ -95,9 +123,9 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
         }
         case 'preview_file': { const preview = await files.preview(args.path); show('workspace', { preview }); return { shown: preview.path }; }
         case 'list_files': return files.list(args.path || repo, 'all', args.query || '');
-        case 'search_context': return library.search(args.query);
-        case 'read_context': return library.read(args.path, args.offset);
-        case 'list_skills': return library.skills(args.query || '');
+        case 'search_context': return knowledge.searchText(args.query);
+        case 'read_context': return knowledge.read(args.path, args.offset);
+        case 'list_skills': return knowledge.skills(args.query || '');
         case 'list_mcp': return mcp.list();
         case 'get_app_settings': return { voice: settings.voiceName, style: settings.voiceStyle, model: coordinator.model || 'Codex default', effort: settings.coordinatorEffort, billing: 'Codex subscription for the coordinator; OpenAI API for voice' };
         case 'update_voice': {
@@ -113,12 +141,14 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
   const quick = await new QuickActions({ stateDir, workspace, context: () => ({ chats: sessions.active(), route: workspaceRoute }), execute: (...args) => coordinator.execute(...args), completed: operation => broadcast('coordinator-result', { operation }) }).init();
   const askMak = async data => {
     if (coordinator.operationPromises.has(data.id) || coordinator.operations.has(data.id)) return coordinator.ask(data);
-    return await quick.ask(data) || coordinator.ask(data);
+    const images = await attachments.coordinatorImages(data.images);
+    if (images.length) return coordinator.ask({ ...data, images });
+    return await quick.ask(data) || coordinator.ask({ ...data, images });
   };
   coordinator.on('state', state => broadcast('coordinator-state', { state }));
   coordinator.on('result', operation => broadcast('coordinator-result', { operation }));
   coordinator.on('error-detail', error => broadcast('service-error', { error }));
-  sessions.on('session', session => broadcast('session', { session }));
+  sessions.on('session', session => { broadcast('session', { session }); integrations.publish('session', { event: session.status, session }).catch(() => {}); });
   sessions.on('screen-cleared', ({ id }) => broadcast('screen-cleared', { id }));
   sessions.on('service-error', error => broadcast('service-error', { error: publicError(error) }));
   sessions.on('output', output => {
@@ -128,7 +158,7 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
       send(ws, 'output', output);
     }
   });
-  sessions.on('notice', notice => { notices.push(notice); if (notices.length > 100) notices.shift(); broadcast('notice', { notice }); });
+  sessions.on('notice', notice => { notices.push(notice); if (notices.length > 100) notices.shift(); broadcast('notice', { notice }); if (notice.kind === 'turn-completed' || notice.kind === 'exit') integrations.publish('completion', notice).catch(() => {}); });
 
   const contentServer = http.createServer(async (request, response) => {
     try {
@@ -147,13 +177,14 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
     try {
       const url = new URL(request.url, origin);
       if (request.headers.host !== new URL(origin).host) throw Object.assign(new Error('Unexpected host'), { status: 403 });
-      if (url.pathname === '/health') return json(response, 200, { service: 'mrmak', version: '0.1.2' });
+      if (url.pathname === '/health') return json(response, 200, { service: 'mrmak', version: '0.5.1' });
       if (url.pathname.startsWith('/api/')) {
         authorize(request);
         const method = request.method;
         if (method === 'POST' && url.pathname === '/api/files/import') {
           if (Number(request.headers['content-length']) > MAX_FILE_BYTES) throw Object.assign(new Error('Choose files of 1 GB or less.'), { status: 413 });
           const result = await importFile(request, url.searchParams.get('folder'), url.searchParams.get('name'));
+          await integrations.publish('artifact', { kind: 'imported', ...result });
           broadcast('workspace-changed', {});
           return json(response, 201, result);
         }
@@ -162,12 +193,38 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
           for await (const chunk of request) { length += chunk.length; if (length > MAX_IMAGE_BYTES) throw Object.assign(new Error('Choose an image smaller than 25 MB.'), { status: 413 }); chunks.push(chunk); }
           return json(response, 201, await attachments.save(Buffer.concat(chunks), decodeURIComponent(request.headers['x-file-name'] || 'Screenshot')));
         }
+        if (method === 'GET' && url.pathname === '/api/dictation') return json(response, 200, await dictation.status());
+        if (method === 'POST' && url.pathname === '/api/transcribe') return json(response, 200, await dictation.transcribe(request, 'desktop', () => !closing));
         const data = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method) ? await body(request, url.pathname === '/api/files/markdown' ? 12 * 1024 * 1024 : 256 * 1024) : {};
+        if (method === 'POST' && url.pathname === '/api/dictation') return json(response, 200, await chooseDictation(data.provider));
+        if (method === 'GET' && url.pathname === '/api/mobile') return json(response, 200, mobile.status());
+        if (method === 'GET' && url.pathname === '/api/mobile/check') return json(response, 200, await mobile.transport.probe());
+        if (method === 'POST' && url.pathname === '/api/mobile/enable') return json(response, 200, await mobile.enable());
+        if (method === 'POST' && url.pathname === '/api/mobile/disable') return json(response, 200, await mobile.disable());
+        if (method === 'POST' && url.pathname === '/api/mobile/pair') return json(response, 200, await mobile.newPairing());
+        if (method === 'POST' && url.pathname === '/api/mobile/approve') return json(response, 200, await mobile.approve(data.id));
+        if (method === 'POST' && url.pathname === '/api/mobile/revoke') return json(response, 200, await mobile.revoke(data.id));
         if (method === 'GET' && url.pathname === '/api/bootstrap') {
           const keys = parseEnv(await readFile(path.join(repo, '.env'), 'utf8').catch(() => ''));
           return json(response, 200, { repo, contentBase: `${files.origin}/view/${files.repoGrant}`, agents: inventory(), sessions: sessions.list(), settings, selectedId, notices, coordinator: coordinator.state, voice: { configured: !!(keys.OPENAI_API_KEY || keys.OPENAI_KEY || process.env.OPENAI_API_KEY), owner: voiceOwner }, voiceHistory, operations: [...coordinator.operations.values(), ...quick.operations.values()].sort((a, b) => a.at.localeCompare(b.at)).slice(-30) });
         }
         if (method === 'GET' && url.pathname === '/api/workspace') return json(response, 200, await registry());
+        const cardMetadata = url.pathname.match(/^\/api\/workspace\/entities\/([^/]+)$/);
+        if (method === 'PATCH' && cardMetadata) return json(response, 200, await workspace.update(decodeURIComponent(cardMetadata[1]), metadataPatch(data)));
+        if (method === 'GET' && url.pathname === '/api/projects') {
+          const matches = await projects.detect(url.searchParams.get('path') || repo);
+          return json(response, 200, { matches, adapters: projects.adapters.map(item => ({ id: item.id, label: item.label })) });
+        }
+        if (method === 'GET' && url.pathname === '/api/projects/capabilities') {
+          const matches = await projects.detect(url.searchParams.get('path') || repo);
+          const selected = matches.find(item => item.adapterId === (url.searchParams.get('adapter') || matches[0]?.adapterId));
+          return json(response, 200, selected ? await projects.capabilities(selected) : { matches: [] });
+        }
+        if (method === 'GET' && url.pathname === '/api/knowledge/providers') return json(response, 200, knowledge.list());
+        if (method === 'GET' && url.pathname === '/api/knowledge/search') return json(response, 200, await knowledge.search(url.searchParams.get('q') || '', url.searchParams.get('provider')));
+        if (method === 'GET' && url.pathname === '/api/knowledge/document') return json(response, 200, await knowledge.retrieve(url.searchParams.get('provider') || '', url.searchParams.get('ref') || '', url.searchParams.get('offset')));
+        if (method === 'GET' && url.pathname === '/api/integrations') return json(response, 200, { providers: integrations.list(), bindings: integrations.bindings.map(({ providerId, externalId, workspaceId, boundAt }) => ({ providerId, externalId, workspaceId, boundAt })) });
+        if (method === 'POST' && url.pathname === '/api/integrations/bind') return json(response, 200, await integrations.bind(data));
         if (method === 'GET' && url.pathname === '/api/native/settings') return json(response, 200, nativeSettings.value);
         if (method === 'GET' && url.pathname === '/api/mcp') return json(response, 200, await mcp.list());
         if (method === 'POST' && url.pathname === '/api/mcp/check') return json(response, 200, await mcp.check(data.id));
@@ -197,7 +254,7 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
         }
         if (method === 'GET' && url.pathname === '/api/preview') return json(response, 200, await files.preview(url.searchParams.get('path') || ''));
         if (method === 'POST' && url.pathname === '/api/files/markdown') {
-          const preview = await files.saveMarkdown(data); broadcast('workspace-changed', {});
+          const preview = await files.saveMarkdown(data); await integrations.publish('artifact', { kind: 'updated', path: preview.path, name: preview.name }); broadcast('workspace-changed', {});
           return json(response, 200, preview);
         }
         if (method === 'POST' && url.pathname === '/api/settings') {
@@ -205,11 +262,12 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
           if (typeof data.defaultBypass === 'boolean') settings.defaultBypass = data.defaultBypass;
           if (Number.isInteger(data.terminalFontSize) && data.terminalFontSize >= 10 && data.terminalFontSize <= 24) settings.terminalFontSize = data.terminalFontSize;
           if (['focus', 'original'].includes(data.terminalAppearance)) settings.terminalAppearance = data.terminalAppearance;
+          if (['dark', 'light', 'system'].includes(data.workspaceTheme)) settings.workspaceTheme = data.workspaceTheme;
           if (['medium', 'high'].includes(data.coordinatorEffort)) settings.coordinatorEffort = data.coordinatorEffort;
           if (['cedar', 'marin'].includes(data.voiceName)) settings.voiceName = data.voiceName;
           await saveSettings(); broadcast('settings', { settings }); return json(response, 200, settings);
         }
-        if (method === 'POST' && url.pathname === '/api/sessions') { const session = await sessions.create({ ...data, bypass: data.bypass ?? settings.defaultBypass }); focus(session.id); return json(response, 201, session); }
+        if (method === 'POST' && url.pathname === '/api/sessions') { const session = await sessions.create({ ...data, bypass: data.bypass ?? settings.defaultBypass }); await integrations.publish('session', { event: 'started', session }); focus(session.id); return json(response, 201, session); }
         const sessionRoute = /^\/api\/sessions\/([\w-]+)(?:\/(\w+))?$/.exec(url.pathname);
         if (sessionRoute) {
           const [, id, action] = sessionRoute;
@@ -279,6 +337,7 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
   });
   const origin = await listen(server);
   files.uiOrigin = origin;
+  mobile = await new MobileGateway({ ...mobileOptions, dictation, chooseDictation, repo, uiDir, stateDir, sessions, attachments, closeChat, settings: () => settings, changed: state => broadcast('mobile-state', { mobile: state }) }).init();
   const wss = new WebSocketServer({ noServer: true, maxPayload: 128 * 1024 });
   server.on('upgrade', (request, socket, head) => {
     const url = new URL(request.url, origin);
@@ -315,12 +374,13 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
   try { watcher = watch(path.join(repo, 'workspace', 'workspace.json'), () => broadcast('workspace-changed', {})); watcher.on('error', () => {}); } catch { /* Registry may be created after first setup. */ }
   const restoreTimer = restoreSessions ? setTimeout(() => sessions.restore().catch(error => sessions.emit('service-error', error)), 100) : null;
   return {
-    origin, contentOrigin: files.origin, token, sessions, coordinator, quick, workspace, files,
+    origin, contentOrigin: files.origin, token, sessions, coordinator, quick, workspace, files, projects, knowledge, integrations, mobile,
     urls: { workspace: `${origin}/?desktop=1&surface=workspace&token=${token}`, chats: `${origin}/?desktop=1&surface=chats&token=${token}` },
       nativeMessage: event => nativeSettings.receive(event),
       async close() {
         if (closing) return; closing = true; mcp.close(); nativeSettings.close(); await files.writes.catch(() => {});
       watcher?.close(); clearTimeout(restoreTimer); coordinator.close(); clearTimeout(settingsTimer); await saveSettings(); await transcriptSave; await quick.saves; await workspace.writes;
+      dictation.close(); await mobile.close();
       for (const ws of wss.clients) ws.terminate();
       wss.close(); await sessions.close();
       server.closeAllConnections(); contentServer.closeAllConnections();

@@ -1,11 +1,11 @@
 // Real renderer + service snapshots, with a deterministic fullscreen CLI fixture.
 // No live chats, agent logins or user settings are changed.
-import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createService } from '../server.mjs';
+import { clipboardPermissions, launchBrowser } from './browser.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const repo = await mkdtemp(path.join(root, '.cache/scroll-ui-'));
@@ -19,7 +19,7 @@ const draw = async (session, data, broadcast = false) => {
 };
 let position = 200;
 const transcript = () => `\x1b[H\x1b[2JClaude fullscreen transcript at message ${position}\r\nMouse scrolls the conversation.\r\n`;
-for (const [id, agent, fullscreen] of [['codex', 'codex', false], ['claude-classic', 'claude', false], ['claude-fullscreen', 'claude', true]]) {
+for (const [id, agent, fullscreen] of [['codex', 'codex', false], ['claude-classic', 'claude', false], ['claude-fullscreen', 'claude', true], ['opencode-fullscreen', 'opencode', true]]) {
   const session = service.sessions.make({ id, agent, name: id, cwd: repo, status: 'running', open: true, createdAt: new Date().toISOString(), cols: 90, rows: 30 });
   service.sessions.items.set(id, session); await service.sessions.hydrate(session);
   const received = []; writes.set(id, received);
@@ -37,14 +37,14 @@ for (const [id, agent, fullscreen] of [['codex', 'codex', false], ['claude-class
 }
 let browser;
 try {
-  browser = await chromium.launch({ headless: true, channel: process.env.MRMAK_TEST_BROWSER || 'msedge' });
-  const context = await browser.newContext({ viewport: { width: 640, height: 800 }, permissions: ['clipboard-read', 'clipboard-write'] });
+  browser = await launchBrowser();
+  const context = await browser.newContext({ viewport: { width: 640, height: 800 }, permissions: clipboardPermissions });
   const page = await context.newPage(); page.setDefaultTimeout(6000);
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto(service.urls.chats);
   const select = async id => {
     await page.locator(`[data-chat-tab="${id}"] [role=tab]`).click();
-    await page.locator('.xterm-rows').filter({ hasText: id === 'claude-fullscreen' ? 'Claude fullscreen transcript' : 'History line' }).waitFor();
+    await page.locator('.xterm-rows').filter({ hasText: id.endsWith('-fullscreen') ? 'Claude fullscreen transcript' : 'History line' }).waitFor();
   };
   for (const id of ['codex', 'claude-classic']) {
     await select(id);
@@ -54,10 +54,10 @@ try {
     await page.waitForFunction(text => document.querySelector('.xterm-rows')?.innerText !== text, before);
     assert.equal(writes.get(id).filter(x => /\x1b(?:\[M|\[<)/.test(x)).length, 0, 'Normal history scroll stays local');
   }
-  for (const phase of ['initial snapshot', 'tab return', 'window reload']) {
+  for (const id of ['claude-fullscreen', 'opencode-fullscreen']) for (const phase of ['initial snapshot', 'tab return', 'window reload']) {
     if (phase === 'tab return') await select('codex');
     if (phase === 'window reload') await page.reload();
-    await select('claude-fullscreen');
+    await select(id);
     await page.locator('.xterm-screen').hover();
     const before = position;
     await page.mouse.wheel(0, -120);
@@ -70,13 +70,13 @@ try {
   // Copy and ordinary typing still use the existing agent-chat rules.
   await page.locator('.xterm-helper-textarea').focus();
   await page.evaluate(() => navigator.clipboard.writeText('copy sentinel'));
-  await page.keyboard.press('Control+c');
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+c' : 'Control+c');
   assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'copy sentinel');
-  assert.equal(writes.get('claude-fullscreen').some(x => x.includes('\x03')), false);
+  assert.equal(writes.get('opencode-fullscreen').some(x => x.includes('\x03')), false);
   await page.keyboard.type('draft');
-  assert.ok(writes.get('claude-fullscreen').join('').includes('draft'));
+  assert.ok(writes.get('opencode-fullscreen').join('').includes('draft'));
   assert.deepEqual(errors, []);
-  console.log('Scroll UI passed: Codex/classic history stays local; Claude fullscreen wheel up/down works after initial snapshot, tab return and window reload; copy does not interrupt.');
+  console.log('Scroll UI passed: Codex/classic history stays local; Claude/OpenCode fullscreen wheel up/down works after initial snapshot, tab return and window reload; copy does not interrupt.');
 } finally {
   await browser?.close();
   for (const s of service.sessions.items.values()) s.process = null;

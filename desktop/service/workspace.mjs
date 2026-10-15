@@ -2,11 +2,38 @@ import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { realFile, saveJson } from './util.mjs';
+import { realFile, saveJson, sleep } from './util.mjs';
 
 const execute = promisify(execFile);
 export const localDay = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-const brief = ({ id, title, description, status, created, updated, pinned, steps }) => ({ id, title, description, status, created, updated, pinned: !!pinned, steps: (steps || []).map(({ name }, index) => ({ name, index })) });
+const brief = ({ id, title, description, status, category, created, updated, pinned, steps }) => ({ id, title, description, status, category, created, updated, pinned: !!pinned, steps: (steps || []).map(({ name }, index) => ({ name, index })) });
+const invalid = message => Object.assign(new Error(message), { status: 400 });
+
+// Removes <script> and <style> blocks in one pass. A lazy regex up to the closing
+// tag rescans the rest of the text for every unclosed opening tag, which lets a
+// report stall the service. An unclosed block hides the rest, as it does in a browser.
+export function stripCodeBlocks(text) {
+  const opening = /<(script|style)\b/gi, closing = { script: /<\/script>/gi, style: /<\/style>/gi };
+  let result = '', kept = 0, match;
+  while ((match = opening.exec(text))) {
+    const tagEnd = text.indexOf('>', opening.lastIndex);
+    if (tagEnd < 0) break;
+    const close = closing[match[1].toLowerCase()];
+    close.lastIndex = tagEnd + 1;
+    result += text.slice(kept, match.index) + ' ';
+    if (!close.exec(text)) return result;
+    kept = opening.lastIndex = close.lastIndex;
+  }
+  return result + text.slice(kept);
+}
+
+// UI requests can only change card metadata, never report paths or contents.
+export function metadataPatch(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || !Object.keys(value).length || Object.keys(value).some(key => !['status', 'category', 'pinned'].includes(key))) {
+    throw invalid('Choose a status, category or pin change.');
+  }
+  return value;
+}
 
 export class Workspace {
   constructor(repo, changed = () => {}) { this.repo = repo; this.file = path.join(repo, 'workspace', 'workspace.json'); this.changed = changed; this.writes = Promise.resolve(); }
@@ -29,7 +56,7 @@ export class Workspace {
     const { file } = await realFile(path.join(this.repo, 'workspace'), relative);
     if (!/\.(html?|md|txt)$/i.test(file) || (await stat(file)).size > 3 * 1024 * 1024) return { ...result, note: 'The card uses a visual or large report. Open it for the full content.' };
     const text = await readFile(file, 'utf8');
-    result.text = text.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim().slice(0, 12000);
+    result.text = stripCodeBlocks(text).replace(/<[^<>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim().slice(0, 12000);
     return result;
   }
   async activity(date) {
@@ -43,20 +70,30 @@ export class Workspace {
   }
   update(id, patch) {
     const operation = this.writes.catch(() => {}).then(async () => {
-      if (patch.status !== undefined && !['active', 'done', 'archived'].includes(patch.status)) throw new Error('Use active, done or archived status.');
-      if (patch.pinned !== undefined && typeof patch.pinned !== 'boolean') throw new Error('Pinned must be true or false.');
-      if (patch.status === undefined && patch.pinned === undefined) throw new Error('Choose a status or pin change.');
-      for (let attempt = 0; attempt < 4; attempt++) {
+      if (patch.status !== undefined && !['active', 'done', 'archived'].includes(patch.status)) throw invalid('Use active, done or archived status.');
+      if (patch.pinned !== undefined && typeof patch.pinned !== 'boolean') throw invalid('Pinned must be true or false.');
+      if (patch.category !== undefined && (typeof patch.category !== 'string' || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(patch.category))) throw invalid('Use a category with lowercase letters, numbers and hyphens.');
+      if (patch.status === undefined && patch.pinned === undefined && patch.category === undefined) throw invalid('Choose a status, category or pin change.');
+      for (let attempt = 0; attempt < 6; attempt++) {
         const source = await readFile(this.file, 'utf8');
         const registry = JSON.parse(source);
         const entity = registry.entities.find(item => item.id === id);
-        if (!entity) throw new Error('Workspace card was not found.');
+        if (!entity) throw Object.assign(new Error('Workspace card was not found.'), { status: 404 });
         if (patch.status !== undefined) entity.status = patch.status;
         if (patch.pinned !== undefined) entity.pinned = patch.pinned;
+        if (patch.category !== undefined) entity.category = patch.category;
         entity.updated = localDay();
         // Preserve other agents' latest registry changes instead of saving a stale snapshot.
         if (await readFile(this.file, 'utf8') !== source) continue;
-        await saveJson(this.file, registry); this.changed();
+        try { await saveJson(this.file, registry); }
+        catch (error) {
+          // Windows indexers/readers can briefly lock atomic replacements. Retry
+          // from a fresh registry so another agent's edits are still retained.
+          if (!['EPERM', 'EACCES', 'EBUSY'].includes(error.code) || attempt === 5) throw error;
+          await sleep(40 * (attempt + 1));
+          continue;
+        }
+        this.changed();
         return brief(entity);
       }
       throw new Error('Workspace is being updated by another task. Try the change again.');

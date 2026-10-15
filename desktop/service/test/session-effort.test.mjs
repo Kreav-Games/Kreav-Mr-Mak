@@ -18,7 +18,7 @@ test('new and imported chats default to xhigh; explicit efforts survive saving a
   sessions.launch = session => { launches.push(session.effort); };
   const expected = new Map();
   try {
-    for (const agent of ['codex', 'claude']) {
+    for (const agent of ['codex', 'claude', 'antigravity']) {
       for (const effort of [undefined, 'medium', 'high', 'xhigh', 'max']) {
         const created = await sessions.create({ agent, name: 'Terminal Effort', effort });
         const wanted = effort || 'xhigh';
@@ -30,7 +30,7 @@ test('new and imported chats default to xhigh; explicit efforts survive saving a
       assert.equal(imported.effort, 'xhigh');
       expected.set(imported.id, 'xhigh');
     }
-    for (const agent of ['shell', 'kimi']) assert.equal(sessions.make({ agent }).effort, undefined);
+    for (const agent of ['shell', 'kimi', 'opencode']) assert.equal(sessions.make({ agent }).effort, undefined);
   } finally { await sessions.close(); }
   const restored = await new Sessions(repo, stateDir).init();
   try {

@@ -1,13 +1,17 @@
 // Run after npm run build. Isolated browser, repository and fake PTYs; no agent
 // login, live conversation, Windows shortcut or production setting is touched.
-import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, cp } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createService } from '../server.mjs';
+import { clipboardPermissions, launchBrowser } from './browser.mjs';
+// Desktop key conventions: Cmd on macOS, Ctrl elsewhere (src/desktop/platform.ts).
+const mac = process.platform === 'darwin';
+const copyKey = mac ? 'Meta+c' : 'Control+c';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+await mkdir(path.join(root, '.cache'), { recursive: true });
 const repo = await mkdtemp(path.join(root, '.cache/workspace-ui-'));
 for (const dir of ['workspace/test', 'knowledge', 'processes', '.claude/skills/example', '.agents/skills/example', 'inbox', 'projects']) await mkdir(path.join(repo, dir), { recursive: true });
 await writeFile(path.join(repo, '.claude/skills/example/SKILL.md'), '# Example skill\n\n**Read me**\n');
@@ -23,7 +27,7 @@ await writeFile(path.join(repo, '.claude/settings.local.json'), JSON.stringify({
 await writeFile(path.join(mcpHome, '.codex/config.toml'), '[mcp_servers."global-tools"]\nurl="https://global.example/mcp"\n');
 const service = await createService({ repo, uiDir: path.join(root, 'dist'), mcpOptions: { home: mcpHome, env: {}, probe: async () => ({ status: 'available', toolCount: 7 }) } });
 const writes = new Map();
-for (const agent of ['codex', 'claude', 'kimi', 'shell']) {
+for (const agent of ['codex', 'claude', 'opencode', 'kimi', 'shell']) {
   const session = service.sessions.make({ id: agent, name: `${agent} fixture`, agent, cwd: repo, status: 'running', open: true, pinned: false, createdAt: new Date().toISOString(), cols: 90, rows: 30 });
   service.sessions.items.set(agent, session); await service.sessions.hydrate(session);
   const received = []; writes.set(agent, received);
@@ -32,15 +36,15 @@ for (const agent of ['codex', 'claude', 'kimi', 'shell']) {
 }
 let browser;
 try {
-  browser = await chromium.launch({ headless: true, channel: process.env.MRMAK_TEST_BROWSER || 'msedge' });
-  const context = await browser.newContext({ viewport: { width: 900, height: 800 }, permissions: ['clipboard-read', 'clipboard-write'] });
+  browser = await launchBrowser();
+  const context = await browser.newContext({ viewport: { width: 900, height: 800 }, permissions: clipboardPermissions });
   const page = await context.newPage(); page.setDefaultTimeout(10000);
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto(service.urls.workspace + '#/test/0');
   for (let index = 0; index < 12; index++) { await page.getByRole('tab').nth(index).click(); await page.frameLocator('iframe.report-frame').getByRole('heading', { name: `Document ${index + 1}`, exact: true }).waitFor(); }
   let releaseReport;
   const delayedReport = new Promise(resolve => { releaseReport = resolve; });
-  await page.route('**/workspace/test/step0.html', async route => { if (route.request().method() === 'GET') await delayedReport; await route.continue(); });
+  await page.route('**/workspace/test/step0.html*', async route => { if (route.request().method() === 'GET') await delayedReport; await route.continue(); });
   await page.getByRole('tab').nth(0).click();
   try {
     await page.getByRole('status').filter({ hasText: 'Opening report' }).waitFor();
@@ -49,7 +53,7 @@ try {
   } finally { releaseReport(); }
   await page.locator('.report-document[aria-busy=false]').waitFor();
   assert.equal(await page.frameLocator('iframe.report-frame').locator('body').evaluate(element => getComputedStyle(element).scrollbarColor), 'rgb(81, 76, 89) rgb(17, 18, 23)');
-  await page.unroute('**/workspace/test/step0.html');
+  await page.unroute('**/workspace/test/step0.html*');
   await page.route('**/workspace/test/step1.html', route => route.request().method() === 'HEAD' ? route.fulfill({ status: 404 }) : route.continue());
   await page.getByRole('tab').nth(1).click();
   await page.getByText('Page unavailable (404).', { exact: true }).waitFor();
@@ -115,30 +119,37 @@ try {
   }
   await page.setViewportSize({ width: 900, height: 800 });
   await setTerminalFontSize(13);
-  for (const agent of ['codex', 'claude', 'kimi', 'shell']) {
+  for (const agent of ['codex', 'claude', 'opencode', 'kimi', 'shell']) {
     await page.locator(`[data-chat-tab="${agent}"] [role="tab"]`).click();
     const screen = page.locator('.terminal-area .xterm-screen'); await screen.waitFor();
     await page.locator('.xterm-rows').filter({ hasText: 'Fixture line' }).waitFor();
     if (agent !== 'shell') {
       await screen.hover(); const before = await page.locator('.xterm-rows').innerText(); await page.mouse.wheel(0, -420);
-      await page.waitForFunction(previous => document.querySelector('.xterm-rows')?.textContent !== previous, before);
+      await page.waitForFunction(previous => (document.querySelector('.xterm-rows'))?.innerText !== previous, before);
       assert.notEqual(await page.locator('.xterm-rows').innerText(), before, 'Agent wheel scroll must move history even with mouse reporting enabled');
       await page.evaluate(() => navigator.clipboard.writeText('clipboard sentinel'));
-      await page.locator('.xterm-helper-textarea').focus(); await page.keyboard.press('Control+c');
+      await page.locator('.xterm-helper-textarea').focus(); await page.keyboard.press(copyKey);
       assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'clipboard sentinel');
-      // Shift overrides terminal mouse tracking so a row can be selected.
-      await page.keyboard.down('Shift'); await screen.click({ position: { x: 120, y: 30 }, clickCount: 3 }); await page.keyboard.up('Shift');
-      await page.keyboard.press('Control+c');
+      // Shift (Option on macOS) overrides terminal mouse tracking so a row can be selected.
+      const selectKey = mac ? 'Alt' : 'Shift';
+      await page.keyboard.down(selectKey); await screen.click({ position: { x: 120, y: 30 }, clickCount: 3 }); await page.keyboard.up(selectKey);
+      await page.keyboard.press(copyKey);
       assert.match(await page.evaluate(() => navigator.clipboard.readText()), /Fixture line/);
-      assert.ok(writes.get(agent).every(data => !data.includes('\x03')), `${agent}: Ctrl+C must never reach PTY`);
+      assert.ok(writes.get(agent).every(data => !data.includes('\x03')), `${agent}: the copy shortcut must never reach PTY`);
+      if (mac) {
+        // macOS: Cmd+C copies; Ctrl+C is the CLI's own interrupt, as in Terminal.app.
+        await page.keyboard.press('Control+c');
+        for (let i = 0; i < 20 && !writes.get(agent).includes('\x03'); i++) await new Promise(resolve => setTimeout(resolve, 20));
+        assert.ok(writes.get(agent).includes('\x03'), `${agent}: Ctrl+C reaches the CLI on macOS`);
+      }
     } else {
       await page.locator('.xterm-helper-textarea').focus(); await page.keyboard.press('Control+c');
       for (let i = 0; i < 20 && !writes.get(agent).includes('\x03'); i++) await new Promise(resolve => setTimeout(resolve, 20));
-      assert.ok(writes.get(agent).includes('\x03'), 'PowerShell retains Ctrl+C interrupt');
+      assert.ok(writes.get(agent).includes('\x03'), 'The local shell retains Ctrl+C interrupt');
     }
   }
   assert.deepEqual(errors, []);
-  console.log('UI passed: 12 clickable wrapping tabs; Markdown preview/edit/save/conflict/draft; local Skills; MCP filtering, checks and hidden credentials; terminal bottom row visible across four window/font sizes; Codex/Claude/Kimi copy and scroll; PowerShell interrupt.');
+  console.log('UI passed: 12 clickable wrapping tabs; Markdown preview/edit/save/conflict/draft; local Skills; MCP filtering, checks and hidden credentials; terminal bottom row visible across four window/font sizes; Codex/Claude/OpenCode/Kimi copy and scroll; PowerShell interrupt.');
 } finally {
   await browser?.close();
   for (const session of service.sessions.items.values()) session.process = null;

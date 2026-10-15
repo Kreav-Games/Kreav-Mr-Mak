@@ -7,6 +7,8 @@ import { api, onServiceEvent, pickFiles, reportError, sendEvent, uploadImage } f
 import { Icon } from './Icons'
 import type { AgentId } from './types'
 import { decorateTerminal, focusTheme, originalTheme, type TerminalAppearance } from './terminalAppearance'
+import { fileManager, isMac, modKey, modLabel } from './platform'
+import { terminalClipboardGate } from './terminalClipboard'
 
 export default function TerminalPane({ id, agent, fontSize, appearance, onAttachmentStatus }: { id: string; agent: AgentId; fontSize: number; appearance: TerminalAppearance; onAttachmentStatus: (id: string, text: string) => void }) {
   const host = useRef<HTMLDivElement>(null)
@@ -78,10 +80,12 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
       } catch { /* Invalid terminal text is not a web link. */ }
     }
     const terminal = new Terminal({
-      fontFamily: '"Cascadia Code", "Cascadia Mono", Consolas, monospace', fontSize: 13, lineHeight: 1.18,
+      fontFamily: '"Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace', fontSize: 13, lineHeight: 1.18,
       cursorBlink: true, cursorStyle: 'bar', scrollback: 3000, allowTransparency: false, allowProposedApi: true,
       theme: originalTheme,
       macOptionIsMeta: true,
+      // xterm forces a selection over terminal mouse tracking with Shift elsewhere, Option+click on macOS.
+      macOptionClickForcesSelection: true,
       linkHandler: { activate: openLink },
     })
     const fit = new FitAddon(); terminal.loadAddon(fit); terminal.loadAddon(new WebLinksAddon(openLink)); terminal.open(host.current)
@@ -89,6 +93,27 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
     let sequence = -1
     let ready = false
     let queued: { sequence: number; data: string }[] = []
+    const clipboardGate = terminalClipboardGate(), element = host.current
+    let pointer: { x: number; y: number } | null = null
+    const selectionStart = (event: PointerEvent) => { pointer = event.isTrusted && event.button === 0 ? { x: event.clientX, y: event.clientY } : null }
+    const selectionEnd = (event: PointerEvent) => {
+      if (pointer && Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) > 3) clipboardGate.arm(event.isTrusted)
+      pointer = null
+    }
+    const copyGesture = (event: KeyboardEvent) => { if (modKey(event) && event.key.toLowerCase() === 'c') clipboardGate.arm(event.isTrusted) }
+    const multipleClick = (event: MouseEvent) => { if (event.detail >= 2) clipboardGate.arm(event.isTrusted) }
+    const cancelCopy = () => { pointer = null; clipboardGate.clear() }
+    element.addEventListener('pointerdown', selectionStart, true)
+    element.addEventListener('pointerup', selectionEnd, true)
+    element.addEventListener('keydown', copyGesture, true)
+    element.addEventListener('click', multipleClick, true)
+    window.addEventListener('blur', cancelCopy)
+    document.addEventListener('visibilitychange', cancelCopy)
+    const clipboard = terminal.parser.registerOscHandler(52, data => {
+      const text = clipboardGate.read(data, ready, document.visibilityState === 'visible' && document.hasFocus() && element.contains(document.activeElement))
+      if (text !== null) navigator.clipboard.writeText(text).catch(reportError)
+      return true
+    })
     const resize = () => {
       if (!host.current?.clientWidth || !host.current?.clientHeight) return
       fit.fit()
@@ -121,18 +146,21 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
       if (ready && !deviceReply) sendEvent({ type: 'input', id, data })
     })
     terminal.attachCustomKeyEventHandler(event => {
-      // Agent chats use Ctrl+C exclusively for copy. Even an empty selection
-      // must not send ETX to the CLI or terminate its wrapper process.
-      if (event.ctrlKey && !event.altKey && (event.code === 'KeyC' || event.key.toLowerCase() === 'c') && (agent !== 'shell' || event.shiftKey)) {
+      // Windows/Linux: agent chats use Ctrl+C exclusively for copy. Even an empty
+      // selection must not send ETX to the CLI or terminate its wrapper process.
+      // macOS: Cmd+C copies and Ctrl+C reaches the CLI, as in Terminal.app.
+      const copy = isMac ? event.metaKey : event.ctrlKey && (agent !== 'shell' || event.shiftKey)
+      if (copy && !event.altKey && (event.code === 'KeyC' || event.key.toLowerCase() === 'c')) {
         event.preventDefault(); event.stopPropagation()
         const selection = terminal.getSelection()
         if (event.type === 'keydown' && !event.repeat && selection) navigator.clipboard.writeText(selection).catch(reportError)
         return false
       }
       if (event.type !== 'keydown') return true
-      // Leave paste to the DOM clipboard event; do not send Ctrl+V to the CLI.
-      if (event.ctrlKey && (event.code === 'KeyV' || event.key.toLowerCase() === 'v')) return false
-      if ((event.ctrlKey && event.code === 'Tab') || (event.ctrlKey && event.shiftKey && ['KeyP', 'KeyT', 'KeyH', 'KeyW'].includes(event.code)) || (event.altKey && /^Digit[1-9]$/.test(event.code))) return false
+      // Leave paste to the DOM clipboard event; do not send Ctrl+V (Cmd+V on macOS) to the CLI.
+      if (modKey(event) && (event.code === 'KeyV' || event.key.toLowerCase() === 'v')) return false
+      // App shortcuts belong to Chats, not the terminal.
+      if ((event.ctrlKey && event.code === 'Tab') || (modKey(event) && event.shiftKey && ['KeyP', 'KeyT', 'KeyH', 'KeyW'].includes(event.code)) || ((isMac ? event.metaKey : event.altKey) && /^Digit[1-9]$/.test(event.code))) return false
       return true
     })
     // Agent TUIs can enable mouse reporting even in the normal buffer. Keep
@@ -154,13 +182,19 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
       const text = event.clipboardData.getData('text/plain')
       if (text) terminal.paste(text)
     }
-    const element = host.current
     element.addEventListener('paste', paste, true)
     const observer = new ResizeObserver(resize); observer.observe(host.current)
     subscribe()
     const focus = () => terminal.focus()
     window.addEventListener('focus', focus)
-    return () => { off(); input.dispose(); observer.disconnect(); element.removeEventListener('paste', paste, true); window.removeEventListener('focus', focus); clearTimeout(statusTimer.current); onAttachmentStatus(id, ''); terminal.dispose(); terminalRef.current = null; fitRef.current = null }
+    return () => {
+      off(); input.dispose(); clipboard.dispose(); observer.disconnect()
+      element.removeEventListener('pointerdown', selectionStart, true); element.removeEventListener('pointerup', selectionEnd, true); element.removeEventListener('keydown', copyGesture, true)
+      element.removeEventListener('click', multipleClick, true)
+      window.removeEventListener('blur', cancelCopy); document.removeEventListener('visibilitychange', cancelCopy)
+      element.removeEventListener('paste', paste, true); window.removeEventListener('focus', focus); clearTimeout(statusTimer.current)
+      onAttachmentStatus(id, ''); terminal.dispose(); terminalRef.current = null; fitRef.current = null
+    }
   }, [id, agent, onAttachmentStatus])
   useEffect(() => {
     const terminal = terminalRef.current
@@ -171,7 +205,12 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
   useEffect(() => {
     if (terminalRef.current) { terminalRef.current.options.fontSize = fontSize; fitRef.current?.fit(); sendEvent({ type: 'resize', id, cols: terminalRef.current.cols, rows: terminalRef.current.rows }) }
   }, [fontSize, id])
-  return <div ref={area} className={`terminal-area ${appearance === 'focus' ? 'terminal-focus' : ''}`} onDragOver={event => { event.preventDefault(); event.dataTransfer.dropEffect = 'none' }} onDrop={event => { event.preventDefault(); event.stopPropagation(); setDragging(false); reportError('Drop original files or folders from Explorer into Mr. Mak Desktop. Paste clipboard images with Ctrl+V.') }}>
+  useEffect(() => {
+    const focus = (event: Event) => { if ((event as CustomEvent<{ id: string }>).detail.id === id) terminalRef.current?.focus() }
+    window.addEventListener('mrmak-dictation-inserted', focus)
+    return () => window.removeEventListener('mrmak-dictation-inserted', focus)
+  }, [id])
+  return <div ref={area} className={`terminal-area ${appearance === 'focus' ? 'terminal-focus' : ''}`} onDragOver={event => { event.preventDefault(); event.dataTransfer.dropEffect = 'none' }} onDrop={event => { event.preventDefault(); event.stopPropagation(); setDragging(false); reportError(`Drop original files or folders from ${fileManager} into Mr. Mak Desktop. Paste clipboard images with ${modLabel}V.`) }}>
     <div ref={host} className="terminal-host" aria-label="Interactive agent terminal" />
     {dragging && <div className="terminal-drop"><Icon name="attach" size={30} /><strong>Drop to insert paths</strong><span>Files, folders and images</span></div>}
   </div>

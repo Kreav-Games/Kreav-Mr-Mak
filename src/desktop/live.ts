@@ -26,6 +26,7 @@ export class LiveVoice {
   private tasks = new Set<number>()
   subscribe = (callback: () => void) => { this.listeners.add(callback); return () => { this.listeners.delete(callback) } }
   snapshot = () => this.state
+  dismissError() { this.update({ error: '', ...(this.state.status === 'error' ? { status: 'off' as const } : {}) }) }
   private update(patch: Partial<LiveState>) { this.state = { ...this.state, ...patch }; this.listeners.forEach(listener => listener()) }
   private event(value: unknown) { if (this.ready && this.channel?.readyState === 'open') this.channel.send(JSON.stringify(value)) }
   context() {
@@ -132,7 +133,8 @@ export class LiveVoice {
     this.microphone?.getTracks().forEach(track => track.stop()); this.microphone = null
     this.channel?.close(); this.channel = null; this.peer?.close(); this.peer = null
     this.audio.pause(); this.audio.srcObject = null
-    api('/live/release', { clientId }).catch(() => {})
+    // keepalive: cleanup also runs on pagehide, and WebKit cancels ordinary requests from a closing page.
+    api('/live/release', { clientId }, undefined, { keepalive: true }).catch(() => {})
   }
 }
 
