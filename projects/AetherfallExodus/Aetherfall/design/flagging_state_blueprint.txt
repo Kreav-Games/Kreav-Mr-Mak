@@ -1,0 +1,20 @@
+﻿-- Blackboard / PlayerState keys
+PlayerState.Flagged (bool)
+PlayerState.InPvPZone (bool)
+PlayerState.FlagExitTimer (float)
+PlayerState.FlagConsentTimer (float)
+PlayerState.ProxyActive (bool)
+PlayerState.BountyValue (int)
+Zone.ZoneID (string)
+Zone.PvPFlag (bool)
+Zone.ConsentBuffer (int)
+Zone.ExitCooldown (int)
+
+-- RPCs / Events
+Server_OnPlayerEnterZone(player, zoneID)
+Server_OnPlayerExitZone(player, zoneID)
+Server_RequestExtraction(playerID, extractionPointID)
+Server_InterruptExtraction(attackerID, targetExtractionID)
+Server_HandleDisconnect(playerID)
+
+-- Functions and pseudocode included in design/flagging_state_blueprint.txt

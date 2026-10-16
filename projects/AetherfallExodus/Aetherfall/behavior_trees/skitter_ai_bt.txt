@@ -1,0 +1,1 @@
+﻿Skitterjaw Behavior Tree high-level: Patrol, Detect, Chase, Flank, Pounce. Blackboard keys: TargetActor, AggroRadius

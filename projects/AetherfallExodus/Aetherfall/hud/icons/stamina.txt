@@ -1,0 +1,1 @@
+﻿Placeholder for stamina icon (PNG 256x256 recommended). Create art in hud/icons/stamina.png

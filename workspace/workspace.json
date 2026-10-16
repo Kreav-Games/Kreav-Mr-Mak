@@ -1,34 +1,6 @@
 {
   "entities": [
     {
-      "id": "wildwright",
-      "title": "Wildwright",
-      "icon": "wildwright-mark.svg",
-      "description": "Shape a living valley through fire, water, earth and air. GDD 0.4 world-systems design, MVP build order, original cover concept and an optional Niagara learning track.",
-      "type": "group",
-      "category": "project",
-      "created": "2026-10-11",
-      "updated": "2026-10-13",
-      "folder": "2026-10-11_wildwright",
-      "steps": [
-        {
-          "name": "Wildwright",
-          "path": "index.html"
-        },
-        {
-          "name": "Cover art",
-          "path": "cover.html"
-        },
-        {
-          "name": "Fire FX guide",
-          "path": "fire-fx-guide.md"
-        }
-      ],
-      "status": "active",
-      "pinned": true,
-      "defaultStep": 0
-    },
-    {
       "id": "my-dream-game",
       "title": "My Dream Game",
       "description": "Mr. Mak 64: a small Sky Islands adventure, with character studies, world layouts and a development board.",

@@ -1,0 +1,40 @@
+{
+  "hud": {
+    "compass": {
+      "size": "800x48",
+      "pos": "top_center"
+    },
+    "minimap": {
+      "size": "240x240",
+      "pos": "top_right"
+    },
+    "vitals": {
+      "elements": [
+        "health",
+        "stamina",
+        "hunger",
+        "hydration",
+        "temp",
+        "neural"
+      ],
+      "pos": "bottom_left"
+    },
+    "weapon": {
+      "size": "420x120",
+      "pos": "bottom_center"
+    },
+    "quickwheel": {
+      "slots": 4,
+      "pos": "bottom_right"
+    },
+    "crosshair": {
+      "type": "dynamic",
+      "variants": [
+        "default",
+        "precision",
+        "suppressed"
+      ],
+      "pos": "center"
+    }
+  }
+}

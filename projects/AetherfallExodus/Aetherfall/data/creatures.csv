@@ -1,0 +1,4 @@
+﻿id,name,biome,size,hp,armor,resistances,aggro_radius,loot_table,ai_profile,notes
+CR001,Skitterjaw,Fungal Forest,Small,120,Light,""acid:0.2;fire:0.1"",12,""organic_fiber;teeth"",skitter_ai_v1,""Pack hunter; flanks player""
+CR002,Lumivine Colossus,Fungal Forest,Large,420,Heavy,""poison:0.5;fire:0.2"",20,""biolum_core;sap"",lumivine_ai_v1,""Stationary root attacks; spore burst""
+CR003,Phase Warden,Crystalline Desert,Medium,260,Medium,""energy:0.4"",18,""alloy_shard"",phase_warden_ai,""Teleport dodge; shield bubble""

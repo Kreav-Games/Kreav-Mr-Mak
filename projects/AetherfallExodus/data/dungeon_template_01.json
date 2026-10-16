@@ -1,0 +1,40 @@
+{
+  "dungeon_id": "DGN_001",
+  "name": "Ruins of the First Signal",
+  "biome": "Subterranean Caverns",
+  "recommended_level": 12,
+  "entry_requirements": "Activation Key or group of 3",
+  "rooms": [
+    {
+      "type": "puzzle_room",
+      "template": "puzzle_a"
+    },
+    {
+      "type": "combat_arena",
+      "template": "arena_b"
+    },
+    {
+      "type": "traversal_chamber",
+      "template": "traverse_c"
+    },
+    {
+      "type": "trap_corridor",
+      "template": "trap_d"
+    },
+    {
+      "type": "boss_arena",
+      "template": "boss_e"
+    }
+  ],
+  "procedural_modifiers": [
+    "gravity_shift",
+    "fog_of_war",
+    "enemy_variation"
+  ],
+  "boss_id": "CR006",
+  "loot_pool": [
+    "boss_blueprint",
+    "alien_core",
+    "rare_alloy"
+  ]
+}

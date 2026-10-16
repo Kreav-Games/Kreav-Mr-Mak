@@ -1,0 +1,1 @@
+﻿Placeholder for crosshair icon (PNG 256x256 recommended). Create art in hud/icons/crosshair.png

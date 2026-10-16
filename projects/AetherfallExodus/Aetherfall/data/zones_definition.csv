@@ -1,0 +1,16 @@
+﻿zone_id;name;type;bounds_min_x;bounds_min_y;bounds_max_x;bounds_max_y;pvp_flag;entry_consent_buffer_seconds;exit_cooldown_seconds;loot_tier;spawn_timer_seconds;recommended_level;notes
+Z001;Coastal Outpost;SafeHub;-10240;-10240;-5120;-5120;false;0;0;Common;600;1;Starter hub with vendors and mission board
+Z002;Shoreline Flats;OpenPvE;-5120;-10240;0;-5120;false;0;0;Common;900;1;Low risk for early scavenging
+Z003;Fungal Fringe;OpenPvE;0;-10240;5120;-5120;false;0;0;Uncommon;1200;5;Bioluminescent flora; spore hazards
+Z004;Skitterjaw Hollow;FlaggedPvP;-10240;-5120;-5120;0;true;10;60;Rare;1800;8;Small PvP hotspot near resource nodes
+Z005;Lumivine Grove;OpenPvE;-5120;-5120;0;0;false;0;0;Uncommon;2400;10;Contains Lumivine Colossus spawn points
+Z006;Crystal Expanse;FlaggedPvP;0;-5120;5120;0;true;10;60;Advanced;3600;18;Gravity anomalies; high-tier crystals
+Z007;High Gravity Plateau;OpenPvE;5120;-5120;10240;0;false;0;0;Advanced;4200;22;Movement penalties; heavy fauna
+Z008;Subterranean Mouth;OpenPvE;-10240;0;-5120;5120;false;0;0;Rare;3000;15;Dungeon entrance; oxygen limits
+Z009;Echo Caverns;FlaggedPvP;-5120;0;0;5120;true;10;60;Advanced;5400;20;Echo Swarm events; dungeon modifiers
+Z010;Floating Archipelago A;FlaggedPvP;0;0;5120;5120;true;10;60;Alien;7200;30;Endgame PvP warzone; aerial traversal
+Z011;Remnant Research Hub;SafeHub;5120;0;10240;5120;false;0;0;Rare;0;12;Faction hub with tech vendors
+Z012;Scavenger Flats;OpenPvE;10240;-5120;15360;0;false;0;0;Common;900;6;Player trading posts
+Z013;Contested Ruins;FlaggedPvP;5120;-10240;10240;-5120;true;10;60;Advanced;4800;16;Large ruin with timed high-value node spawns
+Z014;Amber Buffer North;BufferZone;0;5120;5120;10240;false;0;0;Uncommon;1200;10;Buffer belt around Floating Archipelago
+Z015;Apex Migration Path;OpenPvE;-15360;0;-10240;5120;false;0;0;Rare;10800;25;Periodic apex fauna migration; world event

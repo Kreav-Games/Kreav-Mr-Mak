@@ -1,0 +1,6 @@
+﻿test_id,system,case,expected_result,pass_criteria
+QA001,Combat,Recoil curve AR01,Recoil follows defined curve,Measured recoil within 5% of spec
+QA002,Flagging,Enter PvP zone,Player flagged and HUD shows red icon,Flag replicates to nearby clients within 100ms
+QA003,Extraction,Interrupt extraction by attacker,Extraction interrupted and progress stops,Extraction progress stops and HUD shows interrupted
+QA004,Metahuman,Load preset,Character matches JSON morphs and materials,Visual match and JSON roundtrip save/load
+QA005,Performance,Open world streaming,No hitching at cell boundaries,Frame time spikes < 10ms at transitions

@@ -1,0 +1,1 @@
+﻿Placeholder for temperature icon (PNG 256x256 recommended). Create art in hud/icons/temperature.png

@@ -1,0 +1,4 @@
+weapon_id,name,type,damage,fire_rate,mag_size,weight,range,projectile_speed,hit_type,notes
+AR01,Assault Rifle AR-01,Ballistic,28,600,30,3.2,600,900,hitscan,Balanced mid-range rifle
+SMG_A1,SMG A1,Ballistic,16,900,40,2.1,200,0,hitscan,High fire rate close quarters
+SG01,Shotgun SG-01,Spread,120,70,8,4.5,30,0,projectile,High burst close-range
