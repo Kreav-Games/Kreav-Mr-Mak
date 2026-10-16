@@ -41,6 +41,9 @@
 
 ## Build notes
 
+- Built with **Easy Game UI Ultimate 3.0** (D-21, [reference](../easy-game-ui.md)): menus, options, save
+  system and the HUD toolkit; the points below apply on top of it.
+
 - UMG with CommonUI for menus and controller navigation; the HUD as widgets bound to replicated
   attributes through a view model (the MVVM plugin is available).
 - Pixel sizes are at 1920 × 1080 and scale with the DPI curve; the HUD JSON drives anchors so layout is

@@ -23,22 +23,24 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 
 | Path | Contents |
 |---|---|
-| `Source/Tharrn/` | Template character (with an ability system component), controller (also the net probe's ping), game mode; `World/TharrnSky`; `Dev/TharrnCaptureSubsystem` (review images, development builds only) |
+| `Source/Tharrn/` | The template's character (no longer the default pawn, D-18), controller (input mappings, the net probe's ping), game mode; `World/TharrnSky`; `Dev/TharrnCaptureSubsystem` (review images, development builds only) |
 | `Source/Tharrn/Data/` | Row types for the data tables (`FTharrnWeaponRow`, `FTharrnCreatureRow`, `FTharrnZoneRow`) and `UTharrnDataLibrary` (zone at a position, list parsing) |
-| `Source/Tharrn/Net/` | `ATharrnNetProbe`: replicated counter and ping for the network test (P1) |
-| `Source/Tharrn/Tests/` | Automation tests `Tharrn.Data.*`, `Tharrn.Net.*` |
-| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation; Tharrn's own MCP toolsets `TharrnEditor.TharrnBlueprintNotesToolset` (comment boxes: add, list, remove; node comments; variable and Blueprint descriptions) and `TharrnEditor.TharrnPlaySessionToolset` (play session worlds, late-joining client), registered by `UTharrnToolsetsSubsystem`; tests `Tharrn.Editor.*` (editor only) |
+| `Source/Tharrn/Net/` | `ATharrnNetProbe`: replicated counter and ping for the network test (P1); `TharrnNetText` (which machine a world is, for logs) |
+| `Source/Tharrn/Player/` | The player (P2, D-18): `ATharrnPlayerCharacter` (slide animation, ability system, the movement tests `th.MoveTest`) and `UTharrnCharacterMovementComponent` (gait, speeds, turning and slide, all predicted; the server's mantle and vault check) |
+| `Source/Tharrn/Tests/` | Automation tests `Tharrn.Data.*`, `Tharrn.Net.*`, `Tharrn.Player.*` |
+| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation; Tharrn's own MCP toolsets `TharrnEditor.TharrnBlueprintNotesToolset` (comment boxes: add, list, remove; node comments; variable and Blueprint descriptions) and `TharrnEditor.TharrnPlaySessionToolset` (play session worlds, late-joining client, console commands in a play world), registered by `UTharrnToolsetsSubsystem`; tests `Tharrn.Editor.*` (editor only) |
 | `Data/` | Game data source: CSV and JSON (its README) |
-| `Tools/Mcp/` | `tharrn_mcp.py`: the small MCP client every script below uses |
+| `Tools/Mcp/` | `tharrn_mcp.py`: the small MCP client every script below uses; `tharrn_blueprints.py`: Blueprint helpers the build scripts share |
 | `Tools/Data/` | `import_data_tables.py`: CSV to data tables, read back and compared |
-| `Tools/TestRange/` | `build_test_range.py`: `BP_NetProbe`, `BP_TargetDummy`, map `L_TestRange` |
-| `Tools/Packs/` | `stage_packs.py`, `packs.csv` (Game Animation Sample, Sci-Fi Complete Bundle, the PCG biome framework from PCG Biomes Poplar Forest) |
+| `Tools/TestRange/` | `build_test_range.py`: `BP_NetProbe`, `BP_TargetDummy`, map `L_TestRange` (targets, net probe, 8 player starts in 4 lanes, a mantle and vault course of the sample's traversable blocks, a sign with the controls) |
+| `Tools/Player/` | `build_player.py`: `BP_TharrnPlayer` from the Game Animation Sample's Character Movement character, `BP_TharrnPlayerController`, `BP_TharrnGameMode`, the project's default game mode |
+| `Tools/Packs/` | `stage_packs.py`, `packs.csv` (Game Animation Sample, Sci-Fi Complete Bundle; the bundle's guides: [scifi-bundle.md](scifi-bundle.md)) |
 | `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py` |
-| `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange` |
+| `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange`, `Characters/Player/BP_TharrnPlayer`, `Core/` (BP_TharrnGameMode, BP_TharrnPlayerController) |
 | `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README) |
-| `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) |
+| `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) and its data-driven console variables, collision channels and console variables (`DefaultEngine.ini`, D-18) |
 | `Content/ThirdPerson`, `Characters`, `Input`, `LevelPrototyping` | Template content (tracked) |
-| `Content/ScifiOutpost`, `Content/EasyBiomes`, Game Animation Sample folders | Staged packs (ignored) |
+| `Content/ScifiOutpost`, Game Animation Sample folders | Staged packs (ignored) |
 | `AGENTS.md`, `CLAUDE.md`, `.mcp.json` | Agent rules for this repo; MCP entry for chats started here |
 
 Class prefix is `Tharrn` (`ATharrnCharacter`); the module is `Tharrn`; the log
@@ -78,7 +80,8 @@ python D:\Tharrn\Tools\Checks\verify.py [--quick]                 # ladder steps
 python D:\Tharrn\Tools\Data\import_data_tables.py [Weapons]    # Data/*.csv -> /Game/Tharrn/Data
 python D:\Tharrn\Tools\Checks\run_tests.py [Tharrn.Data]       # automation tests, default every 'Tharrn' test
 python D:\Tharrn\Tools\TestRange\build_test_range.py            # test range map and its Blueprints
-python D:\Tharrn\Tools\Checks\net_test.py [seconds]            # network test; L_TestRange must be open
+python D:\Tharrn\Tools\Player\build_player.py [--fresh]          # the player Blueprint, controller, game mode
+python D:\Tharrn\Tools\Checks\net_test.py [seconds]            # network test (probe, movement, block course, made-up mantle); L_TestRange open
 ```
 
 Build output to check: `Result: Succeeded` and no `error` or new `warning C` lines. The NWIRO
@@ -117,7 +120,11 @@ loads MCP servers when it starts; one started before the editor needs a restart 
    **Client with a dedicated server** ("Play as Client"), with simulated latency and loss: state
    changes on the server only, clients see the same result, a late-joining client sees the current
    state. `Tools/Checks/net_test.py` does this for the net probe (50 ms each way, 1 % loss, a third
-   client joining halfway); a new feature adds its own `[TH...]` log lines and checks in the same way.
+   client joining halfway) and the player (P2: every player runs a scripted path with `th.MoveTest`, one
+   runs the block course, every client sends a made-up mantle); a new feature adds its own `[TH...]` log
+   lines and checks in the same way. Console variables reach a play world through
+   `TharrnPlaySessionToolset.RunConsoleCommand`; test input goes through Enhanced Input's
+   `InjectInputForAction`, as keys would.
 5. World or rendering work: the protocol's budget table and Verification block
    (`measure_budget.ps1`, `stat unit`, `stat gpu`, `r.Nanite.Visualize Overdraw`).
 6. Owner play-test with exact steps and expected results, only for what the owner can see or feel; the test
@@ -268,9 +275,42 @@ closed: an open editor once took 96 % of the GPU.
     switched off in `Tharrn.uproject` (PC only); still read `git diff Config/` before every commit.
 37. The editor opens `L_TestRange` (`EditorStartupMap`); the game's default map is still the template level.
     Scripts that need a map check it with `SceneTools.get_current_level` first: PIE plays whatever is open.
-38. PCG Biomes Poplar Forest ships `M_PCGIcon` referring to a texture the pack does not contain
-    (`/Game/EasyBiomes/Textures/Icons/Thumbnails/A_Logo`), so the editor logs one Load Errors entry at start.
-    Harmless: an editor-only icon material falls back to the default texture.
+38. The Sci-Fi bundle's PCG is its own system (data assets, `BP_PCG_Biome`), not Unreal's experimental PCG
+    Biome plugin, which is off since PCG Biomes Poplar Forest was removed (2026-10-16, D-20). The base `PCG`
+    plugin is enabled on its own in `Tharrn.uproject`, because the bundle's runtime graphs need it in the game.
+39. The Game Animation Sample's character needs config from the sample's `DefaultEngine.ini`: its data-driven
+    console variables (`DDCvar.*`; without them its camera system stays off), the `Traversable`, `Mouse` and
+    `Obstacle` collision channels (mantle and vault trace `Traversable`) and
+    `p.EnableCharacterAccelerationReplication=1` (other players' copies animate from it). Copied into Tharrn's.
+40. The sample's mantle and vault work only on its `LevelBlock_Traversable` actors: its check casts to them and
+    reads their ledge splines. Mantling on world geometry needs a ledge finder of Tharrn's own (with P5).
+41. The sample's mantle trusts the player's machine: while the move plays, the server takes the position the
+    player sends. `UTharrnCharacterMovementComponent` checks for a ledge first and refuses otherwise. Sweeps
+    on `Traversable` meet a sample block on a plane through its middle, and downward traces miss its top;
+    the check measures the hit part's bounds instead.
+42. `BlueprintTools.compile_blueprint` raises on compile errors and returns nothing on success. A Blueprint's
+    `Status` cannot be read through `ObjectTools` (a Blueprint reference resolves to its class default object).
+    `ObjectTools` does reach actors in a play world (`/Game/.../UEDPIE_0_<Map>.<Map>:PersistentLevel.<Actor>`).
+43. A busy editor runs game time slower than the clock (the first play after starting builds the motion matching
+    indexes): tests wait for their result lines rather than a fixed time.
+44. A map copied from an engine template keeps the template's player start at the origin; the test range
+    removes it (players spawned there ran into the 10 m target).
+45. Close the editor and confirm it is gone before building or reopening: a failed step in a chained command
+    once launched a second editor while the first was open (2026-10-16). `rebuild.sh`-style scripts that stop
+    at the first failed step avoid it; only one editor may hold MCP's port.
+46. The sample's mantle and vault fly the character while the montage plays and set it back only when the montage
+    ends normally; an interrupted move leaves it flying (and, on the server, trusting the player). Under lag the
+    server's copy of a move runs late: a correction sent during the move handed the player the server's
+    mid-move "flying" and left them floating (found by `net_test.py`, 2026-10-16). So: no corrections during an
+    approved move (far-off positions are refused instead), and `RecoverFromStuckTraversal` puts a player left
+    flying without a montage back to walking after 0.25 s and ends the server's trust. The server's own copy of a
+    move is sometimes left flying too (seen on a dedicated server); after the net returns it, the player can slip
+    off the ledge and the sample's ledge catch climbs back up, so the course check counts at least three
+    traversals, not exactly three.
+47. After dozens of play sessions in one editor session, runs with network emulation started to show steady
+    position corrections (about 30 per player per path, even at 0 ms and 0 % loss) that a fresh editor does not
+    show (0). Restart the editor before the network test when it has run many sessions. `LogsToolset.GetLogEntries`
+    returns the oldest matching lines first, so the test scripts ask for all of them.
 
 ## 8. Working as two agents
 

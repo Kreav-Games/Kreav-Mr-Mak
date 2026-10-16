@@ -668,7 +668,7 @@ def development():
     modules = [
         ["P1", "Foundation: data tables from the data files, automated tests, the multiplayer test harness, a grey test range",
          BUILT + " Built and checked 2026-10-15; closed 2026-10-16"],
-        ["P2", "Shooter character: motion-matched movement, third-person aim-down-sights camera, sprint, crouch, slide, mantle; online", "In progress since 2026-10-16"],
+        ["P2", "Shooter character: motion-matched movement, third-person aim-down-sights camera, sprint, crouch, slide, mantle; online", BUILT + " Built and checked 2026-10-16; waits for the owner's play-test"],
         ["P3", "Weapons: SMG, pistol, a heavy projectile weapon; recoil, spread, damage and armour; hits checked by the server", "—"],
         ["P4", "Vitals: health, stamina, hunger, hydration, temperature; the formulas; crafting a bandage and ammo; HUD vitals and weapon panel", "—"],
         ["P5", "Coastal slice: 1–2 km² of the starter biome at full quality, within the performance budget", "—"],
@@ -696,6 +696,8 @@ def development():
         ["D-17", "The game is called Tharrn"],
         ["D-18", "The player is the Game Animation Sample's motion-matched character on Character Movement, not the template's character"],
         ["D-19", "45 minutes on foot across the map in a straight line"],
+        ["D-20", "The Sci-Fi Complete Bundle is the environment kit; its documentation is the go-to reference"],
+        ["D-21", "Menus and the HUD are built with Easy Game UI Ultimate 3.0"],
     ]
     questions = [
         ["OQ-01", "Consoles", "PC first; decide once the prototype is fun"],
@@ -748,18 +750,33 @@ current state. Round trips 119–172 ms.</li>
 that shows what each player receives.</li>
 </ul>
 
-<div class="mak-card"><h3>P1 has nothing to play</h3>
-<p>P1 is the plumbing under the game, so the test range is only a floor, targets for the weapons that come in P3, and
-a network probe. Its multiplayer check runs automatically. To see it by hand (about 2 minutes):</p>
+<h2>What P2 built</h2>
+<ul>
+<li>""" + BUILT + """ <strong>The player:</strong> the Game Animation Sample's motion-matched character, with its camera,
+mantle and vault, made ready for online play: sprinting, walking, strafing and aiming travel with every movement update,
+so the server agrees with the player at all times.</li>
+<li>""" + BUILT + """ <strong>Slide:</strong> sprint and press crouch; about 1 second and 5 metres on flat ground,
+faster downhill, ending in a crouch.</li>
+<li>""" + BUILT + """ <strong>Mantle and vault, checked by the server:</strong> the server looks for the ledge itself and
+refuses a climb where there is none, so a cheating client cannot climb thin air.</li>
+<li>""" + BUILT + """ <strong>Aim:</strong> the camera comes in over the shoulder.</li>
+<li>""" + BUILT + """ <strong>Checked online</strong> with 50 ms of lag each way and 1 % packet loss: every player's
+scripted run, slide and climbs match on every machine to the centimetre.</li>
+</ul>
+
+<div class="mak-card"><h3>Play-test P2 (about 10 minutes)</h3>
 <ol>
-<li>Open the map <code>Content/Tharrn/Maps/L_TestRange</code>.</li>
-<li>Click the three dots next to Play: <em>Number of Players</em> 2, <em>Net Mode</em> "Play As Listen Server".
-Press Play.</li>
-<li>Two windows open. Walk in one, and your character moves in the other too. The yellow text reads "Listen server"
-in one and "Client 1" in the other, with the same counter.</li>
-<li>Set it back to 1 player and "Play Standalone".</li>
-</ol>
-<p>The first module to play is P2, the character. Its test range gets a sign with the controls and what to try.</p></div>
+<li>Open Tharrn; the editor opens the test range. Press Play.</li>
+<li>The sign on the left lists the keys. Run with W A S D, hold Shift to sprint, Ctrl to walk, C to crouch. Sprint and
+press C to slide; C again stands up.</li>
+<li>Run at the three blocks on the left and press Space in front of each: a hurdle (1 m), a mantle (1.5 m), a climb
+(2.5 m).</li>
+<li>Hold the right mouse button to aim. The middle mouse button switches between facing the camera and turning towards
+where you run.</li>
+<li>Three dots next to Play: <em>Number of Players</em> 2, <em>Net Mode</em> "Play As Listen Server"; Play. Move in one
+window and watch the other.</li>
+<li>Set it back to 1 player and "Play Standalone", then tell Claude what feels wrong or good.</li>
+</ol></div>
 
 <h2>Decisions</h2>
 <p>Binding once made; the full log, with the owner's words, is <code>projects/Tharrn/docs/decisions.md</code>.</p>
@@ -775,6 +792,8 @@ in one and "Client 1" in the other, with the same counter.</li>
         ["Deliverables written so far: PvP flagging state (3), creature behaviour (9), QA matrix (10), HUD icons (8); proposals for creatures (5), dungeon templates (6) and weapons (7)", "<code>projects/Tharrn/docs/deliverables/</code>"],
         ["Unreal project", "<code>D:\\Tharrn</code>, a private Git repository with no remote"],
         ["Game data", "<code>D:\\Tharrn\\Data</code>"],
+        ["Easy Game UI Ultimate, for menus and the HUD", "<code>projects/Tharrn/docs/easy-game-ui.md</code>"],
+        ["The Sci-Fi Complete Bundle's guides (the go-to reference for world building)", "<a href=\"https://docs.google.com/document/d/1lFjRKIKaGpnxRJgw_aDCGNAif1RqJk6e4APHl3Pbz5o/edit\">Main guide</a>; all of them in <code>projects/Tharrn/docs/scifi-bundle.md</code>"],
         ["This wiki", "Rebuilt by <code>python projects/Tharrn/tools/build_wiki.py</code>"],
     ], "kv")
     return page("Development", "Development",

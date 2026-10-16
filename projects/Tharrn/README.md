@@ -17,24 +17,26 @@ Wildwright on 2026-10-15.
 | 1 | this README | State, rules, next actions | 5 min |
 | 2 | [docs/gdd/00-overview.md](docs/gdd/00-overview.md) | GDD 0.1: the direction in 13 modules with build notes | 20 min |
 | 3 | [docs/tasks.md](docs/tasks.md) | Current work: the Prototype modules | 2 min |
-| 4 | [docs/decisions.md](docs/decisions.md) | Decisions D-01 to D-19, open questions OQ-01 to OQ-14 | 5 min |
+| 4 | [docs/decisions.md](docs/decisions.md) | Decisions D-01 to D-21, open questions OQ-01 to OQ-14 | 5 min |
 | 5 | [docs/engineering-guide.md](docs/engineering-guide.md) | Build, test, MCP, budget, conventions, gotchas | 15 min |
+| — | [docs/scifi-bundle.md](docs/scifi-bundle.md) | The Sci-Fi Complete Bundle's guides, the go-to reference for world building (D-20) | before world work |
+| — | [docs/easy-game-ui.md](docs/easy-game-ui.md) | Easy Game UI Ultimate, for menus and the HUD (D-21) | before UI work |
 | — | [docs/deliverables/](docs/deliverables/) | The direction's deliverables written so far: 3 (PvP flagging state), 9 (creature behaviour), 10 (QA matrix), 8 (placeholder HUD icons); proposals 5 (creatures), 6 (dungeon templates) and 7 (weapons, attachments) | as needed |
 | — | [docs/session-log.md](docs/session-log.md) | Dated history | as needed |
 | — | **Tharrn Wiki**, the pinned Workspace card (`workspace/2026-10-15_tharrn-wiki/`) | The game for readers: world, zone map, bestiary, combat, survival, progression, PvP, characters, development | 15 min |
 | — | `source/` | The owner's direction document (2026-10-15) and the Nanite Landscape Build Protocol | — |
 | — | `source/owner-package-2026-10-15/` | The owner's scaffold package (drafts of deliverables 2–10); [review](docs/reviews/owner-package-2026-10-15.md) | as needed |
 
-## Where things stand (2026-10-15)
+## Where things stand (2026-10-16)
 
 | Item | State |
 |---|---|
 | Design | GDD 0.1 drafted from the direction (deliverable 1 of 10); **owner review** |
-| Unreal project | `D:\Tharrn\`, UE 5.8.3 C++, module `Tharrn`; Git with LFS, first commit fb20fca (design record: 29e9dfc); P1 committed 2026-10-16 |
-| Carried setup (D-03) | DLSS 4.5 and budget settings (D-11, D-12), Unreal MCP and `AllToolsets`, Game Animation Sample, Sci-Fi Complete Bundle and the PCG biome framework from PCG Biomes Poplar Forest (staged outside Git), pack staging, plugin check, budget measurement, terrain pipeline (not yet re-run), sky, capture subsystem, world-building helpers |
-| Checks | Both targets build with no warnings; plugin check PASS; data import 0 problems; 31 automation tests pass; network test passes (listen and dedicated server, 2 clients and a late joiner, 50 ms each way and 1 % loss) |
+| Unreal project | `D:\Tharrn\`, UE 5.8.3 C++, module `Tharrn`; Git with LFS, first commit fb20fca (design record: 29e9dfc); P1 and P2 committed 2026-10-16 |
+| Carried setup (D-03) | DLSS 4.5 and budget settings (D-11, D-12), Unreal MCP and `AllToolsets`, Game Animation Sample and Sci-Fi Complete Bundle (staged outside Git; the bundle's guides are the go-to reference, D-20), pack staging, plugin check, budget measurement, terrain pipeline (not yet re-run), sky, capture subsystem, world-building helpers |
+| Checks | Both targets build with no warnings (Shipping too); plugin check PASS; data import 0 problems; 37 automation tests pass; network test passes (listen and dedicated server, 2 clients and a late joiner, 50 ms each way and 1 % loss): the probe, every player's scripted movement and slide, the block course approved by the server, made-up mantles refused |
 | Wildwright | Design record, Workspace card and `D:\Wildwright` gone. Its 7 commits stay in the Mr. Mak repo's history until the owner runs or allows the prepared history rewrite |
-| Next | P1 Foundation closed 2026-10-16; P2, the shooter character, in progress ([plan](docs/tasks.md)) |
+| Next | P2, the player character, built and checked 2026-10-16: **owner play-test** ([steps](docs/tasks.md)); then P3, weapons |
 
 ## Working agreement
 
@@ -69,4 +71,6 @@ Wildwright on 2026-10-15.
 | 1 | Review GDD 0.1 and the open questions (scope OQ-07 and tutorial creature OQ-12 first) and the proposals in deliverables 3, 5, 6, 7 and 9 | **Yes** |
 | 2 | Fab packs for armour, weapons, creatures, weapon animations (OQ-04) | **Yes** |
 | 3 | Remove Wildwright's 7 commits from the Mr. Mak repo's history: Claude prepared and dry-ran the rewrite; Claude Code blocks it without the owner | **Yes** |
-| 4 | P2 Shooter character ([plan](docs/tasks.md)), in progress; the owner play-tests it at the end (P2.7) | No |
+| 4 | Play-test P2, the player character (10 minutes, [steps](docs/tasks.md)) | **Yes** |
+| 5 | Download Easy Game UI Ultimate in the Epic Games Launcher, for P4 (D-21) | **Yes** |
+| 6 | P3 Weapons, after the P2 play-test | No |
