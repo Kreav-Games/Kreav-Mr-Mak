@@ -7,10 +7,10 @@ This file notes what matters for Tharrn, read on 2026-10-16.
 
 ## State
 
-- In the owner's Fab library; **not downloaded yet** (not in the launcher cache). To stage it like the other packs
-  (outside Git, D-08), the owner downloads it in the Epic Games Launcher; then it gets a row in `Tools/Packs/packs.csv`.
+- Downloaded, and added by the owner to the project as `Content/EasyGameUI` (2026-10-16). Like every pack it stays
+  outside Git (D-08): it still needs a row in `Tools/Packs/packs.csv`, so the STAGED PACKS block of `.gitignore`
+  covers it. Its two plugins (JSON Blueprint Utilities, Blueprint File Utilities) are on in `Tharrn.uproject`.
 - Version 3.0.2 (18 June 2026) officially supports UE 5.8 and fixes a 5.8 crash tied to some volumetric settings.
-- Check its Fab AI flag when it is downloaded, as for every pack (D-08).
 
 ## What it gives
 
@@ -22,7 +22,7 @@ prompts, and a global config and styling system. Demo content can be removed (it
 
 | Step | Tharrn |
 |---|---|
-| Plugins: JSON Blueprint Utilities, Blueprint File Utilities | To enable |
+| Plugins: JSON Blueprint Utilities, Blueprint File Utilities | On (2026-10-16) |
 | Project settings: Enable User Settings on; Render Focus Rule "Never"; optional: Should Flush Pressed Keys on Viewport Focus Lost off | To set |
 | Rendering: Lumen on; Support Hardware Ray Tracing (only for its options-menu toggle for hardware Lumen) | Lumen on; hardware ray tracing to decide (D-11 budget) |
 | Game Instance: `GI_EasyMainGameInstance` (`EasyGameUI/Core`) in Maps & Modes | Tharrn has the engine's default Game Instance, so it is set directly (their "Situation A") |

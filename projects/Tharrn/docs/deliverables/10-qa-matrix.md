@@ -6,7 +6,7 @@ module still passes the whole verification ladder (engineering guide §3) and en
 
 **How a test runs:** *Auto* = an Unreal automation test (`Tools/Checks/run_tests.py`); *Net* = a server-and-clients
 check with simulated latency and loss (`Tools/Checks/net_test.py`); *Budget* = `Tools/Checks/measure_budget.ps1`
-and the protocol's verification block; *Owner* = the owner's play-test with written steps.
+(with `stat unit` and `stat gpu`); *Owner* = the owner's play-test with written steps.
 
 ## Prototype
 
@@ -37,9 +37,8 @@ and the protocol's verification block; *Owner* = the owner's play-test with writ
 | V-04 | P4 | Temperature | Auto | Outside the armour's range: damage over time and slower movement | Not built |
 | V-05 | P4 | Crafting a bandage and ammo | Auto + Net | The server checks recipe and inventory; both clients see the same inventory | Not built |
 | V-06 | P4 | HUD vitals and weapon panel | Owner + Net | The same values on both clients | Not built |
-| W-01 | P5 Coastal slice | Frame budget | Budget | Within D-11 (16.6 ms on the minimum PC, split as in protocol §0) | Not built |
+| W-01 | P5 Coastal slice | Frame budget | Budget | Within D-11 (16.6 ms on the minimum PC, split as in D-11) | Not built |
 | W-02 | P5 | QA005 streaming | Budget | No frame more than 10 ms over the median while crossing cells | Not built |
-| W-03 | P5 | Nanite overdraw | Budget | Protocol's overdraw limits in `r.Nanite.Visualize Overdraw` | Not built |
 | W-04 | P5 | Look | Owner | The owner approves the review images | Not built |
 | A-01 | P6 Creatures | Behaviour runs on the server only | Net | Clients receive movement and montages; no AI on clients | Not built |
 | A-02 | P6 | Skitterjaw pack | Net + Owner | Patrol, detect, chase, flank, pounce; two clients see the same fight | Not built |
@@ -76,4 +75,4 @@ and the protocol's verification block; *Owner* = the owner's play-test with writ
 | Survival balance | Expedition length matches the design; vitals influence but do not punish | The owner's play-tests from P4 and P8 |
 | PvP | Flagging reliable; extraction interrupts work; proxies spawn | X-01 to X-05 |
 | MetaHuman fidelity | Facial animation matches voice; LOD changes are seamless | H-01, H-02; voice later |
-| Performance | 60 fps on the minimum PC (D-11), 120 fps on high-end PCs, consoles open (OQ-01) | W-01 to W-03 for every world module |
+| Performance | 60 fps on the minimum PC (D-11), 120 fps on high-end PCs, consoles open (OQ-01) | W-01 and W-02 for every world module |

@@ -25,7 +25,7 @@ file lists the guides and what each part is for in Tharrn; the guides themselves
 
 | Part of the bundle | Guide section | Tharrn module |
 |---|---|---|
-| PCG biome generation: its own system (from AutoEnv, not Unreal's PCG Biome plugin), driven by Biome, Rock and Foliage data assets; `BP_PCG_Biome`, `BP_PCG_Manager`, an offline graph for rocks and a runtime graph for debris and foliage, exclusion actors, landscape grass | Main: PCG generation, Tutorial | P5 Coastal slice, then every biome (D-10) |
+| PCG biome generation: its own system (from AutoEnv, not Unreal's PCG Biome plugin), driven by Biome, Rock and Foliage data assets; `BP_PCG_Biome`, `BP_PCG_Manager`, an offline graph for rocks and a runtime graph for debris and foliage, exclusion actors, landscape grass | Main: PCG generation, Tutorial | P5 Coastal slice, then every biome |
 | Combined landscape material: the 8 landscape layers of all biomes, runtime virtual texturing | Main: Combined landscape material | P5 |
 | Biomes: colony, jungle, desert, arctic (added in 1.1) | Colony, Jungle, Desert guides | P5 and later biomes; the desert for the Skitterjaw (D-16) |
 | Building system: regular and circular buildings from modular kits, floors, stairs, pillars, furniture, scattering | Main and Colony: Building System | Hubs and outposts (world building); not the player's base building (GDD 03) |
@@ -61,6 +61,6 @@ file lists the guides and what each part is for in Tharrn; the guides themselves
 | PCG plugin, also at run time | Required | On (enabled on its own 2026-10-16; before, only through Unreal's experimental PCG Biome plugin, now off) |
 | Chaos Vehicles plugin | For the hoverbike and buggy | On (since 2026-10-16) |
 | Lumen, Nanite (DirectX 12, SM6), virtual shadow maps | Required | On |
-| Virtual texturing (streaming and runtime) | Recommended; without it rocks show an orange top layer | Off: turn on in P5 (D-10 asks for runtime virtual texture ground blending) |
+| Virtual texturing (streaming and runtime) | Recommended; without it rocks show an orange top layer | Off: turn on in P5 |
 | Custom depth-stencil "Enabled with Stencil" | Only for the example player's highlight | Not set; set when Tharrn builds an interaction highlight |
 | `r.Streaming.PoolSize` 3000 | For the landscape's virtual texture | Set |

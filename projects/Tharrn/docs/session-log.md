@@ -41,3 +41,22 @@ note had split it into an extra column.
 *2026-10-16, day.* Commits: game repo 14c0633 (P1), Mr. Mak repo 8187772 (records, wiki). The owner allowed closing and reopening the editor for builds during P2. Owner's notes: the Sci-Fi Complete Bundle has everything needed (Poplar's PCG removed: pack row, staged files to the Recycle Bin, Unreal's experimental PCG Biome plugin off, base PCG on) and its documentation is the go-to reference (D-20, `docs/scifi-bundle.md`, all its linked guides read for their contents and caveats; every one says its example player and some systems are single-player only); Easy Game UI Ultimate 3.0 for menus and the HUD (D-21, `docs/easy-game-ui.md`); a Higgsfield subscription offered for art if needed (not yet). The editor had turned on the Chaos Vehicles plugin while the owner looked at the bundle's showcase; kept (the bundle's vehicles need it). **P2 built:** the sample's Character Movement character as `BP_TharrnPlayer` on C++ `ATharrnPlayerCharacter` and `UTharrnCharacterMovementComponent` (predicted gait, speeds, turning, slide; the server's mantle and vault check), `BP_TharrnGameMode` as the default, the sample's config (console variables, collision channels, acceleration replication), the test range's block course, lanes and controls sign, `build_player.py`, shared Blueprint helpers, `RunConsoleCommand` in the play-session toolset, movement tests in `net_test.py`. Found on the way: the sample's mantle trusts the player's machine (now checked by the server); its blocks' collision fooled the first two versions of that check (a plane through the middle; now measured by bounds); the check's corrections during a late server-side move left a player floating (no
 corrections during an approved move now, and a safety net for the sample's own stuck-flying case); a spawn point
 left from the engine template sent a test player into the 10 m target (removed); a chained rebuild command whose first step failed launched a second editor (closed at once, nothing lost; the rebuild now runs from a script that stops at the first failure). All checks pass (37 tests, the network test in both modes, builds including Shipping). An editor that had run dozens of play sessions started showing position corrections under emulated lag that a fresh editor does not (gotcha 47). The owner approved both P2 commits. **Next:** the owner's P2 play-test.
+
+*2026-10-16, afternoon and evening.* P3 Weapons, then the Multiplayer Shooter System (Claude Code). The owner pointed
+at MST Pro and Ultimate Weapon Pack (MST Pro has Lyra-style rifle, pistol and shotgun animations on the UE5
+mannequin; Ultimate Weapon Pack was not downloaded and no listing has that exact name), then brought the Multiplayer
+Shooter System 2.0 (MSS) with its documentation and GASP integration guide. MSS decides hits on the server without
+lag compensation; the owner chose to combine it with P3's C++ (D-23). The owner also removed D-08's NoAI rule (they
+changed which assets may be used with AI) and the Nanite Landscape Build Protocol with D-10 (an AI-written document),
+asked to keep editor tools in C++, and asked about first person (none of the packs has it; open). Built: P3's C++
+(weapon component, combat library, attribute set, projectile, targets, HUD), C++ editor toolsets
+`TharrnAnimToolset` and `TharrnBlueprintSetupToolset`, and `setup_mss.py`, `build_mss_weapons.py`,
+`build_mss_player.py`, `mss_test.py`; MSS staged outside Git with Easy Game UI. Fixed on the way: chooser tables
+that need the sample's own animation Blueprint, MSS's HUD calling the server every frame for other players, MSS's
+weapons and HUD outliving a downed player, a refused first shot after reloads, the moment a target goes down, a
+projectile's steps under its arc, limb-edge disagreements (the shooter's view within 15 cm), and an editor crash in
+the tool tests (a Blueprint compile collecting garbage in the middle of a tool call). **Verified:** the editor
+builds; automation tests pass; the network test shows 0 to 1.2 % of shots disagreeing on hit or miss in both
+server modes, made-up shots refused, the heavy round's flight exact; the MSS test passes; pictures of the player holding,
+aiming and firing. **Not verified:** the owner's play-test of P2 and P3; picking weapons up, the hip-fire turn and
+MSS's grenade (not built). **Next:** commit approval; the owner's play-tests.

@@ -669,7 +669,7 @@ def development():
         ["P1", "Foundation: data tables from the data files, automated tests, the multiplayer test harness, a grey test range",
          BUILT + " Built and checked 2026-10-15; closed 2026-10-16"],
         ["P2", "Shooter character: motion-matched movement, third-person aim-down-sights camera, sprint, crouch, slide, mantle; online", BUILT + " Built and checked 2026-10-16; waits for the owner's play-test"],
-        ["P3", "Weapons: SMG, pistol, a heavy projectile weapon; recoil, spread, damage and armour; hits checked by the server", "—"],
+        ["P3", "Weapons: SMG, pistol, a heavy projectile weapon; recoil, spread, damage and armour; hits checked by the server", BUILT + " Built and checked 2026-10-16 with the Multiplayer Shooter System (D-23); waits for the owner's play-test"],
         ["P4", "Vitals: health, stamina, hunger, hydration, temperature; the formulas; crafting a bandage and ammo; HUD vitals and weapon panel", "—"],
         ["P5", "Coastal slice: 1–2 km² of the starter biome at full quality, within the performance budget", "—"],
         ["P6", "Creatures: Skitterjaw, Phase Warden, Grav Raptor with behaviour, stagger and weak points", "—"],
@@ -684,9 +684,8 @@ def development():
         ["D-05", "Audio with MetaSounds now, Wwise later"],
         ["D-06", "Built one module at a time in the live editor; each is polished and tested before the next"],
         ["D-07", "C++ for complex systems, Blueprints for simple ones, notes in both; data in CSV files"],
-        ["D-08", "Store packs stay outside Git; assets marked NoAI are never used to generate content"],
+        ["D-08", "Store packs stay outside Git"],
         ["D-09", "No Valley of the Ancient content, nothing from earlier games' designs or lore"],
-        ["D-10", "World building follows the Nanite Landscape Build Protocol"],
         ["D-11", "60 fps on an RTX 3060 at 1440p with DLSS Quality; 120 fps on high-end PCs"],
         ["D-12", "DLSS 4.5 upscaling, with Unreal's TSR when DLSS is not available"],
         ["D-13", "No AI or LLM calls in the game itself; AI tools are for the editor only"],
@@ -698,12 +697,14 @@ def development():
         ["D-19", "45 minutes on foot across the map in a straight line"],
         ["D-20", "The Sci-Fi Complete Bundle is the environment kit; its documentation is the go-to reference"],
         ["D-21", "Menus and the HUD are built with Easy Game UI Ultimate 3.0"],
+        ["D-22", "Weapons, clothing and armour are made for Tharrn (Blender, Higgsfield); placeholders until then"],
+        ["D-23", "Weapons combine the Multiplayer Shooter System (looks, animation, handling) with Tharrn's C++ (hits, damage, data)"],
     ]
     questions = [
         ["OQ-01", "Consoles", "PC first; decide once the prototype is fun"],
         ["OQ-02", "Dedicated servers", "Develop with a server inside the editor; packaging a server needs Unreal built from source"],
         ["OQ-03", "Changing faces while playing", "Presets first; research face changes in the game as its own step"],
-        ["OQ-04", "Missing art: armour, hand-held weapons, creatures, weapon animations", "The owner picks store packs; Claude checks fit, cost and the AI flag"],
+        ["OQ-04", "Missing art: creatures (weapons and armour: D-22; weapon animations: D-23)", "The owner picks store packs; Claude checks fit and cost"],
         ["OQ-05", "Ocean and coast", "Test Unreal's water early in the coastal slice"],
         ["OQ-06", "Terrain source", "Real coastal survey data where it fits, generated terrain elsewhere"],
         ["OQ-07", "Scope", "Build the prototype first, then re-plan"],
@@ -776,6 +777,32 @@ where you run.</li>
 <li>Three dots next to Play: <em>Number of Players</em> 2, <em>Net Mode</em> "Play As Listen Server"; Play. Move in one
 window and watch the other.</li>
 <li>Set it back to 1 player and "Play Standalone", then tell Claude what feels wrong or good.</li>
+</ol></div>
+
+<h2>What P3 built</h2>
+<ul>
+<li>""" + BUILT + """ <strong>Three weapons from the data files:</strong> the SMG, the pistol and the heavy Mass Driver,
+every number from <code>Data/Weapons.csv</code> and the recoil curves from <code>Data/WeaponRecoil.csv</code>.</li>
+<li>""" + BUILT + """ <strong>Hits decided by the server:</strong> the shot shows at once on the player's screen; the
+server checks it, rewinds the other players to the moment of the shot, and applies head, body and limb damage and the
+target's armour. A cheating client cannot fire faster, from elsewhere, or without ammunition.</li>
+<li>""" + BUILT + """ <strong>The heavy round</strong> flies in an arc and takes its time to arrive, the same on every
+machine; only the server deals its damage.</li>
+<li>""" + BUILT + """ <strong>Weapons in the hands:</strong> the Multiplayer Shooter System's weapon handling on the
+motion-matched character: drawing from holsters on the thigh and back, aiming, recoil on the arms, reloads, its HUD.
+Its weapon models stand in until Tharrn's own (D-22).</li>
+<li>""" + BUILT + """ <strong>Checked online</strong> with 50 ms of lag each way and 1 % packet loss: 0 to 1.2 % of
+shots differ between the shooter's screen and the server (the target is under 2 %).</li>
+</ul>
+
+<div class="mak-card"><h3>Play-test P3 (about 10 minutes)</h3>
+<ol>
+<li>Press Play on the test range. X draws the pistol from the thigh; the left mouse button fires, one shot a click.</li>
+<li>Shoot the targets (10, 25, 50, 100 m): the number above each drops, more for the head, less through armour; at 0
+it shows DOWN and stands up 3 seconds later.</li>
+<li>R reloads. F swaps to the SMG on the back (hold to fire) and then the heavy weapon; the right mouse button aims.</li>
+<li>Run, sprint, slide and climb with a weapon out: the movement should feel as before.</li>
+<li>Play with 2 players (Listen Server) and shoot each other: the same on both screens.</li>
 </ol></div>
 
 <h2>Decisions</h2>

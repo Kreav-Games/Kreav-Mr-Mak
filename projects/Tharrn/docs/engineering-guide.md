@@ -27,20 +27,24 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 | `Source/Tharrn/Data/` | Row types for the data tables (`FTharrnWeaponRow`, `FTharrnCreatureRow`, `FTharrnZoneRow`) and `UTharrnDataLibrary` (zone at a position, list parsing) |
 | `Source/Tharrn/Net/` | `ATharrnNetProbe`: replicated counter and ping for the network test (P1); `TharrnNetText` (which machine a world is, for logs) |
 | `Source/Tharrn/Player/` | The player (P2, D-18): `ATharrnPlayerCharacter` (slide animation, ability system, the movement tests `th.MoveTest`) and `UTharrnCharacterMovementComponent` (gait, speeds, turning and slide, all predicted; the server's mantle and vault check) |
-| `Source/Tharrn/Tests/` | Automation tests `Tharrn.Data.*`, `Tharrn.Net.*`, `Tharrn.Player.*` |
-| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation; Tharrn's own MCP toolsets `TharrnEditor.TharrnBlueprintNotesToolset` (comment boxes: add, list, remove; node comments; variable and Blueprint descriptions) and `TharrnEditor.TharrnPlaySessionToolset` (play session worlds, late-joining client, console commands in a play world), registered by `UTharrnToolsetsSubsystem`; tests `Tharrn.Editor.*` (editor only) |
+| `Source/Tharrn/Combat/` | Weapons (P3, D-23): `UTharrnWeaponComponent` (shots predicted on the player's machine, checked and decided on the server with bodies rewound to the shot, ammunition and reload; follows the MSS weapon in the hand), `UTharrnCombatLibrary` (zones, armour, falloff, spread seed, recoil, projectile path, shot checks), `UTharrnCombatSubsystem` (bodies and their history), `UTharrnAttributeSet` and `UTharrnDamageEffect` (health through the ability system), `ATharrnProjectile` (the heavy round), `ATharrnTarget` (test-range targets), `UTharrnWeaponLookComponent` (on Tharrn's MSS weapons: the shot, reload and ammunition events), `ATharrnWeaponVisual` (placeholder models; with MSS only their tracer and impact effects); test CVars `th.FireTest`, `th.FireTestSlot`, `th.FireTestAim`, `th.FireTestOnly`, `th.FireTestSeconds`, `th.HeldWeapons`, and `th.Press` (press an input action) |
+| `Source/Tharrn/UI/` | `ATharrnHUD`: hit markers and health (with MSS, MSS's HUD shows the crosshair and ammunition) |
+| `Source/Tharrn/Tests/` | Automation tests `Tharrn.Data.*`, `Tharrn.Net.*`, `Tharrn.Player.*`, `Tharrn.Combat.*` |
+| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation; Tharrn's own MCP toolsets `TharrnEditor.TharrnBlueprintNotesToolset` (comment boxes: add, list, remove; node comments; variable and Blueprint descriptions) and `TharrnEditor.TharrnPlaySessionToolset` (play session worlds, late-joining client, console commands in a play world), `TharrnEditor.TharrnAnimToolset` (AnimGraph nodes, linked anim graphs in and out, skeleton sockets, IK retargeters, batch retargeting) and `TharrnEditor.TharrnBlueprintSetupToolset` (where Blueprint components attach, Blueprint interfaces, property values as Unreal text), registered by `UTharrnToolsetsSubsystem`; tests `Tharrn.Editor.*` (editor only) |
 | `Data/` | Game data source: CSV and JSON (its README) |
 | `Tools/Mcp/` | `tharrn_mcp.py`: the small MCP client every script below uses; `tharrn_blueprints.py`: Blueprint helpers the build scripts share |
 | `Tools/Data/` | `import_data_tables.py`: CSV to data tables, read back and compared |
 | `Tools/TestRange/` | `build_test_range.py`: `BP_NetProbe`, `BP_TargetDummy`, map `L_TestRange` (targets, net probe, 8 player starts in 4 lanes, a mantle and vault course of the sample's traversable blocks, a sign with the controls) |
+| `Tools/Weapons/` | `build_weapons.py` (P3 input actions, placeholder models, the heavy round), `setup_mss.py` (MSS on the UEFN skeleton: sockets, retargeter, retargeted animations, pose data, the player's animation Blueprint with MSS's upper-body layer; output in `/Game/MSS_Tharrn`, outside Git, remade by the script), `build_mss_weapons.py` (`BP_TharrnWeapon_SMG`, `_Pistol`, `_Heavy`), `build_mss_player.py` (MSS on `BP_TharrnPlayer`). Order after staging MSS or the sample: setup, weapons, player ([mss.md](mss.md)) |
 | `Tools/Player/` | `build_player.py`: `BP_TharrnPlayer` from the Game Animation Sample's Character Movement character, `BP_TharrnPlayerController`, `BP_TharrnGameMode`, the project's default game mode |
-| `Tools/Packs/` | `stage_packs.py`, `packs.csv` (Game Animation Sample, Sci-Fi Complete Bundle; the bundle's guides: [scifi-bundle.md](scifi-bundle.md)) |
-| `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py` |
-| `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange`, `Characters/Player/BP_TharrnPlayer`, `Core/` (BP_TharrnGameMode, BP_TharrnPlayerController) |
+| `Tools/Packs/` | `stage_packs.py`, `packs.csv` (Game Animation Sample, Sci-Fi Complete Bundle, Multiplayer Shooter System, Easy Game UI; guides: [scifi-bundle.md](scifi-bundle.md), [mss.md](mss.md), [easy-game-ui.md](easy-game-ui.md)) |
+| `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py`, `mss_test.py` |
+| `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange`, `Characters/Player/BP_TharrnPlayer`, `Core/` (BP_TharrnGameMode, BP_TharrnPlayerController), `Input/` (combat input actions), `Weapons/` (placeholders, the heavy round, `MSS/` Tharrn's MSS weapons) |
 | `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README) |
 | `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) and its data-driven console variables, collision channels and console variables (`DefaultEngine.ini`, D-18) |
 | `Content/ThirdPerson`, `Characters`, `Input`, `LevelPrototyping` | Template content (tracked) |
-| `Content/ScifiOutpost`, Game Animation Sample folders | Staged packs (ignored) |
+| `Content/ScifiOutpost`, `DMD`, `EasyGameUI`, Game Animation Sample folders | Staged packs (ignored) |
+| `Content/MSS_Tharrn` | Made from MSS by `setup_mss.py` (ignored; the script remakes it) |
 | `AGENTS.md`, `CLAUDE.md`, `.mcp.json` | Agent rules for this repo; MCP entry for chats started here |
 
 Class prefix is `Tharrn` (`ATharrnCharacter`); the module is `Tharrn`; the log
@@ -121,12 +125,14 @@ loads MCP servers when it starts; one started before the editor needs a restart 
    changes on the server only, clients see the same result, a late-joining client sees the current
    state. `Tools/Checks/net_test.py` does this for the net probe (50 ms each way, 1 % loss, a third
    client joining halfway) and the player (P2: every player runs a scripted path with `th.MoveTest`, one
-   runs the block course, every client sends a made-up mantle); a new feature adds its own `[TH...]` log
-   lines and checks in the same way. Console variables reach a play world through
+   runs the block course, every client sends a made-up mantle) and the shots (P3: players shoot targets and a
+   running player, made-up shots, the heavy round's flight; under 2 % of shots may disagree between a player's
+   machine and the server, C-04); `Tools/Checks/mss_test.py` checks MSS's weapons on a client (equip, fire, reload,
+   swap); a new feature adds its own `[TH...]` log lines and checks in the same way. Console variables reach a play world through
    `TharrnPlaySessionToolset.RunConsoleCommand`; test input goes through Enhanced Input's
    `InjectInputForAction`, as keys would.
-5. World or rendering work: the protocol's budget table and Verification block
-   (`measure_budget.ps1`, `stat unit`, `stat gpu`, `r.Nanite.Visualize Overdraw`).
+5. World or rendering work: a budget table against D-11
+   (`measure_budget.ps1`, `stat unit`, `stat gpu`).
 6. Owner play-test with exact steps and expected results, only for what the owner can see or feel; the test
    map itself says what to try (a sign with the controls and the checks). The owner's yes closes the module.
    A module with nothing to play closes on the automated checks: P1's play-test asked the owner to read
@@ -311,6 +317,69 @@ closed: an open editor once took 96 % of the GPU.
     position corrections (about 30 per player per path, even at 0 ms and 0 % loss) that a fresh editor does not
     show (0). Restart the editor before the network test when it has run many sessions. `LogsToolset.GetLogEntries`
     returns the oldest matching lines first, so the test scripts ask for all of them.
+48. `GameStateBase::GetServerWorldTimeSeconds` on a client is the server's time one trip ago (no latency
+    compensation): rewind other players to the shot's own clock time, not one trip earlier (measured: subtracting
+    another trip put shots in the wrong zone). A body that changes (down, up) reaches the shooter a frame or two after
+    its clock passes the moment, so the server gives shots 0.25 s of grace (`StateChangeGraceSeconds`; damage to a
+    body already down does nothing, so the grace only makes the shooter's hit marker agree with what it saw).
+    The block course's position check waits for the runner to stand: a moving player's own machine is one trip
+    ahead of the server (about 40 cm at the end of the course), which measured latency, not error.
+49. The player's machine must treat a reload as started when it asks for it: otherwise it fires for one round trip
+    and the server refuses those shots. The server replicates the last shot it handled with the ammunition, so the
+    machine knows which of its shots the magazine count already includes.
+50. A projectile traced in straight steps sags under its arc by g·dt²/8 per step: on a long server frame (0.1 s)
+    that is over a centimetre, so `ATharrnProjectile` flies in steps of at most 1/60 s.
+51. A Blueprint reparented to a C++ class it never had can keep a broken class default object; deleting and
+    recreating the Blueprint fixed it (`BP_TargetDummy`).
+52. `NS_Beam_Impact` from the Sci-Fi bundle made a large pink glow on hits; the placeholder weapons have no
+    impact effect.
+53. `ObjectTools.set_properties` silently ignores `values` given as an object: pass a JSON string
+    (`tharrn_blueprints.set_props`). It cannot write maps keyed by Blueprint enums or Blueprint structs (their
+    fields carry hidden suffixes such as `Crouch_2_B957...`): use `TharrnBlueprintSetupToolset.GetPropertyText` /
+    `SetPropertyText` and edit the text.
+54. Graph DSL: overriding a parent Blueprint's custom event is `(event EventCE_Fire ...)`; `(event Custom|CE_Fire ...)`
+    makes a new event named CustomEvent instead. A component's event (`OnShot`) cannot be made by the DSL: make it with
+    `add_component_bound_event` first, then the DSL fills `(event OnShot(TharrnWeaponLook) (End bHit) ...)`. Two
+    functions with one name in one category (the character's and the movement component's `IsSliding`) resolve to
+    the wrong one. `get_node_type_pins` leaves the node in the graph: clear the graph before writing it.
+55. A linked anim graph node made in C++ needs its class set the way the details panel does it (set `InstanceClass`,
+    then `PostEditChangeProperty`); otherwise it has no input pose pins.
+56. New assets cannot go under `/Temp` (not a content root); tests create under `/Game/Tharrn/Tests` and throw the
+    packages away unsaved.
+57. Reading a pack's Blueprint graph (`read_graph_dsl`, node infos) marks it unsaved; on closing, the editor then
+    asks to save it and a scripted close stops. `save_dirty.py` also saves `/Game/MSS_Tharrn` and `/Game/DMD/Blueprints`.
+58. `EditorAppToolset.CaptureViewport` renders the editor camera even during play; `CaptureEditorImage` shows the
+    play view as the owner sees it.
+59. MSS's `CE_Fire`, `CE_Stop_Fire`, `CE_Reload` are called on the player's machine by its input (`FNC_Fire_Weapons`,
+    `FNC_Reload_Weapons`); its effects come from server events and multicasts (`CES_`, `CEC_`). Calling a multicast
+    from a listen server broadcasts it to every client, so Tharrn's weapons call MSS's effect functions directly.
+60. MSS's collision channels are slots 1 and 2 in its project; Tharrn's are 4 (Projectile) and 5 (Laser) because the
+    sample uses 1 to 3. MSS's projectiles and lasers are not fired (Tharrn's C++ decides shots); its grenade throw is
+    still MSS's own and deals engine damage, which Tharrn's health (ability system) does not take yet.
+61. Two of MSS's keys clash with the sample's: the middle mouse button (MSS shoulder swap, the sample's strafe toggle)
+    and the gamepad's top face button (MSS swap weapon, the sample's interact).
+62. The sample's chooser tables (`CHT_PoseSearchDatabases` and others) accept only `SandboxCharacter_CMC_ABP` as context: a
+    copy of that animation Blueprint failed every frame on every character (about 100,000 errors in one network test,
+    the frame rate down to a few frames a second, 30 position corrections per player). `setup_mss.py` therefore links
+    MSS's layer into the sample's own animation Blueprint, a pack file, and is re-run after staging the sample.
+63. MSS's shooter component calls its server event `CES_Update_HUD` from Tick on every machine; on other players'
+    copies it cannot reach the server, and logs a network warning every frame for each of them. `setup_mss.py` puts a
+    branch on MSS's own `FNC_Is_Controlled` in front of the HUD part of its Tick.
+64. MSS expects the body to stay alive (its own respawn system): when Tharrn's game mode destroys a downed player,
+    MSS's HUD widget and three weapon actors outlived it, kept ticking with a dead owner and piled up with each
+    respawn. `UTharrnWeaponComponent::EndPlay` takes the widget off the screen and the server destroys the weapons.
+65. MSS's HUD widget can log a Blueprint error as play starts (it reads its weapon list before it reaches the
+    client), and its weapons can as play stops: `StartPIE` and `StopPIE` report those as failures although play
+    started or stopped. The test scripts check `IsPIERunning` instead (`start_play`, `stop_play`).
+66. Hits on a running player at the edge of a limb disagreed between the shooter's machine and the server in a few %
+    of shots (the shooter aims at a smoothed, extrapolated copy; the server rewinds its own history). The shot now
+    carries what the shooter saw it hit (`FTharrnShot::ClaimedActor`, `ClaimedZone`); the server takes that when it
+    fits the rewound body within 15 cm (`UTharrnCombatLibrary::ClaimFits`, `MissFits`), and keeps a miss the shooter
+    saw on a body that is down. The checks of made-up shots stay as they were.
+67. A full Blueprint compile (`FKismetEditorUtilities::CompileBlueprint` with no options) collects garbage. Inside
+    a tool call, that frees objects nothing else keeps alive while the call is still using them: the tool tests
+    crashed the editor in full runs. A tool compiles with `EBlueprintCompileOptions::SkipGarbageCollection`, and a
+    spec roots the throwaway Blueprints it makes in `BeforeEach` and unroots them in `AfterEach`.
 
 ## 8. Working as two agents
 

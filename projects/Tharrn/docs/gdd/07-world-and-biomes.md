@@ -21,7 +21,7 @@
 
 ## Build notes
 
-- **World building** follows the Nanite Landscape Build Protocol (D-10) within the D-11 budget.
+- **World building** stays within the D-11 budget.
 - **Prototype biome: Coastal**, a slice of about 1–2 km² first, built to full quality, then extended.
 - **Assets:** the Sci-Fi Complete Bundle has jungle, arctic, dry, volcanic and moon kits (cliff sets as
   level instances, alien flora, fog, water, planets in the sky) and shore formations for several of them

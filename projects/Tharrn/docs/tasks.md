@@ -21,9 +21,9 @@ Proposed order; each module is built server-authoritative from the start (D-04).
 |---|---|---|---|
 | P1 | **Foundation:** network test harness (PIE listen server and dedicated-server client, simulated latency and loss), CSV data-table pipeline, automation test scaffolding, a grey test range map | A replicated test actor passes the guide's network step; a CSV row imports and reads back in a test | Built and checked 2026-10-15 (ladder steps 1–4, below); closed 2026-10-16 (below) |
 | P2 | **Shooter character:** the Game Animation Sample's motion-matched character as the player, third-person aim-down-sights camera (D-15), sprint, crouch, slide, mantle; replicated | Two clients move, slide and mantle smoothly at 100 ms latency | Built and checked 2026-10-16 (below); **owner play-test** |
-| P3 | **Weapons:** weapon CSV (deliverable 7), SMG and pistol hitscan, one heavy projectile, recoil curves, spread, damage multipliers and armour, server-validated hits with rewind (OQ-09) | Test-range targets; under 2 % desync between two clients; tests for multipliers and armour | — |
+| P3 | **Weapons:** weapon CSV (deliverable 7), SMG and pistol hitscan, one heavy projectile, recoil curves, spread, damage multipliers and armour, server-validated hits with rewind (OQ-09) | Test-range targets; under 2 % desync between two clients; tests for multipliers and armour | Built 2026-10-16 with MSS's weapons and animation (D-23); **owner play-test** ([steps](#p3-weapons-results-2026-10-16)) |
 | P4 | **Vitals:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo; HUD vitals and weapon panel, built with Easy Game UI Ultimate 3.0 (D-21) | Thresholds tested; the HUD matches on both clients | — |
-| P5 | **Coastal slice:** about 1–2 km² of the starter biome under the protocol (D-10): terrain (OQ-06), ocean test (OQ-05), Sci-Fi bundle shore and jungle kits and its PCG biome system, following its guides ([reference](scifi-bundle.md)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
+| P5 | **Coastal slice:** about 1–2 km² of the starter biome: terrain (OQ-06), ocean test (OQ-05), Sci-Fi bundle shore and jungle kits and its PCG biome system, following its guides ([reference](scifi-bundle.md)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
 | P6 | **Creatures:** Skitterjaw (desert, D-16), Phase Warden, Grav Raptor (creature CSV, deliverable 5 in part), StateTree behaviour, perception, stagger and weak points | The tutorial fight (creature per OQ-12) works for two clients | — |
 | P7 | **MetaHuman base:** the player as a MetaHuman from presets (OQ-03), customisation JSON saved and loaded | A preset choice survives a reload and shows on both clients | — |
 | P8 | **Prototype play-through:** crash site → vitals → scavenge and craft → Skitterjaw fight → shelter (foundation, generator, bench) | The owner plays it for 10–15 minutes and calls it fun | — |
@@ -115,11 +115,90 @@ Steps (D-18: the sample's motion-matched character on Character Movement, motion
    second window and watch the first: the other player should move, slide and climb the same way.
 6. Set it back to 1 player and "Play Standalone". Tell Claude what feels wrong or good.
 
+## P3 Weapons: plan (2026-10-16)
+
+The systems first, with placeholder weapons (D-22). What exists to build on: the weapon rows in `Data/Weapons.csv`
+(AR-01, SMG A1, SG-01), deliverable 7's proposals (pistol PS-01, heavy MR-01, the extra columns, recoil curves),
+the ability system component on the player (P2), the test range's targets. Not available: weapon models and weapon
+animations (OQ-04, D-22): the template's pistol and rifle animations are for another skeleton, and the sample's
+animation Blueprint has no upper-body layer, so a placeholder weapon sits in the right hand with unarmed movement.
+
+| # | Step | Done when |
+|---|---|---|
+| P3.1 | Data: the pistol PS-01 and heavy MR-01 rows and deliverable 7's columns (reload, aim time, spread, falloff, pellets, fire mode) in `Data/Weapons.csv` as starting values; `Data/WeaponRecoil.csv`; row types and import | Imported and read back with no problems; C-07 |
+| P3.2 | Combat rules in C++: hit zones on a body (head, torso, limbs), zone multipliers (×2.5, ×1, ×0.75), armour (cloth 10 %, composite 30 %, alloy 50 %), damage falloff, spread from a shot's seed, recoil from the curve | Automation tests C-01 (curve), C-02, C-03 |
+| P3.3 | Health and armour on the Gameplay Ability System: an attribute set (health, maximum health, armour reduction); damage only from the server; death and respawn on the test range | Tests; health matches on every machine |
+| P3.4 | `UTharrnWeaponComponent`: weapons from data, switching, automatic and single fire, ammunition and reload, spread, recoil. The player's machine fires at once (muzzle, tracer, predicted hit marker) and sends the shot; the server checks rate, ammunition and aim, works out the shot's spread from the same seed, and decides hits against hit zones rewound to when the player fired (`UTharrnHitHistory`, OQ-09) | Tests; C-05 (impossible shots refused) |
+| P3.5 | Heavy projectile (MR-01): a server projectile with gravity and travel time from its data; the shooter sees a predicted copy | C-06 |
+| P3.6 | Placeholder look and feedback: weapons built from simple shapes, muzzle flash and impacts (the Sci-Fi bundle's effects if they fit), a plain HUD (crosshair sized by spread, ammunition, hit markers) until Easy Game UI (P4) | Readable on the test range |
+| P3.7 | Test range and input: targets take damage by zone, each with an armour material, show it and reset; our own copy of the sample's input mapping without its demo keys (left mouse "takedown", R "ragdoll"), plus fire, reload and weapons 1 to 3 | The owner can shoot every target |
+| P3.8 | `net_test.py`: players shoot targets and each other at 100 ms; the server's hits against each client's predicted hits; made-up shots refused; projectile drop | Under 2 % of shots disagree (C-04) |
+| P3.9 | Owner play-test | The owner's yes |
+
+**With MSS (D-23, 2026-10-16).** The owner brought in the Multiplayer Shooter System; the weapons combine it with
+the C++ above. Its GASP CMC guide is followed ([reference](mss.md)), with these differences: the shooter layer is
+retargeted from the UE5 mannequin to the sample's UEFN skeleton by a retargeter made for it, and shots go through
+`UTharrnWeaponComponent`.
+
+| # | Step | Done when |
+|---|---|---|
+| P3.10 | Stage MSS as a pack (outside Git); Common UI with MSS's input data; the Projectile and Laser channels in free slots (4 and 5: the sample uses 1 to 3); `UTharrnAnimToolset` (C++ editor tools: AnimGraph nodes, linked graphs, skeleton sockets, retargeting) | Builds; toolset tests pass |
+| P3.11 | Animation: MSS's sockets on the UEFN skeleton; a UE5-to-UEFN retargeter; MSS's character animations and `ABP_Overlay_Shooter` retargeted; the overlay linked into the sample's CMC animation Blueprint; a `BP_DA_MSS` of poses; `BPI_Locomotion` fed from the sample's movement | The player holds and aims a rifle with motion matching underneath |
+| P3.12 | Character: `BPC_Shooter_System`, holsters, the `Root_Mesh` tag, interaction (hold to pick up), hip-fire orientation; MSS's Blueprints set to the new channel slots | Pick up, equip, holster, drop and reload work, on every machine |
+| P3.13 | Combine: MSS's trigger sends the shot through `UTharrnWeaponComponent`; MSS's projectiles and lasers become effects only; ammunition, fire rate and spread from `DT_Weapons`; MSS's HUD shows Tharrn's ammunition and hit markers | `net_test.py` passes (C-04, C-05, C-06) with MSS weapons |
+| P3.14 | Owner play-test with MSS weapons | The owner's yes |
+
+## P3 Weapons: results (2026-10-16)
+
+- **Done:** P3.1 to P3.8 and P3.10 to P3.13, except what is listed under *Not built*. The weapons are
+  `UTharrnWeaponComponent` (C++): data from `Data/Weapons.csv` and `Data/WeaponRecoil.csv` (SMG A1, pistol PS-01,
+  heavy MR-01), shots predicted on the player's machine and decided on the server with hit zones (head ×2.5, torso
+  ×1, limbs ×0.75), armour (cloth 10 %, composite 30 %, alloy 50 %), falloff, spread from a shared seed, recoil
+  curves, damage through the ability system, bodies rewound to the moment of the shot, the shooter's view taken
+  within 15 cm; the heavy round flies on the server with gravity, the shooter sees a predicted copy. MSS gives the
+  look and handling: the upper-body layer on the sample's motion matching, its weapons (placeholders, D-22) drawn
+  from holsters on the thigh and back, reloads, recoil on the arms, its HUD showing Tharrn's ammunition. Targets on
+  the test range show health and armour and stand up again; a downed player comes back after 3 seconds.
+- **Checks:** 76 automation tests pass (new: `Tharrn.Combat.*` zone multipliers, armour, falloff, spread seed, body
+  zones, shot claims, recoil curve, projectile drop, shot checks, weapons from data, damage effect;
+  `Tharrn.Editor.Anim.*`, `Tharrn.Editor.BlueprintSetup.*`). Network test (50 ms each way, 1 % loss; listen and
+  dedicated server, 2 clients and a late joiner): every player shoots targets, one client shoots a running player,
+  every player sends a shot from 20 m up, one fires the heavy weapon aiming: 0 to 1.2 % of shots disagree on hit or
+  miss (C-04, limit 2 %), every made-up shot refused (C-05), the heavy round's flight time and drop within 0.001 s and
+  0.1 cm of its speed and gravity with only the server dealing damage (C-06). MSS test (`mss_test.py`, a listen
+  server and a client): the client draws the pistol, fires it once a press, reloads, swaps to the SMG and holds the
+  trigger (16 to 18 shots), every machine sees the same weapon in the hand, the server takes every shot. The block
+  course's position check now waits for the runner to stand (it had compared a player still sliding to a stop, where
+  its own machine is one trip ahead of the server).
+- **Found and fixed on the way:** the sample's chooser tables need its own animation Blueprint class (a copy broke
+  motion matching and the frame rate); MSS's HUD calls the server every frame on other players' copies; MSS's
+  weapons and HUD outlived a downed player; the first shot after a reload was refused; targets that had just gone
+  down; a projectile's straight steps under its arc; an editor tool's Blueprint compile collecting garbage mid-call,
+  which crashed the editor in full test runs (engineering guide, gotchas 48 to 67).
+- **Not built:** picking weapons up from the ground (MSS's interaction); the hip-fire turn; the grenade (G) is MSS's
+  own and does not hurt yet; two key clashes with the sample (middle mouse button, gamepad top button); Tharrn's own
+  weapon models (D-22); a first-person view (none of the packs has one).
+
+**Owner play-test (about 10 minutes):**
+1. Open Tharrn; the editor opens the test range. Press Play. The sign on the left lists the keys.
+2. Press X: the pistol comes out of the thigh holster into the right hand. Left mouse fires it, one shot a click;
+   the HUD at the bottom right counts the magazine down (12) and the spare rounds.
+3. Shoot the targets down the range (10, 25, 50, 100 m, each a different armour): the number above each one drops,
+   more for the head, less for the arms and legs, less again through better armour; at 0 it shows DOWN and stands
+   up again 3 seconds later. A white cross flashes on a hit.
+4. Press R to reload. Press F: the pistol goes back to the thigh and the SMG comes off the back; hold the left mouse
+   button for automatic fire. Hold the right mouse button to aim: the spread narrows and the camera comes in.
+5. Press F again for the heavy weapon: its round flies in an arc and lands a moment later.
+6. Run, sprint and slide with a weapon out, and try the blocks on the left: the movement should feel as before.
+7. Three dots next to Play: Number of Players 2, Net Mode "Play As Listen Server"; Play. Shoot the other player from
+   one window and watch the other: the same weapons, shots and health on both.
+8. Tell Claude what looks or feels wrong, and whether the weapons should move on to Tharrn's own models (D-22).
+
 ## Asked of the owner
 
-- Play-test P2 (steps above).
-- Download Easy Game UI Ultimate in the Epic Games Launcher, so it can be staged for P4 (D-21).
+- Play-test P2 and P3 (steps above).
+- Whether a first-person view belongs in Tharrn (none of the packs has one; D-15 is over the shoulder).
 - Review GDD 0.1 and the open questions, especially scope (OQ-07) and the tutorial creature (OQ-12); the
   proposals in deliverables 3, 5, 6, 7 and 9.
-- Fab packs for sci-fi armour, hand-held weapons, creatures and weapon animations (OQ-04).
+- Fab packs or models for creatures (OQ-04); weapons and armour are made for Tharrn (D-22).
 - Later: GitHub access to Unreal Engine source through the Epic account, for dedicated servers (OQ-02).
