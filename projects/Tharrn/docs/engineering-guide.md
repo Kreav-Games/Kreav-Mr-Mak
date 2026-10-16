@@ -23,14 +23,22 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 
 | Path | Contents |
 |---|---|
-| `Source/Tharrn/` | Template character (with an ability system component), controller, game mode; `World/TharrnSky`; `Dev/TharrnCaptureSubsystem` (review images, development builds only) |
-| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation (editor only) |
-| `Tools/Packs/` | `stage_packs.py`, `packs.csv` (Game Animation Sample, Sci-Fi Complete Bundle) |
-| `Tools/Checks/` | `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py` |
+| `Source/Tharrn/` | Template character (with an ability system component), controller (also the net probe's ping), game mode; `World/TharrnSky`; `Dev/TharrnCaptureSubsystem` (review images, development builds only) |
+| `Source/Tharrn/Data/` | Row types for the data tables (`FTharrnWeaponRow`, `FTharrnCreatureRow`, `FTharrnZoneRow`) and `UTharrnDataLibrary` (zone at a position, list parsing) |
+| `Source/Tharrn/Net/` | `ATharrnNetProbe`: replicated counter and ping for the network test (P1) |
+| `Source/Tharrn/Tests/` | Automation tests `Tharrn.Data.*`, `Tharrn.Net.*` |
+| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation; Tharrn's own MCP toolsets `TharrnEditor.TharrnBlueprintNotesToolset` (comment boxes: add, list, remove; node comments; variable and Blueprint descriptions) and `TharrnEditor.TharrnPlaySessionToolset` (play session worlds, late-joining client), registered by `UTharrnToolsetsSubsystem`; tests `Tharrn.Editor.*` (editor only) |
+| `Data/` | Game data source: CSV and JSON (its README) |
+| `Tools/Mcp/` | `tharrn_mcp.py`: the small MCP client every script below uses |
+| `Tools/Data/` | `import_data_tables.py`: CSV to data tables, read back and compared |
+| `Tools/TestRange/` | `build_test_range.py`: `BP_NetProbe`, `BP_TargetDummy`, map `L_TestRange` |
+| `Tools/Packs/` | `stage_packs.py`, `packs.csv` (Game Animation Sample, Sci-Fi Complete Bundle, the PCG biome framework from PCG Biomes Poplar Forest) |
+| `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py` |
+| `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange` |
 | `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README) |
 | `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) |
 | `Content/ThirdPerson`, `Characters`, `Input`, `LevelPrototyping` | Template content (tracked) |
-| `Content/ScifiOutpost`, Game Animation Sample folders | Staged packs (ignored) |
+| `Content/ScifiOutpost`, `Content/EasyBiomes`, Game Animation Sample folders | Staged packs (ignored) |
 | `AGENTS.md`, `CLAUDE.md`, `.mcp.json` | Agent rules for this repo; MCP entry for chats started here |
 
 Class prefix is `Tharrn` (`ATharrnCharacter`); the module is `Tharrn`; the log
@@ -49,6 +57,8 @@ $Proj = "D:\Tharrn\Tharrn.uproject"
 # Build the GAME target (works while the editor is open) and the EDITOR target (editor closed)
 & "$UE\Engine\Build\BatchFiles\Build.bat" Tharrn Win64 Development "-Project=$Proj" -WaitMutex
 & "$UE\Engine\Build\BatchFiles\Build.bat" TharrnEditor Win64 Development "-Project=$Proj" -WaitMutex
+# Shipping, the configuration players get (cooked builds only, D-03): build it before a module closes
+& "$UE\Engine\Build\BatchFiles\Build.bat" Tharrn Win64 Shipping "-Project=$Proj" -WaitMutex
 
 # Plugin check: no AI, MCP or editor-tool plugin can reach the game
 powershell -NoProfile -File D:\Tharrn\Tools\Checks\check_editor_only_plugins.ps1
@@ -62,6 +72,13 @@ powershell -NoProfile -File D:\Tharrn\Tools\Checks\measure_budget.ps1 -Map /Game
 
 # Packs (editor closed): stage, list sizes, or remove
 python D:\Tharrn\Tools\Packs\stage_packs.py [--pack SciFiBundle] [--dry-run] [--remove "<Pack>"]
+
+# With the editor open (they talk to Unreal MCP); each ends with RESULT ok or RESULT failed
+python D:\Tharrn\Tools\Checks\verify.py [--quick]                 # ladder steps 1-4: game build, plugins, data, tests, network
+python D:\Tharrn\Tools\Data\import_data_tables.py [Weapons]    # Data/*.csv -> /Game/Tharrn/Data
+python D:\Tharrn\Tools\Checks\run_tests.py [Tharrn.Data]       # automation tests, default every 'Tharrn' test
+python D:\Tharrn\Tools\TestRange\build_test_range.py            # test range map and its Blueprints
+python D:\Tharrn\Tools\Checks\net_test.py [seconds]            # network test; L_TestRange must be open
 ```
 
 Build output to check: `Result: Succeeded` and no `error` or new `warning C` lines. The NWIRO
@@ -97,11 +114,16 @@ loads MCP servers when it starts; one started before the editor needs a restart 
 3. Automation tests pass. **New behaviour needs a test** with the normal case and at least two
    failure cases.
 4. **Network test (D-04):** the feature works in PIE as **Listen Server with 2 clients** and as
-   **Client with a dedicated server** ("Play as Client", run under one process off): state changes on
-   the server only, clients see the same result, a late-joining client sees the current state.
+   **Client with a dedicated server** ("Play as Client"), with simulated latency and loss: state
+   changes on the server only, clients see the same result, a late-joining client sees the current
+   state. `Tools/Checks/net_test.py` does this for the net probe (50 ms each way, 1 % loss, a third
+   client joining halfway); a new feature adds its own `[TH...]` log lines and checks in the same way.
 5. World or rendering work: the protocol's budget table and Verification block
    (`measure_budget.ps1`, `stat unit`, `stat gpu`, `r.Nanite.Visualize Overdraw`).
-6. Owner play-test with exact steps and expected results. The owner's yes closes the module.
+6. Owner play-test with exact steps and expected results, only for what the owner can see or feel; the test
+   map itself says what to try (a sign with the controls and the checks). The owner's yes closes the module.
+   A module with nothing to play closes on the automated checks: P1's play-test asked the owner to read
+   network counters, and the owner, running around the test range, found nothing to test (2026-10-16).
 7. Commit only with the owner's approval; update the README, the [session log](session-log.md) and
    the [decision log](decisions.md).
 
@@ -198,6 +220,9 @@ closed: an open editor once took 96 % of the GPU.
 21. Windows PowerShell 5.1 reads BOM-less files as ANSI: use `-Encoding UTF8` or
     `[IO.File]::ReadAllText`; prefer Python for text edits.
 22. `Select-String` takes the pattern first unless named: write `-Path` and `-Pattern`.
+    In Claude Code's Bash tool a double backslash inside a heredoc reaches the program as one, so a Python edit
+    of `D:\\Tharrn\\Tools` can turn `\\t` or `\\v` into a control character. Put such edits in a script file
+    (raw strings), then scan for control characters.
 23. The launcher downloads into `VaultCache\<pack>\stage`, then moves it to `data`; stage a pack only
     after `data` holds its files. Its `FabLibrary/listings_v1.db` holds `is_ai_forbidden` per listing.
 24. DLSS for an installed engine lives in `Engine/Plugins/Marketplace`; NVIDIA's binaries load only if
@@ -208,6 +233,44 @@ closed: an open editor once took 96 % of the GPU.
     `measure_budget.ps1` stops the process it started.
 26. The `SemanticSearchToolset` (part of `AllToolsets`) creates an OpenAI embedding provider at start.
     It sends nothing without an API key and a search request; do not configure a key without the owner.
+
+**Unreal MCP, tests and networking (learned in P1)**
+27. Tool arguments are camelCase (`assetPath`, `propertiesJson`, `graph`), including C++ tools whose
+    parameters are PascalCase in the header. Struct fields and data-table row fields are camelCase too.
+28. Blueprint notes: `BlueprintTools` cannot set node comments or variable descriptions, its comment box
+    did not work reliably, and `delete_node` fails on comment nodes (so a rebuild that ignores the error stacks
+    up boxes); use `TharrnEditor.TharrnBlueprintNotesToolset` (`RemoveCommentBox` to delete one).
+    `read_graph_dsl` marks a Blueprint unsaved: after reading a pack's Blueprints, save or restage them before
+    the editor closes.
+29. Graph DSL names (`BlueprintTools.write_graph_dsl`): a C++ Blueprint event is
+    `<Category>|Event<Name>` (`NetProbe|EventOnCounterChanged`); the construction script is
+    `(fn ConstructionScript () ...)`; a component getter is `Variables|Default|Get<Component>`; a variable
+    in a category is `Variables|<Category>|Get<Name>`.
+30. Before closing the editor, save through MCP (`AssetTools.find_assets`, `is_dirty`, `save_assets`),
+    then close its main window. An unsaved asset opens a "Save Content" dialog that blocks the close.
+    Closing and reopening the editor needs the owner's permission (game repo `AGENTS.md`).
+31. Play settings are `ConfigSettingsToolset` container `Editor`, category `LevelEditor`, section `PlayIn`
+    (`playNetMode`, `playNumberOfClients`, `runUnderOneProcess`, `networkEmulationSettings`). They are
+    saved per user; a script that changes them puts them back (`net_test.py` does).
+32. An editor in the background runs at about 3 frames a second ("Use less CPU when in background",
+    `Editor` / `General` / `EditorPerformanceSettings` `bThrottleCPUWhenNotForeground`). Every round trip
+    then reads about 1000 ms. `net_test.py` turns it off while it runs.
+33. A late-joining client runs `BeginPlay` on map-placed actors with the map's values, before the
+    server's arrive. Show or log a replicated value only after its `OnRep_` (use `REPNOTIFY_Always` so an
+    unchanged value still notifies), as `ATharrnNetProbe` does.
+34. Tests of a tool's errors call it through `FToolCallExceptionHandler::CaptureErrorsIn` with
+    `AddExpectedErrorPlain`. MCP's `RunTestsByFilter` then reports those script errors on the call itself;
+    `run_tests.py` reads the results with `GetTestResults`. Latent spec tests can start their own PIE
+    session (`GEditor->RequestPlaySession`), as `Tharrn.Editor.PlaySession` does.
+35. A data-table field called `Name` clashes with the row name: the CSV's `name` column imports into
+    `DisplayName`.
+36. The Android File Server plugin writes a `SecurityToken` into `Config/DefaultEngine.ini`. It is
+    switched off in `Tharrn.uproject` (PC only); still read `git diff Config/` before every commit.
+37. The editor opens `L_TestRange` (`EditorStartupMap`); the game's default map is still the template level.
+    Scripts that need a map check it with `SceneTools.get_current_level` first: PIE plays whatever is open.
+38. PCG Biomes Poplar Forest ships `M_PCGIcon` referring to a texture the pack does not contain
+    (`/Game/EasyBiomes/Textures/Icons/Thumbnails/A_Logo`), so the editor logs one Load Errors entry at start.
+    Harmless: an editor-only icon material falls back to the default texture.
 
 ## 8. Working as two agents
 

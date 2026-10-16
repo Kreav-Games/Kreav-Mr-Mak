@@ -1,9 +1,5 @@
-# Working data (drafts of deliverables 2, 4–8)
+# Working data
 
-Corrected copies of the owner's package (`../source/owner-package-2026-10-15/`, review in `../docs/reviews/`), made 2026-10-15:
-valid CSV (commas, proper quoting) and JSON (no comments, no BOM), the direction's key names. Zone bounds
-are scaled by 0.4375 to about 75 km² (D-14) and are in metres from the world origin; the Skitterjaw is a
-Crystalline Desert creature (D-16). Units: weapon damage per hit, fire rate per minute, range in metres,
-weight in kg, projectile speed in m/s; creature HP in hit points, aggro radius in metres, resistances as
-damage reduction fractions. These files move into the game repo's `Data/` when the data pipeline (P1) is
-built; edit them here until then.
+Moved to the game repo on 2026-10-15: `D:\Tharrn\Data\` is now the only source of Tharrn's data (weapons,
+creatures, zones, presets, the draft dungeon, the HUD layout); see its README. The owner's original package
+is in `../source/owner-package-2026-10-15/`.

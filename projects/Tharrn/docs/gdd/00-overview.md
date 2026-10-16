@@ -15,7 +15,7 @@ deep RPG dungeons and quests, and flagged PvP hotspots, in a world built to grow
 | Spec | Value |
 |---|---|
 | Genre | Sci-fi action-RPG / survival / shooter; single player and multiplayer |
-| World | **About 75 km²** (D-14; the direction said 16–25 km²), streamed (World Partition); on foot ≈ 45 min across, vehicles ≈ 15–20 min (targets, OQ-13) |
+| World | **About 75 km²** (D-14; the direction said 16–25 km²), streamed (World Partition); on foot ≈ 45 min across, vehicles ≈ 15–20 min (targets, D-19) |
 | Camera | Third person over the shoulder with aim-down-sights (D-15) |
 | Progression | Level cap 60; talent trees Combat, Survival, Tech |
 | PvP | Flagged on entry to designated zones |
@@ -68,14 +68,14 @@ whole document is a studio's 18-month plan; it is re-planned after the Prototype
 |---|---|---|
 | 1 | Full GDD, modularized | **This folder, 0.1** |
 | 2 | Zone definition CSV: full map with PvP flags and spawn timers | Owner's draft: 15 zones; scale to settle (GDD 07) |
-| 3 | Flagging state pseudocode, expanded | Owner's keys and RPCs (GDD 05); pseudocode to write |
+| 3 | Flagging state pseudocode, expanded | **[Version 0.1](../deliverables/03-flagging-state.md)**: state machine, damage check, death, proxy, extraction, tests; proposals marked for the owner |
 | 4 | MetaHuman JSON schema and 12 presets | Schema and 1 preset (GDD 01) |
-| 5 | Creature CSV roster (30 entries) | 3 entries (GDD 08) |
-| 6 | Dungeon template pack | 1 draft dungeon (GDD 09) |
-| 7 | Weapon CSV and attachment table | 3 weapons (GDD 02); attachments to write |
-| 8 | HUD JSON and PNG icon pack | Layout (GDD 10); icons not drawn |
-| 9 | Behaviour tree templates and blackboard keys | Skitterjaw outline (GDD 08) |
-| 10 | QA test matrix and acceptance criteria | 5 tests (GDD 12) |
+| 5 | Creature CSV roster (30 entries) | 3 entries (GDD 08); **[proposal 0.1](../deliverables/05-creature-roster.md)** completes the first six and adds weak points and stagger |
+| 6 | Dungeon template pack | 1 draft dungeon (GDD 09); **[proposal 0.1](../deliverables/06-dungeon-templates.md)**: six room templates, 3 puzzle and 2 trap archetypes, generator rules |
+| 7 | Weapon CSV and attachment table | 3 weapons (GDD 02); **[proposal 0.1](../deliverables/07-weapons-and-attachments.md)**: pistol, heavy and energy weapons, handling columns, recoil curve, 11 attachments |
+| 8 | HUD JSON and PNG icon pack | Layout (GDD 10); **[12 placeholder icons](../deliverables/08-hud.md)** (PNG and SVG) |
+| 9 | Behaviour tree templates and blackboard keys | **[Version 0.1](../deliverables/09-creature-behaviour.md)**: shared template; Skitterjaw, Phase Warden, Grav Raptor in full, the other three outlined; proposals marked |
+| 10 | QA test matrix and acceptance criteria | **[Version 0.1](../deliverables/10-qa-matrix.md)**: 50 cases by module; P1's pass |
 
 The owner's scaffold package (`../../source/owner-package-2026-10-15/`) holds these drafts; see its
 [review](../reviews/owner-package-2026-10-15.md).

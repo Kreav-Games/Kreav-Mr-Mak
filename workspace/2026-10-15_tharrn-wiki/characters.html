@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-mak-report="document">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tharrn Wiki · Characters and HUD</title>
+<link rel="stylesheet" href="../_shared/report.css">
+<link rel="stylesheet" href="../_shared/examples.css">
+<link rel="stylesheet" href="wiki.css">
+<script defer src="../_shared/report.js"></script>
+</head>
+<body>
+<main class="container">
+<div class="eyebrow">Tharrn Wiki · Characters and HUD</div>
+<h1>Characters and HUD</h1>
+<p class="subtitle">Who you play, how you make them, and what you see on screen.</p>
+<h2>Creating your character</h2>
+<p><span class="tag tag-design">Designed</span> Every face is a MetaHuman.</p>
+<p class="chain"><span class="chain-step">Preset</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Face</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Body</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Implants and scars</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Voice</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Origin</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Loadout</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Confirm</span></p><table><thead><tr><th>Step</th><th>Choices</th></tr></thead><tbody><tr><td>Preset</td><td>12 curated MetaHumans with a balanced range of looks</td></tr><tr><td>Face</td><td>Sliders for jaw, brow, nose, cheeks and lips; iris colour, sclera tint, small scars; live preview with breathing and eye movement</td></tr><tr><td>Body</td><td>Height within ±15 %, musculature, limb length, posture</td></tr><tr><td>Implants and scars</td><td>Alien biotech: glowing nodes, plates under the skin; tattoos</td></tr><tr><td>Voice</td><td>8 voice packs with lip sync; pitch</td></tr><tr><td>Origin</td><td>Sets a starting talent point, a unique starter item and a three-step intro quest</td></tr><tr><td>Loadout</td><td>A weapon type and a survival tool</td></tr></tbody></table>
+<p class="wiki-note"><span class="tag tag-open">Open question</span> The direction asks for 120 face sliders while you play. MetaHuman creation is an
+editor tool, so the prototype starts with the presets plus body, materials, tattoos and implants; changing faces
+in the game is its own research step (OQ-03).</p>
+
+<h2>Origins</h2>
+<div class="grid-cards">
+<div class="mak-card"><h3>Scientist</h3></div><div class="mak-card"><h3>Soldier</h3></div>
+<div class="mak-card"><h3>Scavenger</h3></div><div class="mak-card"><h3>Corporate Envoy</h3></div>
+</div>
+<p>Each gives a starting talent point, a starter item and an intro quest; the details are still to be written.</p>
+
+<h2>The first preset</h2>
+<p>One of the twelve presets exists as data so far.</p>
+<table class="kv"><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Name</td><td>Ari Voss</td></tr><tr><td>Origin</td><td>Soldier</td></tr><tr><td>Height</td><td>1.82 m</td></tr><tr><td>Implant</td><td><code>imp_neural_node_01</code>, colour #00FFCC, glow 0.6</td></tr><tr><td>Starter weapon</td><td><code>AR01</code></td></tr><tr><td>Starter tool</td><td><code>field_scanner</code></td></tr><tr><td>Notes</td><td>Balanced soldier preset with slight jaw and high cheekbones.</td></tr></tbody></table>
+
+<h2>The HUD</h2>
+<p>Layout for a 1920 × 1080 screen; it scales with resolution.</p>
+<div class="hud-mock" role="img" aria-label="HUD layout: buffs top left, compass top centre, minimap top right, crosshair in the centre, vitals bottom left, weapon bottom centre, quick-use wheel bottom right">
+<div class="tl"><strong>Top left</strong>Name, level, buffs and debuffs</div>
+<div class="tc"><strong>Top centre</strong>Compass (800x48) with PvP and objective markers; notifications</div>
+<div class="tr"><strong>Top right</strong>Minimap (240x240), extraction points, flagged areas</div>
+<div class="cc"><strong>Centre</strong>Dynamic crosshair (default, precision, suppressed), hit markers, damage numbers, weak-point indicators</div>
+<div class="bl"><strong>Bottom left</strong>Vitals: health, stamina, hunger, hydration, temp, neural</div>
+<div class="bc"><strong>Bottom centre</strong>Weapon (420x120): ammo, fire mode, attachments</div>
+<div class="br"><strong>Bottom right</strong>Quick-use wheel, 4 slots with cooldowns</div>
+</div>
+
+<p>The death screen lists what you dropped, the respawn options, a recovery timer and a ping for teammates.</p>
+
+<h2>HUD icons</h2>
+<p><span class="tag tag-design">Designed</span> Twelve placeholder line icons for the Prototype HUD, white on a clear background so the HUD can
+tint them; shown here on a dark tile. Select one to see it full size; the PNG link under each is the transparent
+file the game uses. The art direction is still the owner's.</p>
+<div class="icon-grid">
+<figure><img src="icons/health_preview.png" alt="health HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>health · <a href="icons/health.png" download>PNG</a></figcaption></figure><figure><img src="icons/stamina_preview.png" alt="stamina HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>stamina · <a href="icons/stamina.png" download>PNG</a></figcaption></figure><figure><img src="icons/hunger_preview.png" alt="hunger HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>hunger · <a href="icons/hunger.png" download>PNG</a></figcaption></figure><figure><img src="icons/hydration_preview.png" alt="hydration HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>hydration · <a href="icons/hydration.png" download>PNG</a></figcaption></figure><figure><img src="icons/temperature_preview.png" alt="temperature HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>temperature · <a href="icons/temperature.png" download>PNG</a></figcaption></figure><figure><img src="icons/neural_preview.png" alt="neural HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>neural · <a href="icons/neural.png" download>PNG</a></figcaption></figure><figure><img src="icons/weapon_preview.png" alt="weapon HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>weapon · <a href="icons/weapon.png" download>PNG</a></figcaption></figure><figure><img src="icons/ammo_preview.png" alt="ammo HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>ammo · <a href="icons/ammo.png" download>PNG</a></figcaption></figure><figure><img src="icons/crosshair_preview.png" alt="crosshair HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>crosshair · <a href="icons/crosshair.png" download>PNG</a></figcaption></figure><figure><img src="icons/compass_preview.png" alt="compass HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>compass · <a href="icons/compass.png" download>PNG</a></figcaption></figure><figure><img src="icons/minimap_preview.png" alt="minimap HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>minimap · <a href="icons/minimap.png" download>PNG</a></figcaption></figure><figure><img src="icons/quickwheel_preview.png" alt="quickwheel HUD icon on a dark tile" loading="lazy" width="256" height="256"><figcaption>quickwheel · <a href="icons/quickwheel.png" download>PNG</a></figcaption></figure>
+</div>
+
+<h2>Menus</h2>
+<ul>
+<li><strong>Inventory:</strong> a grid with a weight limit, quick-craft recipes and filters.</li>
+<li><strong>Map:</strong> layers for PvP zones, resource nodes and dungeon entrances; several zoom levels.</li>
+<li><strong>Quest log:</strong> objectives, stages, lore entries and map markers.</li>
+<li><strong>Loading screens:</strong> tips, the status of PvP hotspots, your last base and active quests, with
+MetaHuman close-ups.</li>
+<li><strong>Accessibility:</strong> UI scale, colour-blind modes, subtitle sizes, controller remapping; offered at
+first launch.</li>
+</ul>
+<footer class="wiki-foot">Sources: GDD 0.1 modules 01 and 10; the preset from <code>Data/MetaHumanPresets.json</code> and the layout from <code>Data/UI/HudLayout.json</code>.</footer>
+</main>
+</body>
+</html>

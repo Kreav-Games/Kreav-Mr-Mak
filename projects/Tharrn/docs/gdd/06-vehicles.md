@@ -13,5 +13,6 @@
   for the hoverbike, rebuilt for replication (vehicle movement on the server with client prediction).
 - At about 75 km² (D-14) the map is about 13 km across: ≈ 45 minutes on foot means about 5 m/s average
   (mostly running), and the hoverbike's 15–20 minutes about 11–15 m/s. Movement and vehicle speeds are
-  tuned against these targets (OQ-13).
+  tuned against these targets (D-19). The Game Animation Sample's character runs at 5 m/s (walk 2,
+  sprint 7, crouch 2.25), which already crosses 13.4 km in 44.7 minutes in a straight line.
 - Alpha milestone in the direction's roadmap; not in the Prototype.

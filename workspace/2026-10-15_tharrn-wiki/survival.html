@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-mak-report="document">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tharrn Wiki · Survival and building</title>
+<link rel="stylesheet" href="../_shared/report.css">
+<link rel="stylesheet" href="../_shared/examples.css">
+<link rel="stylesheet" href="wiki.css">
+<script defer src="../_shared/report.js"></script>
+</head>
+<body>
+<main class="container">
+<div class="eyebrow">Tharrn Wiki · Survival and building</div>
+<h1>Survival and building</h1>
+<p class="subtitle">Vitals that change how you fight, resources worth the risk, and a base to hold.</p>
+<h2>Vitals</h2>
+<p><span class="tag tag-design">Designed</span> Five vitals change how you fight, not only whether you live.</p>
+<table><thead><tr><th>Vital</th><th>Range</th><th>What it does</th></tr></thead><tbody><tr><td><strong>Hunger</strong></td><td>0–100</td><td>Below 30, stamina recovers 40 % slower</td></tr><tr><td><strong>Hydration</strong></td><td>0–100</td><td>Below 30, aim sway grows by 25 %</td></tr><tr><td><strong>Temperature</strong></td><td>Comfort range set by your armour</td><td>Outside it you take damage over time and move slower</td></tr><tr><td><strong>Radiation</strong></td><td>Builds up</td><td>Past thresholds it lowers your stats for a long time; needs detox</td></tr><tr><td><strong>Neural stability</strong></td><td>0–100</td><td>Low values bring hallucinations (visual noise, phantom enemies) and aim jitter</td></tr></tbody></table>
+
+<h2>The formulas</h2>
+<pre><code>StaminaRegen = BaseRegen × (1 − HungerPenalty) × (1 − TempPenalty)
+AimSway      = BaseSway × (1 + (30 − Hydration)/100 × 0.8 + (100 − Neural)/100 × 0.5)</code></pre>
+<p class="wiki-note"><span class="tag tag-open">Open question</span> As written, a well-hydrated player sways less than normal (at full hydration and
+neural stability the sway multiplier is 0.44). If thirst should only ever add sway, the hydration term becomes
+<code>max(0, 30 − Hydration)</code>. To confirm with the owner when vitals are built.</p>
+
+<h2>Resources</h2>
+<p class="chain"><span class="chain-step">Organic</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Mineral</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Alloy</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Biotech core</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Energy crystal</span></p>
+<p>Resource nodes grow back on timers (each zone has its own, see World and zones). Rare nodes appear in flagged PvP
+zones.</p>
+
+<h2>Base building</h2>
+<table><thead><tr><th>Part</th><th>How it works</th></tr></thead><tbody><tr><td>Modules</td><td>Foundation, wall, door, turret, generator, filtration, crafting bench</td></tr><tr><td>Power</td><td>Generators make energy, devices use it; too many devices on one network overloads it and it shuts down</td></tr><tr><td>Decay</td><td>Structures nobody maintains decay, by default 1 % a day</td></tr><tr><td>Claims</td><td>Plots in PvP zones can be claimed, with timers and upkeep costs</td></tr></tbody></table>
+<p>The building pieces come from the Sci-Fi Complete Bundle's modular outpost kit. Placing shows a ghost preview that
+snaps to other pieces; the server checks every placement.</p>
+
+<h2>Inventory and crafting</h2>
+<ul>
+<li>A grid inventory with a weight limit, filters by type and quick-craft recipes.</li>
+<li>You ask to craft; the server checks the recipe and your inventory, then changes both. Crafts wait in a
+queue.</li>
+</ul>
+
+<h2>The first milestone</h2>
+<p>Hunger, hydration and temperature working online and driving the two formulas (with tests at the thresholds);
+crafting a bandage and ammo; a foundation, a generator and a bench that two players can place and both see.</p>
+<footer class="wiki-foot">Source: GDD 0.1 module 03.</footer>
+</main>
+</body>
+</html>

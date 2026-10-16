@@ -51,4 +51,4 @@
 
 Adds a centred **dynamic crosshair with variants** `default`, `precision`, `suppressed`. Twelve HUD icons
 are planned at 256 × 256 PNG (ammo, compass, crosshair, health, hunger, hydration, minimap, neural,
-quick wheel, stamina, temperature, weapon); none drawn yet.
+quick wheel, stamina, temperature, weapon); placeholders drawn in [deliverable 8](../deliverables/08-hud.md).

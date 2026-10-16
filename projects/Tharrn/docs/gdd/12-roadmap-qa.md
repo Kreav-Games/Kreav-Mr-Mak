@@ -41,7 +41,7 @@ day-1/7/30 retention, server load.
   project; the engineering guide's verification ladder applies to all (D-06).
 - "95th-percentile player test" needs play-testers beyond the owner; until then the owner's play-test and
   measured data (desync, frame times) stand in.
-- The full test matrix is deliverable 10.
+- The full test matrix is deliverable 10: [deliverables/10-qa-matrix.md](../deliverables/10-qa-matrix.md).
 
 ## From the owner's package ([owner's package review](../reviews/owner-package-2026-10-15.md))
 

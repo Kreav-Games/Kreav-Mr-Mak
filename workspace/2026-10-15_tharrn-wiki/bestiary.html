@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-mak-report="document">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tharrn Wiki · Bestiary</title>
+<link rel="stylesheet" href="../_shared/report.css">
+<link rel="stylesheet" href="../_shared/examples.css">
+<link rel="stylesheet" href="wiki.css">
+<script defer src="../_shared/report.js"></script>
+</head>
+<body>
+<main class="container">
+<div class="eyebrow">Tharrn Wiki · Bestiary</div>
+<h1>Bestiary</h1>
+<p class="subtitle">The creatures designed so far.</p>
+<p><span class="tag tag-design">Designed</span> The direction names six creatures; three have full stats so far. No creature has art or animation yet: they
+need concept art, meshes with four levels of detail, hit-box maps, sounds, effects, behaviour and animation sets
+(idle, walk, run, attacks, stagger, death, a special move).</p>
+<div class="grid-cards creatures">
+<div class="mak-card creature"><p class="card-num">CR001</p><h3>Skitterjaw</h3><p><strong>Small pack hunter. Flanks you.</strong></p>
+<p class="wiki-note">Crystalline Desert (D-16)</p><table class="kv"><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Size</td><td>Small</td></tr><tr><td>Health</td><td>120</td></tr><tr><td>Armour</td><td>Light (cloth, 10 % less damage)</td></tr><tr><td>Resists</td><td>acid 20 %, fire 10 %</td></tr><tr><td>Notices you at</td><td>12 m</td></tr><tr><td>Drops</td><td><code>organic_fiber</code>, <code>teeth</code></td></tr><tr><td>Behaviour</td><td>Pack hunter; flanks player</td></tr></tbody></table><p>Behaviour outline: patrol → detect → chase → flank → pounce.</p></div><div class="mak-card creature"><p class="card-num">CR002</p><h3>Lumivine Colossus</h3><p><strong>Large flora-beast. Roots in place and attacks with roots; bursts spores.</strong></p>
+<p class="wiki-note">Fungal Forest; spawns in Lumivine Grove (Z005)</p><table class="kv"><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Size</td><td>Large</td></tr><tr><td>Health</td><td>420</td></tr><tr><td>Armour</td><td>Heavy (alloy, 50 % less damage)</td></tr><tr><td>Resists</td><td>poison 50 %, fire 20 %</td></tr><tr><td>Notices you at</td><td>20 m</td></tr><tr><td>Drops</td><td><code>biolum_core</code>, <code>sap</code></td></tr><tr><td>Behaviour</td><td>Stationary root attacks; spore burst</td></tr></tbody></table></div><div class="mak-card creature"><p class="card-num">CR003</p><h3>Phase Warden</h3><p><strong>Medium, sentient. Teleports to dodge and raises a shield bubble.</strong></p>
+<p class="wiki-note">Crystalline Desert</p><table class="kv"><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Size</td><td>Medium</td></tr><tr><td>Health</td><td>260</td></tr><tr><td>Armour</td><td>Medium (composite, 30 % less damage)</td></tr><tr><td>Resists</td><td>energy 40 %</td></tr><tr><td>Notices you at</td><td>18 m</td></tr><tr><td>Drops</td><td><code>alloy_shard</code></td></tr><tr><td>Behaviour</td><td>Teleport dodge; shield bubble</td></tr></tbody></table></div><div class="mak-card creature"><p class="card-num">CR004</p><h3>Grav Raptor</h3><p><strong>Aerial. Dives on you from above.</strong></p>
+<p class="wiki-note">Crystalline Desert</p><table class="kv"><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Health</td><td>180</td></tr><tr><td>Drops</td><td><code>talon_membrane</code></td></tr></tbody></table></div><div class="mak-card creature"><p class="card-num">CR005</p><h3>Echo Swarm</h3><p><strong>A swarm that disorients you with sound.</strong></p>
+<p class="wiki-note">Subterranean Caverns; swarm events in Echo Caverns (Z009)</p><table class="kv"><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Health</td><td>300, shared by the swarm</td></tr><tr><td>Drops</td><td><code>swarm_gland</code></td></tr></tbody></table></div><div class="mak-card creature"><p class="card-num">CR006</p><h3>Apex Titan</h3><p><strong>A multi-phase boss.</strong></p>
+<p class="wiki-note">Boss of the dungeon Ruins of the First Signal</p><table class="kv"><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Health</td><td>4200</td></tr><tr><td>Drops</td><td><code>boss_blueprint</code></td></tr></tbody></table></div>
+</div>
+
+<h2>Armour classes</h2>
+<table><thead><tr><th>Class</th><th>Material</th><th>Damage reduction</th></tr></thead><tbody><tr><td>Light</td><td>Cloth</td><td>10 %</td></tr><tr><td>Medium</td><td>Composite</td><td>30 %</td></tr><tr><td>Heavy</td><td>Alloy</td><td>50 %</td></tr></tbody></table>
+<p>Resistances reduce one kind of damage (acid, fire, poison, energy) by the fraction shown.</p>
+
+<h2>How they will be built</h2>
+<ul>
+<li>Behaviour runs on the server only (Unreal's StateTree, with perception); your game receives their movement and
+animations.</li>
+<li>Every bone has a hit box; weak points are tagged hit boxes with their own damage multiplier.</li>
+<li>The first three to build are the Skitterjaw, the Phase Warden and the Grav Raptor: a pack, a teleporter and a
+flyer, three different problems.</li>
+<li><span class="tag tag-open">Open question</span> Which creature the coastal tutorial fights first (OQ-12).</li>
+</ul>
+<footer class="wiki-foot">Sources: GDD 0.1 module 08; decision D-16; stats from the game's <code>Data/Creatures.csv</code>.</footer>
+</main>
+</body>
+</html>

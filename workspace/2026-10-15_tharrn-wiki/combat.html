@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" data-mak-report="document">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tharrn Wiki · Combat and arsenal</title>
+<link rel="stylesheet" href="../_shared/report.css">
+<link rel="stylesheet" href="../_shared/examples.css">
+<link rel="stylesheet" href="wiki.css">
+<script defer src="../_shared/report.js"></script>
+</head>
+<body>
+<main class="container">
+<div class="eyebrow">Tharrn Wiki · Combat and arsenal</div>
+<h1>Combat and arsenal</h1>
+<p class="subtitle">Precise third-person shooting that the server checks: damage, armour, the weapons and how you move.</p>
+<h2>How a shot works online</h2>
+<p><span class="tag tag-design">Designed</span> Your game fires at once, so it feels instant: muzzle flash, recoil, tracer and a predicted hit marker. The
+server then checks the shot against where the targets were at the moment you fired, and only the server applies
+damage. Heavy rounds are real projectiles with drop and travel time, simulated on the server.</p>
+
+<h2>Damage</h2>
+<div class="grid-2 two">
+<table><thead><tr><th>Hit</th><th>Multiplier</th></tr></thead><tbody><tr><td>Head</td><td>× 2.5</td></tr><tr><td>Torso</td><td>× 1.0</td></tr><tr><td>Limb</td><td>× 0.75</td></tr></tbody></table><table><thead><tr><th>Armour</th><th>Damage reduction</th></tr></thead><tbody><tr><td>Cloth</td><td>10 %</td></tr><tr><td>Composite</td><td>30 %</td></tr><tr><td>Alloy</td><td>50 %</td></tr></tbody></table>
+</div>
+<p>Weak points on creatures add their own multipliers, and each enemy has a stagger meter: fill it and the enemy
+staggers, which interrupts its attack.</p>
+
+<h2>Fire modes</h2>
+<table><thead><tr><th>Mode</th><th>Weapons</th><th>How it hits</th></tr></thead><tbody><tr><td>Hitscan</td><td>SMG, pistol, rifle</td><td>Instantly along the aim line</td></tr><tr><td>Projectile</td><td>Heavy rounds</td><td>A travelling round with gravity drop</td></tr><tr><td>Beam or charge</td><td>Energy weapons</td><td>A continuous beam, or a shot you charge up</td></tr></tbody></table>
+
+<h2>Weapons</h2>
+<p>The weapons with data so far. Damage is per hit; fire rate is rounds per minute; damage per second is damage ×
+fire rate ÷ 60, on the torso and before armour; weight is kg; range is metres.</p>
+<table><thead><tr><th>ID</th><th>Weapon</th><th>Type</th><th>Damage</th><th>Fire rate</th><th>Damage / s</th><th>Magazine</th><th>Weight</th><th>Range</th><th>Hit</th><th>Role</th></tr></thead><tbody><tr><td><code>AR01</code></td><td><strong>Assault Rifle AR-01</strong></td><td>Ballistic</td><td>28</td><td>600</td><td>280</td><td>30</td><td>3.2</td><td>600</td><td>hitscan</td><td>Balanced mid-range rifle</td></tr><tr><td><code>SMG_A1</code></td><td><strong>SMG A1</strong></td><td>Ballistic</td><td>16</td><td>900</td><td>240</td><td>40</td><td>2.1</td><td>200</td><td>hitscan</td><td>High fire rate close quarters</td></tr><tr><td><code>SG01</code></td><td><strong>Shotgun SG-01</strong></td><td>Spread</td><td>120</td><td>70</td><td>140</td><td>8</td><td>4.5</td><td>30</td><td>projectile</td><td>High burst close-range</td></tr></tbody></table>
+<p class="wiki-note"><span class="tag tag-open">Open question</span> The shotgun SG-01 is stored as a projectile with a speed of 0; the GDD proposes hitscan
+pellets. Still missing for the fire modes above: a pistol, a heavy projectile weapon and an energy weapon.</p>
+
+<h2>Accuracy and recoil</h2>
+<ul>
+<li><strong>Recoil</strong> is a curve per weapon: how far the sight kicks up and sideways over time, and how it
+recovers.</li>
+<li><strong>Spread</strong> has three numbers per weapon: from the hip, aiming down sights, and a penalty for
+moving.</li>
+<li><strong>Aim assist</strong> on controllers only: a gentle pull within 0.6° of a target, strength 0.15, both
+adjustable.</li>
+<li><strong>Vitals</strong> change your aim: thirst and low neural stability add sway (see Survival and building).</li>
+</ul>
+
+<h2>Attachments</h2>
+<p>Five slots: <strong>barrel, stock, magazine, optic and core</strong>. Attachments change recoil, accuracy,
+handling and weight, come in rarities, and need blueprints.</p>
+
+<h2>Movement</h2>
+<p class="chain"><span class="chain-step">Sprint</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Slide</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Mantle</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Jetpack burst (uses stamina)</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Grapple tether</span></p>
+<p>Your armour changes how you move. Slide and mantle come first; the jetpack and the grapple come later.</p>
+
+<h2>The first milestone</h2>
+<p>An SMG, a pistol and one heavy projectile weapon from the data; recoil and spread you can read on the test range;
+the damage multipliers and armour covered by automated tests; two players at 100 ms of lag hitting what they aim at
+(under 2 % disagreement between them); stagger and one weak point on the first creature.</p>
+<footer class="wiki-foot">Sources: GDD 0.1 module 02; weapons from the game's <code>Data/Weapons.csv</code>.</footer>
+</main>
+</body>
+</html>

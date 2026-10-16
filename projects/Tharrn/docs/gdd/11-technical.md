@@ -16,7 +16,7 @@
   aggressive LOD for distant players.
 - *Build note:* in UE 5.8 MetaHuman creation is inside the editor and characters are assembled there;
   facial animation can come from MetaHuman Animator. Runtime face sculpting at the direction's scale is
-  OQ-03. The Game Animation Sample in the project already brings MetaHuman content.
+  OQ-03: the Creator's face technology is editor-only in 5.8.3; Mutable and DNACalib are the runtime routes. The Game Animation Sample in the project already brings MetaHuman content.
 
 ## Data tables
 

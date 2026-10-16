@@ -1,0 +1,78 @@
+/* Tharrn Wiki: additions to the shared report styles. Each colour has a light-theme rule below. */
+.lead{font-size:18px;max-width:70ch}
+.wiki-note{font-size:13px;color:var(--mak-muted)}
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.03em;line-height:1.5;padding:1px 8px;border-radius:999px;border:1px solid;vertical-align:1px;white-space:nowrap;margin-right:4px}
+.tag-built{color:#7fdcae;border-color:#7fdcae66;background:#7fdcae14}
+.tag-design{color:#c9c1d2;border-color:#ffffff2a;background:#ffffff08}
+.tag-open{color:#f3c76b;border-color:#f3c76b66;background:#f3c76b14}
+.tag-pvp{color:#ff8fa3;border-color:#ff8fa366;background:#ff8fa314}
+.stats{margin:24px 0}
+.stats strong{font-size:26px;line-height:1.2}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px;margin:18px 0}
+.grid-cards>.mak-card{margin:0}
+.grid-cards h3{margin:0 0 6px}
+.grid-cards p{margin:6px 0}
+.creatures{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.creature .card-num{margin:0;font-size:12px;letter-spacing:.08em}
+html[data-mak-report=document] table.kv td code{white-space:normal;overflow-wrap:anywhere}
+.creature table{margin-top:10px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 18px}
+.chain-step{padding:5px 12px;border:1px solid var(--mak-border);border-radius:8px;background:#ffffff06;line-height:1.5;font-size:14px}
+.chain-arrow{color:var(--mak-muted)}
+/* Wrap table text between words only, so a wide table scrolls inside its frame instead of splitting words. */
+html[data-mak-report=document] :is(th,td){overflow-wrap:break-word}
+html[data-mak-report=document] td code{overflow-wrap:normal;white-space:nowrap}
+table.kv th:empty{display:none}
+table.kv thead{display:none}
+table.kv td:first-child{color:var(--mak-muted);white-space:nowrap;width:1%}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.map-figure{margin:12px 0 8px;padding:14px;border:1px solid var(--mak-border);border-radius:12px;background:#0c0d11}
+.zone-map{display:block;width:100%;height:auto;color:inherit}
+.zone-map .grid{stroke:currentColor;stroke-opacity:.12;stroke-width:.012}
+.zone-map .cell{stroke:currentColor;stroke-opacity:.45;stroke-width:.02}
+.zone-map .SafeHub,.legend .SafeHub{fill:#3fbf7f;fill-opacity:.32;background:#3fbf7f80}
+.zone-map .OpenPvE,.legend .OpenPvE{fill:#6b8afd;fill-opacity:.2;background:#6b8afd55}
+.zone-map .FlaggedPvP,.legend .FlaggedPvP{fill:#f0506e;fill-opacity:.36;background:#f0506e8c}
+.zone-map .BufferZone,.legend .BufferZone{fill:#f0b429;fill-opacity:.34;background:#f0b42985}
+.zone-map text{fill:currentColor}
+.zone-map .zid{font-size:.34px;font-weight:700}
+.zone-map .zname{font-size:.185px}
+.zone-map .zmeta{font-size:.16px;fill-opacity:.75}
+.zone-map .axis{font-size:.19px;fill-opacity:.55}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;list-style:none;padding:0;margin:12px 0 0;font-size:13px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:7px}
+.steps li{margin:8px 0}
+.hud-mock{display:grid;grid-template-columns:1fr 1.3fr 1fr;grid-template-areas:"tl tc tr" ". cc ." "bl bc br";gap:10px;padding:12px;border:1px solid var(--mak-border);border-radius:12px;background:#0c0d11;margin:14px 0}
+.hud-mock>div{border:1px dashed #ffffff2e;border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.5}
+.hud-mock strong{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mak-muted);margin-bottom:2px}
+.hud-mock .tl{grid-area:tl}.hud-mock .tc{grid-area:tc}.hud-mock .tr{grid-area:tr}.hud-mock .cc{grid-area:cc;text-align:center;margin:18px 0}
+.hud-mock .bl{grid-area:bl}.hud-mock .bc{grid-area:bc}.hud-mock .br{grid-area:br}
+.icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;margin:14px 0}
+.icon-grid figure{margin:0;padding:12px 10px 8px;border:1px solid var(--mak-border);border-radius:10px;background:#14161c;text-align:center}
+.icon-grid img{width:64px;height:64px;display:block;margin:0 auto}
+.icon-grid figcaption{font-size:12px;color:#b9b2c2;margin-top:6px}
+.wiki-foot{margin-top:52px;padding-top:16px;border-top:1px solid var(--mak-border);font-size:12px;color:var(--mak-muted);line-height:1.7}
+@media(max-width:680px){
+.two{grid-template-columns:1fr}
+.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lead{font-size:16.5px}
+.zone-map .zname,.zone-map .zmeta{display:none}
+.zone-map .zid{font-size:.52px}
+.zone-map .axis{font-size:.3px}
+.zone-map .ytitle{display:none}
+.map-figure{padding:8px}
+.hud-mock{grid-template-columns:1fr;grid-template-areas:"tl" "tc" "tr" "cc" "bl" "bc" "br"}
+.hud-mock .cc{margin:0;text-align:left}
+}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-built{color:#16794a!important;border-color:#16794a59;background:#16794a12}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-design{color:#505b70!important;border-color:#202a4033;background:#202a4008}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-open{color:#8a5a00!important;border-color:#b07a0059;background:#b07a0012}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-pvp{color:#b3263f!important;border-color:#b3263f59;background:#b3263f10}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.chain-step){background:#f5f6f9;border-color:#202a4026}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.map-figure,.hud-mock){background:#f7f8fb;border-color:#202a4026}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .hud-mock>div{border-color:#202a4040}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.wiki-foot,.wiki-note,.chain-arrow,table.kv td:first-child,.hud-mock strong){color:#505b70!important;border-color:#202a4026}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .zone-map{color:#232735}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .card-num{color:#98445e!important}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .icon-grid figure{background:#14161c!important;border-color:#202a4026}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .icon-grid figcaption{color:#c9c1d2!important}

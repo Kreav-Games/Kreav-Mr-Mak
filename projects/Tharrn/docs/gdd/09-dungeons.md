@@ -24,7 +24,7 @@ environmental hazard). Drops unique blueprints and rare loot.
 - Dungeons as instanced levels (level instances streamed per group) assembled from room templates by a
   server-side generator with a seed; modifiers as gameplay effects on the instance.
 - The direction lists 6 room types but names 5; the sixth is to be named (for example an entry or loot
-  vault room).
+  vault room). Proposed with the archetypes in [deliverable 6](../deliverables/06-dungeon-templates.md).
 - Vertical slice: one full dungeon with a boss.
 
 ## From the owner's package ([owner's package review](../reviews/owner-package-2026-10-15.md))

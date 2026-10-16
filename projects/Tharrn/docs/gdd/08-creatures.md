@@ -48,4 +48,5 @@ resistances are damage reduction fractions; aggro radius in metres):
 | CR003 | Phase Warden | Crystalline Desert | Medium | 260 | Medium | energy 0.4 | 18 | alloy_shard | phase_warden_ai |
 
 Skitterjaw behaviour outline (deliverable 9): Patrol → Detect → Chase → Flank → Pounce; blackboard keys
-`TargetActor`, `AggroRadius`.
+`TargetActor`, `AggroRadius`. Worked out for all six creatures in [deliverables/09-creature-behaviour.md](../deliverables/09-creature-behaviour.md); stats for the other three in
+[deliverables/05-creature-roster.md](../deliverables/05-creature-roster.md).

@@ -59,4 +59,4 @@ replicates to nearby players; `Server_InterruptExtraction(attackerId)` interrupt
 - **Server RPCs:** `Server_OnPlayerEnterZone(player, zoneID)`, `Server_OnPlayerExitZone(player, zoneID)`,
   `Server_RequestExtraction(playerID, extractionPointID)`,
   `Server_InterruptExtraction(attackerID, targetExtractionID)`, `Server_HandleDisconnect(playerID)`.
-- The expanded pseudocode (deliverable 3) is still to write.
+- The expanded pseudocode (deliverable 3) is [deliverables/03-flagging-state.md](../deliverables/03-flagging-state.md).

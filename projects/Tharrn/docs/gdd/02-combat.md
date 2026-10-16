@@ -62,4 +62,4 @@ weight in kg, projectile speed in m/s):
 | SG01 | Shotgun SG-01 | Spread | 120 | 70 | 8 | 4.5 | 30 | — | hitscan pellets *(proposed; the package says projectile with speed 0)* |
 
 Still missing for the direction's fire modes: a pistol (hitscan), a heavy projectile weapon and an energy
-beam or charge weapon.
+beam or charge weapon. Proposed, with attachments, in [deliverable 7](../deliverables/07-weapons-and-attachments.md).

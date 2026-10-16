@@ -46,7 +46,7 @@ zone_id;name;type;bounds_min_x;bounds_min_y;bounds_max_x;bounds_max_y;pvp_flag;e
 ```
 
 **Scale settled (D-14):** the map is scaled by 0.4375, so each zone is 2.24 × 2.24 km and the 15 zones
-cover 75.3 km² (bounding box 13.4 × 9.0 km); working copy in `../../data/zones_definition.csv`. Open
+cover 75.3 km² (bounding box 13.4 × 9.0 km); the source is the game repo's `Data/Zones.csv` (imported into `DT_Zones`). Open
 points: buffer belts around every PvP zone (the direction asks for them; the draft has one),
 and hubs that border PvP zones directly. The direction asks for 6 hubs and 8–12 hotspots; the draft has 2
 and 5.

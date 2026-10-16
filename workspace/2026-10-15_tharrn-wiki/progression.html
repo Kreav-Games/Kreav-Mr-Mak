@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-mak-report="document">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tharrn Wiki · Progression and dungeons</title>
+<link rel="stylesheet" href="../_shared/report.css">
+<link rel="stylesheet" href="../_shared/examples.css">
+<link rel="stylesheet" href="wiki.css">
+<script defer src="../_shared/report.js"></script>
+</head>
+<body>
+<main class="container">
+<div class="eyebrow">Tharrn Wiki · Progression and dungeons</div>
+<h1>Progression and dungeons</h1>
+<p class="subtitle">Sixty levels, three talent trees, five loot tiers, and dungeons built from rooms.</p>
+<h2>Levels and talents</h2>
+<p><span class="tag tag-design">Designed</span> Sixty levels. The XP for each next level grows by 12 %:</p>
+<pre><code>XP(level) = baseXP × 1.12^(level − 1)</code></pre>
+<p class="wiki-note"><span class="tag tag-open">Open question</span> <code>baseXP</code> is not set yet; it will be chosen from how long reaching level 60 should take.</p>
+<p>Each level gives one talent point for one of three trees. Nodes have prerequisites and unlock new mechanics.</p>
+<table><thead><tr><th>Tree</th><th>Example talents</th></tr></thead><tbody><tr><td><strong>Combat</strong></td><td>Precision Training (less recoil) · Quick Reload (15 % faster) · Suppressive Fire (suppresses an area)</td></tr><tr><td><strong>Survival</strong></td><td>Efficient Forager (+20 % resources) · Advanced Filtration (uses less water) · Field Medic (faster healing)</td></tr><tr><td><strong>Tech</strong></td><td>Drone Control (deploy a drone) · Power Optimization (generators use less) · Alien Synthesis (craft alien cores)</td></tr></tbody></table>
+
+<h2>Loot tiers</h2>
+<p class="chain"><span class="chain-step">Common</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Uncommon</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Rare</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Advanced</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Alien</span></p>
+<p>Higher tiers need blueprints. Each zone has a loot tier (see World and zones).</p>
+
+<h2>Quests</h2>
+<p>Five kinds: main, side, faction, timed and dungeon quests, each in stages with objectives and rewards. The first
+faction questline comes with the vertical slice.</p>
+
+<h2>Dungeons</h2>
+<p>Instanced and assembled from room templates, with a seed and modifiers that change each run.</p>
+<table><thead><tr><th>Room</th><th>What happens</th></tr></thead><tbody><tr><td>Puzzle room</td><td>Needs a crafted item or a trigger in the room</td></tr><tr><td>Combat arena</td><td>Waves of enemies, with cover and height</td></tr><tr><td>Traversal chamber</td><td>Platforming and shifting gravity</td></tr><tr><td>Trap corridor</td><td>Timed hazards and detection</td></tr><tr><td>Boss arena</td><td>A boss in several phases, using the room against you</td></tr></tbody></table>
+<p>Modifiers: gravity shift (low or high), fog of war, enemy loadout variation, a time limit. Bosses change at 75, 50
+and 25 % health, adding a shield, minions or a hazard, and drop unique blueprints and rare loot. <span class="tag tag-open">Open question</span> The direction counts
+six room types but names five.</p>
+
+<div class="mak-card"><p class="card-num">DGN_001</p><h3>Ruins of the First Signal</h3>
+<table class="kv"><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Where</td><td>Subterranean Caverns</td></tr><tr><td>Recommended level</td><td>12</td></tr><tr><td>Entry</td><td>Activation Key or group of 3</td></tr><tr><td>Rooms</td><td>puzzle room → combat arena → traversal chamber → trap corridor → boss arena</td></tr><tr><td>Modifiers</td><td>gravity shift, fog of war, enemy variation</td></tr><tr><td>Boss</td><td>Apex Titan (<code>CR006</code>)</td></tr><tr><td>Loot</td><td><code>boss_blueprint</code>, <code>alien_core</code>, <code>rare_alloy</code></td></tr></tbody></table>
+<p class="wiki-note"><span class="tag tag-open">Open question</span> The Apex Titan is the direction's big multi-phase boss, here at level 12, and the
+caverns zone recommends level 15.</p></div>
+<footer class="wiki-foot">Sources: GDD 0.1 modules 04 and 09; the dungeon from the game's <code>Data/Dungeons/DGN_001.json</code>.</footer>
+</main>
+</body>
+</html>
