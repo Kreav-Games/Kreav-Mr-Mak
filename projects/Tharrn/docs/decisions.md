@@ -1,4 +1,4 @@
-# Aetherfall: Exodus — Decision log
+# Tharrn — Decision log
 
 Decisions are binding once listed under **Decided**. Open questions carry a recommendation; none is
 binding until moved up. Quotes are the owner's words.
@@ -7,9 +7,9 @@ binding until moved up. Quotes are the owner's words.
 
 | ID | Decision | Date | Notes |
 |---|---|---|---|
-| D-01 | **Aetherfall: Exodus (working title) is the owner's only active game.** Wildwright is deleted: its Unreal project, design record and Workspace card. | 2026-10-15 | "everything about wildwright is goine to go away, we building a new game now"; chose "Delete it". Its reusable setup was copied first (D-03). |
+| D-01 | **Tharrn is the owner's only active game.** Wildwright is deleted: its Unreal project, design record and Workspace card. | 2026-10-15 | "everything about wildwright is goine to go away, we building a new game now"; chose "Delete it". Its reusable setup was copied first (D-03). |
 | D-02 | **The design source is the owner's direction document** (`source/Aetherfall_Exodus_Direction_2026-10-15.md`): a sci-fi action-RPG survival shooter on an alien archipelago, single player and multiplayer, MetaHuman characters, flagged PvP zones, dungeons, talents, vehicles. The GDD (`gdd/`) is that document split into modules with build notes; where they differ, the source document wins until the owner decides otherwise. | 2026-10-15 | Its own deliverable list starts with "Full GDD (this doc modularized)". |
-| D-03 | **New project `D:\AetherfallExodus`** (UE 5.8.3 C++, module `AetherfallExodus`), its own private Git repo with LFS, no remote; cooked builds only; Fab assets never redistributed. Carried over from the earlier project: budget and DLSS settings, MCP, the Game Animation Sample and Sci-Fi Complete Bundle, pack staging, plugin check, budget measurement, terrain pipeline, sky, capture subsystem, world-building helpers, engineering notes. | 2026-10-15 | Owner chose "New project, carry the setup over" over converting the old project or starting from nothing. |
+| D-03 | **New project `D:\Tharrn`** (UE 5.8.3 C++, module `Tharrn`), its own private Git repo with LFS, no remote; cooked builds only; Fab assets never redistributed. Carried over from the earlier project: budget and DLSS settings, MCP, the Game Animation Sample and Sci-Fi Complete Bundle, pack staging, plugin check, budget measurement, terrain pipeline, sky, capture subsystem, world-building helpers, engineering notes. | 2026-10-15 | Owner chose "New project, carry the setup over" over converting the old project or starting from nothing. |
 | D-04 | **Server-authoritative networking from the first system.** Every system is built replicated and tested with a server and clients (guide §3 step 4) from day one. | 2026-10-15 | Owner chose it over a single-player prototype first. Dedicated server packaging needs a source-built engine (OQ-02). |
 | D-05 | **Audio: MetaSounds now, Wwise later.** Unreal's built-in audio for the prototype; Wwise (event names `SFX_`, `MUS_`, `VO_`) once there is real audio content and the owner has an Audiokinetic account. | 2026-10-15 | Owner chose the recommendation. |
 | D-06 | **Built iteratively through Unreal MCP in the live editor, one module at a time; each module is polished and tested before the next begins.** World steps that may need rebuilding also stay re-runnable scripts or asset specs. | 2026-10-15 | From the direction document ("Claude → Unreal MCP will build iteratively; each module must be polished and tested before the next begins"). |
@@ -23,6 +23,7 @@ binding until moved up. Quotes are the owner's words.
 | D-14 | **The world is about 75 km²**, not the direction's 16–25 km². The owner's zone map is kept and scaled by 0.4375 (bounds in metres): 15 zones of 2.24 × 2.24 km, 75.3 km² in total (`data/zones_definition.csv`). | 2026-10-15 | Owner: "im thinkging more like 75 sq km" (the zone file as written was about 393 km²). The direction's travel times become targets for movement and vehicle speeds (GDD 06). |
 | D-15 | **Third-person camera over the shoulder with aim-down-sights.** Resolves OQ-08. | 2026-10-15 | Owner chose the recommendation. |
 | D-16 | **The Skitterjaw is a desert creature** (Crystalline Desert). | 2026-10-15 | Owner: "i think skitterjaw is a desert type creature." The direction's tutorial fights a Skitterjaw pack at the coastal crash site: OQ-12. |
+| D-17 | **The game is called Tharrn.** It replaces the direction's working title "Aetherfall: Exodus" everywhere: the Unreal project (`D:\Tharrn`, module `Tharrn`, class prefix `Tharrn`, content under `/Game/Tharrn/`) and this design record (`projects/Tharrn`). The direction document keeps its original text and file name. | 2026-10-15 | Owner: "the games name is Tharrn". A web search found no game called Tharrn (nearest: the tabletop RPG THORN and the itch.io RPG Thralnor); that is not a trademark clearance. |
 
 ## Open questions
 
@@ -45,4 +46,5 @@ binding until moved up. Quotes are the owner's words.
 ## Change log
 
 - 2026-10-15: log started with D-01 to D-13 and OQ-01 to OQ-11.
+- 2026-10-15: D-17, the name Tharrn.
 - 2026-10-15: D-14 to D-16 (world 75 km², camera, Skitterjaw) after the owner's package review; OQ-08 resolved; OQ-12 and OQ-13 opened.

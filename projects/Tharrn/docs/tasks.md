@@ -1,17 +1,17 @@
-# Aetherfall: Exodus — Task list
+# Tharrn — Task list
 
 The current phase and what is next. One line per task; a module is done when it passes the verification
 ladder (engineering guide §3) and the owner's play-test (D-06). Game repo paths are under
-`D:\AetherfallExodus\`.
+`D:\Tharrn\`.
 
 ## Setup (2026-10-15)
 
 | # | Task | State |
 |---|---|---|
-| S.1 | New project `D:\AetherfallExodus` from the third-person C++ template, renamed; setup carried over (D-03); packs staged; both targets build; the editor opens with DLSS and MCP; PIE runs | Done |
+| S.1 | New project `D:\Tharrn` from the third-person C++ template, renamed; setup carried over (D-03); packs staged; both targets build; the editor opens with DLSS and MCP; PIE runs | Done |
 | S.2 | Design record: direction kept in `source/`, GDD 0.1 modularized (deliverable 1), decisions D-01 to D-13, guide, this list | Done; **owner review** |
 | S.3 | Wildwright deleted (D-01) after S.1 was verified | Design record, Workspace card and its entry deleted; **`D:\Wildwright` (31 GB) still on disk**: Claude Code refuses to remove that folder, the owner deletes it in File Explorer |
-| S.4 | First commit of the new game repo and the new design record | **Owner approval** |
+| S.4 | First commit of the new game repo and the new design record | Done 2026-10-15: game repo fb20fca, Mr. Mak repo 29e9dfc |
 
 ## Prototype (direction §6.1: core shooter feel, vitals, one biome, 3 creatures, MetaHuman base)
 

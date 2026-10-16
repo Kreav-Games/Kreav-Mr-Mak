@@ -1,6 +1,6 @@
-# Aetherfall: Exodus — GDD 0.1, overview
+# Tharrn — GDD 0.1, overview
 
-*Working title.* Version 0.1, 2026-10-15: the owner's direction document
+Version 0.1, 2026-10-15: the owner's direction document
 (`../../source/Aetherfall_Exodus_Direction_2026-10-15.md`, D-02) split into modules, with build notes for
 UE 5.8.3 and the questions it raises. The owner's numbers are kept as written; anything added is marked
 as a build note or an open question (`OQ-xx`, see [decisions](../decisions.md)).
@@ -77,5 +77,5 @@ whole document is a studio's 18-month plan; it is re-planned after the Prototype
 | 9 | Behaviour tree templates and blackboard keys | Skitterjaw outline (GDD 08) |
 | 10 | QA test matrix and acceptance criteria | 5 tests (GDD 12) |
 
-The owner's scaffold package (`../../Aetherfall/`) holds these drafts; see its
+The owner's scaffold package (`../../source/owner-package-2026-10-15/`) holds these drafts; see its
 [review](../reviews/owner-package-2026-10-15.md).

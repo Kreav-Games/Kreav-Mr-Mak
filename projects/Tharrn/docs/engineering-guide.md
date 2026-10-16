@@ -1,4 +1,4 @@
-# Aetherfall: Exodus — Engineering guide
+# Tharrn — Engineering guide
 
 How to build, test and verify the Unreal project, how it is laid out, and what has bitten us
 before. Written for whichever agent picks the work up next (Claude Code or Codex) and for the
@@ -12,19 +12,19 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 
 | What | Where |
 |---|---|
-| Design record | `D:\Mr.MakRepo\Kreav-Mr-Mak\projects\AetherfallExodus\` (inside the Mr. Mak repo) |
-| Unreal project | `D:\AetherfallExodus\`: its own Git repo on `main` with LFS, **local only, no remote** (D-03) |
+| Design record | `D:\Mr.MakRepo\Kreav-Mr-Mak\projects\Tharrn\` (inside the Mr. Mak repo) |
+| Unreal project | `D:\Tharrn\`: its own Git repo on `main` with LFS, **local only, no remote** (D-03) |
 | Engine | UE **5.8.3** at `D:\UE_5.8`, an installed (launcher-type) build. Launch `UnrealEditor.exe` directly |
 | Compiler | VS 2022 17.14.41, `cl.exe` 14.44.35229 |
 | Packs | Outside Git, staged from the launcher cache by `Tools/Packs/stage_packs.py` (D-08) |
-| Agent scratch | `D:\AetherfallExodus\Saved\<Agent>Scratch\` (ignored by Git) |
+| Agent scratch | `D:\Tharrn\Saved\<Agent>Scratch\` (ignored by Git) |
 
 ### Inside the game repo
 
 | Path | Contents |
 |---|---|
-| `Source/AetherfallExodus/` | Template character (with an ability system component), controller, game mode; `World/AetherfallSky`; `Dev/AetherfallCaptureSubsystem` (review images, development builds only) |
-| `Source/AetherfallExodusEditor/` | `UAetherfallWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation (editor only) |
+| `Source/Tharrn/` | Template character (with an ability system component), controller, game mode; `World/TharrnSky`; `Dev/TharrnCaptureSubsystem` (review images, development builds only) |
+| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation (editor only) |
 | `Tools/Packs/` | `stage_packs.py`, `packs.csv` (Game Animation Sample, Sci-Fi Complete Bundle) |
 | `Tools/Checks/` | `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py` |
 | `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README) |
@@ -33,35 +33,35 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 | `Content/ScifiOutpost`, Game Animation Sample folders | Staged packs (ignored) |
 | `AGENTS.md`, `CLAUDE.md`, `.mcp.json` | Agent rules for this repo; MCP entry for chats started here |
 
-Class prefix is `Aetherfall` (`AAetherfallCharacter`); the module is `AetherfallExodus`; the log
-category is `LogAetherfall`; content specific to the game goes under `/Game/Aetherfall/`.
+Class prefix is `Tharrn` (`ATharrnCharacter`); the module is `Tharrn`; the log
+category is `LogTharrn`; content specific to the game goes under `/Game/Tharrn/`.
 
 ## 2. Everyday commands (PowerShell)
 
 ```powershell
 $UE   = "D:\UE_5.8"
-$Proj = "D:\AetherfallExodus\AetherfallExodus.uproject"
+$Proj = "D:\Tharrn\Tharrn.uproject"
 
 # Open the editor. From a Mr. Mak chat, start it through Explorer so it is not a child of the chat:
-#   a .cmd containing  start "" "D:\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "D:\AetherfallExodus\AetherfallExodus.uproject"
+#   a .cmd containing  start "" "D:\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "D:\Tharrn\Tharrn.uproject"
 #   then  explorer.exe <that .cmd>
 
 # Build the GAME target (works while the editor is open) and the EDITOR target (editor closed)
-& "$UE\Engine\Build\BatchFiles\Build.bat" AetherfallExodus Win64 Development "-Project=$Proj" -WaitMutex
-& "$UE\Engine\Build\BatchFiles\Build.bat" AetherfallExodusEditor Win64 Development "-Project=$Proj" -WaitMutex
+& "$UE\Engine\Build\BatchFiles\Build.bat" Tharrn Win64 Development "-Project=$Proj" -WaitMutex
+& "$UE\Engine\Build\BatchFiles\Build.bat" TharrnEditor Win64 Development "-Project=$Proj" -WaitMutex
 
 # Plugin check: no AI, MCP or editor-tool plugin can reach the game
-powershell -NoProfile -File D:\AetherfallExodus\Tools\Checks\check_editor_only_plugins.ps1
+powershell -NoProfile -File D:\Tharrn\Tools\Checks\check_editor_only_plugins.ps1
 
 # Headless automation tests (or through MCP: AutomationTestToolset, see §3)
-& "$UE\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Proj -ExecCmds="Automation RunTests Aetherfall; Quit" `
-  -TestExit="Automation Test Queue Empty" -unattended -nullrhi -nosplash -nosound -abslog=D:\AetherfallExodus\Saved\Logs\tests.log
+& "$UE\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Proj -ExecCmds="Automation RunTests Tharrn; Quit" `
+  -TestExit="Automation Test Queue Empty" -unattended -nullrhi -nosplash -nosound -abslog=D:\Tharrn\Saved\Logs\tests.log
 
 # Frame budget of a map at 1440p in the default tier (D-11)
-powershell -NoProfile -File D:\AetherfallExodus\Tools\Checks\measure_budget.ps1 -Map /Game/ThirdPerson/Lvl_ThirdPerson
+powershell -NoProfile -File D:\Tharrn\Tools\Checks\measure_budget.ps1 -Map /Game/ThirdPerson/Lvl_ThirdPerson
 
 # Packs (editor closed): stage, list sizes, or remove
-python D:\AetherfallExodus\Tools\Packs\stage_packs.py [--pack SciFiBundle] [--dry-run] [--remove "<Pack>"]
+python D:\Tharrn\Tools\Packs\stage_packs.py [--pack SciFiBundle] [--dry-run] [--remove "<Pack>"]
 ```
 
 Build output to check: `Result: Succeeded` and no `error` or new `warning C` lines. The NWIRO
@@ -74,7 +74,7 @@ The editor-only `ModelContextProtocol` and `AllToolsets` plugins are on; the ser
 editor (`bAutoStartServer=True`, port 8000, `/mcp`, in the per-user
 `Saved/Config/WindowsEditor/EditorPerProjectUserSettings.ini`). Claude Code reaches it as
 `unreal-mcp` (registered for the Mr. Mak folder with `claude mcp add --scope local --transport http
-unreal-mcp http://127.0.0.1:8000/mcp`; `D:\AetherfallExodus\.mcp.json` holds the same entry). A chat
+unreal-mcp http://127.0.0.1:8000/mcp`; `D:\Tharrn\.mcp.json` holds the same entry). A chat
 loads MCP servers when it starts; one started before the editor needs a restart to see them.
 
 - Tool search is on: `list_toolsets`, `describe_toolset`, `call_tool` (`toolset_name`, `tool_name`,
@@ -132,13 +132,13 @@ closed: an open editor once took 96 % of the GPU.
   firing) and are corrected. Replicated state lives on the actor or component that owns it, with
   `OnRep_` handlers for presentation. RPC names: `Server_`, `Client_`, `Multicast_`. Never trust a
   client value for damage, loot or flags.
-- **Content paths (owner's conventions, `Aetherfall/dev_notes.md`):** art (meshes, textures, materials,
+- **Content paths (owner's conventions, `source/owner-package-2026-10-15/dev_notes.md`):** art (meshes, textures, materials,
   effects, audio) under `/Game/Art/`; game logic (Blueprints, data tables, maps, UI, AI) under
-  `/Game/Aetherfall/`. Meshes `CH_` character, `CR_` creature, `WP_` weapon, `ENV_` environment;
+  `/Game/Tharrn/`. Meshes `CH_` character, `CR_` creature, `WP_` weapon, `ENV_` environment;
   textures `T_<name>_diff`, `_norm`, `_rough`, `_ao`, `_subs`; effects `VFX_<name>`; audio
   `SFX_<name>`, `MUS_<name>`, `VO_<name>`. Others: `L_` level, `BP_` Blueprint, `WBP_` widget, `DT_` data
   table, `IA_`/`IMC_` input, `M_`/`MI_` materials, `GA_`/`GE_`/`GC_` ability/effect/cue, `ST_` StateTree.
-- **Generators** are idempotent and headless, log with an `[AExxx]` prefix, end with `RESULT ok` or
+- **Generators** are idempotent and headless, log with an `[THxxx]` prefix, end with `RESULT ok` or
   `RESULT failed`, drop module-level Unreal references and `gc.collect()` before `quit_editor()`.
 - **English** for everything stored.
 
@@ -148,7 +148,7 @@ closed: an open editor once took 96 % of the GPU.
 - Game repo: never `Binaries/`, `Intermediate/`, `Saved/`, `DerivedDataCache/`, `.vs/`, `.env`, logins,
   tokens; packs stay ignored (the generated block in `.gitignore`). `.uasset`, `.umap` and media go to
   LFS (`.gitattributes`). **No remote, no push, no public repo** (D-03).
-- Mr. Mak repo: the owner has unrelated uncommitted work; stage only `projects/AetherfallExodus/` and
+- Mr. Mak repo: the owner has unrelated uncommitted work; stage only `projects/Tharrn/` and
   the files named for the task.
 
 ## 7. Gotchas carried over (read before you debug)

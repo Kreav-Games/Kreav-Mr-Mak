@@ -1,6 +1,6 @@
-# Review: the owner's package `Aetherfall/` (2026-10-15)
+# Review: the owner's package (2026-10-15)
 
-The owner added `projects/AetherfallExodus/Aetherfall/` "for review to help": a scaffold of data,
+The owner added `projects/Tharrn/source/owner-package-2026-10-15/` "for review to help": a scaffold of data,
 pseudocode, HUD, dungeon and QA files that matches the direction's deliverable list (§5.6). It is kept
 as received; this review says what is usable, what is broken, and what happens to each file.
 

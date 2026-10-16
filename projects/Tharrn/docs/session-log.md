@@ -1,11 +1,11 @@
-# Aetherfall: Exodus — Session log
+# Tharrn — Session log
 
 *2026-10-15.* Project start (Claude Code). The owner replaced Wildwright with a new game and supplied
 its direction document (kept verbatim in `source/`). Owner's choices: delete Wildwright; a new project
 with the setup carried over; server-authoritative networking from the first system; MetaSounds now,
-Wwise later. Created `D:\AetherfallExodus` from the wizard-made third-person template content (238
+Wwise later. Created `D:\Tharrn` from the wizard-made third-person template content (238
 files, as tracked in the old repo), the old project's config, source and tools, renamed to module
-`AetherfallExodus` and class prefix `Aetherfall` with redirects for the template's classes; dropped the
+`Tharrn` and class prefix `Tharrn` with redirects for the template's classes; dropped the
 template variants and the old project's region data, set-piece script and HyperAI Studio files;
 re-pointed comments at the new decision numbers; new ProjectID. Git initialised with LFS (files staged,
 nothing committed); `stage_packs.py` staged the Game Animation Sample and the Sci-Fi Complete Bundle
@@ -18,7 +18,7 @@ history included) was refused by Claude Code's path guard, so the owner deletes 
 project; anything multiplayer beyond the template. **Next:** owner review and first commit; P1
 Foundation.
 
-*2026-10-15, later.* Owner's package reviewed (Claude Code). The owner added `Aetherfall/`, a scaffold of
+*2026-10-15, later.* Owner's package reviewed (Claude Code). The owner added a package (now `source/owner-package-2026-10-15/`), a scaffold of
 deliverables 2–10. Reviewed every file ([review](reviews/owner-package-2026-10-15.md)): real drafts of the
 zone map (15 zones with per-zone consent and cooldown), flagging keys and RPCs, the preset schema (1 of
 12), 3 weapons, 3 creatures, a dungeon, the HUD layout with crosshair variants, 5 QA tests and naming
