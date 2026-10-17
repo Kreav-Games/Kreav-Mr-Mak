@@ -43,6 +43,7 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 | `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py`, `mss_test.py`, `inventory_test.py` (D-25: the inventory with a listen and a dedicated server), `survival_test.py` (P5: vitals, food and water, cold, crafting, running out of stamina, the bag; listen and dedicated server), `nature_test.py` (P6: players run through the bundle's generated nature on `L_CoastTest` with no corrections; listen and dedicated server) |
 | `Tools/UI/` | `build_ui.py` (D-25): icons, the Widget Blueprints in MSS's look, `BP_TharrnHUD`, Easy Game UI's settings copies and its selector, `BP_TharrnGameInstance`, the main menu level, the project's start level |
 | `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange`, `Characters/Player/BP_TharrnPlayer`, `Core/` (BP_TharrnGameMode, BP_TharrnPlayerController, BP_TharrnGameInstance, BP_TharrnMenuGameMode), `Input/` (the hotbar, wheel, pick-up, inventory and pause actions, `IMC_TharrnCombat`), `UI/` (the Widget Blueprints, BP_TharrnHUD, Easy Game UI's settings copies, icons), `Maps/L_TharrnMainMenu`, `Weapons/` (placeholders, the heavy round, `MSS/` Tharrn's MSS weapons) |
+| `Tools/World/` | `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script) |
 | `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README); `test_coast.py`, the made-up coast for P6's ocean and biome tests (heights and the bundle's jungle paint layers, run with `Saved/PyTerrain`) |
 | `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) and its data-driven console variables, collision channels and console variables (`DefaultEngine.ini`, D-18) |
 | `Content/ThirdPerson`, `Characters`, `Input`, `LevelPrototyping` | Template content (tracked) |
@@ -465,6 +466,15 @@ closed: an open editor once took 96 % of the GPU.
 93. Live Coding patches are not in the editor module on disk: rebuild the editor target (closing the editor) before the
     next start, or that start runs without them. `SaveLevel` skips actors added and deleted since the last save
     (their packages have nothing to write).
+94. A long editor session can make every sprint drift: on 2026-10-17, after about two hours, many play sessions and four
+    Live Coding patches, the server fell behind every sprinting player by a few centimetres a frame (30 corrections a
+    run, on the test range too); after a restart, 0. Restart the editor before trusting a movement failure.
+95. The Sci-Fi bundle's run-time PCG graphs spawn bushes and small boulders that block movement, and each machine makes
+    them on its own, at its own pace. Tharrn's biome volumes use Tharrn's versions (`Tools/World/setup_bundle_biomes.py`,
+    no collision), and a server makes them only for its own player (`pcg.RuntimeGeneration.Server.Mode=1`): a
+    dedicated server makes none. Trees and big rocks are generated once in the editor and saved with the level, so
+    every machine has the same ones. The bundle's biome actor's `Biomes` list must be emptied before a shorter list
+    with other entries is set (`set_properties` refuses it as ambiguous).
 
 ## 8. Working as two agents
 

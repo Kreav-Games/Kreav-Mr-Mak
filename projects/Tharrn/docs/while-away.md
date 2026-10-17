@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `d12d728` | `p6-biomes-online` | P6.2: the bundle's jungle on the test coast, run-time bushes and boulders for looks only, `nature_test.py`. Checked: verify.py 5 of 5 (104 tests), nature_test.py, survival_test.py |
 | Game `D:\Tharrn` | `ef8a9a5` | `p6-ocean-test` | P6 so far: the world-building tool, the made-up test coast (`L_CoastTest`) with Unreal's ocean, the Water plugin and virtual texturing switched on. Checked: verify.py 5 of 5 (104 tests). Going back to `p5-built` also switches the Water plugin and virtual texturing off again |
 | Game `D:\Tharrn` | `8a93b0d` | `p5-built` | P5 built: vitals (stamina, hunger, hydration, temperature), food and water, crafting, the vitals on the HUD, the crafting panel, the death screen and bag, cold and hot areas on the test range. Checked: verify.py, survival_test.py, inventory_test.py, mss_test.py, Shipping build |
 | Game `D:\Tharrn` | `700db9d` | `p4-built` | P4 built: everything above plus Easy Game UI's main menu (the game's start level), pause menu (Esc) and options. Checked: verify.py 5 of 5 (Shipping too), inventory_test.py and mss_test.py |
@@ -85,7 +86,7 @@ the owner can say "2" to switch to MST Pro's inventory instead.
 | Tools | Done (`ef8a9a5`) | `TharrnEditor.TharrnWorldBuildToolset` (C++, 13 tests): levels, landscapes from height and paint files, the bundle's editor buttons, PCG progress; the Water plugin and virtual texturing switched on (one rebuild) |
 | Test coast | Done | `L_CoastTest`: 1 km of made-up coast (beach, tide pools, marsh, stream, rocky headland) painted with the bundle's jungle shore, swamp, jungle and rock layers ([map](pictures/p6/test_coast_map.jpg)) |
 | P6.1 Ocean test | Done (`ef8a9a5`, verify.py 5 of 5) | Unreal's ocean for the sea, the bundle's water for pools and rivers (pictures below; OQ-05) |
-| P6.2 Biomes online | Next | The bundle's biome volumes on the test coast, then the network test through the generated jungle |
+| P6.2 Biomes online | Done (`d12d728`) | The bundle's jungle shore, swamp and jungle on the test coast (generated in about 35 s); players sprint into the jungle with no corrections, as listen and dedicated server (`nature_test.py`, new). The bushes and small boulders made around players are for looks only (they no longer block) |
 
 ## Pack files changed in P4
 
@@ -116,7 +117,11 @@ P6 pictures (2026-10-17), the ocean test on the made-up coast: Unreal's ocean fr
 at the headland ([ocean_headland.jpg](pictures/p6/ocean_headland.jpg)) and from the water
 ([ocean_waves.jpg](pictures/p6/ocean_waves.jpg)); the bundle's own water as a sea, jungle
 ([bundle_water_jungle.jpg](pictures/p6/bundle_water_jungle.jpg)) and clear
-([bundle_water_clear.jpg](pictures/p6/bundle_water_clear.jpg)). The ground has no rocks or plants yet (the next step).
+([bundle_water_clear.jpg](pictures/p6/bundle_water_clear.jpg)). Then the bundle's jungle on it: from the air
+([jungle_aerial.jpg](pictures/p6/jungle_aerial.jpg)), the beach ([jungle_beach.jpg](pictures/p6/jungle_beach.jpg)), inside
+([jungle_inside.jpg](pictures/p6/jungle_inside.jpg), [jungle_to_sea.jpg](pictures/p6/jungle_to_sea.jpg)), the headland
+([jungle_headland.jpg](pictures/p6/jungle_headland.jpg)); and in play, with the HUD: on the beach
+([play_beach.jpg](pictures/p6/play_beach.jpg)) and after a sprint into the jungle ([play_jungle.jpg](pictures/p6/play_jungle.jpg)).
 
 ## Things that happened
 
@@ -135,6 +140,9 @@ at the headland ([ocean_headland.jpg](pictures/p6/ocean_headland.jpg)) and from 
   Saving project settings also rewrote `Config/DefaultEngine.ini` with every default again (as in P4); the file was
   put back and the script now saves only a change.
 
+- 2026-10-17: the first network test in the generated jungle failed (6 to 33 corrections a sprint); the cause turned
+  out to be the editor itself after a long session (the P5 survival test failed the same way on the test range, and
+  both passed after a restart). On the way, the bundle's run-time bushes and boulders were made non-blocking (above).
 - 2026-10-17, morning: the owner pointed at KK Design's videos ("You can look for kk designs unreal on YouTube to see
   how the bundle pack biomes look for assembly of our biomes") and set the main map at 100 km² ("This all will be for
   the main map thats 100km²", D-26). Claude read about twenty of the videos and the bundle's example level and wrote
@@ -166,6 +174,11 @@ P5 (all in `Data/Vitals.csv`, `Data/Recipes.csv` and `Data/Items.csv`, easy to c
 - Recipes: a bandage from 2 organic fibre (3 s); 24 pistol rounds from 1 mineral and 1 alloy scrap (4 s); 40 SMG
   rounds from 2 mineral and 1 alloy (5 s); two 40 mm grenades from 2 and 2 (6 s). A ration +40 hunger, water +50.
 - Five crafts in the queue; everything carried drops in a bag on going down (worn armour too); anyone can open a bag.
+
+P6 so far (proposals):
+- The sea is Unreal's ocean (Water plugin); the bundle's water is for jungle pools, the marsh and rivers (OQ-05).
+- Bushes and small boulders that appear around a player are for looks and do not block; trees and big rocks block.
+- The coast's biome presets: Jungle Shore at the waterline, Jungle Swamp in the marsh, Jungle inland.
 
 ## To look at first, when home
 

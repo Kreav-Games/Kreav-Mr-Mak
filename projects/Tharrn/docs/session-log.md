@@ -121,3 +121,13 @@ bundle's water is pond water (murky green or fully clear): ocean for the sea, bu
 compile logs physical-material errors. Checkpoint under the owner's standing yes: game repo ef8a9a5 (p6-ocean-test).
 **Checks:** verify.py 5 of 5 (104 tests, 13 new). **Next:** P6.2, the bundle's biome volumes on the test coast and
 `nature_test.py`.
+
+*2026-10-17, afternoon.* P6.2 (Claude Code). The bundle's biome volume on the test coast (Jungle Shore, Jungle Swamp,
+Jungle; generated in about 35 s); in-game pictures with the HUD. **Found:** the first network test in the jungle failed
+(6 to 33 corrections a sprint); the P5 survival test failed the same way on the test range, and both passed after an
+editor restart: a long session (about two hours, Live Coding patches, many play sessions) made every sprint drift
+(gotcha 94). On the way, the bundle's run-time bushes and boulders (which block and are made by each machine on its
+own) were replaced by Tharrn's copies with no collision, made only for a server's own player (gotcha 95).
+Checkpoint under the owner's standing yes: game repo d12d728 (p6-biomes-online). **Checks:** verify.py 5 of 5 (104
+tests), nature_test.py (new) and survival_test.py pass as listen and dedicated server. **Next:** candidate coasts from
+public lidar for the owner to choose from (OQ-06).

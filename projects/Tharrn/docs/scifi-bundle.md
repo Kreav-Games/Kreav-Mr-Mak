@@ -110,6 +110,10 @@ the first region of that map, not a separate level.
   player games and are not supporting replication/networking 100%". Tharrn is server-authoritative (D-04): its own
   player is used (D-18), and vehicles, turrets and interactive objects get replicated versions when their module
   comes.
+- **Online (P6.2):** the bundle's run-time PCG layers (bushes and small boulders made around the player while playing)
+  block movement and are made by each machine on its own. Tharrn uses its own versions with no collision
+  (`Tools/World/setup_bundle_biomes.py`) and a server makes them only for its own player; trees and big rocks are made
+  once in the editor and saved with the level (engineering guide, gotcha 95).
 - Move bundle assets between projects with the editor's Migrate, never by copying files in Explorer. Tharrn's pack
   script stages the bundle's folders whole, at their original paths, so its references stay intact.
 - PCG workflow (main guide, Tutorial): delete HLODs before generating, clear and then generate each
