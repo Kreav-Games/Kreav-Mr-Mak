@@ -40,12 +40,12 @@ check with simulated latency and loss (`Tools/Checks/net_test.py`); *Budget* = `
 | I-06 | P4 | Hotbar | Net | Keys 1 to 12 and the wheel pick the same item on every machine; weapons drawn with MSS's animation | **Pass** 2026-10-16 (inventory and MSS tests) |
 | I-07 | P4 | Pickups and drops | Net | A dropped item shows for everyone; two players taking one item: one gets it | **Pass** 2026-10-16 (drop and pick up; one of two in the same frame) |
 | I-08 | P4 | HUD and inventory screen | Owner + Net | The same items and counts on both clients, in MSS's look | Pictures 2026-10-16; **owner** to judge |
-| V-01 | P5 Vitals | Hunger threshold | Auto | Below 30, stamina recovers 40 % slower; at 30 and above, normally | Not built |
-| V-02 | P5 | Hydration threshold | Auto | Below 30, aim sway grows by 25 % (formula as settled with the owner, GDD 03) | Not built |
-| V-03 | P5 | The two formulas | Auto | `StaminaRegen` and `AimSway` at 0, 29, 30, 31 and 100 | Not built |
-| V-04 | P5 | Temperature | Auto | Outside the armour's range: damage over time and slower movement | Not built |
-| V-05 | P5 | Crafting a bandage and ammo | Auto + Net | The server checks recipe and inventory; both clients see the same inventory | Not built |
-| V-06 | P5 | HUD vitals | Owner + Net | The same values on both clients | Not built |
+| V-01 | P5 Vitals | Hunger threshold | Auto | Below 30, stamina recovers 40 % slower; at 30 and above, normally | **Pass** 2026-10-16 (tests at 0, 29, 29.9, 30, 31, 100; the same on both machines in the survival test) |
+| V-02 | P5 | Hydration threshold | Auto | Below 30, aim sway grows by 25 % (formula as settled with the owner, GDD 03) | **Pass** 2026-10-16 (GDD 03's formula: up to 24 % at 0; the hydration term only below 30, a proposal; the same on both machines) |
+| V-03 | P5 | The two formulas | Auto | `StaminaRegen` and `AimSway` at 0, 29, 30, 31 and 100 | **Pass** 2026-10-16 |
+| V-04 | P5 | Temperature | Auto | Outside the armour's range: damage over time and slower movement | **Pass** 2026-10-16 (the rule by test; in the survival test, cold air: health lost and 15 % slower on both machines, cloth armour comfortable again) |
+| V-05 | P5 | Crafting a bandage and ammo | Auto + Net | The server checks recipe and inventory; both clients see the same inventory | **Pass** 2026-10-16 (recipes by test; a bandage crafted, a craft cancelled, two made-up crafts refused, listen and dedicated server) |
+| V-06 | P5 | HUD vitals | Owner + Net | The same values on both clients | Values match on the player's machine and the server (survival test); pictures 2026-10-16; **owner** to judge |
 | W-01 | P6 Coastal slice | Frame budget | Budget | Within D-11 (16.6 ms on the minimum PC, split as in D-11) | Not built |
 | W-02 | P6 | QA005 streaming | Budget | No frame more than 10 ms over the median while crossing cells | Not built |
 | W-04 | P6 | Look | Owner | The owner approves the review images | Not built |

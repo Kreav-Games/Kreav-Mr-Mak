@@ -4,12 +4,14 @@ Started 2026-10-16. The owner is on the phone for a few days and can't test in t
 can't do testing, using phone for next few days, we dont want to lose progress. Continue with whats next and when im
 home we can revisit. Make sure to make notes or a report for when I get home incase we need a roll back." Claude
 builds P4 (the hotbar, inventory and UI, D-25; [plan](tasks.md#p4-inventory-hotbar-and-ui-plan-2026-10-16)) in the
-meantime. This file says what was done, what to look at first, and how to go back.
+meantime, then P5 (vitals and crafting; [plan](tasks.md#p5-vitals-and-crafting-plan-2026-10-16)). This file says
+what was done, what to look at first, and how to go back.
 
 ## Rollback points
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `8a93b0d` | `p5-built` | P5 built: vitals (stamina, hunger, hydration, temperature), food and water, crafting, the vitals on the HUD, the crafting panel, the death screen and bag, cold and hot areas on the test range. Checked: verify.py, survival_test.py, inventory_test.py, mss_test.py, Shipping build |
 | Game `D:\Tharrn` | `700db9d` | `p4-built` | P4 built: everything above plus Easy Game UI's main menu (the game's start level), pause menu (Esc) and options. Checked: verify.py 5 of 5 (Shipping too), inventory_test.py and mss_test.py |
 | Game `D:\Tharrn` | `883a04d` | `p4-checkpoint-1` | P4 so far: the inventory, hotbar, pickups, the HUD and the inventory screen in MSS's look; Easy Game UI's HUD class in place, its menus not yet. Checked: 84 automation tests, the network test, the inventory network test (listen and dedicated server), the MSS test |
 | Game `D:\Tharrn` | `f2e695d` | `d24-before-p4` | D-24: grenade launcher, hand grenades, the view through the sight, the mouse wheel, no slide. Everything checked (80 tests, network test, MSS test, Shipping build). The last state before P4 |
@@ -58,13 +60,29 @@ crafting, vitals, building, farming and more. Claude recommended keeping Tharrn'
 the server checks every move, it draws MSS weapons directly) and taking MST Pro's parts that fit, module by module;
 the owner can say "2" to switch to MST Pro's inventory instead.
 
+## P5 progress
+
+| Step | State | Notes |
+|---|---|---|
+| P5.1 Vitals | Done 2026-10-16 | Attributes next to health, the server runs them (`UTharrnVitalsComponent`); numbers in `Data/Vitals.csv` |
+| P5.2 Formulas | Done | `StaminaRegen` and `AimSway` (`UTharrnVitalsLibrary`), tested at 0, 29, 30, 31 and 100 |
+| P5.3 Stamina | Done | Sprinting uses it; predicted in the movement: no corrections when it runs out |
+| P5.4 Temperature | Done | Cold (6 °C) and hot (33 °C) areas on the test range; armour widens the comfortable range |
+| P5.5 Food and water | Done | Ration +40 hunger, water +50 hydration; not used up when full |
+| P5.6 Crafting | Done | Bandage, pistol, SMG and 40 mm rounds; a queue of 5; cancel gives the inputs back |
+| P5.7 UI | Done | Vitals cluster, crafting panel, death screen (pictures below) |
+| P5.8 Going down | Done | Everything carried drops in a bag; the new body has the starting kit |
+| P5.9 Checks | Done | verify.py 5 of 5 (Shipping too, 91 tests, 0 corrections), survival_test.py (new), inventory_test.py and mss_test.py, each as listen and dedicated server ([details](tasks.md#p5-vitals-and-crafting-results-2026-10-16)) |
+| P5.10 Owner play-test | **Waiting for you** | Steps in [tasks.md](tasks.md#p5-vitals-and-crafting-results-2026-10-16) |
+
 ## Pack files changed in P4
 
 | Pack file | What changed | Backup |
 |---|---|---|
 | `Content/EasyGameUI/Core/GlobalConfig/BP_EGUI_GlobalConfigSelector.uasset` | One class default, `GlobalConfigDataAsset`: Easy Game UI's demo settings to Tharrn's `DA_TharrnUIConfig` (Easy Game UI finds its settings only through this selector) | `D:\Tharrn\Saved\PackBackups\2026-10-16\EasyGameUI\Core\GlobalConfig\` |
 
-Staging Easy Game UI again undoes it; `Tools/UI/build_ui.py` sets it again.
+Staging Easy Game UI again undoes it; `Tools/UI/build_ui.py` sets it again. P5 changed no other pack file
+(`build_ui.py` saved the selector again with the same value).
 
 ## Pictures (2026-10-16)
 
@@ -74,6 +92,12 @@ back [hands_empty_back_clear.jpg](pictures/p4/hands_empty_back_clear.jpg), aimin
 small play window [aiming_client_window.jpg](pictures/p4/aiming_client_window.jpg), the main menu
 [main_menu.jpg](pictures/p4/main_menu.jpg), the pause menu [pause_menu.jpg](pictures/p4/pause_menu.jpg), the options
 [options.jpg](pictures/p4/options.jpg).
+
+P5: the vitals cluster (hungry, in cold air, after a sprint) [hud_vitals.jpg](pictures/p5/hud_vitals.jpg), a resource
+on the item table [pickup_resource.jpg](pictures/p5/pickup_resource.jpg), the crafting panel with a bandage under way
+and what is missing in red [crafting.jpg](pictures/p5/crafting.jpg), the death screen
+[death_screen.jpg](pictures/p5/death_screen.jpg), back with the starting kit and full vitals
+[back_with_kit.jpg](pictures/p5/back_with_kit.jpg).
 
 ## Things that happened
 
@@ -86,6 +110,11 @@ small play window [aiming_client_window.jpg](pictures/p4/aiming_client_window.jp
 - 2026-10-16, night: the editor crashed once on Play after a Live Coding patch of a file with test console variables
   (`TharrnPlayerCharacter.cpp`); the crash was in Tharrn's movement test code, nothing was lost; full builds since
   (engineering guide, gotcha 79).
+
+- 2026-10-16, night (P5): the new survival test found that, once out of stamina, a held sprint key sprinted again
+  every 1.25 s; now sprinting comes back after letting go of sprint with 20 stamina back, or when it is full.
+  Saving project settings also rewrote `Config/DefaultEngine.ini` with every default again (as in P4); the file was
+  put back and the script now saves only a change.
 
 ## Chosen for the owner (proposals in the P4 plan; say if any is wrong)
 
@@ -100,13 +129,31 @@ small play window [aiming_client_window.jpg](pictures/p4/aiming_client_window.jp
   until the whole UI pass.
 - Grenades on the hotbar's 4, bandages on 5 (the starting kit); E picks up within 2.5 m.
 
+P5 (all in `Data/Vitals.csv`, `Data/Recipes.csv` and `Data/Items.csv`, easy to change):
+- Hunger empty in 60 minutes, hydration in 40; at 0 each costs 0.5 health a second.
+- Stamina 100; sprinting 12 a second (about 8 s); back at 20 a second after 1 s of rest; out of it, sprint again
+  after letting go with 20 back.
+- Comfortable from 10 to 30 °C; cloth armour 5 °C colder, composite 5 colder and 5 hotter, alloy 3 and 3; outside
+  it 1 health a second and 15 % slower; the felt temperature moves 2 °C a second.
+- GDD 03's aim formula with the hydration term only below 30 (else a well-watered player would sway less than the
+  weapon's own spread).
+- Recipes: a bandage from 2 organic fibre (3 s); 24 pistol rounds from 1 mineral and 1 alloy scrap (4 s); 40 SMG
+  rounds from 2 mineral and 1 alloy (5 s); two 40 mm grenades from 2 and 2 (6 s). A ration +40 hunger, water +50.
+- Five crafts in the queue; everything carried drops in a bag on going down (worn armour too); anyone can open a bag.
+
 ## To look at first, when home
 
 1. Play-test P2 and P3 ([steps](tasks.md#p3-weapons-results-2026-10-16)): the slide is gone, the launcher and
    grenades, aiming through the sight, the wheel.
-2. P4's play-test steps (written when P4 is built).
+2. P4's play-test steps ([tasks.md](tasks.md#p4-inventory-hotbar-and-ui-results-2026-10-16)), then P5's
+   ([tasks.md](tasks.md#p5-vitals-and-crafting-results-2026-10-16)): stamina, the cold and hot areas, crafting.
 3. This file's "Chosen for the owner" and "Questions" sections.
 
 ## Questions for the owner
 
-None yet.
+1. GDD 03's table says thirst adds 25 % aim sway; its formula gives up to 24 % (at hydration 0). The build follows the
+   formula; say if 25 % should be exact.
+2. Should thirst only ever add sway (the build: the hydration term only below 30), or should a well-watered player
+   sway less than the weapon's own spread (the formula as written)?
+3. Bags of a downed player: should they vanish after a while, and should anyone be able to open them (now: they stay,
+   anyone can)?

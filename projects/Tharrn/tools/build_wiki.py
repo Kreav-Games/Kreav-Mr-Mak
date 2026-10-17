@@ -463,8 +463,8 @@ def survival():
 <pre><code>StaminaRegen = BaseRegen × (1 − HungerPenalty) × (1 − TempPenalty)
 AimSway      = BaseSway × (1 + (30 − Hydration)/100 × 0.8 + (100 − Neural)/100 × 0.5)</code></pre>
 <p class="wiki-note">""" + OPEN + """ As written, a well-hydrated player sways less than normal (at full hydration and
-neural stability the sway multiplier is 0.44). If thirst should only ever add sway, the hydration term becomes
-<code>max(0, 30 − Hydration)</code>. To confirm with the owner when vitals are built.</p>
+neural stability the sway multiplier is 0.44). The build (P5) counts the hydration term only below 30,
+<code>max(0, 30 − Hydration)</code>, so thirst only ever adds sway: a proposal to confirm with the owner.</p>
 
 <h2>Resources</h2>
 """ + chain(["Organic", "Mineral", "Alloy", "Biotech core", "Energy crystal"]) + """
@@ -486,6 +486,8 @@ snaps to other pieces; the server checks every placement.</p>
 <li>A grid inventory with a weight limit, filters by type and quick-craft recipes.</li>
 <li>You ask to craft; the server checks the recipe and your inventory, then changes both. Crafts wait in a
 queue.</li>
+<li>""" + BUILT + """ The prototype crafts a bandage from organic fibre and rounds from mineral and alloy
+scrap, five crafts at a time; cancelling gives the inputs back.</li>
 </ul>
 
 <h2>The first milestone</h2>
@@ -685,7 +687,7 @@ def development():
         ["P2", "Shooter character: motion-matched movement, third-person aim-down-sights camera, sprint, crouch, mantle; online", BUILT + " Built and checked 2026-10-16; waits for the owner's play-test"],
         ["P3", "Weapons: SMG, pistol, a grenade launcher and hand grenades; recoil, spread, damage and armour; hits checked by the server", BUILT + " Built and checked 2026-10-16 with the Multiplayer Shooter System (D-23); waits for the owner's play-test"],
         ["P4", "Inventory, hotbar and UI: an inventory the server owns, a 12-slot hotbar, pickups, the HUD, inventory screen and menus in the shooter pack's look; the main menu, pause menu and options", BUILT + " Built 2026-10-16 while the owner was away; waits for the owner's play-test"],
-        ["P5", "Vitals and crafting: health, stamina, hunger, hydration, temperature; the formulas; crafting a bandage and ammo; the vitals on the HUD; the death screen", "—"],
+        ["P5", "Vitals and crafting: health, stamina, hunger, hydration, temperature; the formulas; crafting a bandage and ammo; the vitals on the HUD; the death screen", BUILT + " Built 2026-10-16 while the owner was away; waits for the owner's play-test"],
         ["P6", "Coastal slice: 1–2 km² of the starter biome at full quality, within the performance budget", "—"],
         ["P7", "Creatures: Skitterjaw, Phase Warden, Grav Raptor with behaviour, stagger and weak points", "—"],
         ["P8", "MetaHuman base: the player from presets, customisation saved and loaded", "—"],

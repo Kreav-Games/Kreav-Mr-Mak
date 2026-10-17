@@ -1,6 +1,6 @@
 // Tharrn HUD icons (deliverable 8, placeholders for P4): writes 12 SVG line icons and renders each to a 256 x 256 PNG
-// with a transparent background, white on clear so the HUD can tint them. Also two item icons for the inventory (P4,
-// D-25: bandage, armour) until the art direction is set; the game imports them from Data/UI/Icons.
+// with a transparent background, white on clear so the HUD can tint them. Also item icons for the inventory (P4,
+// D-25: bandage, armour; P5: organic, mineral, alloy) until the art direction is set; the game imports them from Data/UI/Icons.
 //
 //   node projects/Tharrn/tools/build_hud_icons.mjs        (from the Mr. Mak folder; uses Microsoft Edge through Playwright)
 //
@@ -30,6 +30,10 @@ const icons = {
   // Item placeholders (P4, D-25): a bandage strip and a chest plate.
   bandage: '<g transform="rotate(-35 12 12)"><rect x="2.5" y="8.5" width="19" height="7" rx="3.5"/><rect x="9" y="9.5" width="6" height="5" rx="1"/></g><path d="M5.4 11.4h.01M6.6 13.2h.01M17.4 10.8h.01M18.6 12.6h.01"/>',
   armour: '<path d="M7 3.5l5 2 5-2 3 3.5-2 3V20.5H6V10L4 7Z"/><path d="M12 5.5v15M6 13.5h12"/>',
+  // Resource placeholders (P5): a leaf (organic fibre), a crystal (mineral), an ingot (alloy scrap).
+  organic: '<path d="M5 19C5 10 11 4 20 4c0 9-6 15-15 15Z"/><path d="M5 19 14 10"/>',
+  mineral: '<path d="M12 2.5 18.5 8 16 20.5H8L5.5 8Z"/><path d="M5.5 8h13M12 2.5 9.5 8 12 20.5 14.5 8Z"/>',
+  alloy: '<path d="M3 16.5 6.5 9h11l3.5 7.5Z"/><path d="M6.5 9 9 5.5h6L17.5 9M3 16.5h18v2.5H3Z"/>',
   quickwheel: '<circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="3.5"/>' +
     [45, 135, 225, 315].map(a => { const r = Math.PI * a / 180, c = Math.cos(r), s = Math.sin(r); return `<path d="M${(12 + 3.5 * c).toFixed(2)} ${(12 + 3.5 * s).toFixed(2)}L${(12 + 9.5 * c).toFixed(2)} ${(12 + 9.5 * s).toFixed(2)}"/>`; }).join(''),
 };

@@ -53,7 +53,9 @@
   Easy Game UI's global styling is set to match.
 - Prototype UI: the hotbar, weapon panel, crosshair and hit markers, the inventory screen, main and pause menus and
   options (P4, built 2026-10-16: the HUD and inventory screen are Tharrn's C++ widgets in MSS's look, the menus Easy
-  Game UI's); the vitals cluster, crafting and death screens (P5); the map (P6); the rest later. The layout lives in
+  Game UI's); the vitals cluster (health, stamina, hunger, hydration, temperature; neural stability's bar comes with
+  its effects), the crafting panel in the inventory screen and the death screen (P5, built 2026-10-16); the map (P6);
+  the rest later. The layout lives in
   the Widget Blueprints (`Tools/UI/build_ui.py`); `Data/UI/HudLayout.json` is the design's sketch.
 
 ## From the owner's package ([owner's package review](../reviews/owner-package-2026-10-15.md))

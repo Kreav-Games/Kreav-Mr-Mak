@@ -23,7 +23,7 @@ Proposed order; each module is built server-authoritative from the start (D-04).
 | P2 | **Shooter character:** the Game Animation Sample's motion-matched character as the player, third-person aim-down-sights camera (D-15), sprint, crouch, mantle (the slide was built, then removed by the owner, D-24); replicated | Two clients move and mantle smoothly at 100 ms latency | Built and checked 2026-10-16 (below); **owner play-test** |
 | P3 | **Weapons:** weapon CSV (deliverable 7), SMG and pistol hitscan, one heavy projectile, recoil curves, spread, damage multipliers and armour, server-validated hits with rewind (OQ-09) | Test-range targets; under 2 % desync between two clients; tests for multipliers and armour | Built 2026-10-16 with MSS's weapons and animation (D-23); changed the same day (D-24: grenade launcher, grenades, aiming through the sight, the wheel, no slide); **owner play-test** ([steps](#p3-weapons-results-2026-10-16)) |
 | P4 | **Inventory, hotbar and UI (D-25):** items from data, an inventory the server owns (grid, weight limit, equipment), a 12-slot hotbar (keys 1 to 9, 0, − and =; the wheel) that draws weapons, readies grenades and uses items, pickups and drops; the HUD, the inventory screen and Easy Game UI's menus in MSS's look | Every slot picks the same item on every machine; items move, stack, drop and are picked up through the server, made-up requests refused; the owner's yes | Built 2026-10-16 while the owner was away ([results](#p4-inventory-hotbar-and-ui-results-2026-10-16); report and rollback points: [while-away.md](while-away.md)); **owner play-test** |
-| P5 | **Vitals and crafting** (started 2026-10-16, [plan](#p5-vitals-and-crafting-plan-2026-10-16))**:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo (the crafting screen); the vitals on the HUD; the death screen and dropping the inventory | Thresholds tested; the HUD matches on both clients | — |
+| P5 | **Vitals and crafting** (started 2026-10-16, [plan](#p5-vitals-and-crafting-plan-2026-10-16))**:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo (the crafting screen); the vitals on the HUD; the death screen and dropping the inventory | Thresholds tested; the HUD matches on both clients | Built 2026-10-16 while the owner was away ([results](#p5-vitals-and-crafting-results-2026-10-16); report: [while-away.md](while-away.md)); **owner play-test** |
 | P6 | **Coastal slice:** about 1–2 km² of the starter biome: terrain (OQ-06), ocean test (OQ-05), Sci-Fi bundle shore and jungle kits and its PCG biome system, following its guides ([reference](scifi-bundle.md)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
 | P7 | **Creatures:** Skitterjaw (desert, D-16), Phase Warden, Grav Raptor (creature CSV, deliverable 5 in part), StateTree behaviour, perception, stagger and weak points | The tutorial fight (creature per OQ-12) works for two clients | — |
 | P8 | **MetaHuman base:** the player as a MetaHuman from presets (OQ-03), customisation JSON saved and loaded | A preset choice survives a reload and shows on both clients | — |
@@ -352,9 +352,69 @@ health falls 0.5 a second; stamina 100, sprinting 12 a second, back at 20 a seco
 10 to 30 °C without armour, wider with it; outside it 1 health a second and 15 % slower. Radiation and neural stability's
 effects (hallucinations) come later.
 
+## P5 Vitals and crafting: results (2026-10-16)
+
+Built straight after P4 while the owner was away ("Then continue with next step afterwards"); checkpoint committed
+under the owner's standing yes for verified checkpoints. Report, rollback points and pictures:
+[while-away.md](while-away.md).
+
+- **Done:** P5.1 to P5.9.
+  - **Vitals (C++, the server owns them):** stamina, hunger, hydration, felt temperature and neural stability as
+    attributes next to health (only the owning player receives them); `UTharrnVitalsComponent` runs them on the server
+    four times a second: hunger and hydration drain (60 and 40 minutes from full), at 0 each costs 0.5 health a
+    second; the felt temperature follows the air at 2 °C a second; outside the comfortable range (10 to 30 °C, wider
+    with what is worn: cloth 5 °C colder, composite 5 colder and 5 hotter, alloy 3 and 3) 1 health a second and 15 %
+    slower. Numbers: `Data/Vitals.csv` (`DT_Vitals`), all **proposals**.
+  - **GDD 03's formulas** in one C++ library (`UTharrnVitalsLibrary`): `StaminaRegen` (hunger below 30: 40 % slower;
+    too cold or hot: 30 % slower) and `AimSway` (thirst below 30 and low neural stability widen the weapon's spread;
+    the hydration term counts only below 30: **proposal**, so a well-watered player sways as the weapon does, not
+    less).
+  - **Stamina in play:** sprinting uses 12 a second; it comes back at 20 a second after 1 s of rest; out of it, no
+    sprint until sprint is let go with 20 back, or stamina is full. Kept in the movement, move by move, like the gait,
+    and sent with the server's corrections, so sprinting causes no corrections (checked under 100 ms and 1 % loss).
+  - **Temperature:** `ATharrnClimateVolume`, an area with its own air (outlined and labelled when shown in the game);
+    the test range has a cold area (6 °C) and a hot one (33 °C) behind the starts: the right armour makes each bearable.
+  - **Food and water:** a ration (+40 hunger) and a water bottle (+50 hydration), used from the hotbar or the inventory
+    like the bandage; not used up when full.
+  - **Crafting (C++, the server checks):** `UTharrnCraftingComponent`: recipes in `Data/Recipes.csv` (a bandage from 2
+    organic fibre; pistol, SMG and 40 mm rounds from mineral and alloy: **proposals**), a queue of 5, the inputs taken
+    when queued, the item after the recipe's seconds (what does not fit drops at the feet), cancelling gives the inputs
+    back. Organic fibre, mineral and alloy scrap, rations and water lie on the test range's item table.
+  - **UI in MSS's look:** the vitals cluster bottom left (health, stamina, hunger, hydration, the felt temperature with
+    deliverable 8's icons; red when one hurts, blue or orange when cold or hot); the crafting panel in the inventory
+    screen (each recipe with what it takes and what is missing, Craft, the queue with progress and cancel); the death
+    screen (what took the player down, what lies in the bag, the seconds left).
+  - **Going down:** crafts are cancelled (inputs back), everything carried, worn items too, drops in a bag where the
+    player fell (anyone can take from it); the new body comes with the starting kit and full vitals.
+- **Checks:** verify.py 5 of 5 (both targets build with no warnings, Shipping too; plugin check; data import; 91 automation tests, 7 of them new; the network test as listen and dedicated server with 0 corrections); survival_test.py passes as listen and dedicated server (the same vitals on the player's machine and the server; slower recovery and more sway below 30; a ration and water used, water at full kept; cold air hurts and slows, cloth armour comfortable; a bandage crafted, a craft cancelled with its inputs back, two made-up crafts refused; out of stamina after 8.3 s, then running with sprint held, 0 corrections; going down drops a bag, the screen is told, the new body has the kit, the bag can be picked up); inventory_test.py and mss_test.py pass; pictures of the vitals, a resource, the crafting panel and the death screen.
+- **Found and fixed on the way:** with "sprint again above 5" a held sprint key sprinted again every 1.25 s (now: let go
+  first, or full); saving project settings wrote every default of the section into `Config/DefaultEngine.ini` (the
+  script now saves only a change); the pick-up prompt showed behind the inventory screen and on the death screen
+  (engineering guide, gotchas 85 to 89).
+- **Not built / later:** radiation and neural stability's own effects (hallucinations; it is in the aim formula, kept
+  at 100); resource nodes to gather (resources lie as items for now); benches and building (P5's building half comes
+  with base building); a proper bag model (a box now) and bags that vanish after a while; the weather and biomes
+  setting the air (climate volumes stand in); a death animation (the body stands until it is replaced).
+
+**Play-test (P5, about 10 minutes).**
+1. Open the test range, press Play. Bottom left: health, then stamina, hunger, hydration and the temperature.
+2. Hold Shift and run: the stamina bar empties in about 8 seconds and turns red; you run, not sprint, until you let go
+   of Shift and press it again (or it fills).
+3. Walk behind the starts: the blue box is cold (6 °C). Stand in it: the temperature falls, turns blue "cold", you
+   lose a little health and move slower. Pick up the cloth armour from the item table, Tab, double click it to wear it:
+   comfortable again. The orange box is hot (33 °C): composite or alloy armour helps there.
+4. From the item table pick up organic fibre, mineral, alloy scrap, a ration and water. Press Tab: the crafting panel
+   on the right. Craft a bandage (3 s, the bar fills), queue pistol rounds and cancel them: the inputs come back.
+5. Eat and drink from the hotbar once hungry or thirsty (in a long play, or ask Claude for a quicker test setting).
+6. With 2 players (Listen Server): the same vitals on each player's own screen; one player's bag can be emptied by the
+   other.
+7. Tell Claude how the numbers feel (they are proposals): how fast stamina, hunger and thirst go, the cold and heat,
+   the recipes.
+
 ## Asked of the owner
 
-- Play-test P2, P3 and P4 (steps above).
+- Play-test P2, P3, P4 and P5 (steps above); say how P5's numbers feel (stamina, hunger, thirst, cold and heat, the
+  recipes: all proposals).
 - When home: check the P4 plan's proposals (G and Z on the hotbar and in the inventory too, the first screens, the
   numbers) and read [while-away.md](while-away.md).
 - Review GDD 0.1 and the open questions, especially scope (OQ-07) and the tutorial creature (OQ-12); the

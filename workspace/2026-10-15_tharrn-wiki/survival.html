@@ -22,8 +22,8 @@
 <pre><code>StaminaRegen = BaseRegen × (1 − HungerPenalty) × (1 − TempPenalty)
 AimSway      = BaseSway × (1 + (30 − Hydration)/100 × 0.8 + (100 − Neural)/100 × 0.5)</code></pre>
 <p class="wiki-note"><span class="tag tag-open">Open question</span> As written, a well-hydrated player sways less than normal (at full hydration and
-neural stability the sway multiplier is 0.44). If thirst should only ever add sway, the hydration term becomes
-<code>max(0, 30 − Hydration)</code>. To confirm with the owner when vitals are built.</p>
+neural stability the sway multiplier is 0.44). The build (P5) counts the hydration term only below 30,
+<code>max(0, 30 − Hydration)</code>, so thirst only ever adds sway: a proposal to confirm with the owner.</p>
 
 <h2>Resources</h2>
 <p class="chain"><span class="chain-step">Organic</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Mineral</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Alloy</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Biotech core</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Energy crystal</span></p>
@@ -40,6 +40,8 @@ snaps to other pieces; the server checks every placement.</p>
 <li>A grid inventory with a weight limit, filters by type and quick-craft recipes.</li>
 <li>You ask to craft; the server checks the recipe and your inventory, then changes both. Crafts wait in a
 queue.</li>
+<li><span class="tag tag-built">In the build</span> The prototype crafts a bandage from organic fibre and rounds from mineral and alloy
+scrap, five crafts at a time; cancelling gives the inputs back.</li>
 </ul>
 
 <h2>The first milestone</h2>
