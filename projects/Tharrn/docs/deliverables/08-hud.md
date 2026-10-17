@@ -14,7 +14,7 @@ with resolution.
 
 Twelve line icons, white on a transparent background so the HUD can tint them (red for a PvP warning, amber for a
 low vital). 256 × 256 PNG, with the SVG source beside each, made by `tools/build_hud_icons.mjs`. They are
-**placeholders** for the Prototype HUD (P4) until the owner sets the art direction.
+**placeholders** for the Prototype HUD (P4 and P5) until the owner sets the art direction.
 
 | Icon | File | Used for |
 |---|---|---|
@@ -34,4 +34,4 @@ low vital). 256 × 256 PNG, with the SVG source beside each, made by `tools/buil
 (The icons are white: they show on a dark background.)
 
 In Unreal they become textures `T_UI_<Name>` under `/Game/Art/UI/Icons/` (owner's naming, engineering guide §5),
-imported as user-interface textures without mipmaps, when P4 builds the HUD.
+imported as user-interface textures without mipmaps, when P4 and P5 build the HUD.

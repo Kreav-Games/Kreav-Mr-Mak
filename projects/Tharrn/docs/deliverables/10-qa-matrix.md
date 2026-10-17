@@ -19,35 +19,44 @@ check with simulated latency and loss (`Tools/Checks/net_test.py`); *Budget* = `
 | F-05 | P1 | Client-to-server round trip measured | Net | Every client measures one; under 400 ms with 100 ms added | **Pass** (119–172 ms) |
 | F-06 | P1 | Tharrn's MCP toolsets (Blueprint notes, play sessions) | Auto | Every tool's normal case and each error it raises | **Pass** (27 tests) |
 | F-07 | P1 | Test range | Owner | Probe text agrees between windows; target labels read 10–100 m | Waiting for the owner |
-| M-01 | P2 Character | Gait changes under latency | Net | No server corrections when walking, running, sprinting, crouching at 100 ms | Not built |
-| M-02 | P2 | Slide | Net | Start, length and end match on server and clients | Not built |
-| M-03 | P2 | Mantle and vault | Auto + Net | The server refuses a mantle where it finds no ledge; a valid one plays on every client | Not built |
-| M-04 | P2 | Aim-down-sights camera | Owner | Readable at 10, 25, 50 and 100 m on the test range | Not built |
-| C-01 | P3 Weapons | QA001 AR-01 recoil | Auto | Measured recoil within 5 % of its curve | Not built |
-| C-02 | P3 | Hit multipliers | Auto | Head × 2.5, torso × 1.0, limb × 0.75 | Not built |
-| C-03 | P3 | Armour | Auto | Cloth 10 %, composite 30 %, alloy 50 % less damage | Not built |
-| C-04 | P3 | Hit registration under latency | Net | Two clients at 100 ms: under 2 % of shots disagree between client and server | Not built |
-| C-05 | P3 | The server refuses impossible shots | Auto | A shot from a position or time the server cannot match deals no damage | Not built |
-| C-06 | P3 | Heavy projectile | Auto | Drop and travel time match its speed; damage applied by the server only | Not built |
-| C-07 | P3 | Weapons from data | Auto | SMG, pistol and the heavy weapon take every stat from `DT_Weapons` | Not built |
+| M-01 | P2 Character | Gait changes under latency | Net | No server corrections when walking, running, sprinting, crouching at 100 ms | **Pass** 2026-10-16 (0 to 3 corrections, limit 3, for packet loss) |
+| ~~M-02~~ | ~~P2~~ | ~~Slide~~ | ~~Net~~ | ~~Start, length and end match on server and clients~~ | Removed (D-24); it had passed 2026-10-16 |
+| M-03 | P2 | Mantle and vault | Auto + Net | The server refuses a mantle where it finds no ledge; a valid one plays on every client | **Pass** 2026-10-16 |
+| M-04 | P2 | Aim-down-sights camera: the view through the weapon's sight (D-24) | Owner | Readable at 10, 25, 50 and 100 m on the test range | Built; waiting for the owner |
+| C-01 | P3 Weapons | QA001 AR-01 recoil | Auto | Measured recoil within 5 % of its curve | The curve is tested (`Tharrn.Combat.RecoilCurve`); AR-01 is not in the loadout yet |
+| C-02 | P3 | Hit multipliers | Auto | Head × 2.5, torso × 1.0, limb × 0.75 | **Pass** 2026-10-16 |
+| C-03 | P3 | Armour | Auto | Cloth 10 %, composite 30 %, alloy 50 % less damage | **Pass** 2026-10-16 |
+| C-04 | P3 | Hit registration under latency | Net | Two clients at 100 ms: under 2 % of shots disagree between client and server | **Pass** 2026-10-16 (0 to 1.2 %) |
+| C-05 | P3 | The server refuses impossible shots | Auto + Net | A shot from a position or time the server cannot match deals no damage | **Pass** 2026-10-16 |
+| C-06 | P3 | Heavy projectile: the grenade launcher's round (D-24) | Auto + Net | Drop and travel time match its speed; it explodes where it lands; the blast applied by the server only | **Pass** 2026-10-16 |
+| C-07 | P3 | Weapons from data | Auto | SMG, pistol, grenade launcher and hand grenade take every stat from `DT_Weapons` | **Pass** 2026-10-16 |
 | C-08 | P3 | Aim assist | Auto | Only with a controller; 0.6° radius, strength 0.15 | Not built |
-| V-01 | P4 Vitals | Hunger threshold | Auto | Below 30, stamina recovers 40 % slower; at 30 and above, normally | Not built |
-| V-02 | P4 | Hydration threshold | Auto | Below 30, aim sway grows by 25 % (formula as settled with the owner, GDD 03) | Not built |
-| V-03 | P4 | The two formulas | Auto | `StaminaRegen` and `AimSway` at 0, 29, 30, 31 and 100 | Not built |
-| V-04 | P4 | Temperature | Auto | Outside the armour's range: damage over time and slower movement | Not built |
-| V-05 | P4 | Crafting a bandage and ammo | Auto + Net | The server checks recipe and inventory; both clients see the same inventory | Not built |
-| V-06 | P4 | HUD vitals and weapon panel | Owner + Net | The same values on both clients | Not built |
-| W-01 | P5 Coastal slice | Frame budget | Budget | Within D-11 (16.6 ms on the minimum PC, split as in D-11) | Not built |
-| W-02 | P5 | QA005 streaming | Budget | No frame more than 10 ms over the median while crossing cells | Not built |
-| W-04 | P5 | Look | Owner | The owner approves the review images | Not built |
-| A-01 | P6 Creatures | Behaviour runs on the server only | Net | Clients receive movement and montages; no AI on clients | Not built |
-| A-02 | P6 | Skitterjaw pack | Net + Owner | Patrol, detect, chase, flank, pounce; two clients see the same fight | Not built |
-| A-03 | P6 | Aggro radius | Auto | Notices a player at the CSV's radius, not beyond | Not built |
-| A-04 | P6 | Stagger and weak points | Auto | Stagger at its threshold interrupts the attack; weak point uses its multiplier | Not built |
-| A-05 | P6 | Phase Warden teleport dodge | Net | Hits on the old position after a teleport are refused by the server | Not built |
-| H-01 | P7 MetaHuman | QA004 preset load | Auto | Morphs and materials match the JSON; save and load round-trips | Not built |
-| H-02 | P7 | Customisation online | Net | A chosen preset survives a reload and shows on both clients | Not built |
-| P-01 | P8 Play-through | The tutorial path | Owner | Crash site → vitals → scavenge and craft → first fight → shelter in 10–15 minutes, and fun | Not built |
+| C-09 | P3 | Explosions (D-24) | Auto + MSS test | Full damage within 1 m, none past 5 m, through armour; walls shield; grenades counted (three) and thrown by the server, exploding on the server only | **Pass** 2026-10-16 |
+| I-01 | P4 Inventory and UI | Items from data | Auto | Every item takes its weight, stack size and links from `DT_Items` | Not built |
+| I-02 | P4 | Stacking and splitting | Auto | Stacks fill to their size; a split leaves both parts; nothing is made or lost | Not built |
+| I-03 | P4 | Weight limit | Auto | Weight sums the items; over the limit no sprinting (proposal) | Not built |
+| I-04 | P4 | Ammunition and armour from the inventory | Auto | Reloading takes rounds from the inventory; worn armour sets the armour reduction | Not built |
+| I-05 | P4 | The server refuses made-up requests | Auto + Net | Moving items a player does not have, slots out of range, picking up from far away: nothing changes | Not built |
+| I-06 | P4 | Hotbar | Net | Keys 1 to 12 and the wheel pick the same item on every machine; weapons drawn with MSS's animation | Not built |
+| I-07 | P4 | Pickups and drops | Net | A dropped item shows for everyone; two players taking one item: one gets it | Not built |
+| I-08 | P4 | HUD and inventory screen | Owner + Net | The same items and counts on both clients, in MSS's look | Not built |
+| V-01 | P5 Vitals | Hunger threshold | Auto | Below 30, stamina recovers 40 % slower; at 30 and above, normally | Not built |
+| V-02 | P5 | Hydration threshold | Auto | Below 30, aim sway grows by 25 % (formula as settled with the owner, GDD 03) | Not built |
+| V-03 | P5 | The two formulas | Auto | `StaminaRegen` and `AimSway` at 0, 29, 30, 31 and 100 | Not built |
+| V-04 | P5 | Temperature | Auto | Outside the armour's range: damage over time and slower movement | Not built |
+| V-05 | P5 | Crafting a bandage and ammo | Auto + Net | The server checks recipe and inventory; both clients see the same inventory | Not built |
+| V-06 | P5 | HUD vitals | Owner + Net | The same values on both clients | Not built |
+| W-01 | P6 Coastal slice | Frame budget | Budget | Within D-11 (16.6 ms on the minimum PC, split as in D-11) | Not built |
+| W-02 | P6 | QA005 streaming | Budget | No frame more than 10 ms over the median while crossing cells | Not built |
+| W-04 | P6 | Look | Owner | The owner approves the review images | Not built |
+| A-01 | P7 Creatures | Behaviour runs on the server only | Net | Clients receive movement and montages; no AI on clients | Not built |
+| A-02 | P7 | Skitterjaw pack | Net + Owner | Patrol, detect, chase, flank, pounce; two clients see the same fight | Not built |
+| A-03 | P7 | Aggro radius | Auto | Notices a player at the CSV's radius, not beyond | Not built |
+| A-04 | P7 | Stagger and weak points | Auto | Stagger at its threshold interrupts the attack; weak point uses its multiplier | Not built |
+| A-05 | P7 | Phase Warden teleport dodge | Net | Hits on the old position after a teleport are refused by the server | Not built |
+| H-01 | P8 MetaHuman | QA004 preset load | Auto | Morphs and materials match the JSON; save and load round-trips | Not built |
+| H-02 | P8 | Customisation online | Net | A chosen preset survives a reload and shows on both clients | Not built |
+| P-01 | P9 Play-through | The tutorial path | Owner | Crash site → vitals → scavenge and craft → first fight → shelter in 10–15 minutes, and fun | Not built |
 
 ## Vertical slice and later
 
@@ -72,7 +81,7 @@ check with simulated latency and loss (`Tools/Checks/net_test.py`); *Budget* = `
 | Area | Criterion | How it is measured here |
 |---|---|---|
 | Combat feel | 95th percentile of play-tests report responsive aim; under 2 % desync | C-04 now; play-tests beyond the owner later |
-| Survival balance | Expedition length matches the design; vitals influence but do not punish | The owner's play-tests from P4 and P8 |
+| Survival balance | Expedition length matches the design; vitals influence but do not punish | The owner's play-tests from P5 and P9 |
 | PvP | Flagging reliable; extraction interrupts work; proxies spawn | X-01 to X-05 |
 | MetaHuman fidelity | Facial animation matches voice; LOD changes are seamless | H-01, H-02; voice later |
 | Performance | 60 fps on the minimum PC (D-11), 120 fps on high-end PCs, consoles open (OQ-01) | W-01 and W-02 for every world module |

@@ -19,6 +19,11 @@
 server then checks the shot against where the targets were at the moment you fired, and only the server applies
 damage. Heavy rounds are real projectiles with drop and travel time, simulated on the server.</p>
 
+<h2>Explosions</h2>
+<p>The grenade launcher's rounds and hand grenades explode: full damage within 1 m, falling evenly to nothing at 5 m,
+reduced by armour. A wall between you and the blast shields you completely, and your own grenades hurt you too. Only
+the server decides who the blast reaches (D-24).</p>
+
 <h2>Damage</h2>
 <div class="grid-2 two">
 <table><thead><tr><th>Hit</th><th>Multiplier</th></tr></thead><tbody><tr><td>Head</td><td>× 2.5</td></tr><tr><td>Torso</td><td>× 1.0</td></tr><tr><td>Limb</td><td>× 0.75</td></tr></tbody></table><table><thead><tr><th>Armour</th><th>Damage reduction</th></tr></thead><tbody><tr><td>Cloth</td><td>10 %</td></tr><tr><td>Composite</td><td>30 %</td></tr><tr><td>Alloy</td><td>50 %</td></tr></tbody></table>
@@ -27,14 +32,15 @@ damage. Heavy rounds are real projectiles with drop and travel time, simulated o
 staggers, which interrupts its attack.</p>
 
 <h2>Fire modes</h2>
-<table><thead><tr><th>Mode</th><th>Weapons</th><th>How it hits</th></tr></thead><tbody><tr><td>Hitscan</td><td>SMG, pistol, rifle</td><td>Instantly along the aim line</td></tr><tr><td>Projectile</td><td>Heavy rounds</td><td>A travelling round with gravity drop</td></tr><tr><td>Beam or charge</td><td>Energy weapons</td><td>A continuous beam, or a shot you charge up</td></tr></tbody></table>
+<table><thead><tr><th>Mode</th><th>Weapons</th><th>How it hits</th></tr></thead><tbody><tr><td>Hitscan</td><td>SMG, pistol, rifle</td><td>Instantly along the aim line</td></tr><tr><td>Projectile</td><td>Grenade launcher</td><td>A travelling round with gravity drop that explodes where it lands</td></tr><tr><td>Thrown</td><td>Hand grenades</td><td>Thrown where you aim; explodes 3 seconds after the pin is pulled</td></tr><tr><td>Beam or charge</td><td>Energy weapons</td><td>A continuous beam, or a shot you charge up</td></tr></tbody></table>
 
 <h2>Weapons</h2>
 <p>The weapons with data so far. Damage is per hit; fire rate is rounds per minute; damage per second is damage ×
 fire rate ÷ 60, on the torso and before armour; weight is kg; range is metres.</p>
-<table><thead><tr><th>ID</th><th>Weapon</th><th>Type</th><th>Damage</th><th>Fire rate</th><th>Damage / s</th><th>Magazine</th><th>Weight</th><th>Range</th><th>Hit</th><th>Role</th></tr></thead><tbody><tr><td><code>AR01</code></td><td><strong>Assault Rifle AR-01</strong></td><td>Ballistic</td><td>28</td><td>600</td><td>280</td><td>30</td><td>3.2</td><td>600</td><td>hitscan</td><td>Balanced mid-range rifle</td></tr><tr><td><code>SMG_A1</code></td><td><strong>SMG A1</strong></td><td>Ballistic</td><td>16</td><td>900</td><td>240</td><td>40</td><td>2.1</td><td>200</td><td>hitscan</td><td>High fire rate close quarters</td></tr><tr><td><code>SG01</code></td><td><strong>Shotgun SG-01</strong></td><td>Spread</td><td>120</td><td>70</td><td>140</td><td>8</td><td>4.5</td><td>30</td><td>projectile</td><td>High burst close-range; pellets wait for the owner (deliverable 7)</td></tr><tr><td><code>PS01</code></td><td><strong>Sidearm PS-01</strong></td><td>Ballistic</td><td>34</td><td>300</td><td>170</td><td>12</td><td>1.1</td><td>60</td><td>hitscan</td><td>Backup sidearm; deliverable 7 starting values</td></tr><tr><td><code>MR01</code></td><td><strong>Mass Driver MR-01</strong></td><td>Heavy</td><td>95</td><td>50</td><td>79</td><td>5</td><td>6.0</td><td>800</td><td>projectile</td><td>Heavy projectile with drop; deliverable 7 starting values</td></tr></tbody></table>
+<table><thead><tr><th>ID</th><th>Weapon</th><th>Type</th><th>Damage</th><th>Fire rate</th><th>Damage / s</th><th>Magazine</th><th>Weight</th><th>Range</th><th>Hit</th><th>Role</th></tr></thead><tbody><tr><td><code>AR01</code></td><td><strong>Assault Rifle AR-01</strong></td><td>Ballistic</td><td>28</td><td>600</td><td>280</td><td>30</td><td>3.2</td><td>600</td><td>hitscan</td><td>Balanced mid-range rifle</td></tr><tr><td><code>SMG_A1</code></td><td><strong>SMG A1</strong></td><td>Ballistic</td><td>16</td><td>900</td><td>240</td><td>40</td><td>2.1</td><td>200</td><td>hitscan</td><td>High fire rate close quarters</td></tr><tr><td><code>SG01</code></td><td><strong>Shotgun SG-01</strong></td><td>Spread</td><td>120</td><td>70</td><td>140</td><td>8</td><td>4.5</td><td>30</td><td>projectile</td><td>High burst close-range; pellets wait for the owner (deliverable 7)</td></tr><tr><td><code>PS01</code></td><td><strong>Sidearm PS-01</strong></td><td>Ballistic</td><td>34</td><td>300</td><td>170</td><td>12</td><td>1.1</td><td>60</td><td>hitscan</td><td>Backup sidearm; deliverable 7 starting values</td></tr><tr><td><code>MR01</code></td><td><strong>Mass Driver MR-01</strong></td><td>Heavy</td><td>95</td><td>50</td><td>79</td><td>5</td><td>6.0</td><td>800</td><td>projectile</td><td>Heavy projectile with drop; deliverable 7 starting values</td></tr><tr><td><code>GL01</code></td><td><strong>Grenade Launcher GL-01</strong></td><td>Explosive</td><td>120</td><td>40</td><td>80</td><td>4</td><td>5.5</td><td>300</td><td>projectile</td><td>Heavy slot from 2026-10-16 (D-24): MSS&#x27;s grenade launcher; explodes on impact; blast radii are MSS&#x27;s; proposal values</td></tr><tr><td><code>HG01</code></td><td><strong>Frag Grenade HG-01</strong></td><td>Throwable</td><td>150</td><td>—</td><td>—</td><td>3 carried</td><td>0.4</td><td>—</td><td>thrown</td><td>Hand grenade thrown with G (MSS; D-24); mag_size is how many a player carries; fuse is MSS&#x27;s; throw speed 15 m/s (MSS&#x27;s 8 m/s landed inside the blast); proposal values</td></tr></tbody></table>
 <p class="wiki-note"><span class="tag tag-open">Open question</span> The shotgun SG-01 is stored as a projectile with a speed of 0; the GDD proposes hitscan
-pellets. Still missing for the fire modes above: a pistol, a heavy projectile weapon and an energy weapon.</p>
+pellets. Still missing for the fire modes above: an energy weapon. The Mass Driver MR-01 stays in the data; the
+grenade launcher took its place in the heavy slot (D-24).</p>
 
 <h2>Accuracy and recoil</h2>
 <ul>
@@ -42,6 +48,8 @@ pellets. Still missing for the fire modes above: a pistol, a heavy projectile we
 recovers.</li>
 <li><strong>Spread</strong> has three numbers per weapon: from the hip, aiming down sights, and a penalty for
 moving.</li>
+<li><strong>Aiming</strong> looks through the weapon's sight, zoomed a little per weapon; the game stays third person
+otherwise (D-24). Scopes come with the optic attachments.</li>
 <li><strong>Aim assist</strong> on controllers only: a gentle pull within 0.6° of a target, strength 0.15, both
 adjustable.</li>
 <li><strong>Vitals</strong> change your aim: thirst and low neural stability add sway (see Survival and building).</li>
@@ -49,11 +57,13 @@ adjustable.</li>
 
 <h2>Attachments</h2>
 <p>Five slots: <strong>barrel, stock, magazine, optic and core</strong>. Attachments change recoil, accuracy,
-handling and weight, come in rarities, and need blueprints.</p>
+handling and weight, come in rarities, and need blueprints. They come later, with Tharrn's own weapon models (D-22,
+D-24).</p>
 
 <h2>Movement</h2>
-<p class="chain"><span class="chain-step">Sprint</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Slide</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Mantle</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Jetpack burst (uses stamina)</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Grapple tether</span></p>
-<p>Your armour changes how you move. Slide and mantle come first; the jetpack and the grapple come later.</p>
+<p class="chain"><span class="chain-step">Sprint</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Mantle</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Jetpack burst (uses stamina)</span><span class="chain-arrow" aria-hidden="true">→</span><span class="chain-step">Grapple tether</span></p>
+<p>Your armour changes how you move. Mantling comes first; the jetpack and the grapple come later. There is no slide
+(D-24).</p>
 
 <h2>The first milestone</h2>
 <p>An SMG, a pistol and one heavy projectile weapon from the data; recoil and spread you can read on the test range;

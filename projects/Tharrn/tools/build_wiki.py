@@ -374,14 +374,21 @@ flyer, three different problems.</li>
 def combat(weapons):
     rows = []
     for w in weapons:
-        dps = float(w["damage"]) * float(w["fire_rate"]) / 60
+        thrown = w["hit_type"] == "thrown"  # a hand grenade: no fire rate, and its "magazine" is how many you carry
+        dps = "—" if thrown else "%.0f" % (float(w["damage"]) * float(w["fire_rate"]) / 60)
         rows.append(["<code>%s</code>" % E(w["weapon_id"]), "<strong>%s</strong>" % E(w["name"]), E(w["type"]), E(w["damage"]),
-                     E(w["fire_rate"]), "%.0f" % dps, E(w["mag_size"]), E(w["weight"]), E(w["range"]), E(w["hit_type"]), E(w["notes"])])
+                     "—" if thrown else E(w["fire_rate"]), dps, E(w["mag_size"]) + (" carried" if thrown else ""), E(w["weight"]),
+                     "—" if thrown else E(w["range"]), E(w["hit_type"]), E(w["notes"])])
     body = """
 <h2>How a shot works online</h2>
 <p>%s Your game fires at once, so it feels instant: muzzle flash, recoil, tracer and a predicted hit marker. The
 server then checks the shot against where the targets were at the moment you fired, and only the server applies
 damage. Heavy rounds are real projectiles with drop and travel time, simulated on the server.</p>
+
+<h2>Explosions</h2>
+<p>The grenade launcher's rounds and hand grenades explode: full damage within 1 m, falling evenly to nothing at 5 m,
+reduced by armour. A wall between you and the blast shields you completely, and your own grenades hurt you too. Only
+the server decides who the blast reaches (D-24).</p>
 
 <h2>Damage</h2>
 <div class="grid-2 two">
@@ -394,7 +401,8 @@ staggers, which interrupts its attack.</p>
 <h2>Fire modes</h2>
 """ + table(["Mode", "Weapons", "How it hits"], [
         ["Hitscan", "SMG, pistol, rifle", "Instantly along the aim line"],
-        ["Projectile", "Heavy rounds", "A travelling round with gravity drop"],
+        ["Projectile", "Grenade launcher", "A travelling round with gravity drop that explodes where it lands"],
+        ["Thrown", "Hand grenades", "Thrown where you aim; explodes 3 seconds after the pin is pulled"],
         ["Beam or charge", "Energy weapons", "A continuous beam, or a shot you charge up"],
     ]) + """
 
@@ -403,7 +411,8 @@ staggers, which interrupts its attack.</p>
 fire rate ÷ 60, on the torso and before armour; weight is kg; range is metres.</p>
 """ + table(["ID", "Weapon", "Type", "Damage", "Fire rate", "Damage / s", "Magazine", "Weight", "Range", "Hit", "Role"], rows) + """
 <p class="wiki-note">""" + OPEN + """ The shotgun SG-01 is stored as a projectile with a speed of 0; the GDD proposes hitscan
-pellets. Still missing for the fire modes above: a pistol, a heavy projectile weapon and an energy weapon.</p>
+pellets. Still missing for the fire modes above: an energy weapon. The Mass Driver MR-01 stays in the data; the
+grenade launcher took its place in the heavy slot (D-24).</p>
 
 <h2>Accuracy and recoil</h2>
 <ul>
@@ -411,6 +420,8 @@ pellets. Still missing for the fire modes above: a pistol, a heavy projectile we
 recovers.</li>
 <li><strong>Spread</strong> has three numbers per weapon: from the hip, aiming down sights, and a penalty for
 moving.</li>
+<li><strong>Aiming</strong> looks through the weapon's sight, zoomed a little per weapon; the game stays third person
+otherwise (D-24). Scopes come with the optic attachments.</li>
 <li><strong>Aim assist</strong> on controllers only: a gentle pull within 0.6° of a target, strength 0.15, both
 adjustable.</li>
 <li><strong>Vitals</strong> change your aim: thirst and low neural stability add sway (see Survival and building).</li>
@@ -418,11 +429,13 @@ adjustable.</li>
 
 <h2>Attachments</h2>
 <p>Five slots: <strong>barrel, stock, magazine, optic and core</strong>. Attachments change recoil, accuracy,
-handling and weight, come in rarities, and need blueprints.</p>
+handling and weight, come in rarities, and need blueprints. They come later, with Tharrn's own weapon models (D-22,
+D-24).</p>
 
 <h2>Movement</h2>
-""" + chain(["Sprint", "Slide", "Mantle", "Jetpack burst (uses stamina)", "Grapple tether"]) + """
-<p>Your armour changes how you move. Slide and mantle come first; the jetpack and the grapple come later.</p>
+""" + chain(["Sprint", "Mantle", "Jetpack burst (uses stamina)", "Grapple tether"]) + """
+<p>Your armour changes how you move. Mantling comes first; the jetpack and the grapple come later. There is no slide
+(D-24).</p>
 
 <h2>The first milestone</h2>
 <p>An SMG, a pistol and one heavy projectile weapon from the data; recoil and spread you can read on the test range;
@@ -649,7 +662,8 @@ file the game uses. The art direction is still the owner's.</p>
 
 <h2>Menus</h2>
 <ul>
-<li><strong>Inventory:</strong> a grid with a weight limit, quick-craft recipes and filters.</li>
+<li><strong>Hotbar:</strong> twelve slots on keys 1 to 9, 0, − and = choose what is in your hands: weapons, grenades, things to use (D-25).</li>
+<li><strong>Inventory:</strong> a grid with a weight limit, equipment slots and the hotbar row, quick-craft recipes and filters.</li>
 <li><strong>Map:</strong> layers for PvP zones, resource nodes and dungeon entrances; several zoom levels.</li>
 <li><strong>Quest log:</strong> objectives, stages, lore entries and map markers.</li>
 <li><strong>Loading screens:</strong> tips, the status of PvP hotspots, your last base and active quests, with
@@ -668,13 +682,14 @@ def development():
     modules = [
         ["P1", "Foundation: data tables from the data files, automated tests, the multiplayer test harness, a grey test range",
          BUILT + " Built and checked 2026-10-15; closed 2026-10-16"],
-        ["P2", "Shooter character: motion-matched movement, third-person aim-down-sights camera, sprint, crouch, slide, mantle; online", BUILT + " Built and checked 2026-10-16; waits for the owner's play-test"],
-        ["P3", "Weapons: SMG, pistol, a heavy projectile weapon; recoil, spread, damage and armour; hits checked by the server", BUILT + " Built and checked 2026-10-16 with the Multiplayer Shooter System (D-23); waits for the owner's play-test"],
-        ["P4", "Vitals: health, stamina, hunger, hydration, temperature; the formulas; crafting a bandage and ammo; HUD vitals and weapon panel", "—"],
-        ["P5", "Coastal slice: 1–2 km² of the starter biome at full quality, within the performance budget", "—"],
-        ["P6", "Creatures: Skitterjaw, Phase Warden, Grav Raptor with behaviour, stagger and weak points", "—"],
-        ["P7", "MetaHuman base: the player from presets, customisation saved and loaded", "—"],
-        ["P8", "Prototype play-through: crash site, vitals, scavenge and craft, the first fight, shelter", "—"],
+        ["P2", "Shooter character: motion-matched movement, third-person aim-down-sights camera, sprint, crouch, mantle; online", BUILT + " Built and checked 2026-10-16; waits for the owner's play-test"],
+        ["P3", "Weapons: SMG, pistol, a grenade launcher and hand grenades; recoil, spread, damage and armour; hits checked by the server", BUILT + " Built and checked 2026-10-16 with the Multiplayer Shooter System (D-23); waits for the owner's play-test"],
+        ["P4", "Inventory, hotbar and UI: an inventory the server owns, a 12-slot hotbar, pickups, the HUD, inventory screen and menus in the shooter pack's look", "Planned 2026-10-16 (D-25); waits for the owner's okay"],
+        ["P5", "Vitals and crafting: health, stamina, hunger, hydration, temperature; the formulas; crafting a bandage and ammo; the vitals on the HUD; the death screen", "—"],
+        ["P6", "Coastal slice: 1–2 km² of the starter biome at full quality, within the performance budget", "—"],
+        ["P7", "Creatures: Skitterjaw, Phase Warden, Grav Raptor with behaviour, stagger and weak points", "—"],
+        ["P8", "MetaHuman base: the player from presets, customisation saved and loaded", "—"],
+        ["P9", "Prototype play-through: crash site, vitals, scavenge and craft, the first fight, shelter", "—"],
     ]
     decisions = [
         ["D-01", "Tharrn is the owner's only active game; the earlier game was deleted"],
@@ -699,6 +714,8 @@ def development():
         ["D-21", "Menus and the HUD are built with Easy Game UI Ultimate 3.0"],
         ["D-22", "Weapons, clothing and armour are made for Tharrn (Blender, Higgsfield); placeholders until then"],
         ["D-23", "Weapons combine the Multiplayer Shooter System (looks, animation, handling) with Tharrn's C++ (hits, damage, data)"],
+        ["D-24", "No slide; hip fire kept; a grenade launcher in the heavy slot and hand grenades; aiming looks through the sight; the mouse wheel picks weapons"],
+        ["D-25", "A 12-slot survival hotbar replaces the weapon keys and holsters; an inventory the server owns; the game's UI in the shooter pack's look"],
     ]
     questions = [
         ["OQ-01", "Consoles", "PC first; decide once the prototype is fun"],
@@ -756,20 +773,18 @@ that shows what each player receives.</li>
 <li>""" + BUILT + """ <strong>The player:</strong> the Game Animation Sample's motion-matched character, with its camera,
 mantle and vault, made ready for online play: sprinting, walking, strafing and aiming travel with every movement update,
 so the server agrees with the player at all times.</li>
-<li>""" + BUILT + """ <strong>Slide:</strong> sprint and press crouch; about 1 second and 5 metres on flat ground,
-faster downhill, ending in a crouch.</li>
+<li><strong>Slide:</strong> built, then removed by the owner on 2026-10-16 (D-24); crouching only crouches.</li>
 <li>""" + BUILT + """ <strong>Mantle and vault, checked by the server:</strong> the server looks for the ledge itself and
 refuses a climb where there is none, so a cheating client cannot climb thin air.</li>
 <li>""" + BUILT + """ <strong>Aim:</strong> the camera comes in over the shoulder.</li>
 <li>""" + BUILT + """ <strong>Checked online</strong> with 50 ms of lag each way and 1 % packet loss: every player's
-scripted run, slide and climbs match on every machine to the centimetre.</li>
+scripted run and climbs match on every machine to the centimetre.</li>
 </ul>
 
 <div class="mak-card"><h3>Play-test P2 (about 10 minutes)</h3>
 <ol>
 <li>Open Tharrn; the editor opens the test range. Press Play.</li>
-<li>The sign on the left lists the keys. Run with W A S D, hold Shift to sprint, Ctrl to walk, C to crouch. Sprint and
-press C to slide; C again stands up.</li>
+<li>The sign on the left lists the keys. Run with W A S D, hold Shift to sprint, Ctrl to walk, C to crouch.</li>
 <li>Run at the three blocks on the left and press Space in front of each: a hurdle (1 m), a mantle (1.5 m), a climb
 (2.5 m).</li>
 <li>Hold the right mouse button to aim. The middle mouse button switches between facing the camera and turning towards
@@ -781,13 +796,19 @@ window and watch the other.</li>
 
 <h2>What P3 built</h2>
 <ul>
-<li>""" + BUILT + """ <strong>Three weapons from the data files:</strong> the SMG, the pistol and the heavy Mass Driver,
-every number from <code>Data/Weapons.csv</code> and the recoil curves from <code>Data/WeaponRecoil.csv</code>.</li>
+<li>""" + BUILT + """ <strong>Three weapons from the data files:</strong> the SMG, the pistol and the grenade launcher
+(D-24), every number from <code>Data/Weapons.csv</code> and the recoil curves from <code>Data/WeaponRecoil.csv</code>.</li>
 <li>""" + BUILT + """ <strong>Hits decided by the server:</strong> the shot shows at once on the player's screen; the
 server checks it, rewinds the other players to the moment of the shot, and applies head, body and limb damage and the
 target's armour. A cheating client cannot fire faster, from elsewhere, or without ammunition.</li>
-<li>""" + BUILT + """ <strong>The heavy round</strong> flies in an arc and takes its time to arrive, the same on every
-machine; only the server deals its damage.</li>
+<li>""" + BUILT + """ <strong>The launcher's round</strong> flies in an arc and takes its time to arrive, the same on
+every machine, and explodes where it lands with the Multiplayer Shooter System's fireball; only the server deals the
+blast.</li>
+<li>""" + BUILT + """ <strong>Hand grenades:</strong> three each, thrown with MSS's throw; the server counts them, throws
+them where you aim and deals the blast.</li>
+<li>""" + BUILT + """ <strong>Aiming through the sight:</strong> the right mouse button with a weapon out moves the view
+into a first-person look through the weapon's sight.</li>
+<li>""" + BUILT + """ <strong>The mouse wheel</strong> picks the next or previous weapon.</li>
 <li>""" + BUILT + """ <strong>Weapons in the hands:</strong> the Multiplayer Shooter System's weapon handling on the
 motion-matched character: drawing from holsters on the thigh and back, aiming, recoil on the arms, reloads, its HUD.
 Its weapon models stand in until Tharrn's own (D-22).</li>
@@ -800,8 +821,11 @@ shots differ between the shooter's screen and the server (the target is under 2 
 <li>Press Play on the test range. X draws the pistol from the thigh; the left mouse button fires, one shot a click.</li>
 <li>Shoot the targets (10, 25, 50, 100 m): the number above each drops, more for the head, less through armour; at 0
 it shows DOWN and stands up 3 seconds later.</li>
-<li>R reloads. F swaps to the SMG on the back (hold to fire) and then the heavy weapon; the right mouse button aims.</li>
-<li>Run, sprint, slide and climb with a weapon out: the movement should feel as before.</li>
+<li>R reloads. The mouse wheel (or F) brings out the SMG from the back (hold to fire) and then the grenade launcher;
+the right mouse button aims through the sight.</li>
+<li>G takes a grenade into the hand; hold the right mouse button to see the arc, hold the left to pull the pin, let go
+to throw. Three each.</li>
+<li>Run, sprint and climb with a weapon out: the movement should feel as before.</li>
 <li>Play with 2 players (Listen Server) and shoot each other: the same on both screens.</li>
 </ol></div>
 

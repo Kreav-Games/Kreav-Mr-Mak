@@ -25,14 +25,14 @@ file lists the guides and what each part is for in Tharrn; the guides themselves
 
 | Part of the bundle | Guide section | Tharrn module |
 |---|---|---|
-| PCG biome generation: its own system (from AutoEnv, not Unreal's PCG Biome plugin), driven by Biome, Rock and Foliage data assets; `BP_PCG_Biome`, `BP_PCG_Manager`, an offline graph for rocks and a runtime graph for debris and foliage, exclusion actors, landscape grass | Main: PCG generation, Tutorial | P5 Coastal slice, then every biome |
-| Combined landscape material: the 8 landscape layers of all biomes, runtime virtual texturing | Main: Combined landscape material | P5 |
-| Biomes: colony, jungle, desert, arctic (added in 1.1) | Colony, Jungle, Desert guides | P5 and later biomes; the desert for the Skitterjaw (D-16) |
+| PCG biome generation: its own system (from AutoEnv, not Unreal's PCG Biome plugin), driven by Biome, Rock and Foliage data assets; `BP_PCG_Biome`, `BP_PCG_Manager`, an offline graph for rocks and a runtime graph for debris and foliage, exclusion actors, landscape grass | Main: PCG generation, Tutorial | P6 Coastal slice, then every biome |
+| Combined landscape material: the 8 landscape layers of all biomes, runtime virtual texturing | Main: Combined landscape material | P6 |
+| Biomes: colony, jungle, desert, arctic (added in 1.1) | Colony, Jungle, Desert guides | P6 and later biomes; the desert for the Skitterjaw (D-16) |
 | Building system: regular and circular buildings from modular kits, floors, stairs, pillars, furniture, scattering | Main and Colony: Building System | Hubs and outposts (world building); not the player's base building (GDD 03) |
-| Level objects: doors, furniture, lights, machines, items (`BP_P_LevelObject`, power and switch states) | Main: Interactions | Interaction in P4 and P8, made replicated |
+| Level objects: doors, furniture, lights, machines, items (`BP_P_LevelObject`, power and switch states) | Main: Interactions | Interaction in P4 (pickups) and P9, made replicated |
 | Hoverbike, rover buggy (Chaos vehicles) | Hoverbike, Rover Buggy guides | Vehicles, alpha (GDD 06), made replicated |
 | Automatic turrets with turret and ammo data assets | Auto Turrets guide | Base and outpost defences later |
-| Environment controller (day and night, wetness, rain), space, planets, background mountains | Main: Environment | P5 sky and time of day (OQ-11) |
+| Environment controller (day and night, wetness, rain), space, planets, background mountains | Main: Environment | P6 sky and time of day (OQ-11) |
 | Spline, scattering, stair and pillar tools | Main: Environment tools | World building |
 | Material workflow: one parent material, vertex-colour wear, mesh decals, custom primitive data | Main: Material workflow | All art |
 | World Partition, HLOD and optimisation advice | Main: Optimizations & best practices | The D-11 budget |
@@ -52,7 +52,7 @@ file lists the guides and what each part is for in Tharrn; the guides themselves
 - The individual biome example levels come in a separate download (`ScifiBundleIndividualMaps.zip`) and are not
   staged.
 - No static lighting: the bundle needs Lumen.
-- Check which version is staged when P5 starts: 1.2.1 fixed the terrace rock layer in 5.7 and 5.8.
+- Check which version is staged when P6 starts: 1.2.1 fixed the terrace rock layer in 5.7 and 5.8.
 
 ## Settings the bundle needs, and Tharrn's state (2026-10-16)
 
@@ -61,6 +61,6 @@ file lists the guides and what each part is for in Tharrn; the guides themselves
 | PCG plugin, also at run time | Required | On (enabled on its own 2026-10-16; before, only through Unreal's experimental PCG Biome plugin, now off) |
 | Chaos Vehicles plugin | For the hoverbike and buggy | On (since 2026-10-16) |
 | Lumen, Nanite (DirectX 12, SM6), virtual shadow maps | Required | On |
-| Virtual texturing (streaming and runtime) | Recommended; without it rocks show an orange top layer | Off: turn on in P5 |
+| Virtual texturing (streaming and runtime) | Recommended; without it rocks show an orange top layer | Off: turn on in P6 |
 | Custom depth-stencil "Enabled with Stencil" | Only for the example player's highlight | Not set; set when Tharrn builds an interaction highlight |
 | `r.Streaming.PoolSize` 3000 | For the landscape's virtual texture | Set |

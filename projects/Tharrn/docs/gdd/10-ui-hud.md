@@ -8,8 +8,8 @@
 | Top right | Minimap 240 × 240, toggleable; extraction points and flagged overlays |
 | Top left | Player name, level, active buffs and debuffs |
 | Bottom left | Vitals: health bar (large), stamina ring, hunger %, hydration %, temperature gauge, neural stability bar |
-| Bottom centre | Weapon: icon, magazine/total ammo, fire mode, attachment icons (420 × 120) |
-| Bottom right | Quick-use wheel, 4 slots with cooldown overlays |
+| Bottom centre | Hotbar: 12 slots, keys 1 to 9, 0, − and =; each shows its key, icon, count and, for a weapon, the rounds in its magazine; the slot in the hands lit (D-25) |
+| Bottom right | Weapon: icon, magazine/total ammo, fire mode, attachment icons (420 × 120); the hotbar replaces the quick-use wheel that was here (D-25) |
 | Centre | Dynamic crosshair (scalable), hit markers, damage numbers, weak-point indicators |
 | Death screen | Drop list, respawn options, recovery timer, teammate ping |
 
@@ -19,8 +19,8 @@
     "compass":   {"pos": "top_center",   "size": "800x48"},
     "minimap":   {"pos": "top_right",    "size": "240x240"},
     "vitals":    {"pos": "bottom_left",  "elements": ["health", "stamina", "hunger", "hydration", "temp", "neural"]},
-    "weapon":    {"pos": "bottom_center", "size": "420x120"},
-    "quickwheel": {"pos": "bottom_right", "slots": 4}
+    "hotbar":    {"pos": "bottom_center", "slots": 12},
+    "weapon":    {"pos": "bottom_right", "size": "420x120"}
   }
 }
 ```
@@ -28,7 +28,8 @@
 ## Menus and flows
 
 - Character creation: full-screen MetaHuman preview with morph sliders and real-time facial animation.
-- Inventory: grid with a weight limit; quick-craft recipes; filter by type.
+- Inventory: grid with a weight limit, equipment slots (head, chest, legs, back) and the hotbar row; quick-craft
+  recipes; filter by type (D-25).
 - Map: layers for PvP zones, resource nodes and dungeon entrances; zoom levels.
 - Quest log: objectives, stages, lore entries, map markers.
 - Accessibility: scalable UI, colour-blind modes, subtitle sizes, controller remapping.
@@ -48,7 +49,11 @@
   attributes through a view model (the MVVM plugin is available).
 - Pixel sizes are at 1920 × 1080 and scale with the DPI curve; the HUD JSON drives anchors so layout is
   data.
-- Prototype HUD: vitals cluster, weapon panel, crosshair with hit markers; the rest later.
+- The look is the Multiplayer Shooter System's weapon selector (its borders, text styles, colours and font; D-25);
+  Easy Game UI's global styling is set to match.
+- Prototype UI: the hotbar, weapon panel, crosshair and hit markers, the inventory screen, main and pause menus and
+  options (P4); the vitals cluster, crafting and death screens (P5); the map (P6); the rest later. The layout data
+  (`Data/UI/HudLayout.json`) follows in P4.
 
 ## From the owner's package ([owner's package review](../reviews/owner-package-2026-10-15.md))
 

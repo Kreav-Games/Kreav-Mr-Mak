@@ -33,7 +33,9 @@ prompts, and a global config and styling system. Demo content can be removed (it
 - Its pages do not mention multiplayer. Menus and HUDs run on each player's own machine anyway; what they show
   (vitals, ammo) comes from replicated game state, built server-authoritative (D-04). Its interaction system is to
   be checked against that rule before it is used, as the Sci-Fi bundle's are (D-20).
-- The prototype HUD is module P4 (vitals and the weapon panel, GDD 10); the 12 placeholder icons of deliverable 8
+- The game's UI is module P4 (D-25: the hotbar, the inventory screen, the HUD and its menus, in the look of MSS's
+  weapon selector, with this pack's global styling set to match); the vitals on the HUD come with P5. The 12
+  placeholder icons of deliverable 8
   stay placeholders until the art direction is set.
 - The owner offered a Higgsfield subscription for better-looking art and icons that match the assets; Claude says
   when it would help (not needed yet).

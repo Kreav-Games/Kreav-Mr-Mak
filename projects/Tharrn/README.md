@@ -17,7 +17,7 @@ Wildwright on 2026-10-15.
 | 1 | this README | State, rules, next actions | 5 min |
 | 2 | [docs/gdd/00-overview.md](docs/gdd/00-overview.md) | GDD 0.1: the direction in 13 modules with build notes | 20 min |
 | 3 | [docs/tasks.md](docs/tasks.md) | Current work: the Prototype modules | 2 min |
-| 4 | [docs/decisions.md](docs/decisions.md) | Decisions D-01 to D-21, open questions OQ-01 to OQ-14 | 5 min |
+| 4 | [docs/decisions.md](docs/decisions.md) | Decisions D-01 to D-25, open questions OQ-01 to OQ-14 | 5 min |
 | 5 | [docs/engineering-guide.md](docs/engineering-guide.md) | Build, test, MCP, budget, conventions, gotchas | 15 min |
 | — | [docs/scifi-bundle.md](docs/scifi-bundle.md) | The Sci-Fi Complete Bundle's guides, the go-to reference for world building (D-20) | before world work |
 | — | [docs/easy-game-ui.md](docs/easy-game-ui.md) | Easy Game UI Ultimate, for menus and the HUD (D-21) | before UI work |
@@ -34,9 +34,9 @@ Wildwright on 2026-10-15.
 | Design | GDD 0.1 drafted from the direction (deliverable 1 of 10); **owner review** |
 | Unreal project | `D:\Tharrn\`, UE 5.8.3 C++, module `Tharrn`; Git with LFS, first commit fb20fca (design record: 29e9dfc); P1 and P2 committed 2026-10-16 |
 | Carried setup (D-03) | DLSS 4.5 and budget settings (D-11, D-12), Unreal MCP and `AllToolsets`, Game Animation Sample, Sci-Fi Complete Bundle (the go-to reference, D-20), Multiplayer Shooter System (D-23) and Easy Game UI (D-21), all staged outside Git, pack staging, plugin check, budget measurement, terrain pipeline (not yet re-run), sky, capture subsystem, world-building helpers |
-| Checks | Both targets build with no warnings (Shipping too); plugin check PASS; data import 0 problems; automation tests pass; network test passes (listen and dedicated server, 2 clients and a late joiner, 50 ms each way and 1 % loss): the probe, movement and slide, the block course, made-up mantles refused, and P3's shots (0 to 1.2 % of shots disagree between a player and the server, made-up shots refused, the heavy round's flight); MSS test passes (draw, fire, reload, swap on a client) |
+| Checks | Both targets build with no warnings (Shipping too); plugin check PASS; data import 0 problems; automation tests pass; network test passes (listen and dedicated server, 2 clients and a late joiner, 50 ms each way and 1 % loss): the probe, movement, the block course, made-up mantles refused, and P3's shots (0 to 1.2 % of shots disagree between a player and the server, made-up shots refused, the heavy round's flight); MSS test passes (draw, fire, reload, swap, the view through the sight, the mouse wheel, the grenade launcher and grenades on a client) |
 | Wildwright | Design record, Workspace card and `D:\Wildwright` gone. Its 7 commits stay in the Mr. Mak repo's history until the owner runs or allows the prepared history rewrite |
-| Next | P2 (the player) and P3 (weapons, with MSS, D-23) built and checked 2026-10-16: **owner play-tests** ([steps](docs/tasks.md)); then P4, the HUD and survival basics |
+| Next | P2 (the player) and P3 (weapons, with MSS, D-23) built and checked 2026-10-16, then changed the same day (D-24: no slide, a grenade launcher and hand grenades, aiming through the sight, the mouse wheel): **owner play-tests** ([steps](docs/tasks.md)); then P4, the hotbar, inventory and UI in MSS's look (D-25): its plan waits for the owner's okay |
 
 ## Working agreement
 
@@ -71,5 +71,6 @@ Wildwright on 2026-10-15.
 | 2 | Fab packs or models for creatures (OQ-04; weapons and armour are made for Tharrn, D-22; weapon animations from MSS, D-23) | **Yes** |
 | 3 | Remove Wildwright's 7 commits from the Mr. Mak repo's history: Claude prepared and dry-ran the rewrite; Claude Code blocks it without the owner | **Yes** |
 | 4 | Play-test P2, the player character (10 minutes, [steps](docs/tasks.md)) | **Yes** |
-| 5 | Play-test P3, the weapons (10 minutes, [steps](docs/tasks.md)); say whether to move to Tharrn's own weapon models (D-22) | **Yes** |
-| 6 | P4, after the P2 and P3 play-tests | No |
+| 5 | Play-test P3, the weapons (10 minutes, [steps](docs/tasks.md)): the launcher, grenades, aiming through the sight and the wheel too; say how the grenade and launcher numbers feel (proposals) and when to move to Tharrn's own weapon models (D-22) | **Yes** |
+| 6 | Okay the P4 plan: the hotbar, inventory and UI (D-25; [plan](docs/tasks.md#p4-inventory-hotbar-and-ui-plan-2026-10-16)) | **Yes** |
+| 7 | Build P4 after the okay; the P2 and P3 play-tests can come before or after | No |

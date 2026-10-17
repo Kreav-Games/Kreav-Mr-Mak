@@ -4,12 +4,13 @@
 
 | Model | Spec |
 |---|---|
-| Fire modes | Hitscan (SMG, pistol); projectile (heavy rounds); beam or charge (energy weapons) |
+| Fire modes | Hitscan (SMG, pistol); projectile (heavy rounds: the grenade launcher's, exploding where they land, D-24); thrown grenades; beam or charge (energy weapons) |
 | Recoil | Per-weapon curve: a time series of vertical and horizontal offsets plus a recovery function, e.g. `AR01_recoil = [{t:0, vx:0.18, vy:0.02}, {t:0.1, vx:0.16, vy:-0.01}, ...]` |
 | Accuracy | `hip_spread`, `ads_spread`, `movement_penalty` multiplier |
 | Damage | Head ×2.5, torso ×1.0, limb ×0.75. Armour reduces damage by material: cloth 10 %, composite 30 %, alloy 50 % |
 | Aim assist | Controller only; magnetism radius 0.6°, strength 0.15 (configurable) |
 | Ballistics | Heavy projectiles have gravity drop and travel time; server-authoritative simulation with client prediction and lag compensation |
+| Explosions | Full damage within an inner radius, falling in a straight line to none at an outer radius (the launcher and the hand grenade: 1 m and 5 m, D-24); armour reduces it; walls between shield; no hit zone; your own grenades hurt you (deliverable 3); decided by the server only |
 
 Weapon data CSV header:
 
@@ -27,7 +28,8 @@ rarity, and need blueprints.
 - **Stagger:** a cumulative stagger meter per enemy; thresholds trigger stagger animations and
   interrupt attacks.
 - **Weak points:** specific bones with damage multipliers and VFX.
-- **Movement tech:** sprint, slide, mantle, a short jetpack burst (uses stamina), a grapple tether;
+- **Movement tech:** sprint, mantle, a short jetpack burst (uses stamina), a grapple tether (no slide: removed by
+  the owner, D-24);
   movement modifiers per armour.
 
 ## Build notes (UE 5.8.3)
@@ -42,8 +44,9 @@ rarity, and need blueprints.
   data-only Blueprints.
 - **Animation:** the Game Animation Sample's motion-matched locomotion plus rifle and pistol aim layers;
   weapon animation assets are missing (OQ-04). Camera: third person over the shoulder with aim-down-sights
-  (D-15).
-- **Movement tech** extends the character movement (C++); slide and mantle first (the sample has
+  (D-15); aiming with a weapon looks through its sight, zoomed per weapon (D-24); scopes come with the optic
+  attachments.
+- **Movement tech** extends the character movement (C++); mantle first (the sample has
   traversal), jetpack and grapple after.
 - **Done when (Prototype):** SMG, pistol and one heavy projectile weapon from CSV; recoil and spread
   readable in a test range; head/torso/limb multipliers and armour reduction covered by automation

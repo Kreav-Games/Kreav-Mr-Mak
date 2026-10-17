@@ -16,7 +16,7 @@ Each room is a level instance (`LI_DGN_<Room>_<Variant>`, owner's naming) with o
 | **Antechamber** (sixth type) | **Proposal** | 20 × 20 m | Entry, a respawn beacon, the dungeon's lore panel, a chest after the boss | 1 min |
 | Puzzle room | Direction | 30 × 30 m | One puzzle archetype (below); the exit opens when solved | 4 min |
 | Combat arena | Direction | 40 × 40 m, two levels | 2–3 waves, cover, a high route; spawn sockets out of the entrance's sight | 4 min |
-| Traversal chamber | Direction | 20 × 60 m | Platforming, gaps, gravity shifts (needs mantle and slide from P2) | 3 min |
+| Traversal chamber | Direction | 20 × 60 m | Platforming, gaps, gravity shifts (needs mantle from P2; no slide, D-24) | 3 min |
 | Trap corridor | Direction | 8 × 60 m | One trap archetype (below) | 2 min |
 | Boss arena | Direction | 50 × 50 m | The boss; arena mechanics per phase (75, 50, 25 % health) | 6 min |
 

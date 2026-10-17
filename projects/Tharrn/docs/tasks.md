@@ -20,13 +20,14 @@ Proposed order; each module is built server-authoritative from the start (D-04).
 | # | Module | Done when | State |
 |---|---|---|---|
 | P1 | **Foundation:** network test harness (PIE listen server and dedicated-server client, simulated latency and loss), CSV data-table pipeline, automation test scaffolding, a grey test range map | A replicated test actor passes the guide's network step; a CSV row imports and reads back in a test | Built and checked 2026-10-15 (ladder steps 1–4, below); closed 2026-10-16 (below) |
-| P2 | **Shooter character:** the Game Animation Sample's motion-matched character as the player, third-person aim-down-sights camera (D-15), sprint, crouch, slide, mantle; replicated | Two clients move, slide and mantle smoothly at 100 ms latency | Built and checked 2026-10-16 (below); **owner play-test** |
-| P3 | **Weapons:** weapon CSV (deliverable 7), SMG and pistol hitscan, one heavy projectile, recoil curves, spread, damage multipliers and armour, server-validated hits with rewind (OQ-09) | Test-range targets; under 2 % desync between two clients; tests for multipliers and armour | Built 2026-10-16 with MSS's weapons and animation (D-23); **owner play-test** ([steps](#p3-weapons-results-2026-10-16)) |
-| P4 | **Vitals:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo; HUD vitals and weapon panel, built with Easy Game UI Ultimate 3.0 (D-21) | Thresholds tested; the HUD matches on both clients | — |
-| P5 | **Coastal slice:** about 1–2 km² of the starter biome: terrain (OQ-06), ocean test (OQ-05), Sci-Fi bundle shore and jungle kits and its PCG biome system, following its guides ([reference](scifi-bundle.md)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
-| P6 | **Creatures:** Skitterjaw (desert, D-16), Phase Warden, Grav Raptor (creature CSV, deliverable 5 in part), StateTree behaviour, perception, stagger and weak points | The tutorial fight (creature per OQ-12) works for two clients | — |
-| P7 | **MetaHuman base:** the player as a MetaHuman from presets (OQ-03), customisation JSON saved and loaded | A preset choice survives a reload and shows on both clients | — |
-| P8 | **Prototype play-through:** crash site → vitals → scavenge and craft → Skitterjaw fight → shelter (foundation, generator, bench) | The owner plays it for 10–15 minutes and calls it fun | — |
+| P2 | **Shooter character:** the Game Animation Sample's motion-matched character as the player, third-person aim-down-sights camera (D-15), sprint, crouch, mantle (the slide was built, then removed by the owner, D-24); replicated | Two clients move and mantle smoothly at 100 ms latency | Built and checked 2026-10-16 (below); **owner play-test** |
+| P3 | **Weapons:** weapon CSV (deliverable 7), SMG and pistol hitscan, one heavy projectile, recoil curves, spread, damage multipliers and armour, server-validated hits with rewind (OQ-09) | Test-range targets; under 2 % desync between two clients; tests for multipliers and armour | Built 2026-10-16 with MSS's weapons and animation (D-23); changed the same day (D-24: grenade launcher, grenades, aiming through the sight, the wheel, no slide); **owner play-test** ([steps](#p3-weapons-results-2026-10-16)) |
+| P4 | **Inventory, hotbar and UI (D-25):** items from data, an inventory the server owns (grid, weight limit, equipment), a 12-slot hotbar (keys 1 to 9, 0, − and =; the wheel) that draws weapons, readies grenades and uses items, pickups and drops; the HUD, the inventory screen and Easy Game UI's menus in MSS's look | Every slot picks the same item on every machine; items move, stack, drop and are picked up through the server, made-up requests refused; the owner's yes | **Plan for the owner's okay** ([plan](#p4-inventory-hotbar-and-ui-plan-2026-10-16)) |
+| P5 | **Vitals and crafting:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo (the crafting screen); the vitals on the HUD; the death screen and dropping the inventory | Thresholds tested; the HUD matches on both clients | — |
+| P6 | **Coastal slice:** about 1–2 km² of the starter biome: terrain (OQ-06), ocean test (OQ-05), Sci-Fi bundle shore and jungle kits and its PCG biome system, following its guides ([reference](scifi-bundle.md)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
+| P7 | **Creatures:** Skitterjaw (desert, D-16), Phase Warden, Grav Raptor (creature CSV, deliverable 5 in part), StateTree behaviour, perception, stagger and weak points | The tutorial fight (creature per OQ-12) works for two clients | — |
+| P8 | **MetaHuman base:** the player as a MetaHuman from presets (OQ-03), customisation JSON saved and loaded | A preset choice survives a reload and shows on both clients | — |
+| P9 | **Prototype play-through:** crash site → vitals → scavenge and craft → Skitterjaw fight → shelter (foundation, generator, bench) | The owner plays it for 10–15 minutes and calls it fun | — |
 
 ## P1 Foundation: what was built and checked
 
@@ -69,7 +70,7 @@ Steps (D-18: the sample's motion-matched character on Character Movement, motion
 |---|---|---|
 | P2.1 | Copy the CMC character and its animation Blueprint to `/Game/Tharrn/Characters/Player/`, reparented to a new C++ `ATharrnPlayerCharacter` (ability system component, notes); a Tharrn game mode uses it | It spawns and runs for a listen server and 2 clients with no errors |
 | P2.2 | `UTharrnCharacterMovementComponent` (C++): walk, run, sprint, crouch and aim in the saved move, so they are predicted; speeds from the sample's curves | No corrections when changing gait at 100 ms latency |
-| P2.3 | Slide as a predicted movement mode in the same component (entry speed, duration, friction; ends in a crouch) | Slides match on server and clients |
+| P2.3 | Slide as a predicted movement mode in the same component (entry speed, duration, friction; ends in a crouch) | Slides match on server and clients (built; removed 2026-10-16, D-24) |
 | P2.4 | Mantle and vault: keep the sample's check and montages; the server repeats the check before anyone plays it | A client cannot mantle where the server finds no ledge (test) |
 | P2.5 | Camera: the sample's rig plus over-the-shoulder offset, shoulder swap and aim-down-sights (field of view, offset, slower turn) on the Aim input (D-15) | Readable on the test range. Built: the sample's aim camera; shoulder swap and slower turning while aiming move to P3 |
 | P2.6 | `net_test.py` movement check: a test-only console variable walks each client through a fixed path (walk, sprint, crouch, slide); server and clients log positions | Corrections and position differences under limits set from a first measurement |
@@ -84,7 +85,8 @@ Steps (D-18: the sample's motion-matched character on Character Movement, motion
   under lag); speeds, turning and gait as in the sample. The Blueprint keeps input, camera, animation and mantling;
   its graph notes say what moved where. Built by `Tools/Player/build_player.py`; `BP_TharrnGameMode` is the default.
 - **Slide:** sprint and crouch: a predicted movement mode (speed boost, steady braking, faster downhill, ends in a
-  crouch), the sample's slide clip played full body. About 1 s and 5 m on flat ground.
+  crouch), the sample's slide clip played full body. About 1 s and 5 m on flat ground. *Removed by the owner on
+  2026-10-16 (D-24): crouching at any speed now only crouches.*
 - **Mantle and vault:** the sample's own, plus a server check: the server looks for the ledge itself and refuses the
   move if there is none, and while it plays only accepts positions close to its own (the sample trusted the
   player's machine completely). A safety net returns a player the sample left flying after an interrupted move
@@ -101,18 +103,18 @@ Steps (D-18: the sample's motion-matched character on Character Movement, motion
   every one and positions still agree. Editor and game targets build with no warnings, Shipping too.
 - **Test range:** eight starts in four lanes, the block course on the left, a sign with the controls at the start.
 - **Not built:** shoulder swap and slower turning while aiming (P3, with weapons); mantling on anything but the
-  sample's blocks (gotcha 40, with P5).
+  sample's blocks (gotcha 40, with P6).
 
 **Owner play-test (about 10 minutes):**
 1. Open Tharrn; the editor opens the test range. Press Play.
 2. The sign on the left lists the keys. Run (W A S D), hold Shift to sprint, Ctrl to walk, C to crouch.
-   Sprint and press C: you slide and end crouched; C again stands up.
+   (The slide that was here is gone, D-24.)
 3. Run at the three blocks on the left and press Space in front of each: a hurdle (1 m), a mantle (1.5 m) and a
    climb (2.5 m).
 4. Hold the right mouse button: the camera comes in over the shoulder to aim. The middle mouse button switches
    between facing the camera (the default) and turning towards where you run.
 5. Three dots next to Play: *Number of Players* 2, *Net Mode* "Play As Listen Server"; Play. Do the same in the
-   second window and watch the first: the other player should move, slide and climb the same way.
+   second window and watch the first: the other player should move and climb the same way.
 6. Set it back to 1 player and "Play Standalone". Tell Claude what feels wrong or good.
 
 ## P3 Weapons: plan (2026-10-16)
@@ -148,6 +150,20 @@ retargeted from the UE5 mannequin to the sample's UEFN skeleton by a retargeter 
 | P3.13 | Combine: MSS's trigger sends the shot through `UTharrnWeaponComponent`; MSS's projectiles and lasers become effects only; ammunition, fire rate and spread from `DT_Weapons`; MSS's HUD shows Tharrn's ammunition and hit markers | `net_test.py` passes (C-04, C-05, C-06) with MSS weapons |
 | P3.14 | Owner play-test with MSS weapons | The owner's yes |
 
+**After the first build (D-24, 2026-10-16).** The owner's changes: no slide; hip fire stays; a grenade launcher in
+place of the Mass Driver, and hand grenades, with MSS's explosions; the test weapons removed; aiming looks through the
+sight; the mouse wheel picks weapons. Weapon mods and the whole UI come later.
+
+| # | Step | Done when |
+|---|---|---|
+| P3.15 | Remove the slide: the movement mode, its animation and tests; the movement test crouches instead | Builds; the network test's movement passes |
+| P3.16 | Remove the shape-built test weapons (their C++ class `ATharrnWeaponVisual`, Blueprints, builder, Tharrn's old fire, reload and 1 to 3 keys); tracers and hit effects from each MSS weapon (MSS's bullet hit) | Shots still show tracers and hits |
+| P3.17 | Grenade launcher `GL01` (MSS's) in the heavy slot: its round explodes where it lands (C++ `ATharrnProjectile`, MSS's grenade, trail, fireball, scorch, shake); the server's blast (`UTharrnCombatSubsystem::Explode`: falloff, armour, walls shield, your own hurts) | Tests; the blast only on the server (C-06) |
+| P3.18 | Hand grenade `HG01` on MSS's throw (G): the server counts three, throws along the aim at the data's speed, deals the blast; MSS's throw montage retargeted, its collision channel and its collision after the throw fixed | Three thrown and exploding on the server, a fourth refused (MSS test) |
+| P3.19 | The view through the sight while aiming (`ATharrnPlayerCameraManager`), zoomed by `ads_zoom`; tuned per weapon from pictures (`TharrnPlaySessionToolset.CaptureGameView`) | The sight centred when aiming, on every weapon |
+| P3.20 | The mouse wheel: next and previous weapon through MSS's swap | Up and down change the weapon on every machine (MSS test) |
+| P3.21 | Owner play-test | The owner's yes |
+
 ## P3 Weapons: results (2026-10-16)
 
 - **Done:** P3.1 to P3.8 and P3.10 to P3.13, except what is listed under *Not built*. The weapons are
@@ -175,9 +191,35 @@ retargeted from the UE5 mannequin to the sample's UEFN skeleton by a retargeter 
   weapons and HUD outlived a downed player; the first shot after a reload was refused; targets that had just gone
   down; a projectile's straight steps under its arc; an editor tool's Blueprint compile collecting garbage mid-call,
   which crashed the editor in full test runs (engineering guide, gotchas 48 to 67).
-- **Not built:** picking weapons up from the ground (MSS's interaction); the hip-fire turn; the grenade (G) is MSS's
-  own and does not hurt yet; two key clashes with the sample (middle mouse button, gamepad top button); Tharrn's own
-  weapon models (D-22); a first-person view (none of the packs has one).
+- **After D-24 (2026-10-16): done:** P3.15 to P3.20. The slide is gone; crouching only crouches. The heavy slot is
+  the grenade launcher `GL01` (120 damage at the centre, 4 a magazine, 50 m/s; proposals); its round explodes where it
+  lands. Hand grenades `HG01`: three each, 150 at the centre, 3 s fuse, thrown at 15 m/s (proposals; MSS's 8 m/s
+  landed inside the blast). Both blasts: full within 1 m, none past 5 m (MSS's radii), through armour, shielded by
+  walls, your own included, only on the server. Aiming with a weapon looks through its sight (zoom 1.25 on the SMG,
+  pistol and launcher). The mouse wheel picks the next or previous weapon. The shape-built test weapons and their
+  code are gone.
+- **After D-24: checks:** 80 automation tests pass (new: `Tharrn.Combat.Blast`;
+  `Tharrn.Editor.PlaySession.CaptureGameView`; the weapon data test covers the launcher and the grenade). Network
+  test (50 ms each way, 1 % loss; listen and dedicated server, 2 clients and a late joiner; a freshly started
+  editor, gotcha 47): movement with 0 corrections and a crouch from a sprint, the block course approved, made-up
+  mantles and shots refused, 0 % of shots disagree on hit or miss (targets and the runner, both modes; C-04), the
+  launcher's rounds within 0.0012 s and 0.16 cm of their speed and gravity, their blasts reaching targets on the
+  server only (C-06). MSS test: as before, plus the view through the sight (pictures), the wheel up (launcher) and
+  down (SMG) on both machines, two launcher rounds exploding on the server only, three grenades thrown at 15 m/s,
+  each exploding on the server just above the floor, and a fourth refused. Both targets build with no warnings
+  (Shipping too).
+- **After D-24: found and fixed on the way:** MSS's grenade fell through the floor (its collision channel is Tharrn's
+  "Traversable" slot; MSS turns its collision back on through a reference it has already cleared); with network lag,
+  MSS's start of a thrown grenade could come too late and the grenade hung in the air until it went off in the
+  thrower's face (the server now starts it); MSS names a UE5
+  throw montage that does not play on the UEFN skeleton, so the grenade never left the hand; a component's bounds
+  for MSS's sights came from their collision, far from the glass; on a busy listen server, clients saw a test-range
+  target stand up sooner than the server's grace allowed, and their hits were refused (engineering guide, gotchas 68
+  to 75).
+- **Not built:** picking weapons up from the ground (MSS's interaction); two key clashes with the sample (middle mouse
+  button, gamepad top button); Tharrn's own weapon models (D-22) and with them scopes and weapon mods (attachments,
+  deliverable 7); MSS's holographic sight shows its ring about 2° above the middle of the screen, where shots go.
+  Not wanted (D-24): the hip-fire turn, a first-person mode.
 
 **Owner play-test (about 10 minutes):**
 1. Open Tharrn; the editor opens the test range. Press Play. The sign on the left lists the keys.
@@ -186,18 +228,55 @@ retargeted from the UE5 mannequin to the sample's UEFN skeleton by a retargeter 
 3. Shoot the targets down the range (10, 25, 50, 100 m, each a different armour): the number above each one drops,
    more for the head, less for the arms and legs, less again through better armour; at 0 it shows DOWN and stands
    up again 3 seconds later. A white cross flashes on a hit.
-4. Press R to reload. Press F: the pistol goes back to the thigh and the SMG comes off the back; hold the left mouse
-   button for automatic fire. Hold the right mouse button to aim: the spread narrows and the camera comes in.
-5. Press F again for the heavy weapon: its round flies in an arc and lands a moment later.
-6. Run, sprint and slide with a weapon out, and try the blocks on the left: the movement should feel as before.
-7. Three dots next to Play: Number of Players 2, Net Mode "Play As Listen Server"; Play. Shoot the other player from
-   one window and watch the other: the same weapons, shots and health on both.
-8. Tell Claude what looks or feels wrong, and whether the weapons should move on to Tharrn's own models (D-22).
+4. Press R to reload. Roll the mouse wheel up (or press F): the pistol goes back to the thigh and the SMG comes off
+   the back; hold the left mouse button for automatic fire. Hold the right mouse button to aim: the view moves into a
+   first-person look through the weapon's sight, a little zoomed. Wheel down picks the previous weapon.
+5. Wheel up again for the grenade launcher: its round flies in an arc and explodes where it lands; a target within
+   5 m loses health, more the closer it is, none behind a block.
+6. Press G: a grenade comes into the left hand. Hold the right mouse button to see the arc, hold the left to pull the
+   pin, let go to throw; it explodes 3 seconds after the pin. Three each (bottom left counts them); G again with the
+   pin still in puts it away.
+7. Run, sprint and crouch with a weapon out, and try the blocks on the left: the movement should feel as before (no
+   slide any more).
+8. Three dots next to Play: Number of Players 2, Net Mode "Play As Listen Server"; Play. Shoot the other player from
+   one window and watch the other: the same weapons, shots, grenades and health on both.
+9. Tell Claude what looks or feels wrong: the grenade and launcher numbers are proposals, and the sights can be moved
+   per weapon.
+
+## P4 Inventory, hotbar and UI: plan (2026-10-16)
+
+D-25, **for the owner's okay**. What exists to build on: MSS's weapons and throw, driven by Tharrn's weapon component
+(P3); MSS's own UI styles (`DMD/Widgets/Styles`: borders, text, buttons) and its weapon selector; Easy Game UI's
+menus, options, HUD builder (pickup notices, input prompts) and interaction system; `weight` in `Data/Weapons.csv`;
+armour as an attribute (P3). To work out first: MSS carries at most one weapon of each class (primary, secondary,
+heavy) in holsters on the body, while the hotbar holds any weapon in any slot with nothing on the body. So the server
+makes the chosen weapon's MSS actor when its slot is picked and removes the one put away, keeping its rounds on the
+item.
+
+| # | Step | Done when |
+|---|---|---|
+| P4.1 | Drive MSS from a slot: the server makes the chosen weapon's MSS actor and MSS draws it with its animation; the weapon put away is removed with its rounds kept; no holsters on the body; Tharrn's own copy of MSS's key mapping without F, X, G and Z (the hotbar and the inventory take their jobs) | Each of the three weapons drawn by a console command on every machine; the MSS and network tests pass |
+| P4.2 | Data: `Data/Items.csv` (id, name, type, weight in kg, stack size, icon, the weapon or armour it is, notes): the three weapons, their ammunition, the grenade, a bandage, three armour pieces (cloth, composite, alloy); an ammunition column in `Weapons.csv`; the starting kit; row type and import | Imported and read back with no problems (I-01) |
+| P4.3 | `UTharrnInventoryComponent` (C++): 12 hotbar slots, a 30-slot grid, equipment slots (head, chest, legs, back), a weight limit; add, remove, stack, split, move and swap; only its owner receives the contents, everyone sees what is in the hands; the client asks, the server checks and changes. Reloading takes ammunition from it; grenades are items (P3's count of three goes); worn armour sets the armour attribute | Tests I-02 to I-04; made-up requests refused (I-05) |
+| P4.4 | The hotbar: keys 1 to 9, 0, − and = pick a slot; the wheel moves to the next or previous filled slot; a weapon is drawn, a grenade readied (what G does now), a bandage used (it heals; crafting it is P5); the same key again puts the weapon away | Every slot on every machine (network test, I-06) |
+| P4.5 | Pickups and drops: items lying in the world, picked up with a key (Easy Game UI's interaction system if it holds up with the server deciding, D-04; otherwise C++); dropping from the inventory lays one down; two players taking one item: one gets it; a table of items on the test range | Network test (I-07) |
+| P4.6 | Tharrn's UI style from MSS's: its borders, text styles, colours and font, as one style every screen uses; Easy Game UI's global styling set to it | Pictures for the owner |
+| P4.7 | HUD: the hotbar bottom centre (key, icon, count, rounds in the magazine; the slot in the hands lit); the weapon and ammunition bottom right (MSS's); crosshair and hit markers; Easy Game UI's pickup notices; `Data/UI/HudLayout.json` updated; Tharrn's plain text HUD goes | Pictures; the same on both clients (I-08) |
+| P4.8 | The inventory screen (Tab): the grid, weight, equipment and the hotbar row; drag and drop, split, drop, item details; mouse and gamepad (Common UI) | Works on a client at 100 ms; pictures |
+| P4.9 | Menus from Easy Game UI, set up as its pages say: the main menu (play the test range, options, quit), pause (Esc), options; its demo content removed | The game starts from the main menu |
+| P4.10 | Checks: an inventory network test; `mss_test.py` on the hotbar instead of F and G; the whole ladder | `verify.py` passes |
+| P4.11 | Owner play-test | The owner's yes |
+
+Numbers to start from (**proposals**, in the data): 12 hotbar slots and 30 in the grid; 60 kg carried, over it no
+sprinting; the starting kit is the SMG, pistol and launcher with four magazines each (as now), three grenades and two
+bandages, with armour to pick up on the test range. Later, not P4: the crafting and death screens (P5), the map (P6,
+with the coastal slice), storage boxes (with building), a backpack or jetpack in the back slot (GDD 02), the quest
+log; the inventory kept between sessions comes with the server's save.
 
 ## Asked of the owner
 
 - Play-test P2 and P3 (steps above).
-- Whether a first-person view belongs in Tharrn (none of the packs has one; D-15 is over the shoulder).
+- Okay the P4 plan (above), including its proposals: G and Z on the hotbar and in the inventory too, the first screens, the numbers.
 - Review GDD 0.1 and the open questions, especially scope (OQ-07) and the tutorial creature (OQ-12); the
   proposals in deliverables 3, 5, 6, 7 and 9.
 - Fab packs or models for creatures (OQ-04); weapons and armour are made for Tharrn (D-22).

@@ -60,3 +60,22 @@ builds; automation tests pass; the network test shows 0 to 1.2 % of shots disagr
 server modes, made-up shots refused, the heavy round's flight exact; the MSS test passes; pictures of the player holding,
 aiming and firing. **Not verified:** the owner's play-test of P2 and P3; picking weapons up, the hip-fire turn and
 MSS's grenade (not built). **Next:** commit approval; the owner's play-tests.
+
+*2026-10-16, night.* D-24, the owner's changes after P3's first build (Claude Code). Commits first, with the owner's
+yes: game repo a470f3f (P3), Mr. Mak repo 7761e26 (records). Then the owner asked to remove the slide, keep hip fire
+(asked: "Keep hip fire as now"), add the grenade launcher and hand grenades with the pack's explosions ("the required
+stuff is in the shooter pack for heavy gun and genades"; asked: the launcher replaces the Mass Driver), remove the
+test weapons, give aiming a first-person look through the sight (scopes and weapon mods later), and put weapon choice
+on the mouse wheel. Built: the slide removed; the shape-built test weapons and their code removed; `GL01` and `HG01`
+in the data with blast, fuse and sight-zoom columns; the server's blast (`UTharrnCombatSubsystem::Explode`); the
+launcher round exploding (`ATharrnProjectile`, `BP_TharrnGrenadeRound` with MSS's looks); Tharrn's hand grenade on
+MSS's throw (`UTharrnExplosiveComponent`, `BP_TharrnHandGrenade`); the view through the sight
+(`ATharrnPlayerCameraManager`); the mouse wheel; `TharrnPlaySessionToolset.CaptureGameView` for pictures of a play
+world. Fixed on the way: MSS's throw montage (UE5 only), its grenade's collision channel, its collision after the
+throw and its late start of a thrown grenade under lag (the owner saw the grenade fall through the ground while Claude
+was on it), the sights' middle. The owner allowed closing the editor for the last rebuild while testing. **Verified:**
+both targets build; 80 automation tests pass; the MSS test passes (sight pictures, wheel, launcher, three grenades and
+a refused fourth); the network test passes in a freshly started editor (0 corrections, 0 % of shots disagreeing in
+both server modes, the launcher's flight within 0.0012 s and its blast on the server only). **Not verified:** the
+owner's play-test; the holographic ring sits about 2° above the aim point. **Next:** commit approval; the owner's
+play-tests.

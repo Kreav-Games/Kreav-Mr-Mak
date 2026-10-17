@@ -2,7 +2,7 @@
 
 Version 0.1, 2026-10-15. The direction asks for a creature CSV of 30 entries (§5.6). The game's
 `Data/Creatures.csv` has the owner's first three; the direction names three more (GDD 08). **Proposal for the owner:**
-full rows for those three, and the columns P6 needs (weak points, stagger), so the Prototype's three creatures
+full rows for those three, and the columns P7 needs (weak points, stagger), so the Prototype's three creatures
 (Skitterjaw, Phase Warden, Grav Raptor) can be built from data. The other 24 come with the alpha's biomes.
 
 Units: health in points; armour Light = cloth 10 %, Medium = composite 30 %, Heavy = alloy 50 % less damage;
@@ -27,7 +27,7 @@ Notes:
 - The `ai_profile` names follow the owner's pattern (`skitter_ai_v1`); the direction's own names (`pack_flank`,
   `glide_dive`, …) describe the same behaviours.
 
-## 2. Columns P6 adds
+## 2. Columns P7 adds
 
 | id | weak_point | weak_point_mult | stagger_threshold | stagger_seconds | move_speed | Notes |
 |---|---|---|---|---|---|---|

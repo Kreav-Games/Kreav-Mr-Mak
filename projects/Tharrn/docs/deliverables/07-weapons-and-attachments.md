@@ -29,6 +29,19 @@ Notes:
   which is what the heavy weapon is there to teach.
 - The pistol is stronger per hit than the rifle but slower, so it is a backup and not a replacement.
 
+**Added 2026-10-16 (D-24, in the game's data):** the grenade launcher replaces MR-01 in the heavy slot (MR-01 stays
+in the data for later), and the hand grenade. Both explode: full damage within `blast_inner_m`, none past
+`blast_outer_m`. Their radii and the grenade's fuse are the Multiplayer Shooter System's; the rest are **proposals**.
+
+| weapon_id | Name | Type | Damage | Fire rate | Mag | Weight | Speed | Blast | Fuse | Role |
+|---|---|---|---|---|---|---|---|---|---|---|
+| GL01 | Grenade Launcher GL-01 | Explosive | 120 at the centre | 40 | 4 | 5.5 | 50 m/s | 1 m full, none past 5 m | on impact | Area denial; arcs, so lead and lift |
+| HG01 | Frag Grenade HG-01 | Throwable | 150 at the centre | — | 3 carried | 0.4 | 15 m/s thrown | 1 m full, none past 5 m | 3 s from the pin | Clearing cover; G to take one out |
+
+New columns in `Data/Weapons.csv`: `blast_inner_m`, `blast_outer_m`, `fuse_seconds`, and `ads_zoom` (magnification
+through the sight while aiming; 1.25 for the SMG's and pistol's sights, the launcher's 1.25; an optic attachment such
+as `OPT_SCOPE4` sets its own, below).
+
 Columns to add for P3, as CSV: `reload_seconds`, `ads_seconds`, `hip_spread_deg`, `ads_spread_deg`,
 `move_spread_mult`, `falloff_end_m`, `falloff_min_mult`, `pellets`, `rarity`.
 

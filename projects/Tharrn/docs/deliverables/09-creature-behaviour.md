@@ -63,7 +63,7 @@ Combat (Skitterjaw)
 
 Pack rules (**Proposal**): 3–5 per pack; the first to notice you alerts the others within 25 m; at most two pounce
 at once; when two thirds of the pack are dead the rest flee. Weak point: the head (multiplier in the creature data,
-P6).
+P7).
 
 ## 3. Phase Warden (CR003) — teleporting sentinel, Crystalline Desert
 
@@ -122,7 +122,7 @@ Flight uses the Flying movement mode with its own path checks (no navigation mes
 | **Echo Swarm** (CR005), Subterranean Caverns, 300 health shared | `Gather` (one cloud), `Split` (several clouds when hit by area damage), `Disorient` (a sound attack: muffled audio, HUD shake for the target), `Rejoin` | `SwarmHealth`, `CloudCount`, `DisorientCooldown` |
 | **Apex Titan** (CR006), boss of *Ruins of the First Signal*, 4200 health | Phase 1 melee and charge; at 75 % a shield; at 50 % minions; at 25 % an arena hazard (GDD 09) | `Phase`, `ShieldActive`, `MinionCount`, `HazardActive` |
 
-## 6. Building it (P6)
+## 6. Building it (P7)
 
 | Part | How |
 |---|---|

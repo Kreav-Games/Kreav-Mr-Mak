@@ -37,24 +37,37 @@ MSS gives the look and the handling; Tharrn's C++ decides every shot. In the gam
 | Step | What | Where |
 |---|---|---|
 | Project | Common UI on, MSS's input data (`DefaultGame.ini`), Common UI's viewport client, channels Projectile (slot 4) and Laser (slot 5) | `Tharrn.uproject`, `Config/` |
-| Animation | MSS's sockets on the UEFN skeleton; `RTG_UE5_to_UEFN`; MSS's 40 shooter animations and `ABP_Overlay_Shooter` retargeted (`_UEFN`); `DA_MSS_Animation_UEFN`; the overlay linked into the sample's own `SandboxCharacter_CMC_ABP` after Offset Root Bone (in place: the sample's chooser tables accept only that class); MSS's HUD tick only for the player in control | `Tools/Weapons/setup_mss.py`, output `/Game/MSS_Tharrn` (outside Git, remade by the script); it changes three pack files (the UEFN skeleton, the sample's animation Blueprint, MSS's shooter component), so run it again after staging |
-| Weapons | `BP_TharrnWeapon_SMG` (MSS rifle MK1), `_Pistol` (pistol MK1), `_Heavy` (grenade launcher MK1): a `TharrnWeaponLook` component names the row in `Data/Weapons.csv` (SMG_A1, PS01, MR01); MSS's trigger, release and reload go to the C++ weapon component; the component's events play MSS's flash, sound, weapon animation, arm recoil, reloads and HUD ammunition | `Tools/Weapons/build_mss_weapons.py`, `/Game/Tharrn/Weapons/MSS` |
-| Player | `BP_TharrnPlayer`: the animation Blueprint above, tag `Root_Mesh`, `BPC_Shooter_System` with the UEFN poses and the three weapons holstered (Primary pistol on the right thigh, Secondary SMG and Heavy on the back), three `BP_Holster_Socket` holsters, `BPI_Locomotion` (crouch, walk, run, sprint from Tharrn's gait), the C++ weapon component following the weapon in the hand | `Tools/Weapons/build_mss_player.py` |
+| Animation | MSS's sockets on the UEFN skeleton; `RTG_UE5_to_UEFN`; MSS's 40 shooter animations and `ABP_Overlay_Shooter` retargeted (`_UEFN`); `DA_MSS_Animation_UEFN`; the overlay linked into the sample's own `SandboxCharacter_CMC_ABP` after Offset Root Bone (in place: the sample's chooser tables accept only that class); MSS's HUD tick only for the player in control; MSS's grenade throw pointed at the retargeted throw montage (it names the UE5 one, which does not play, so the grenade never left the hand); MSS's projectiles and throwables on Tharrn's Projectile channel (the guide's step 6) | `Tools/Weapons/setup_mss.py`, output `/Game/MSS_Tharrn` (outside Git, remade by the script); it changes pack files (the UEFN skeleton, the sample's animation Blueprint, MSS's shooter component, MSS's projectile and throwable masters), so run it again after staging |
+| Weapons | `BP_TharrnWeapon_SMG` (MSS rifle MK1), `_Pistol` (pistol MK1), `_Heavy` (grenade launcher MK1): a `TharrnWeaponLook` component names the row in `Data/Weapons.csv` (SMG_A1, PS01, GL01, D-24), MSS's bullet hit effect and sound, and where the eye sits behind the weapon's `Sight` part; MSS's trigger, release and reload go to the C++ weapon component; the component's events play MSS's flash, sound, weapon animation, arm recoil, reloads and HUD ammunition | `Tools/Weapons/build_mss_weapons.py`, `/Game/Tharrn/Weapons/MSS` |
+| Explosives (D-24) | `BP_TharrnGrenadeRound`: the launcher's round, a C++ `ATharrnProjectile` (flies, explodes where it lands, the server deals the blast) with MSS's grenade mesh, trail, fireball, sound, scorch mark, shake and rumble. `BP_TharrnHandGrenade`: a child of MSS's bouncing hand grenade with a `TharrnExplosive` component (C++): the server counts the grenades (row HG01: three), starts it moving along the thrower's aim at HG01's speed as soon as MSS lets go (MSS's own start waits for a message from the player's machine and can come too late) and turns its collision on (MSS's own call to do so fails after the first throw), and deals the blast when MSS's fuse runs out; MSS plays its explosion | `Tools/Weapons/build_mss_weapons.py`; `Source/Tharrn/Combat/TharrnExplosive`, `TharrnProjectile`, `TharrnCombatSubsystem::Explode` |
+| Player | `BP_TharrnPlayer`: the animation Blueprint above, tag `Root_Mesh`, `BPC_Shooter_System` with the UEFN poses, the three weapons holstered (Primary pistol on the right thigh, Secondary SMG and Heavy launcher on the back) and Tharrn's hand grenade as its throwable, three `BP_Holster_Socket` holsters, `BPI_Locomotion` (crouch, walk, run, sprint from Tharrn's gait), the C++ weapon component following the weapon in the hand; the mouse wheel (`IMC_TharrnCombat`) presses MSS's swap; `BP_TharrnPlayerController` uses Tharrn's camera manager | `Tools/Weapons/build_mss_player.py` |
+| The view through the sight (D-24) | While MSS aims (right mouse, a weapon in the hand), `ATharrnPlayerCameraManager` moves the sample's camera into a first-person look through the weapon's `Sight` part, zoomed by `ads_zoom`; not while throwing | `Source/Tharrn/Player/TharrnPlayerCameraManager`, `UTharrnWeaponComponent::GetSightView` |
 | Shots | `UTharrnWeaponComponent` (prediction, server check with rewind, zones and armour, damage through the ability system, data) | `Source/Tharrn/Combat` |
 | Respawns | When the game mode destroys a downed player, the C++ weapon component removes MSS's HUD widget and the server destroys the player's MSS weapons (MSS expects the body to stay) | `UTharrnWeaponComponent::EndPlay` |
-| Checks | `mss_test.py`: a client equips, fires the pistol (one shot a press), reloads, swaps to the SMG and holds the trigger; every machine sees the same weapon, the server takes the shots | `Tools/Checks/mss_test.py` |
+| Checks | `mss_test.py`: a client equips, fires the pistol (one shot a press), reloads, swaps to the SMG and holds the trigger, aims (a picture through the sight), turns the wheel up and down, fires the launcher twice, and throws grenades until none are left; every machine sees the same weapon, the server takes the shots, every round and grenade explodes on the server above the floor, a fourth grenade is refused | `Tools/Checks/mss_test.py` |
 
 Keys (MSS's `IMC_Shooter`): X draw or holster, F next weapon, left mouse fire, right mouse aim, R reload, V hip or
-aimed fire, G grenade mode, Z (hold) drop; gamepad equivalents. Tharrn's own combat key mapping is no longer added.
+aimed fire, G grenade mode, Z (hold) drop; gamepad equivalents. Tharrn's own mapping (`IMC_TharrnCombat`) adds only
+the mouse wheel: up presses MSS's swap, down steps MSS's selection on first so the swap lands on the previous weapon.
+D-25 (P4, planned): a 12-slot hotbar replaces F and X (proposed: G and Z too) and the holsters; only the weapon in
+the hands shows on the body.
+
+MSS's grenade throw, as it works: G takes a grenade into the left hand (the server spawns it). Aiming (right mouse)
+shows the arc; only while aiming does the fire button pull the pin (the fuse starts); letting go plays the throw, and
+the grenade leaves the hand at that animation's notify. G again puts an unthrown grenade away. Pressing G before the
+throw animation has finished does nothing.
 
 Not done yet:
 - Picking weapons up from the ground (`BPI_Interaction`, hold to interact, `PhysicsBody` on the capsule; guide step 7).
-- The hip-fire turn (guide step 5): the character keeps the sample's facing while firing from the hip.
-- The grenade throw (G) is still MSS's own: its explosion deals engine damage, which Tharrn's health does not take.
 - Key clashes with the sample: the middle mouse button (MSS shoulder swap and the sample's strafe toggle) and the
   gamepad's top face button (MSS swap and the sample's interact).
-- MSS's weapon models are placeholders (D-22); none of the three packs has a first-person view (the Sci-Fi bundle's
-  example player has a first/third-person camera switch, single-player only).
+- MSS's weapon models stand in (D-22); its holographic sights show their ring about 2° above the middle of the screen,
+  where shots go. Scopes come with Tharrn's own models and the optic attachments (deliverable 7).
+- MSS logs a Blueprint error on the server after most throws ("Accessed None ... Object_Throw_Reference": it turns the
+  grenade's physics on through a reference it has cleared); harmless, Tharrn's component does what that call was for.
+
+Not wanted (D-24): the hip-fire turn (guide step 5); hip fire itself stays as MSS does it. A first-person mode: only
+aiming looks through the sight.
 
 ## What it is
 
