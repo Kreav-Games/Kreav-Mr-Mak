@@ -494,6 +494,9 @@ closed: an open editor once took 96 % of the GPU.
     `UpdateTimeOfDay(Hours, Minutes, Seconds)` every second from the server's clock.
 102. In a World Partition level, actors are loaded only near a player unless `bIsSpatiallyLoaded` is off: the time
     actor, the environment controller and its sky actors must be always loaded (the time actor's class says so).
+103. PowerShell names ignore case: a parameter `$Cmds` and a variable `$cmds` are one variable (the budget script's
+    extra commands were lost that way; the parameter is `-ExtraCmds`). Git Bash rewrites `/Game/...` arguments into
+    Windows paths: run such commands with `MSYS_NO_PATHCONV=1`.
 
 ## 8. Working as two agents
 

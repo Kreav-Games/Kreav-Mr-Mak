@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `dd8c093` | `p6-budget-first` | P6.9 so far: HLODs on the test coast, the budget script's `-ExtraCmds` (first numbers in tasks.md) |
 | Game `D:\Tharrn` | `b8637a0` | `p6-time-of-day` | P6.7: the world's hour from the server's clock, the bundle's sky on the test coast. Checked: verify.py 5 of 5 (105 tests), nature_test.py (the same hour on every machine) |
 | Game `D:\Tharrn` | `594f1ed` | `p6-coast-candidates` | P6.4: the tools that make candidate coasts from lidar and build their levels (scripts only; the candidate levels stay out of Git) |
 | Game `D:\Tharrn` | `d12d728` | `p6-biomes-online` | P6.2: the bundle's jungle on the test coast, run-time bushes and boulders for looks only, `nature_test.py`. Checked: verify.py 5 of 5 (104 tests), nature_test.py, survival_test.py |
@@ -91,6 +92,7 @@ the owner can say "2" to switch to MST Pro's inventory instead.
 | P6.2 Biomes online | Done (`d12d728`) | The bundle's jungle shore, swamp and jungle on the test coast (generated in about 35 s); players sprint into the jungle with no corrections, as listen and dedicated server (`nature_test.py`, new). The bushes and small boulders made around players are for looks only (they no longer block) |
 | P6.4 Terrain candidates | **Waiting for you** | Four 2 km coasts from public lidar, built in the editor with the ocean and the bundle's jungle ([all four](pictures/p6/coasts/all_coasts.jpg)); pick one (question 5) |
 | P6.7 Sky and time of day | Done (`b8637a0`) | The bundle's environment controller on the test coast, its hour from the server's clock: the same on every machine (checked as listen and dedicated server). A day lasts 60 real minutes, play starts at 9:30 (proposals, OQ-11). At night the jungle's plants glow ([noon](pictures/p6/time_noon.jpg), [evening](pictures/p6/time_evening.jpg), [night](pictures/p6/time_night.jpg), [dawn](pictures/p6/time_dawn.jpg)) |
+| P6.9 Budget | First numbers | The test coast takes 24.8 ms of GPU a frame at 1440p on this PC with the editor open (budget 16.6 on an RTX 3060): the jungle's trees and rocks are most of it; clouds 1.7 ms, grass 1 ms. A clean run with the editor closed and the cuts come next ([table](tasks.md#p6-coastal-slice-first-budget-numbers-2026-10-17)) |
 
 ## Pack files changed in P4
 

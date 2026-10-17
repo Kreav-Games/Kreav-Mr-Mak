@@ -434,6 +434,29 @@ capture subsystem, the D-11 budget measurement.
 | P6.10 | Checks: tests, the network test on the slice, the whole ladder, Shipping | `verify.py` passes |
 | P6.11 | Owner's review | The owner approves the images |
 
+## P6 Coastal slice: first budget numbers (2026-10-17)
+
+The test coast (`L_CoastTest`: 1 km, the bundle's jungle, Unreal's ocean, the bundle's sky, HLODs built) in the game
+at 2560 x 1440, the default tier (DLSS Quality's 66.7 %), on the development PC (RTX 4060 Ti) **with the editor open**
+(`Tools/Checks/measure_budget.ps1`, the player standing on the beach looking inland). The open editor shares the GPU
+and DLSS did not start (TSR ran instead), so these numbers are high; a clean run with the editor closed comes at the
+next restart. Budget: D-11 (16.6 ms on an RTX 3060, which is slower than this PC).
+
+| Part | Median ms | Budget ms | What it is |
+|---|---|---|---|
+| Nanite (visibility and base pass) | 9.2 | 4.5 | The jungle's trees, rocks and undergrowth made in the editor; HLODs saved 1.7 ms |
+| Shadows (VSM) | 3.9 | 3.0 | |
+| Upscaling and post | 3.0 | 2.0 | TSR 2.6 ms (DLSS: 1.6 ms in the earlier baseline) |
+| Volumetric clouds | 2.5 | (in "other") | Off: 1.7 ms less |
+| Landscape grass | about 1 | (in Nanite) | Off: 1 ms less |
+| Run-time bushes and boulders | about 0 | | Off: no change |
+| GPU total | 24.8 | 16.6 | |
+| Game thread | 5.4 | 6.0 | ok |
+
+What to cut first (proposals, after the clean run): the jungle's density and draw distances in Tharrn's own copies of
+the bundle's foliage presets (the biggest part), the clouds' quality, landscape grass distance; check that DLSS runs.
+`measure_budget.ps1 -ExtraCmds '<console command>'` measures what a feature costs.
+
 ## Asked of the owner
 
 - How the zones fill the 100 km² main map (OQ-15; proposal: scale the zone map by 0.5).

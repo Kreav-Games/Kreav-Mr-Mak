@@ -148,3 +148,9 @@ the bundle's controller replaced Tharrn's sky; it needs the level's own sun, sky
 actors (black but for glowing plants without them, gotcha 101), all always loaded (102). Pictures at noon, evening,
 night (the corals glow) and dawn. **Checks:** Tharrn.World.TimeOfDay (new); nature_test.py now also checks that every
 machine shows the same hour, before and after the server sets 21:00.
+
+*2026-10-17, night (later).* P6.9 first numbers (Claude Code): HLODs built for the test coast
+(WorldPartitionHLODsBuilder, 32 actors); the coast measured in the game at 1440p with the editor open: 24.8 ms GPU
+(budget 16.6 on an RTX 3060), the jungle's trees and rocks most of it (Nanite 9.2 ms), clouds 1.7 ms, grass 1 ms, the
+run-time layer nothing; DLSS did not start with the editor open (TSR ran). `measure_budget.ps1 -ExtraCmds` for
+measuring one feature. **Next:** a clean run with the editor closed, then the cuts.
