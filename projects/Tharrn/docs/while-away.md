@@ -12,7 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
-| Game `D:\Tharrn` | `5e316ba` | `d27-island` | D-27: the zones rescaled to 2.56 km (about 100 km², sea all around). Checked: data import, 105 tests |
+| Game `D:\Tharrn` | `2c51e17` | `d27-island` | D-27: the zones rescaled to 2.56 km (about 100 km², sea all around). Checked: data import, 105 tests |
 | Game `D:\Tharrn` | `dd8c093` | `p6-budget-first` | P6.9 so far: HLODs on the test coast, the budget script's `-ExtraCmds` (first numbers in tasks.md) |
 | Game `D:\Tharrn` | `b8637a0` | `p6-time-of-day` | P6.7: the world's hour from the server's clock, the bundle's sky on the test coast. Checked: verify.py 5 of 5 (105 tests), nature_test.py (the same hour on every machine) |
 | Game `D:\Tharrn` | `594f1ed` | `p6-coast-candidates` | P6.4: the tools that make candidate coasts from lidar and build their levels (scripts only; the candidate levels stay out of Git) |
