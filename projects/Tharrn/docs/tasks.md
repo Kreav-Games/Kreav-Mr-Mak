@@ -437,6 +437,7 @@ capture subsystem, the D-11 budget measurement.
 ## Asked of the owner
 
 - How the zones fill the 100 km² main map (OQ-15; proposal: scale the zone map by 0.5).
+- Which coast the game starts on (OQ-06; four candidates in [pictures](pictures/p6/coasts/all_coasts.jpg)).
 - Play-test P2, P3, P4 and P5 (steps above); say how P5's numbers feel (stamina, hunger, thirst, cold and heat, the
   recipes: all proposals).
 - When home: check the P4 plan's proposals (G and Z on the hotbar and in the inventory too, the first screens, the

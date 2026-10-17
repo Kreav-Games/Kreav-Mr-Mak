@@ -43,8 +43,8 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 | `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py`, `mss_test.py`, `inventory_test.py` (D-25: the inventory with a listen and a dedicated server), `survival_test.py` (P5: vitals, food and water, cold, crafting, running out of stamina, the bag; listen and dedicated server), `nature_test.py` (P6: players run through the bundle's generated nature on `L_CoastTest` with no corrections; listen and dedicated server) |
 | `Tools/UI/` | `build_ui.py` (D-25): icons, the Widget Blueprints in MSS's look, `BP_TharrnHUD`, Easy Game UI's settings copies and its selector, `BP_TharrnGameInstance`, the main menu level, the project's start level |
 | `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange`, `Characters/Player/BP_TharrnPlayer`, `Core/` (BP_TharrnGameMode, BP_TharrnPlayerController, BP_TharrnGameInstance, BP_TharrnMenuGameMode), `Input/` (the hotbar, wheel, pick-up, inventory and pause actions, `IMC_TharrnCombat`), `UI/` (the Widget Blueprints, BP_TharrnHUD, Easy Game UI's settings copies, icons), `Maps/L_TharrnMainMenu`, `Weapons/` (placeholders, the heavy round, `MSS/` Tharrn's MSS weapons) |
-| `Tools/World/` | `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script) |
-| `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README); `test_coast.py`, the made-up coast for P6's ocean and biome tests (heights and the bundle's jungle paint layers, run with `Saved/PyTerrain`) |
+| `Tools/World/` | `build_coast_level.py` (a coast level from a built terrain: landscape, virtual textures, sky, ocean, the bundle's biome volume, generation, pictures; levels under `/Game/Tharrn/Scratch/` are for comparisons, outside Git); `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script) |
+| `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README); `test_coast.py`, the made-up coast for P6's ocean and biome tests (heights and the bundle's jungle paint layers, run with `Saved/PyTerrain`); `coast_terrain.py`, candidate coasts from USGS 1 m lidar tiles (overview maps, 2 km windows with a seabed and the paint layers) |
 | `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) and its data-driven console variables, collision channels and console variables (`DefaultEngine.ini`, D-18) |
 | `Content/ThirdPerson`, `Characters`, `Input`, `LevelPrototyping` | Template content (tracked) |
 | `Content/ScifiOutpost`, `DMD`, `EasyGameUI`, Game Animation Sample folders | Staged packs (ignored) |
@@ -475,6 +475,18 @@ closed: an open editor once took 96 % of the GPU.
     dedicated server makes none. Trees and big rocks are generated once in the editor and saved with the level, so
     every machine has the same ones. The bundle's biome actor's `Biomes` list must be emptied before a shorter list
     with other entries is set (`set_properties` refuses it as ambiguous).
+96. The Water plugin's ocean leaves a dry island around its own place, inside its outline (a circle by default), even
+    with the outline shrunk to nothing (5.8.3). Stand the ocean actor far out at sea, outside the playable area, with
+    `OceanExtents` reaching over the whole map (`build_coast_level.py`: 3 map widths away).
+97. A World Partition level opened again in the editor has only some of its cells loaded: pictures after a reopen miss
+    most generated trees. Take editor pictures in the session that generated the level, or in play.
+98. Unreal is left-handed: with +X east, +Y runs south. A heightmap's north-first rows go in as they are (a flip would
+    mirror a real coast); the zone data's y runs north, so the world's Y is minus the zone's y.
+99. USGS lidar is "hydro-flattened": the sea is empty, at 0, or flattened at some height (Point Lobos: 1.15 m).
+    `coast_terrain.py` finds that height next to the empty sea (one common value) and sets it to 0; a beach there
+    has no common value (Hawaii: the sea is at 0, the commonest low height is farmland).
+100. Editor pictures: point the viewport there first and wait (`EditorAppToolset.SetCameraTransform`, 8 s) with
+    throttling off, or the virtual textures and World Partition cells are still low resolution.
 
 ## 8. Working as two agents
 

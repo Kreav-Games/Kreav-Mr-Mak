@@ -131,3 +131,12 @@ own) were replaced by Tharrn's copies with no collision, made only for a server'
 Checkpoint under the owner's standing yes: game repo d12d728 (p6-biomes-online). **Checks:** verify.py 5 of 5 (104
 tests), nature_test.py (new) and survival_test.py pass as listen and dedicated server. **Next:** candidate coasts from
 public lidar for the owner to choose from (OQ-06).
+
+*2026-10-17, evening.* P6.4 candidate coasts (Claude Code). Four USGS 1 m lidar tiles (public domain) downloaded;
+`Tools/Terrain/coast_terrain.py` (overviews, 2 km windows with a seabed and the bundle's paint layers) and
+`Tools/World/build_coast_level.py` (level, landscape, ocean, the bundle's biome volume, generation, pictures). Built
+A Hanalei Bay, B Polihale, C Waimea, D Point Lobos as scratch levels (outside Git) with pictures from the air, the sea
+and the shore ([all four](pictures/p6/coasts/all_coasts.jpg)). Found on the way: the sea's height in the lidar differs by place (gotcha 99); Unreal's
+Y runs south (98); the ocean leaves a dry island around its own place (96); a reopened World Partition level shows
+few trees (97); editor pictures need the viewport there first (100). **Next:** the owner's pick of a coast (OQ-06)
+and of the map's size rule (OQ-15); meanwhile the sky and time of day (P6.7) and the budget (P6.9).

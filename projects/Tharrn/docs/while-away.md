@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `594f1ed` | `p6-coast-candidates` | P6.4: the tools that make candidate coasts from lidar and build their levels (scripts only; the candidate levels stay out of Git) |
 | Game `D:\Tharrn` | `d12d728` | `p6-biomes-online` | P6.2: the bundle's jungle on the test coast, run-time bushes and boulders for looks only, `nature_test.py`. Checked: verify.py 5 of 5 (104 tests), nature_test.py, survival_test.py |
 | Game `D:\Tharrn` | `ef8a9a5` | `p6-ocean-test` | P6 so far: the world-building tool, the made-up test coast (`L_CoastTest`) with Unreal's ocean, the Water plugin and virtual texturing switched on. Checked: verify.py 5 of 5 (104 tests). Going back to `p5-built` also switches the Water plugin and virtual texturing off again |
 | Game `D:\Tharrn` | `8a93b0d` | `p5-built` | P5 built: vitals (stamina, hunger, hydration, temperature), food and water, crafting, the vitals on the HUD, the crafting panel, the death screen and bag, cold and hot areas on the test range. Checked: verify.py, survival_test.py, inventory_test.py, mss_test.py, Shipping build |
@@ -87,6 +88,7 @@ the owner can say "2" to switch to MST Pro's inventory instead.
 | Test coast | Done | `L_CoastTest`: 1 km of made-up coast (beach, tide pools, marsh, stream, rocky headland) painted with the bundle's jungle shore, swamp, jungle and rock layers ([map](pictures/p6/test_coast_map.jpg)) |
 | P6.1 Ocean test | Done (`ef8a9a5`, verify.py 5 of 5) | Unreal's ocean for the sea, the bundle's water for pools and rivers (pictures below; OQ-05) |
 | P6.2 Biomes online | Done (`d12d728`) | The bundle's jungle shore, swamp and jungle on the test coast (generated in about 35 s); players sprint into the jungle with no corrections, as listen and dedicated server (`nature_test.py`, new). The bushes and small boulders made around players are for looks only (they no longer block) |
+| P6.4 Terrain candidates | **Waiting for you** | Four 2 km coasts from public lidar, built in the editor with the ocean and the bundle's jungle ([all four](pictures/p6/coasts/all_coasts.jpg)); pick one (question 5) |
 
 ## Pack files changed in P4
 
@@ -199,3 +201,10 @@ P6 so far (proposals):
 4. The 100 km² main map (D-26): should the 15 zones together make 100 km² (scaled by 0.5: zones of 2.56 km, a map
    about 15 × 10 km with sea around it; Claude's proposal), or should the whole map, sea included, be 10 × 10 km (the
    zone grid redrawn to fit)? OQ-15.
+5. Which coast should the game start on ([all four](pictures/p6/coasts/all_coasts.jpg), each from the air, from the sea and on the shore; maps:
+   [A](pictures/p6/coasts/a_hanalei_map.jpg), [B](pictures/p6/coasts/b_polihale_map.jpg),
+   [C](pictures/p6/coasts/c_waimea_map.jpg), [D](pictures/p6/coasts/d_point_lobos_map.jpg))? A Hanalei Bay (a crescent
+   bay, a river lowland with marsh, jungle mountains), B Polihale (a long beach under rock ridges), C Waimea (a rocky
+   bay under cliffs, a valley), D Point Lobos (a jagged rocky coast with coves and stacks), or a made-up coast. The
+   plants and rocks are the bundle's alien jungle whichever place the land comes from. Another way: one whole
+   10 × 10 km lidar area as the 100 km² main map (OQ-06).
