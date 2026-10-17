@@ -32,14 +32,14 @@ check with simulated latency and loss (`Tools/Checks/net_test.py`); *Budget* = `
 | C-07 | P3 | Weapons from data | Auto | SMG, pistol, grenade launcher and hand grenade take every stat from `DT_Weapons` | **Pass** 2026-10-16 |
 | C-08 | P3 | Aim assist | Auto | Only with a controller; 0.6° radius, strength 0.15 | Not built |
 | C-09 | P3 | Explosions (D-24) | Auto + MSS test | Full damage within 1 m, none past 5 m, through armour; walls shield; grenades counted (three) and thrown by the server, exploding on the server only | **Pass** 2026-10-16 |
-| I-01 | P4 Inventory and UI | Items from data | Auto | Every item takes its weight, stack size and links from `DT_Items` | Not built |
-| I-02 | P4 | Stacking and splitting | Auto | Stacks fill to their size; a split leaves both parts; nothing is made or lost | Not built |
-| I-03 | P4 | Weight limit | Auto | Weight sums the items; over the limit no sprinting (proposal) | Not built |
-| I-04 | P4 | Ammunition and armour from the inventory | Auto | Reloading takes rounds from the inventory; worn armour sets the armour reduction | Not built |
-| I-05 | P4 | The server refuses made-up requests | Auto + Net | Moving items a player does not have, slots out of range, picking up from far away: nothing changes | Not built |
-| I-06 | P4 | Hotbar | Net | Keys 1 to 12 and the wheel pick the same item on every machine; weapons drawn with MSS's animation | Not built |
-| I-07 | P4 | Pickups and drops | Net | A dropped item shows for everyone; two players taking one item: one gets it | Not built |
-| I-08 | P4 | HUD and inventory screen | Owner + Net | The same items and counts on both clients, in MSS's look | Not built |
+| I-01 | P4 Inventory and UI | Items from data | Auto | Every item takes its weight, stack size and links from `DT_Items` | **Pass** 2026-10-16 |
+| I-02 | P4 | Stacking and splitting | Auto | Stacks fill to their size; a split leaves both parts; nothing is made or lost | **Pass** 2026-10-16 |
+| I-03 | P4 | Weight limit | Auto | Weight sums the items; over the limit no sprinting (proposal) | **Pass** 2026-10-16 (weight; the sprint block by code, not yet by a test) |
+| I-04 | P4 | Ammunition and armour from the inventory | Auto | Reloading takes rounds from the inventory; worn armour sets the armour reduction | **Pass** 2026-10-16 (reload from the inventory in the MSS test; armour in the inventory test) |
+| I-05 | P4 | The server refuses made-up requests | Auto + Net | Moving items a player does not have, slots out of range, picking up from far away: nothing changes | **Pass** 2026-10-16 (5 of 5 refused, listen and dedicated server) |
+| I-06 | P4 | Hotbar | Net | Keys 1 to 12 and the wheel pick the same item on every machine; weapons drawn with MSS's animation | **Pass** 2026-10-16 (inventory and MSS tests) |
+| I-07 | P4 | Pickups and drops | Net | A dropped item shows for everyone; two players taking one item: one gets it | **Pass** 2026-10-16 (drop and pick up; one of two in the same frame) |
+| I-08 | P4 | HUD and inventory screen | Owner + Net | The same items and counts on both clients, in MSS's look | Pictures 2026-10-16; **owner** to judge |
 | V-01 | P5 Vitals | Hunger threshold | Auto | Below 30, stamina recovers 40 % slower; at 30 and above, normally | Not built |
 | V-02 | P5 | Hydration threshold | Auto | Below 30, aim sway grows by 25 % (formula as settled with the owner, GDD 03) | Not built |
 | V-03 | P5 | The two formulas | Auto | `StaminaRegen` and `AimSway` at 0, 29, 30, 31 and 100 | Not built |

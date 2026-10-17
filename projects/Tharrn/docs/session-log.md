@@ -79,3 +79,15 @@ a refused fourth); the network test passes in a freshly started editor (0 correc
 both server modes, the launcher's flight within 0.0012 s and its blast on the server only). **Not verified:** the
 owner's play-test; the holographic ring sits about 2° above the aim point. **Next:** commit approval; the owner's
 play-tests.
+
+*2026-10-16, late.* D-25 and P4 (Claude Code), the owner on a phone for a few days. Commits of D-24 (game repo
+f2e695d, tagged d24-before-p4; Mr. Mak repo d2bff9f), then the owner: "Continue with whats next ... make notes or a
+report for when I get home incase we need a roll back" (`docs/while-away.md`). The owner pointed at MST Pro (Hyper's
+survival template); Claude recommended keeping Tharrn's own inventory and taking MST Pro's parts later. **Built:** the
+inventory (C++, the server owns it), items and the starting kit from CSV, the hotbar drawing MSS's weapons (nothing on
+the back), pickups and drops, the HUD and inventory screen in MSS's look, Easy Game UI's main menu, pause menu and
+options (its HUD and game instance as Tharrn children, Tharrn's settings copies, one value changed in the pack). The
+owner asked for pictures of the UI as it came together ("I like the screenshot updates"). A rebuild met Unreal's "Save
+Content" box; the owner chose to force-close the editor; the editor's restore offer (three Easy Game UI Blueprints only
+read) was skipped. A Live Coding patch crashed the editor once (test console variables); full builds since. Checkpoint
+commit with the owner's yes: game repo 883a04d (p4-checkpoint-1). **Checks:** verify.py 5 of 5 (both targets build with no warnings, Shipping too; plugin check; data import; 84 automation tests, 4 of them new; the network test as listen and dedicated server); inventory_test.py passes as listen and dedicated server (the kit, the hotbar on every machine, the grenade slot, a bandage, a split, armour worn, 5 of 5 made-up requests refused, drop and pick up, one of two players getting an item in the same frame); mss_test.py passes on the hotbar; pictures of the HUD, inventory screen, pick-up prompt, main menu, pause menu and options.

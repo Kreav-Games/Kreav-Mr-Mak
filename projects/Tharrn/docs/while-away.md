@@ -10,6 +10,7 @@ meantime. This file says what was done, what to look at first, and how to go bac
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `700db9d` | `p4-built` | P4 built: everything above plus Easy Game UI's main menu (the game's start level), pause menu (Esc) and options. Checked: verify.py 5 of 5 (Shipping too), inventory_test.py and mss_test.py |
 | Game `D:\Tharrn` | `883a04d` | `p4-checkpoint-1` | P4 so far: the inventory, hotbar, pickups, the HUD and the inventory screen in MSS's look; Easy Game UI's HUD class in place, its menus not yet. Checked: 84 automation tests, the network test, the inventory network test (listen and dedicated server), the MSS test |
 | Game `D:\Tharrn` | `f2e695d` | `d24-before-p4` | D-24: grenade launcher, hand grenades, the view through the sight, the mouse wheel, no slide. Everything checked (80 tests, network test, MSS test, Shipping build). The last state before P4 |
 | Game | `a470f3f` | — | P3's first build with MSS (the slide and the Mass Driver still in) |
@@ -48,8 +49,9 @@ kept first in `D:\Tharrn\Saved\PackBackups\`. To undo pack changes: copy those f
 | P4.4 Hotbar | Done | — | Keys 1 to 9, 0, - and =; the wheel steps through the weapons; a grenade slot readies a grenade; a bandage heals 25 (refused at full health) |
 | P4.5 Pickups and drops | Done (single player) | — | E picks up what the player looks at; the server refuses a pick-up from 10 m; items lie on the test range (right of the starts) |
 | P4.6 to P4.8 Look, HUD, inventory screen | Done | `883a04d` | In MSS's look (its panel and text styles, pale blue-white on dark): the hotbar along the bottom with the item in the hands named above it, health and weight bottom left, the pick-up prompt, the inventory screen on Tab (worn, grid, hotbar row, drag and drop, details); MSS's weapon selector and its X, Z, F and G hints hidden (its ammunition, R and V stay) |
-| P4.9 Menus (Easy Game UI) | In progress | — | Easy Game UI's HUD class in place (Tharrn's widgets now come from the player controller); its main menu, pause menu (Esc) and options next |
-| P4.10 Checks | Partly | `883a04d` | 84 automation tests; the network test and the inventory network test pass as listen and dedicated server; the MSS test passes on the hotbar |
+| P4.9 Menus (Easy Game UI) | Done | `700db9d` | The game starts at the main menu (THARRN, press any key, then its menu; New Game opens the test range); Esc opens the pause menu (Continue, Options, Quit to Title Screen, Quit; it does not pause: online); its options (video, graphics, gameplay, controls, audio) |
+| P4.10 Checks | Done | `700db9d` | verify.py 5 of 5 (Shipping too), inventory_test.py and mss_test.py |
+| P4.11 Owner play-test | **Waiting for you** | — | Steps in [tasks.md](tasks.md#p4-inventory-hotbar-and-ui-results-2026-10-16) |
 
 The owner pointed at MST Pro (Hyper's Multiplayer Survival Template) on 2026-10-16: it has an inventory, hotbar,
 crafting, vitals, building, farming and more. Claude recommended keeping Tharrn's own inventory (built and working,
@@ -58,15 +60,20 @@ the owner can say "2" to switch to MST Pro's inventory instead.
 
 ## Pack files changed in P4
 
-None yet. (Planned: Easy Game UI's `BP_EGUI_GlobalConfigSelector`, one value pointing at Tharrn's settings asset;
-backed up first.)
+| Pack file | What changed | Backup |
+|---|---|---|
+| `Content/EasyGameUI/Core/GlobalConfig/BP_EGUI_GlobalConfigSelector.uasset` | One class default, `GlobalConfigDataAsset`: Easy Game UI's demo settings to Tharrn's `DA_TharrnUIConfig` (Easy Game UI finds its settings only through this selector) | `D:\Tharrn\Saved\PackBackups\2026-10-16\EasyGameUI\Core\GlobalConfig\` |
+
+Staging Easy Game UI again undoes it; `Tools/UI/build_ui.py` sets it again.
 
 ## Pictures (2026-10-16)
 
 The HUD [hud.jpg](pictures/p4/hud.jpg), the inventory screen [inventory.jpg](pictures/p4/inventory.jpg), the pick-up
 prompt at the test range's items [pickup_prompt.jpg](pictures/p4/pickup_prompt.jpg), empty hands with nothing on the
 back [hands_empty_back_clear.jpg](pictures/p4/hands_empty_back_clear.jpg), aiming through the SMG's sight in a client's
-small play window [aiming_client_window.jpg](pictures/p4/aiming_client_window.jpg).
+small play window [aiming_client_window.jpg](pictures/p4/aiming_client_window.jpg), the main menu
+[main_menu.jpg](pictures/p4/main_menu.jpg), the pause menu [pause_menu.jpg](pictures/p4/pause_menu.jpg), the options
+[options.jpg](pictures/p4/options.jpg).
 
 ## Things that happened
 
@@ -76,6 +83,9 @@ small play window [aiming_client_window.jpg](pictures/p4/aiming_client_window.jp
   `BPFL_EGUI_EasyFunctionUtilities`) that only reading their graphs had marked as changed; the restore was skipped by
   moving Unreal's restore list aside (kept in `D:\Tharrn\Saved\ClaudeScratch\restore_2026-10-16\`). The pack files
   were not changed. Claude read "#2" as that option, not as switching to MST Pro's inventory.
+- 2026-10-16, night: the editor crashed once on Play after a Live Coding patch of a file with test console variables
+  (`TharrnPlayerCharacter.cpp`); the crash was in Tharrn's movement test code, nothing was lost; full builds since
+  (engineering guide, gotcha 79).
 
 ## Chosen for the owner (proposals in the P4 plan; say if any is wrong)
 
@@ -84,6 +94,11 @@ small play window [aiming_client_window.jpg](pictures/p4/aiming_client_window.jp
 - The starting kit: SMG, pistol and launcher with four magazines each, three grenades, two bandages; armour to pick
   up on the test range.
 - The crafting and death screens come with P5, the map with P6.
+- Easy Game UI's menus: the pause menu does not pause the game (online); no saving, autosaves, photo mode, intro or
+  credits button yet; version shown 0.4; its accent in MSS's pale blue; a plain "THARRN" text logo as a placeholder
+  (rendered from the engine's Roboto font) until there is real art. Its own menu backdrops (a teal or pink blur) stay
+  until the whole UI pass.
+- Grenades on the hotbar's 4, bandages on 5 (the starting kit); E picks up within 2.5 m.
 
 ## To look at first, when home
 

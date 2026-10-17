@@ -22,8 +22,8 @@ Proposed order; each module is built server-authoritative from the start (D-04).
 | P1 | **Foundation:** network test harness (PIE listen server and dedicated-server client, simulated latency and loss), CSV data-table pipeline, automation test scaffolding, a grey test range map | A replicated test actor passes the guide's network step; a CSV row imports and reads back in a test | Built and checked 2026-10-15 (ladder steps 1–4, below); closed 2026-10-16 (below) |
 | P2 | **Shooter character:** the Game Animation Sample's motion-matched character as the player, third-person aim-down-sights camera (D-15), sprint, crouch, mantle (the slide was built, then removed by the owner, D-24); replicated | Two clients move and mantle smoothly at 100 ms latency | Built and checked 2026-10-16 (below); **owner play-test** |
 | P3 | **Weapons:** weapon CSV (deliverable 7), SMG and pistol hitscan, one heavy projectile, recoil curves, spread, damage multipliers and armour, server-validated hits with rewind (OQ-09) | Test-range targets; under 2 % desync between two clients; tests for multipliers and armour | Built 2026-10-16 with MSS's weapons and animation (D-23); changed the same day (D-24: grenade launcher, grenades, aiming through the sight, the wheel, no slide); **owner play-test** ([steps](#p3-weapons-results-2026-10-16)) |
-| P4 | **Inventory, hotbar and UI (D-25):** items from data, an inventory the server owns (grid, weight limit, equipment), a 12-slot hotbar (keys 1 to 9, 0, − and =; the wheel) that draws weapons, readies grenades and uses items, pickups and drops; the HUD, the inventory screen and Easy Game UI's menus in MSS's look | Every slot picks the same item on every machine; items move, stack, drop and are picked up through the server, made-up requests refused; the owner's yes | Started 2026-10-16 while the owner is away ([plan](#p4-inventory-hotbar-and-ui-plan-2026-10-16); report and rollback points: [while-away.md](while-away.md)) |
-| P5 | **Vitals and crafting:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo (the crafting screen); the vitals on the HUD; the death screen and dropping the inventory | Thresholds tested; the HUD matches on both clients | — |
+| P4 | **Inventory, hotbar and UI (D-25):** items from data, an inventory the server owns (grid, weight limit, equipment), a 12-slot hotbar (keys 1 to 9, 0, − and =; the wheel) that draws weapons, readies grenades and uses items, pickups and drops; the HUD, the inventory screen and Easy Game UI's menus in MSS's look | Every slot picks the same item on every machine; items move, stack, drop and are picked up through the server, made-up requests refused; the owner's yes | Built 2026-10-16 while the owner was away ([results](#p4-inventory-hotbar-and-ui-results-2026-10-16); report and rollback points: [while-away.md](while-away.md)); **owner play-test** |
+| P5 | **Vitals and crafting** (started 2026-10-16, [plan](#p5-vitals-and-crafting-plan-2026-10-16))**:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo (the crafting screen); the vitals on the HUD; the death screen and dropping the inventory | Thresholds tested; the HUD matches on both clients | — |
 | P6 | **Coastal slice:** about 1–2 km² of the starter biome: terrain (OQ-06), ocean test (OQ-05), Sci-Fi bundle shore and jungle kits and its PCG biome system, following its guides ([reference](scifi-bundle.md)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
 | P7 | **Creatures:** Skitterjaw (desert, D-16), Phase Warden, Grav Raptor (creature CSV, deliverable 5 in part), StateTree behaviour, perception, stagger and weak points | The tutorial fight (creature per OQ-12) works for two clients | — |
 | P8 | **MetaHuman base:** the player as a MetaHuman from presets (OQ-03), customisation JSON saved and loaded | A preset choice survives a reload and shows on both clients | — |
@@ -274,9 +274,87 @@ bandages, with armour to pick up on the test range. Later, not P4: the crafting 
 with the coastal slice), storage boxes (with building), a backpack or jetpack in the back slot (GDD 02), the quest
 log; the inventory kept between sessions comes with the server's save.
 
+## P4 Inventory, hotbar and UI: results (2026-10-16)
+
+Built while the owner was away (go-ahead: "Continue with whats next"; checkpoints committed with the owner's yes). The
+report and rollback points are in [while-away.md](while-away.md), with pictures.
+
+- **Done:** P4.1 to P4.10.
+  - **Inventory (C++, the server owns it):** `UTharrnInventoryComponent`: 12 hotbar slots, a 30-slot grid, worn slots
+    (head, chest, legs, back), 60 kg (over it no sprinting); the rules in `TharrnInventory` (stack, split, move, swap,
+    worn slots); the player's machine only asks. Items from `Data/Items.csv` (14), the starting kit from
+    `Data/StartingKit.csv`, each weapon's `ammo_item` in `Weapons.csv`.
+  - **The hotbar drives MSS:** the server makes the chosen MSS weapon and has MSS draw it and put the old one away;
+    only the weapon in the hands shows; reloads take rounds from the inventory; grenades are items (a grenade slot does
+    what G did); worn armour sets the armour; a bandage heals 25 (not at full health).
+  - **Keys:** 1 to 9, 0, - and = the hotbar; the wheel through its weapons; E pick up; Tab inventory; Esc pause menu.
+    MSS's F, X, G and Z are blocked.
+  - **Pickups and drops:** items lying in the world (MSS's weapon models, its grenade and crates), the prompt "E Pick up
+    ..." when looked at within 2.5 m; the server checks the reach; a table of items on the test range.
+  - **UI in MSS's look** (its panel and text styles, pale blue-white on dark): the hotbar with the item in the hands
+    named above it, health and weight bottom left, the pick-up prompt, hit markers; the inventory screen on Tab (worn,
+    grid, hotbar row, drag and drop, right drag for half a stack, drop outside to lay it down, double click to use,
+    wear or take off, item details). MSS's weapon selector and its X, Z, F and G hints are hidden; its ammunition,
+    crosshair and R and V hints stay.
+  - **Menus (Easy Game UI):** the game starts at `L_TharrnMainMenu` (THARRN, press any key, then Easy Game UI's main
+    menu; New Game opens the test range); Esc opens its pause menu (Continue, Options, Quit to Title Screen, Quit; the
+    world goes on: online); its options (video, graphics, gameplay, controls, audio). Tharrn's own settings and styling
+    copies; the pack's config selector points at them (the one change to the pack, backed up).
+- **Checks:** verify.py 5 of 5 (both targets build with no warnings, Shipping too; plugin check; data import; 84 automation tests, 4 of them new; the network test as listen and dedicated server); inventory_test.py passes as listen and dedicated server (the kit, the hotbar on every machine, the grenade slot, a bandage, a split, armour worn, 5 of 5 made-up requests refused, drop and pick up, one of two players getting an item in the same frame); mss_test.py passes on the hotbar; pictures of the HUD, inventory screen, pick-up prompt, main menu, pause menu and options.
+- **Found and fixed on the way:** a Blueprint copies into new widgets only the class defaults set before its compile (the
+  inventory screen came up empty); collapsing MSS's weapon selector pushed its ammunition off the screen (now hidden
+  instead); a Live Coding patch of a file with test console variables crashed the editor on the next play (now a full
+  build for those); the network test's starting-kit line has no player name yet (the test counts lines) (engineering
+  guide, gotchas 76 to 84).
+- **Not built / later:** the crafting and death screens and the vitals on the HUD (P5); the map (P6); storage boxes;
+  the gamepad's hotbar (its MSS swap still works); hosting and joining from the main menu (Easy Game UI has no online
+  menus: a later module); Easy Game UI's menu backdrops (teal, pink) and its demo content stay until the whole UI pass;
+  a real logo (a text placeholder now).
+
+**Play-test (P4, about 10 minutes).**
+1. Open `D:\Tharrn\Tharrn.uproject`; the test range opens. Press Play.
+2. Bottom centre: the hotbar. Press 1: the SMG comes out (MSS's draw); 2: it goes away and the pistol comes out; 2
+   again: hands empty. Nothing hangs on your back. The wheel steps through the weapons.
+3. Fire and reload: the rounds come out of the inventory (bottom right: in the magazine | in the inventory).
+4. Press 4: a grenade comes into the hand (aim, hold fire to pull the pin, let go); 4 again puts it back. Press 5 with
+   full health: nothing; it heals once you are hurt.
+5. Walk to the items on the right of the start: look at one, "E Pick up ..." shows; press E.
+6. Press Tab: the inventory. Drag items between the grid, the hotbar row and the worn slots; right drag splits a stack;
+   drop one outside the panel to lay it on the ground; double click the vest to wear it. Tab closes it.
+7. Press Esc: the pause menu; Options shows the settings. (In the editor, Esc may stop play instead: try it in a
+   standalone game, Play menu: Standalone Game.)
+8. Play menu: Number of Players 2, Listen Server: the same weapon in the hands on both screens, items picked up by one
+   player gone for the other.
+9. Tell Claude what looks or feels wrong: sizes, places, colours, the numbers (60 kg, 30 slots, the kit).
+
+## P5 Vitals and crafting: plan (2026-10-16)
+
+Started straight after P4 while the owner is away ("Then continue with next step afterwards"); the proposals below are
+checked with the owner when home ([while-away.md](while-away.md)). What exists to build on: health and armour on the
+Gameplay Ability System (P3), the inventory the server owns and its items (P4), the bandage, the HUD and inventory
+screen in MSS's look, the 12 placeholder HUD icons (deliverable 8).
+
+| # | Step | Done when |
+|---|---|---|
+| P5.1 | Vitals as attributes next to health (C++, the server owns them, D-04): stamina, hunger, hydration, felt temperature, neural stability (kept at 100 for now: its effects come later, it is in the aim formula); a vitals component ticking them on the server at rates from `Data/Vitals.csv` | Values match on every machine (network test) |
+| P5.2 | GDD 03's two formulas in one C++ calculation: `StaminaRegen` (hunger below 30: -40 %; outside the comfortable temperature: -TempPenalty) and `AimSway` (the hydration term only below 30, GDD 03's build note: **proposal**; neural stability) | V-01 to V-03 at 0, 29, 30, 31 and 100 |
+| P5.3 | Stamina in play: sprinting uses it, with none left no sprint (the server decides, the player's machine follows); aim sway widens the weapon's spread | The network test's movement passes with no new corrections |
+| P5.4 | Temperature: the air's temperature (the world's default; hot and cold areas on the test range), the comfortable range of what is worn (armour columns in `Items.csv`), outside it damage over time and slower movement | V-04 |
+| P5.5 | Food and water: items that restore hunger and hydration (a ration, a water bottle), used from the hotbar like the bandage | Used on every machine |
+| P5.6 | Crafting (C++, the server checks): recipes in `Data/Recipes.csv` (the bandage from organic fibre; pistol and SMG rounds from mineral and alloy: **proposals**), a request to the server, a short queue (seconds a craft), inputs taken and outputs added; resources to pick up on the test range | V-05 |
+| P5.7 | UI in MSS's look: the vitals cluster bottom left (health, stamina, hunger, hydration, temperature, with deliverable 8's icons), a crafting panel in the inventory screen (recipes, what is missing, craft, the queue), a death screen (what was dropped, respawn) | Pictures; the same on both clients (V-06) |
+| P5.8 | Death: the inventory drops as a bag where the player fell; the new body gets the starting kit | The network test |
+| P5.9 | Checks: vitals and crafting tests, an addition to the inventory network test, the whole ladder | `verify.py` passes |
+| P5.10 | Owner play-test | The owner's yes |
+
+Numbers to start from (**proposals**, in the data): hunger from full to empty in 60 minutes, hydration in 40; at 0,
+health falls 0.5 a second; stamina 100, sprinting 12 a second, back at 20 a second after 1 s of rest; comfortable
+10 to 30 °C without armour, wider with it; outside it 1 health a second and 15 % slower. Radiation and neural stability's
+effects (hallucinations) come later.
+
 ## Asked of the owner
 
-- Play-test P2 and P3 (steps above).
+- Play-test P2, P3 and P4 (steps above).
 - When home: check the P4 plan's proposals (G and Z on the hotbar and in the inventory too, the first screens, the
   numbers) and read [while-away.md](while-away.md).
 - Review GDD 0.1 and the open questions, especially scope (OQ-07) and the tutorial creature (OQ-12); the

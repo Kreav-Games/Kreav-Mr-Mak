@@ -684,7 +684,7 @@ def development():
          BUILT + " Built and checked 2026-10-15; closed 2026-10-16"],
         ["P2", "Shooter character: motion-matched movement, third-person aim-down-sights camera, sprint, crouch, mantle; online", BUILT + " Built and checked 2026-10-16; waits for the owner's play-test"],
         ["P3", "Weapons: SMG, pistol, a grenade launcher and hand grenades; recoil, spread, damage and armour; hits checked by the server", BUILT + " Built and checked 2026-10-16 with the Multiplayer Shooter System (D-23); waits for the owner's play-test"],
-        ["P4", "Inventory, hotbar and UI: an inventory the server owns, a 12-slot hotbar, pickups, the HUD, inventory screen and menus in the shooter pack's look", "Planned 2026-10-16 (D-25); waits for the owner's okay"],
+        ["P4", "Inventory, hotbar and UI: an inventory the server owns, a 12-slot hotbar, pickups, the HUD, inventory screen and menus in the shooter pack's look; the main menu, pause menu and options", BUILT + " Built 2026-10-16 while the owner was away; waits for the owner's play-test"],
         ["P5", "Vitals and crafting: health, stamina, hunger, hydration, temperature; the formulas; crafting a bandage and ammo; the vitals on the HUD; the death screen", "—"],
         ["P6", "Coastal slice: 1–2 km² of the starter biome at full quality, within the performance budget", "—"],
         ["P7", "Creatures: Skitterjaw, Phase Warden, Grav Raptor with behaviour, stagger and weak points", "—"],

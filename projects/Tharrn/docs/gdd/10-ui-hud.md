@@ -52,8 +52,9 @@
 - The look is the Multiplayer Shooter System's weapon selector (its borders, text styles, colours and font; D-25);
   Easy Game UI's global styling is set to match.
 - Prototype UI: the hotbar, weapon panel, crosshair and hit markers, the inventory screen, main and pause menus and
-  options (P4); the vitals cluster, crafting and death screens (P5); the map (P6); the rest later. The layout data
-  (`Data/UI/HudLayout.json`) follows in P4.
+  options (P4, built 2026-10-16: the HUD and inventory screen are Tharrn's C++ widgets in MSS's look, the menus Easy
+  Game UI's); the vitals cluster, crafting and death screens (P5); the map (P6); the rest later. The layout lives in
+  the Widget Blueprints (`Tools/UI/build_ui.py`); `Data/UI/HudLayout.json` is the design's sketch.
 
 ## From the owner's package ([owner's package review](../reviews/owner-package-2026-10-15.md))
 
