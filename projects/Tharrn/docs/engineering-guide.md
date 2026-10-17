@@ -487,6 +487,13 @@ closed: an open editor once took 96 % of the GPU.
     has no common value (Hawaii: the sea is at 0, the commonest low height is farmland).
 100. Editor pictures: point the viewport there first and wait (`EditorAppToolset.SetCameraTransform`, 8 s) with
     throttling off, or the virtual textures and World Partition cells are still low resolution.
+101. The Sci-Fi bundle's `BP_EnvironmentController` does not hold a sun or sky of its own: it drives level actors set on
+    it (`Sun` directional light, `SkyAtmosphere`, `Skylight` with real-time capture, `Clouds`, `Fog`,
+    `PostProcessVolume` unbound), all movable. Without them the level is black but for glowing plants. Its own clock
+    (`RuntimeTimeOfDayActive`) and on-screen time (`PrintGameTime`) are off: `ATharrnTimeOfDay` calls its
+    `UpdateTimeOfDay(Hours, Minutes, Seconds)` every second from the server's clock.
+102. In a World Partition level, actors are loaded only near a player unless `bIsSpatiallyLoaded` is off: the time
+    actor, the environment controller and its sky actors must be always loaded (the time actor's class says so).
 
 ## 8. Working as two agents
 

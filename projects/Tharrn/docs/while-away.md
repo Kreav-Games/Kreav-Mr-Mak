@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `b8637a0` | `p6-time-of-day` | P6.7: the world's hour from the server's clock, the bundle's sky on the test coast. Checked: verify.py 5 of 5 (105 tests), nature_test.py (the same hour on every machine) |
 | Game `D:\Tharrn` | `594f1ed` | `p6-coast-candidates` | P6.4: the tools that make candidate coasts from lidar and build their levels (scripts only; the candidate levels stay out of Git) |
 | Game `D:\Tharrn` | `d12d728` | `p6-biomes-online` | P6.2: the bundle's jungle on the test coast, run-time bushes and boulders for looks only, `nature_test.py`. Checked: verify.py 5 of 5 (104 tests), nature_test.py, survival_test.py |
 | Game `D:\Tharrn` | `ef8a9a5` | `p6-ocean-test` | P6 so far: the world-building tool, the made-up test coast (`L_CoastTest`) with Unreal's ocean, the Water plugin and virtual texturing switched on. Checked: verify.py 5 of 5 (104 tests). Going back to `p5-built` also switches the Water plugin and virtual texturing off again |
@@ -89,6 +90,7 @@ the owner can say "2" to switch to MST Pro's inventory instead.
 | P6.1 Ocean test | Done (`ef8a9a5`, verify.py 5 of 5) | Unreal's ocean for the sea, the bundle's water for pools and rivers (pictures below; OQ-05) |
 | P6.2 Biomes online | Done (`d12d728`) | The bundle's jungle shore, swamp and jungle on the test coast (generated in about 35 s); players sprint into the jungle with no corrections, as listen and dedicated server (`nature_test.py`, new). The bushes and small boulders made around players are for looks only (they no longer block) |
 | P6.4 Terrain candidates | **Waiting for you** | Four 2 km coasts from public lidar, built in the editor with the ocean and the bundle's jungle ([all four](pictures/p6/coasts/all_coasts.jpg)); pick one (question 5) |
+| P6.7 Sky and time of day | Done (`b8637a0`) | The bundle's environment controller on the test coast, its hour from the server's clock: the same on every machine (checked as listen and dedicated server). A day lasts 60 real minutes, play starts at 9:30 (proposals, OQ-11). At night the jungle's plants glow ([noon](pictures/p6/time_noon.jpg), [evening](pictures/p6/time_evening.jpg), [night](pictures/p6/time_night.jpg), [dawn](pictures/p6/time_dawn.jpg)) |
 
 ## Pack files changed in P4
 
@@ -181,6 +183,7 @@ P6 so far (proposals):
 - The sea is Unreal's ocean (Water plugin); the bundle's water is for jungle pools, the marsh and rivers (OQ-05).
 - Bushes and small boulders that appear around a player are for looks and do not block; trees and big rocks block.
 - The coast's biome presets: Jungle Shore at the waterline, Jungle Swamp in the marsh, Jungle inland.
+- A day lasts 60 real minutes and play starts at 9:30 (OQ-11); nights stay light enough to play.
 
 ## To look at first, when home
 

@@ -140,3 +140,11 @@ and the shore ([all four](pictures/p6/coasts/all_coasts.jpg)). Found on the way:
 Y runs south (98); the ocean leaves a dry island around its own place (96); a reopened World Partition level shows
 few trees (97); editor pictures need the viewport there first (100). **Next:** the owner's pick of a coast (OQ-06)
 and of the map's size rule (OQ-15); meanwhile the sky and time of day (P6.7) and the budget (P6.9).
+
+*2026-10-17, night.* P6.7 (Claude Code). `ATharrnTimeOfDay` (C++): the hour worked out on every machine from the
+server's clock, a start hour and a day length (proposal: 60 minutes from 9:30, OQ-11), `th.Time` to read or set it;
+it drives the Sci-Fi bundle's environment controller (its `UpdateTimeOfDay` event) or Tharrn's sky. On the test coast
+the bundle's controller replaced Tharrn's sky; it needs the level's own sun, sky, clouds, fog and post-process
+actors (black but for glowing plants without them, gotcha 101), all always loaded (102). Pictures at noon, evening,
+night (the corals glow) and dawn. **Checks:** Tharrn.World.TimeOfDay (new); nature_test.py now also checks that every
+machine shows the same hour, before and after the server sets 21:00.

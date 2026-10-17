@@ -48,7 +48,7 @@ binding until moved up. Quotes are the owner's words.
 | ~~OQ-08~~ | ~~First- or third-person camera~~ | Resolved by D-15 |
 | OQ-09 | Hit detection and lag compensation | Hitscan validated on the server with rewind of hit boxes, projectiles simulated on the server with client-side prediction; prove with 2 clients and simulated latency in the combat module. **Built in P3 (2026-10-16):** that, plus the shooter's view taken within 15 cm; 0 to 1.2 % of shots disagreed at 100 ms round trip and 1 % loss. Closes with the owner's P3 play-test |
 | OQ-10 | Anti-cheat | Server validation from the start (D-04); Easy Anti-Cheat (Epic Online Services) when there is an online build |
-| OQ-11 | Day length and time of day | Not specified; propose with the Coastal slice |
+| OQ-11 | Day length and time of day | **Proposal (2026-10-17, built):** a day of 24 hours lasts 60 real minutes (night about 25 of them), play starts at 9:30; the hour comes from the server's clock, the same on every machine (`ATharrnTimeOfDay`), and moves the Sci-Fi bundle's environment controller (sun, sky colours, night with glowing plants). Both numbers are settings on the level's time actor |
 | OQ-12 | The tutorial's first fight: the direction puts a Skitterjaw pack at the coastal crash site, but the Skitterjaw is a desert creature (D-16) | A coastal cousin (a "shore skitter" variant on the same rig and behaviour, cheaper than a new creature), or the crash site on the desert's edge, or another first creature; the owner picks |
 | ~~OQ-13~~ | ~~Travel at 75 km²~~ | Resolved by D-19 |
 | ~~OQ-14~~ | ~~Movement base for the player character (P2)~~ | Resolved by D-18 |
