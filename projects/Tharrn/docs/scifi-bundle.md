@@ -128,6 +128,6 @@ the first region of that map, not a separate level.
 | PCG plugin, also at run time | Required | On (enabled on its own 2026-10-16; before, only through Unreal's experimental PCG Biome plugin, now off) |
 | Chaos Vehicles plugin | For the hoverbike and buggy | On (since 2026-10-16) |
 | Lumen, Nanite (DirectX 12, SM6), virtual shadow maps | Required | On |
-| Virtual texturing (streaming and runtime) | Recommended; without it rocks show an orange top layer | Off: turn on in P6 |
+| Virtual texturing (streaming and runtime) | Recommended; without it rocks show an orange top layer | On since 2026-10-17 (P6); a landscape draws into `RVT_Landscape` and `RVT_Landscape_Disp` with a volume for each |
 | Custom depth-stencil "Enabled with Stencil" | Only for the example player's highlight | Not set; set when Tharrn builds an interaction highlight |
 | `r.Streaming.PoolSize` 3000 | For the landscape's virtual texture | Set |

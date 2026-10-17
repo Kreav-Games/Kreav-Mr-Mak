@@ -110,3 +110,14 @@ biomes look and how a map is assembled, the bundle's biome presets, water and sh
 them ([scifi-bundle.md](scifi-bundle.md#how-the-biomes-look-and-are-assembled-2026-10-17)); D-26 (the main map about 100 km²; D-14's size superseded), OQ-15 (how the zones fill
 it), OQ-05's fallback now the bundle's own water; GDD 00, 06 and 07, the wiki; the P6 plan. **Next:** P6, starting
 with the ocean test and the bundle's biome volumes online.
+
+*2026-10-17, later.* P6 started (Claude Code). **Built:** `TharrnEditor.TharrnWorldBuildToolset` (C++, MCP: levels,
+landscapes from height and paint files, saving Tharrn's levels, the bundle's editor buttons, PCG progress, unsaved
+packages in pack folders), 13 tests; the Water plugin and virtual texturing switched on (one rebuild); a made-up 1 km
+test coast (`Tools/Terrain/test_coast.py`, `L_CoastTest`) painted with the bundle's jungle shore, swamp, jungle and
+rock layers. **Ocean test (OQ-05):** Unreal's ocean gives a clear tropical sea with waves and filled tide pools; the
+bundle's water is pond water (murky green or fully clear): ocean for the sea, bundle water inland (pictures in
+`pictures/p6/`). Found on the way: `ObjectTools.set_properties` takes a JSON string; a level saved while shaders
+compile logs physical-material errors. Checkpoint under the owner's standing yes: game repo ef8a9a5 (p6-ocean-test).
+**Checks:** verify.py 5 of 5 (104 tests, 13 new). **Next:** P6.2, the bundle's biome volumes on the test coast and
+`nature_test.py`.

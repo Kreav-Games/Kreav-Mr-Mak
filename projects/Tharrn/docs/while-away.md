@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `ef8a9a5` | `p6-ocean-test` | P6 so far: the world-building tool, the made-up test coast (`L_CoastTest`) with Unreal's ocean, the Water plugin and virtual texturing switched on. Checked: verify.py 5 of 5 (104 tests). Going back to `p5-built` also switches the Water plugin and virtual texturing off again |
 | Game `D:\Tharrn` | `8a93b0d` | `p5-built` | P5 built: vitals (stamina, hunger, hydration, temperature), food and water, crafting, the vitals on the HUD, the crafting panel, the death screen and bag, cold and hot areas on the test range. Checked: verify.py, survival_test.py, inventory_test.py, mss_test.py, Shipping build |
 | Game `D:\Tharrn` | `700db9d` | `p4-built` | P4 built: everything above plus Easy Game UI's main menu (the game's start level), pause menu (Esc) and options. Checked: verify.py 5 of 5 (Shipping too), inventory_test.py and mss_test.py |
 | Game `D:\Tharrn` | `883a04d` | `p4-checkpoint-1` | P4 so far: the inventory, hotbar, pickups, the HUD and the inventory screen in MSS's look; Easy Game UI's HUD class in place, its menus not yet. Checked: 84 automation tests, the network test, the inventory network test (listen and dedicated server), the MSS test |
@@ -76,6 +77,16 @@ the owner can say "2" to switch to MST Pro's inventory instead.
 | P5.9 Checks | Done | verify.py 5 of 5 (Shipping too, 91 tests, 0 corrections), survival_test.py (new), inventory_test.py and mss_test.py, each as listen and dedicated server ([details](tasks.md#p5-vitals-and-crafting-results-2026-10-16)) |
 | P5.10 Owner play-test | **Waiting for you** | Steps in [tasks.md](tasks.md#p5-vitals-and-crafting-results-2026-10-16) |
 
+## P6 progress
+
+| Step | State | Notes |
+|---|---|---|
+| Research | Done 2026-10-17 | KK Design's videos and the bundle's example level: how its biomes look and are assembled, which preset makes which Tharrn biome ([scifi-bundle.md](scifi-bundle.md#how-the-biomes-look-and-are-assembled-2026-10-17)) |
+| Tools | Done (`ef8a9a5`) | `TharrnEditor.TharrnWorldBuildToolset` (C++, 13 tests): levels, landscapes from height and paint files, the bundle's editor buttons, PCG progress; the Water plugin and virtual texturing switched on (one rebuild) |
+| Test coast | Done | `L_CoastTest`: 1 km of made-up coast (beach, tide pools, marsh, stream, rocky headland) painted with the bundle's jungle shore, swamp, jungle and rock layers ([map](pictures/p6/test_coast_map.jpg)) |
+| P6.1 Ocean test | Done (`ef8a9a5`, verify.py 5 of 5) | Unreal's ocean for the sea, the bundle's water for pools and rivers (pictures below; OQ-05) |
+| P6.2 Biomes online | Next | The bundle's biome volumes on the test coast, then the network test through the generated jungle |
+
 ## Pack files changed in P4
 
 | Pack file | What changed | Backup |
@@ -99,6 +110,13 @@ on the item table [pickup_resource.jpg](pictures/p5/pickup_resource.jpg), the cr
 and what is missing in red [crafting.jpg](pictures/p5/crafting.jpg), the death screen
 [death_screen.jpg](pictures/p5/death_screen.jpg), back with the starting kit and full vitals
 [back_with_kit.jpg](pictures/p5/back_with_kit.jpg).
+
+P6 pictures (2026-10-17), the ocean test on the made-up coast: Unreal's ocean from the air
+([ocean_aerial.jpg](pictures/p6/ocean_aerial.jpg)), along the beach ([ocean_beach.jpg](pictures/p6/ocean_beach.jpg)),
+at the headland ([ocean_headland.jpg](pictures/p6/ocean_headland.jpg)) and from the water
+([ocean_waves.jpg](pictures/p6/ocean_waves.jpg)); the bundle's own water as a sea, jungle
+([bundle_water_jungle.jpg](pictures/p6/bundle_water_jungle.jpg)) and clear
+([bundle_water_clear.jpg](pictures/p6/bundle_water_clear.jpg)). The ground has no rocks or plants yet (the next step).
 
 ## Things that happened
 
