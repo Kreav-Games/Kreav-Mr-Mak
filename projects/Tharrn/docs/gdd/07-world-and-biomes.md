@@ -5,8 +5,11 @@
 - The main map is **an island of about 100 km²** (D-26, D-27, 2026-10-17; D-14 had about 75, the direction 16–25 km²):
   the 15 zones, 2.56 km each, with sea all around; streamed with World Partition. Proposed layout, a biome per zone:
   [picture](../pictures/p6/main_map_layout.png).
-- Biome order: **Coastal (start) → Fungal Forest → Crystalline Desert → High-Gravity Plateau →
-  Subterranean Caverns → Floating Archipelagos (endgame).**
+- Biome order: **Coastal → Fungal Forest → Crystalline Desert → High-Gravity Plateau →
+  Subterranean Caverns → Floating Archipelagos (endgame)**, easiest to hardest.
+- Starting locations (D-28, 2026-10-17): a new player picks where to start, one or two starting locations in each
+  region, by the difficulty they want (the zone's recommended level). Proposal in the game's `Data/StartLocations.csv`
+  (OQ-16): 8 starts, none in the Floating Archipelagos.
 - 6 hub towns with safe services, vendors and mission boards.
 - 8–12 PvP hotspots of varying size, each surrounded by an amber buffer belt.
 

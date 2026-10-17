@@ -233,7 +233,7 @@ tech for the whole server.</p>
                 body, "Source: GDD 0.1, modules 00 and 01 (design record <code>projects/Tharrn/docs/gdd/</code>).")
 
 
-def world(zones):
+def world(zones, starts):
     # Zone map: inline SVG in kilometres from Data/Zones.csv (metres); x to the right, y up (SVG y is flipped), so
     # Amber Buffer North sits north of the archipelago.
     xs = [float(z[k]) / 1000 for z in zones for k in ("bounds_min_x", "bounds_max_x")]
@@ -282,6 +282,7 @@ def world(zones):
     area = sum((float(z["bounds_max_x"]) - float(z["bounds_min_x"])) * (float(z["bounds_max_y"]) - float(z["bounds_min_y"]))
                for z in zones) / 1e6
     counts = {t: sum(1 for z in zones if z["type"] == t) for t in ZONE_TYPES}
+    level_of = {z["zone_id"]: (z["recommended_level"], z["name"]) for z in zones}
     rows = []
     for z in zones:
         flagged = z["pvp_flag"].lower() == "true"
@@ -298,31 +299,44 @@ It streams in as you travel. Crossing it should take about 45 minutes on foot an
 <p>""" % (DESIGN, area, len(zones), step, step, x1 - x0, y1 - y0) + OPEN + """ A first rough build of the main map in the
 Unreal Editor (a blockout, 2026-10-17), to see the island's size and shape before it is built for real: each zone's
 ground shaped and coloured for its proposed biome, the sea all around, no plants or buildings yet. The layout is
-a proposal waiting for the owner's yes. In the editor: <code>/Game/Tharrn/Scratch/L_Island_Blockout</code>.</p>
+a proposal that stands for now (the owner may change it at the PC). In the editor: <code>/Game/Tharrn/Scratch/L_Island_Blockout</code>.</p>
 <div class="shots">""" + shot("p6/island/top_labelled.jpg", "From straight above, north up: each zone's name and proposed biome. "
-                              "The yellow dot is where play starts. Green is the coast, pink the Fungal Forest, sand the "
+                              "The dots are the starting locations (green easy, yellow medium, red hard) with their "
+                              "zone's level. Green ground is the coast, pink the Fungal Forest, sand the "
                               "desert, grey the caverns and the plateau (its cliff edge the dark line), and the lagoon "
                               "of Floating Archipelago A. The small grey square at the bottom right is a blockout flaw: "
                               "one patch of ground the bundle's material could not draw.", wide=True) + shot(
-        "p6/island/southwest.jpg", "From over the sea to the south-west, 2.6 km up: the starting coast in front (the "
-        "yellow beacon), the desert and the grey caverns beyond, the plateau's cliff edge at the back.") + shot(
-        "p6/island/start_from_sea.jpg", "The start from 1.5 km out at sea: the yellow beacon marks the beach.") + shot(
-        "p6/island/start_low.jpg", "Coming ashore at the start: the plateau's mesa on the horizon to the right, the "
+        "p6/island/southwest.jpg", "From over the sea to the south-west, 2.6 km up: the easy coastal start in front (S01's "
+        "green beacon), the desert and the grey caverns beyond, the plateau's cliff edge at the back.") + shot(
+        "p6/island/start_from_sea.jpg", "The easy coastal start (S01) from 1.5 km out at sea: its beacon marks the "
+        "beach.") + shot(
+        "p6/island/start_low.jpg", "Coming ashore at S01: the plateau's mesa on the horizon to the right, the "
         "caverns' hills to the left. Plants, rocks and the outpost come later.") + shot(
         "p6/main_map_layout.png", "The same layout drawn as a map, with the biome presets each zone would use.") + """</div>
 
-<h2>Where play starts</h2>
-<p>""" + OPEN + """ On the beach at the south-west corner of the Coastal Outpost (Z001), the starter hub. From there you
-push east along Shoreline Flats into the Fungal Fringe, or north into Skitterjaw Hollow. The land of this corner will
-come from one real coast, scanned from the air (public lidar), shaped to fit. Four candidates, each built in the editor
-with the bundle's alien jungle (the plants and rocks are the same whichever coast is picked):</p>
+<h2>Where you can start</h2>
+<p>""" + DESIGN + """ You pick where to start: one or two starting locations in each region, by the difficulty you
+want (D-28). The convoy's crash scattered its survivors across the island, so each start is a crash site. A start's
+difficulty follows its zone's recommended level; the Floating Archipelagos are all endgame PvP, so none starts
+there.</p>
+<p>""" + OPEN + """ Which zones the starts are in is a proposal (OQ-16), read from the game's
+<code>Data/StartLocations.csv</code>:</p>
+""" + table(["Start", "Difficulty", "Level", "Region", "Zone", "What it is like"], [
+        ["<code>%s</code> <strong>%s</strong>" % (E(s["start_id"]), E(s["name"])), tag(s["difficulty"].lower(), s["difficulty"]),
+         E(level_of[s["zone_id"]][0]), E(s["region"]), "%s %s" % (E(s["zone_id"]), E(level_of[s["zone_id"]][1])),
+         E(s["notes"])] for s in starts]) + """
+<h3>The coast of the Coastal region</h3>
+<p>""" + OPEN + """ The land around the easy coastal start (S01, at the Coastal Outpost) will come from one real
+coast, scanned from the air (public lidar), shaped to fit. Four candidates, each built in the editor with the bundle's
+alien jungle (the plants and rocks are the same whichever coast is picked):</p>
 <div class="shots">""" + "".join(shot("p6/coasts/%s_aerial.jpg" % stem, "<strong>%s %s</strong>: %s. From the air." % (letter, name, what))
                             + shot("p6/coasts/%s_shore.jpg" % stem, "%s on the shore." % letter) for letter, name, stem, what in COASTS) + """</div>
 <p class="wiki-note">Or a made-up coast, or one whole 10 × 10 km lidar area as the main map's land with the biomes
 painted over it (OQ-06).</p>
 
 <h2>Six biomes</h2>
-<p>You start on the coast and push inland and upward, toward the floating islands of the endgame.</p>
+<p>The regions get harder inland and upward, toward the floating islands of the endgame; you choose which one to
+start in (above).</p>
 """ + chain(["Coastal", "Fungal Forest", "Crystalline Desert", "High-Gravity Plateau",
                                                             "Subterranean Caverns", "Floating Archipelagos"]) + table(
         ["Biome", "What it is like", "Resources", "Threats"], [
@@ -354,8 +368,8 @@ Each square is """ + "%.2f" % step + """ km across; the numbers along the edges 
 <ul>
 <li>""" + OPEN + """ The direction asks for 6 hubs and 8 to 12 PvP hotspots, each inside an amber buffer belt. The map has
 %d hubs, %d flagged zones and %d buffer; some hubs border PvP zones directly.</li>
-<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ The island's layout and a biome per
-zone (the proposal above), and which coast the start is made from.</li>
+<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ Which zones the starts are in
+(OQ-16), and which real coast the Coastal region is made from. The layout and a biome per zone stand for now.</li>
 <li>""" + OPEN + """ The terrain source: real coastal survey data where a landform fits, generated terrain elsewhere (OQ-06),
 and a test of the ocean (OQ-05).</li>
 </ul>
@@ -770,6 +784,7 @@ def development():
         ["D-25", "A 12-slot survival hotbar replaces the weapon keys and holsters; an inventory the server owns; the game's UI in the shooter pack's look"],
         ["D-26", "The main map is about 100 km², its biomes put together the way the Sci-Fi bundle's example level is"],
         ["D-27", "The main map is an island: the 15 zones, 2.56 km each, with sea all around"],
+        ["D-28", "A new player picks where to start: one or two starting locations in each region, by difficulty"],
     ]
     questions = [
         ["OQ-01", "Consoles", "PC first; decide once the prototype is fun"],
@@ -783,6 +798,7 @@ def development():
         ["OQ-10", "Anti-cheat", "Server checks from the start; Easy Anti-Cheat for an online build"],
         ["OQ-11", "Day length", "Propose with the coastal slice"],
         ["OQ-12", "The tutorial's first creature", "A coastal cousin of the Skitterjaw, a crash site at the desert's edge, or another creature"],
+        ["OQ-16", "Which zones the starts are in, and the tutorial at harder starts", "8 starts in the regions' zones without PvP (Data/StartLocations.csv)"],
     ]
     body = """
 <h2>How Tharrn is built</h2>
@@ -914,6 +930,9 @@ CSS = """/* Tharrn Wiki: additions to the shared report styles. Each colour has 
 .tag-design{color:#c9c1d2;border-color:#ffffff2a;background:#ffffff08}
 .tag-open{color:#f3c76b;border-color:#f3c76b66;background:#f3c76b14}
 .tag-pvp{color:#ff8fa3;border-color:#ff8fa366;background:#ff8fa314}
+.tag-easy{color:#7fdcae;border-color:#7fdcae66;background:#7fdcae14}
+.tag-medium{color:#f3c76b;border-color:#f3c76b66;background:#f3c76b14}
+.tag-hard{color:#ff8fa3;border-color:#ff8fa366;background:#ff8fa314}
 .stats{margin:24px 0}
 .stats strong{font-size:26px;line-height:1.2}
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px;margin:18px 0}
@@ -977,7 +996,9 @@ table.kv td:first-child{color:var(--mak-muted);white-space:nowrap;width:1%}
 .hud-mock{grid-template-columns:1fr;grid-template-areas:"tl" "tc" "tr" "cc" "bl" "bc" "br"}
 .hud-mock .cc{margin:0;text-align:left}
 }
-html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-built{color:#16794a!important;border-color:#16794a59;background:#16794a12}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.tag-built,.tag-easy){color:#16794a!important;border-color:#16794a59;background:#16794a12}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-medium{color:#8a5a00!important;border-color:#b07a0059;background:#b07a0012}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-hard{color:#b3263f!important;border-color:#b3263f59;background:#b3263f10}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-design{color:#505b70!important;border-color:#202a4033;background:#202a4008}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-open{color:#8a5a00!important;border-color:#b07a0059;background:#b07a0012}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-pvp{color:#b3263f!important;border-color:#b3263f59;background:#b3263f10}
@@ -997,6 +1018,7 @@ def main():
     ap.add_argument("--data", default=r"D:\Tharrn\Data", help="the game repo's Data folder")
     args = ap.parse_args()
     zones = read_csv(os.path.join(args.data, "Zones.csv"))
+    starts = read_csv(os.path.join(args.data, "StartLocations.csv"))
     weapons = read_csv(os.path.join(args.data, "Weapons.csv"))
     creatures = read_csv(os.path.join(args.data, "Creatures.csv"))
     with open(os.path.join(args.data, "Dungeons", "DGN_001.json"), encoding="utf-8") as f:
@@ -1008,7 +1030,7 @@ def main():
 
     pages = [  # (tab name, file, html)
         ("Overview", "index.html", overview()),
-        ("World and zones", "world.html", world(zones)),
+        ("World and zones", "world.html", world(zones, starts)),
         ("Bestiary", "bestiary.html", bestiary(creatures)),
         ("Combat and arsenal", "combat.html", combat(weapons)),
         ("Survival and building", "survival.html", survival()),

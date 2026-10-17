@@ -170,3 +170,9 @@ at the Coastal Outpost's south-west corner. Pictures from the editor (from above
 at the start) on the wiki's World page with the four candidate coasts. Gotchas 104 to 106 (the sky not found by the
 scene search, the bundle material's texture slots, Unreal's ocean drawing nothing at this size). **Checks:** the
 pictures; the terrain's paint (at most 4 layers a component, every point adding up).
+
+*2026-10-17, late.* The owner: "We can adjust layout later when im at the PC if we need changes, the starting area needs to be based off level difficulty for each region.  The player can pick 1 or 2 starting locations per region depending on difficulty they want to start with." D-28 recorded, OQ-16 opened (which zones; the tutorial at harder starts; choosing
+again later). The starts are game data, `Data/StartLocations.csv` (8 proposed, in each region's zones without PvP;
+not imported yet, P6.12 builds the choice); the layout picture, the island blockout (a beacon coloured by difficulty
+and two player starts tagged with the start's id at each) and the wiki's World page (a table of the starts) read it.
+GDD 01 (§1.3a) and 07 updated.

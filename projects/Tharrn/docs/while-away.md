@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `fb313ae` | `d28-starts` | D-28: the proposed starting locations (`Data/StartLocations.csv`, 8 starts, not imported yet) on the layout picture and in the island blockout. Checked: the blockout rebuilt and its pictures |
 | Game `D:\Tharrn` | `30ba8ff` | `p6-island-blockout` | The island blockout's tools (`Tools/World/island_blockout.py`; the level itself, `/Game/Tharrn/Scratch/L_Island_Blockout`, stays out of Git and is made again by the script). Checked: the pictures, the test coast's pictures through the changed level builder |
 | Game `D:\Tharrn` | `2c51e17` | `d27-island` | D-27: the zones rescaled to 2.56 km (about 100 km², sea all around). Checked: data import, 105 tests |
 | Game `D:\Tharrn` | `dd8c093` | `p6-budget-first` | P6.9 so far: HLODs on the test coast, the budget script's `-ExtraCmds` (first numbers in tasks.md) |
@@ -92,7 +93,7 @@ the owner can say "2" to switch to MST Pro's inventory instead.
 | Test coast | Done | `L_CoastTest`: 1 km of made-up coast (beach, tide pools, marsh, stream, rocky headland) painted with the bundle's jungle shore, swamp, jungle and rock layers ([map](pictures/p6/test_coast_map.jpg)) |
 | P6.1 Ocean test | Done (`ef8a9a5`, verify.py 5 of 5) | Unreal's ocean for the sea, the bundle's water for pools and rivers (pictures below; OQ-05) |
 | P6.2 Biomes online | Done (`d12d728`) | The bundle's jungle shore, swamp and jungle on the test coast (generated in about 35 s); players sprint into the jungle with no corrections, as listen and dedicated server (`nature_test.py`, new). The bushes and small boulders made around players are for looks only (they no longer block) |
-| P6.3 Main map | **A blockout for you** | The island in the editor (`/Game/Tharrn/Scratch/L_Island_Blockout`, outside Git; `Tools/World/island_blockout.py` makes it again): each zone's ground shaped and coloured for its proposed biome, the sea all around, the start marked on the beach with a yellow beacon. No plants yet. Pictures, also on the wiki's World page: [from above, labelled](pictures/p6/island/top_labelled.jpg), [from the sea](pictures/p6/island/southwest.jpg), [the start from the sea](pictures/p6/island/start_from_sea.jpg), [coming ashore](pictures/p6/island/start_low.jpg). The real map comes once the layout and the starting coast are settled |
+| P6.3 Main map | **A blockout for you** | The island in the editor (`/Game/Tharrn/Scratch/L_Island_Blockout`, outside Git; `Tools/World/island_blockout.py` makes it again): each zone's ground shaped and coloured for its proposed biome, the sea all around, the 8 proposed starting locations marked with beacons coloured by difficulty (D-28). No plants yet. Pictures, also on the wiki's World page: [from above, labelled](pictures/p6/island/top_labelled.jpg), [from the sea](pictures/p6/island/southwest.jpg), [the start from the sea](pictures/p6/island/start_from_sea.jpg), [coming ashore](pictures/p6/island/start_low.jpg). The real map comes once the layout and the starting coast are settled |
 | P6.4 Terrain candidates | **Waiting for you** | Four 2 km coasts from public lidar, built in the editor with the ocean and the bundle's jungle ([all four](pictures/p6/coasts/all_coasts.jpg)); pick one (question 5) |
 | P6.7 Sky and time of day | Done (`b8637a0`) | The bundle's environment controller on the test coast, its hour from the server's clock: the same on every machine (checked as listen and dedicated server). A day lasts 60 real minutes, play starts at 9:30 (proposals, OQ-11). At night the jungle's plants glow ([noon](pictures/p6/time_noon.jpg), [evening](pictures/p6/time_evening.jpg), [night](pictures/p6/time_night.jpg), [dawn](pictures/p6/time_dawn.jpg)) |
 | P6.9 Budget | First numbers | The test coast takes 24.8 ms of GPU a frame at 1440p on this PC with the editor open (budget 16.6 on an RTX 3060): the jungle's trees and rocks are most of it; clouds 1.7 ms, grass 1 ms. A clean run with the editor closed and the cuts come next ([table](tasks.md#p6-coastal-slice-first-budget-numbers-2026-10-17)) |
@@ -213,14 +214,22 @@ P6 so far (proposals):
 3. Bags of a downed player: should they vanish after a while, and should anyone be able to open them (now: they stay,
    anyone can)?
 4. ~~The 100 km² main map~~: answered "Water all around" (D-27: the zones make about 100 km², sea all around; the zone
-   data is rescaled). The proposed island and a biome per zone: [main_map_layout.png](pictures/p6/main_map_layout.png); in
+   data is rescaled). The layout: answered "We can adjust layout later when im at the PC" (it stands for now). The
+   proposed island and a biome per zone: [main_map_layout.png](pictures/p6/main_map_layout.png); in
    the editor: [from above, labelled](pictures/p6/island/top_labelled.jpg), [from the sea](pictures/p6/island/southwest.jpg), [the start from the sea](pictures/p6/island/start_from_sea.jpg), [coming ashore](pictures/p6/island/start_low.jpg) (all on the wiki's World page, for the phone). Does the layout suit
    (the coast in the south-west where play starts, the fungal forest east of it, the desert across the middle, the
    plateau in the east, the caverns in the north-west, Floating Archipelago A as a lagoon with islands above it)?
-5. Which coast should the game start on (pictures of each on the wiki's World page; [all four](pictures/p6/coasts/all_coasts.jpg), each from the air, from the sea and on the shore; maps:
+5. Which coast should the Coastal region (around the easy start S01) be made from (pictures of each on the wiki's World page; [all four](pictures/p6/coasts/all_coasts.jpg), each from the air, from the sea and on the shore; maps:
    [A](pictures/p6/coasts/a_hanalei_map.jpg), [B](pictures/p6/coasts/b_polihale_map.jpg),
    [C](pictures/p6/coasts/c_waimea_map.jpg), [D](pictures/p6/coasts/d_point_lobos_map.jpg))? A Hanalei Bay (a crescent
    bay, a river lowland with marsh, jungle mountains), B Polihale (a long beach under rock ridges), C Waimea (a rocky
    bay under cliffs, a valley), D Point Lobos (a jagged rocky coast with coves and stacks), or a made-up coast. The
    plants and rocks are the bundle's alien jungle whichever place the land comes from. Another way: one whole
    10 × 10 km lidar area as the 100 km² main map (OQ-06).
+6. The starting locations (D-28: one or two in each region, by difficulty). Proposal, 8 starts (OQ-16; the table is
+   on the wiki's World page, the dots on [the map](pictures/p6/main_map_layout.png)): Coastal S01 beach at the Coastal
+   Outpost (level 1, Easy), S02 Apex Migration coast (25, Hard); Fungal Forest S03 Fungal Fringe (5, Easy), S04
+   Lumivine Grove (10, Medium); Crystalline Desert S05 Scavenger Flats (6, Medium); High-Gravity Plateau S06 Remnant
+   Research Hub (12, Medium), S07 High Gravity Plateau (22, Hard); Subterranean Caverns S08 Subterranean Mouth (15,
+   Hard); none in the Floating Archipelagos (all PvP). Do these suit? Pick once per new character, or again later? The
+   tutorial at every start, or the easy ones only?

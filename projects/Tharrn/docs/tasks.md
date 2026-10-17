@@ -433,6 +433,7 @@ capture subsystem, the D-11 budget measurement.
 | P6.9 | Budget table (D-11): frame time, memory and streaming in the slice | Within budget, or what to cut |
 | P6.10 | Checks: tests, the network test on the slice, the whole ladder, Shipping | `verify.py` passes |
 | P6.11 | Owner's review | The owner approves the images |
+| P6.12 | Starting locations (D-28, OQ-16): `Data/StartLocations.csv` imported into a data table; player starts tagged with each start's id in the main map; the server spawns a new character at the start they picked; a simple pick screen after character creation showing each start's region, zone and difficulty | A new player on a client picks a hard start and appears there, as listen and dedicated server |
 
 ## P6 Coastal slice: first budget numbers (2026-10-17)
 
@@ -459,7 +460,7 @@ the bundle's foliage presets (the biggest part), the clouds' quality, landscape 
 
 ## Asked of the owner
 
-- The main map's layout and a biome per zone (proposal, [picture](pictures/p6/main_map_layout.png)).
+- Which zones the starting locations are in (OQ-16, [picture](pictures/p6/main_map_layout.png)); the layout stands for now.
 - Which coast the game starts on (OQ-06; four candidates in [pictures](pictures/p6/coasts/all_coasts.jpg)).
 - Play-test P2, P3, P4 and P5 (steps above); say how P5's numbers feel (stamina, hunger, thirst, cold and heat, the
   recipes: all proposals).

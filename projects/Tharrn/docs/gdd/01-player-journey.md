@@ -43,6 +43,13 @@ Flow: **Preset → Face sculpt → Body → Implants/Scars → Voice → Origin 
 }
 ```
 
+## 1.3a Where to start (D-28)
+
+After Confirm, the player picks a starting location on the island's map: one or two in each region, each showing its
+difficulty (the zone's recommended level: Easy, Medium, Hard). The convoy's crash scattered survivors across the
+island, so each start is a crash site. Which zones, whether the choice comes again later and whether every start runs
+the tutorial: OQ-16 (proposal: 8 starts, in the game's `Data/StartLocations.csv`).
+
 ## 1.4 Intro cinematic and tutorial (0–40 minutes)
 
 Hook: you are an Exodus Initiative operative; the convoy investigating an alien signal crashes,
