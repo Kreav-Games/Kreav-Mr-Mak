@@ -100,3 +100,13 @@ server checks, the vitals cluster, crafting panel and death screen in MSS's look
 and a hot area and resources on the test range. Found by the new survival test: a held sprint key sprinted again every
 1.25 s once out of stamina (now: let go first). Checkpoint commit under the owner's standing yes: game repo 8a93b0d
 (p5-built). **Checks:** verify.py 5 of 5 (both targets build with no warnings, Shipping too; plugin check; data import; 91 automation tests, 7 of them new; the network test as listen and dedicated server with 0 corrections); survival_test.py passes as listen and dedicated server (the same vitals on the player's machine and the server; slower recovery and more sway below 30; a ration and water used, water at full kept; cold air hurts and slows, cloth armour comfortable; a bandage crafted, a craft cancelled with its inputs back, two made-up crafts refused; out of stamina after 8.3 s, then running with sprint held, 0 corrections; going down drops a bag, the screen is told, the new body has the kit, the bag can be picked up); inventory_test.py and mss_test.py pass; pictures of the vitals, a resource, the crafting panel and the death screen.
+
+*2026-10-17, morning.* KK Design's videos and the main map's size (Claude Code). The owner: "You can look for kk
+designs unreal on YouTube to see how the bundle pack biomes look for assembly of our biomes", then "This all will be
+for the main map thats 100km²". Claude read about twenty of the channel's videos from their descriptions and preview
+frames (YouTube does not serve their transcripts) and the bundle's example level from its saved actor files, without
+opening it (37 biome volumes under one manager, 11 floating-island sets, colonies, a water actor). **Recorded:** how the
+biomes look and how a map is assembled, the bundle's biome presets, water and shore pieces, Tharrn's biomes mapped to
+them ([scifi-bundle.md](scifi-bundle.md#how-the-biomes-look-and-are-assembled-2026-10-17)); D-26 (the main map about 100 km²; D-14's size superseded), OQ-15 (how the zones fill
+it), OQ-05's fallback now the bundle's own water; GDD 00, 06 and 07, the wiki; the P6 plan. **Next:** P6, starting
+with the ocean test and the bundle's biome volumes online.

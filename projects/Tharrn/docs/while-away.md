@@ -4,8 +4,9 @@ Started 2026-10-16. The owner is on the phone for a few days and can't test in t
 can't do testing, using phone for next few days, we dont want to lose progress. Continue with whats next and when im
 home we can revisit. Make sure to make notes or a report for when I get home incase we need a roll back." Claude
 builds P4 (the hotbar, inventory and UI, D-25; [plan](tasks.md#p4-inventory-hotbar-and-ui-plan-2026-10-16)) in the
-meantime, then P5 (vitals and crafting; [plan](tasks.md#p5-vitals-and-crafting-plan-2026-10-16)). This file says
-what was done, what to look at first, and how to go back.
+meantime, then P5 (vitals and crafting; [plan](tasks.md#p5-vitals-and-crafting-plan-2026-10-16)), then P6 (the coastal
+slice, from 2026-10-17; [plan](tasks.md#p6-coastal-slice-plan-2026-10-17)). This file says what was done, what to look at
+first, and how to go back.
 
 ## Rollback points
 
@@ -116,6 +117,13 @@ and what is missing in red [crafting.jpg](pictures/p5/crafting.jpg), the death s
   Saving project settings also rewrote `Config/DefaultEngine.ini` with every default again (as in P4); the file was
   put back and the script now saves only a change.
 
+- 2026-10-17, morning: the owner pointed at KK Design's videos ("You can look for kk designs unreal on YouTube to see
+  how the bundle pack biomes look for assembly of our biomes") and set the main map at 100 km² ("This all will be for
+  the main map thats 100km²", D-26). Claude read about twenty of the videos and the bundle's example level and wrote
+  down how the biomes look, how a map is assembled, and which bundle preset makes which Tharrn biome
+  ([scifi-bundle.md](scifi-bundle.md#how-the-biomes-look-and-are-assembled-2026-10-17)). Found on the way: the bundle has its own water, rivers and shore pieces, now the
+  fallback for the ocean (OQ-05).
+
 ## Chosen for the owner (proposals in the P4 plan; say if any is wrong)
 
 - G (grenade) and Z (drop) leave MSS's keys too: grenades go on the hotbar, dropping happens in the inventory.
@@ -157,3 +165,6 @@ P5 (all in `Data/Vitals.csv`, `Data/Recipes.csv` and `Data/Items.csv`, easy to c
    sway less than the weapon's own spread (the formula as written)?
 3. Bags of a downed player: should they vanish after a while, and should anyone be able to open them (now: they stay,
    anyone can)?
+4. The 100 km² main map (D-26): should the 15 zones together make 100 km² (scaled by 0.5: zones of 2.56 km, a map
+   about 15 × 10 km with sea around it; Claude's proposal), or should the whole map, sea included, be 10 × 10 km (the
+   zone grid redrawn to fit)? OQ-15.

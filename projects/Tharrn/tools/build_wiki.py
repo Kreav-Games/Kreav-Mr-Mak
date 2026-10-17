@@ -123,7 +123,7 @@ you fight, sixty levels of RPG progression with dungeons and quests, and player-
 choose to go.</p>
 
 <div class="stats">
-<div><strong>75 km²</strong><small>world, in 15 zones</small></div>
+<div><strong>100 km²</strong><small>main map, in 15 zones</small></div>
 <div><strong>6</strong><small>biomes, from coast to floating islands</small></div>
 <div><strong>60</strong><small>levels, 3 talent trees</small></div>
 <div><strong>6</strong><small>creatures designed so far</small></div>
@@ -135,7 +135,7 @@ choose to go.</p>
 """ + table(["", ""], [
         ["Genre", "Sci-fi action-RPG, survival, third-person shooter"],
         ["Players", "Single player and multiplayer; co-op; PvP only in flagged zones"],
-        ["World", "About 75 km² of alien archipelago, streamed as you travel"],
+        ["World", "About 100 km² of alien archipelago, streamed as you travel"],
         ["Camera", "Third person over the shoulder, with aim-down-sights"],
         ["Characters", "MetaHumans for every player and NPC face; 12 presets planned"],
         ["Online", "The server decides everything that matters (damage, loot, flags); built that way from the first system"],
@@ -286,9 +286,10 @@ It streams in as you travel. Crossing it should take about 45 minutes on foot an
             ["<strong>Subterranean Caverns</strong>", "Oxygen limits, echo swarms", "Alien cores, rare minerals", "Echo Swarm, cave collapses"],
             ["<strong>Floating Archipelagos</strong> (endgame)", "Aerial traversal, PvP warzones", "Endgame blueprints", "Aerial predators, faction fortresses"],
         ]) + """
-<p class="wiki-note">The world will be built from the Sci-Fi Complete Bundle's jungle, dry, volcanic, arctic and moon
-kits. The caves cannot be ordinary terrain (it has no overhangs), and the floating islands will be their own streamed
-levels.</p>
+<p class="wiki-note">The world will be built from the Sci-Fi Complete Bundle's biome presets, put together the way
+its own example level is: the coast from its jungle shore, swamp and jungle; the Fungal Forest from the jungle; the
+desert from its desert, acid and moon sets; the plateau from its columnar rock. The caves cannot be ordinary terrain
+(it has no overhangs), and the floating islands will be their own streamed levels.</p>
 
 <h2>Zone map</h2>
 <p>Drawn to scale from the zone data, with y increasing upward (so Amber Buffer North is north of the archipelago).
@@ -306,12 +307,14 @@ Each square is 2.24 km across; the numbers along the edges are kilometres from t
 <ul>
 <li>""" + OPEN + """ The direction asks for 6 hubs and 8 to 12 PvP hotspots, each inside an amber buffer belt. The map has
 %d hubs, %d flagged zones and %d buffer; some hubs border PvP zones directly.</li>
-<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ The terrain source: real coastal survey data where a landform fits, generated terrain elsewhere (OQ-06),
+<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ The main map is about 100 km² (the owner, 2026-10-17);
+the zones above still add up to the earlier 75 km² until they are fitted to it (OQ-15).</li>
+<li>""" + OPEN + """ The terrain source: real coastal survey data where a landform fits, generated terrain elsewhere (OQ-06),
 and a test of the ocean (OQ-05).</li>
 </ul>
 """
     return page("World and zones", "World and zones",
-                "About 75 km² of alien archipelago in six biomes, laid out as %d zones." % len(zones), body,
+                "About 100 km² of alien archipelago in six biomes, laid out as %d zones." % len(zones), body,
                 "Sources: GDD 0.1 module 07; decision D-14; zones from the game's <code>Data/Zones.csv</code>.")
 
 
@@ -688,7 +691,7 @@ def development():
         ["P3", "Weapons: SMG, pistol, a grenade launcher and hand grenades; recoil, spread, damage and armour; hits checked by the server", BUILT + " Built and checked 2026-10-16 with the Multiplayer Shooter System (D-23); waits for the owner's play-test"],
         ["P4", "Inventory, hotbar and UI: an inventory the server owns, a 12-slot hotbar, pickups, the HUD, inventory screen and menus in the shooter pack's look; the main menu, pause menu and options", BUILT + " Built 2026-10-16 while the owner was away; waits for the owner's play-test"],
         ["P5", "Vitals and crafting: health, stamina, hunger, hydration, temperature; the formulas; crafting a bandage and ammo; the vitals on the HUD; the death screen", BUILT + " Built 2026-10-16 while the owner was away; waits for the owner's play-test"],
-        ["P6", "Coastal slice: 1–2 km² of the starter biome at full quality, within the performance budget", "—"],
+        ["P6", "Coastal slice: the first 1–2 km² of the 100 km² main map, in the starter biome, at full quality and within the performance budget", "Started 2026-10-17"],
         ["P7", "Creatures: Skitterjaw, Phase Warden, Grav Raptor with behaviour, stagger and weak points", "—"],
         ["P8", "MetaHuman base: the player from presets, customisation saved and loaded", "—"],
         ["P9", "Prototype play-through: crash site, vitals, scavenge and craft, the first fight, shelter", "—"],
@@ -706,7 +709,7 @@ def development():
         ["D-11", "60 fps on an RTX 3060 at 1440p with DLSS Quality; 120 fps on high-end PCs"],
         ["D-12", "DLSS 4.5 upscaling, with Unreal's TSR when DLSS is not available"],
         ["D-13", "No AI or LLM calls in the game itself; AI tools are for the editor only"],
-        ["D-14", "The world is about 75 km²"],
+        ["D-14", "The world is about 75 km² (size superseded by D-26)"],
         ["D-15", "Third-person camera over the shoulder, with aim-down-sights"],
         ["D-16", "The Skitterjaw is a desert creature"],
         ["D-17", "The game is called Tharrn"],
@@ -718,19 +721,21 @@ def development():
         ["D-23", "Weapons combine the Multiplayer Shooter System (looks, animation, handling) with Tharrn's C++ (hits, damage, data)"],
         ["D-24", "No slide; hip fire kept; a grenade launcher in the heavy slot and hand grenades; aiming looks through the sight; the mouse wheel picks weapons"],
         ["D-25", "A 12-slot survival hotbar replaces the weapon keys and holsters; an inventory the server owns; the game's UI in the shooter pack's look"],
+        ["D-26", "The main map is about 100 km², its biomes put together the way the Sci-Fi bundle's example level is"],
     ]
     questions = [
         ["OQ-01", "Consoles", "PC first; decide once the prototype is fun"],
         ["OQ-02", "Dedicated servers", "Develop with a server inside the editor; packaging a server needs Unreal built from source"],
         ["OQ-03", "Changing faces while playing", "Presets first; research face changes in the game as its own step"],
         ["OQ-04", "Missing art: creatures (weapons and armour: D-22; weapon animations: D-23)", "The owner picks store packs; Claude checks fit and cost"],
-        ["OQ-05", "Ocean and coast", "Test Unreal's water early in the coastal slice"],
+        ["OQ-05", "Ocean and coast", "Test Unreal's water early in the coastal slice; the Sci-Fi bundle's own water if it fails"],
         ["OQ-06", "Terrain source", "Real coastal survey data where it fits, generated terrain elsewhere"],
         ["OQ-07", "Scope", "Build the prototype first, then re-plan"],
         ["OQ-09", "Hit checking under lag", "The server rewinds hit boxes to the moment of the shot"],
         ["OQ-10", "Anti-cheat", "Server checks from the start; Easy Anti-Cheat for an online build"],
         ["OQ-11", "Day length", "Propose with the coastal slice"],
         ["OQ-12", "The tutorial's first creature", "A coastal cousin of the Skitterjaw, a crash site at the desert's edge, or another creature"],
+        ["OQ-15", "How the zones fill the 100 km² map", "Scale the zone map by 0.5: zones of 2.56 km, 98.3 km² of zones, sea around them"],
     ]
     body = """
 <h2>How Tharrn is built</h2>

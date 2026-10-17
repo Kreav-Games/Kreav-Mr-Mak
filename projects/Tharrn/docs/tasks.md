@@ -24,7 +24,7 @@ Proposed order; each module is built server-authoritative from the start (D-04).
 | P3 | **Weapons:** weapon CSV (deliverable 7), SMG and pistol hitscan, one heavy projectile, recoil curves, spread, damage multipliers and armour, server-validated hits with rewind (OQ-09) | Test-range targets; under 2 % desync between two clients; tests for multipliers and armour | Built 2026-10-16 with MSS's weapons and animation (D-23); changed the same day (D-24: grenade launcher, grenades, aiming through the sight, the wheel, no slide); **owner play-test** ([steps](#p3-weapons-results-2026-10-16)) |
 | P4 | **Inventory, hotbar and UI (D-25):** items from data, an inventory the server owns (grid, weight limit, equipment), a 12-slot hotbar (keys 1 to 9, 0, − and =; the wheel) that draws weapons, readies grenades and uses items, pickups and drops; the HUD, the inventory screen and Easy Game UI's menus in MSS's look | Every slot picks the same item on every machine; items move, stack, drop and are picked up through the server, made-up requests refused; the owner's yes | Built 2026-10-16 while the owner was away ([results](#p4-inventory-hotbar-and-ui-results-2026-10-16); report and rollback points: [while-away.md](while-away.md)); **owner play-test** |
 | P5 | **Vitals and crafting** (started 2026-10-16, [plan](#p5-vitals-and-crafting-plan-2026-10-16))**:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo (the crafting screen); the vitals on the HUD; the death screen and dropping the inventory | Thresholds tested; the HUD matches on both clients | Built 2026-10-16 while the owner was away ([results](#p5-vitals-and-crafting-results-2026-10-16); report: [while-away.md](while-away.md)); **owner play-test** |
-| P6 | **Coastal slice:** about 1–2 km² of the starter biome: terrain (OQ-06), ocean test (OQ-05), Sci-Fi bundle shore and jungle kits and its PCG biome system, following its guides ([reference](scifi-bundle.md)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
+| P6 | **Coastal slice** ([plan](#p6-coastal-slice-plan-2026-10-17))**:** the first 1–2 km² of the 100 km² main map (D-26), in the starter biome: terrain (OQ-06), ocean test (OQ-05), the Sci-Fi bundle's jungle shore, swamp and jungle presets and its PCG biome system, assembled the way its example level is ([how](scifi-bundle.md#how-the-biomes-look-and-are-assembled-2026-10-17)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
 | P7 | **Creatures:** Skitterjaw (desert, D-16), Phase Warden, Grav Raptor (creature CSV, deliverable 5 in part), StateTree behaviour, perception, stagger and weak points | The tutorial fight (creature per OQ-12) works for two clients | — |
 | P8 | **MetaHuman base:** the player as a MetaHuman from presets (OQ-03), customisation JSON saved and loaded | A preset choice survives a reload and shows on both clients | — |
 | P9 | **Prototype play-through:** crash site → vitals → scavenge and craft → Skitterjaw fight → shelter (foundation, generator, bench) | The owner plays it for 10–15 minutes and calls it fun | — |
@@ -411,8 +411,32 @@ under the owner's standing yes for verified checkpoints. Report, rollback points
 7. Tell Claude how the numbers feel (they are proposals): how fast stamina, hunger and thirst go, the cold and heat,
    the recipes.
 
+## P6 Coastal slice: plan (2026-10-17)
+
+Started after P5 while the owner is away. The owner pointed at KK Design's videos for how the bundle's biomes look and
+are assembled, and set the main map at about 100 km² (D-26): the slice is the first region of that map, built the way
+the bundle's example level is ([how](scifi-bundle.md#how-the-biomes-look-and-are-assembled-2026-10-17)). Proposals are checked with the owner when home; the module's
+sign-off is the owner approving the images. What exists: the bundle staged (biome presets, water, shore formations,
+the example level), `Tools/Terrain` (the earlier project's lidar pipeline, editor Python, not re-run), the sky and
+capture subsystem, the D-11 budget measurement.
+
+| # | Step | Done when |
+|---|---|---|
+| P6.1 | Ocean test (OQ-05): the Water plugin's ocean against the bundle's own water stretched as a sea, on a test level: looks, cost in milliseconds, the shoreline, swimming and wading | Pictures of both and a recommendation |
+| P6.2 | The bundle's biome volumes online: rocks generated once and saved, plants and debris generated at run time; collision must be the same on the server and every player's machine, or movement is corrected | The network test walks through generated jungle and over rocks with 0 corrections, as listen and dedicated server |
+| P6.3 | The main map: one World Partition level, its origin at the world's centre so the zones line up; its landscape at the bundle's settings, made first around the start (the Coastal Outpost and Shoreline Flats corner) and extended as biomes come (OQ-15) | The map opens, streams and plays |
+| P6.4 | Terrain (OQ-06): real coastal survey data through `Tools/Terrain` (moved to C++ tools, D-07), or generated terrain; a few candidate coasts shown as pictures | The owner picks one (pictures) |
+| P6.5 | Ground and nature: the combined landscape material's shore, swamp and jungle layers painted from the terrain's masks; biome volumes with the Jungle Shore, Jungle Swamp and Jungle presets; shore formations; streams as splines | Pictures |
+| P6.6 | The crash site and the first outpost: wreckage from colony modules and containers; an outpost built in a clearing with the building system, excluders keeping plants out (as in the speed level videos) | Pictures |
+| P6.7 | Sky and time of day (OQ-11): the bundle's environment controller driven by the server's clock so every player sees the same hour; a day length to propose | The same hour on every machine |
+| P6.8 | The in-game map (from P4): the zones and the player's position, in MSS's look | Pictures |
+| P6.9 | Budget table (D-11): frame time, memory and streaming in the slice | Within budget, or what to cut |
+| P6.10 | Checks: tests, the network test on the slice, the whole ladder, Shipping | `verify.py` passes |
+| P6.11 | Owner's review | The owner approves the images |
+
 ## Asked of the owner
 
+- How the zones fill the 100 km² main map (OQ-15; proposal: scale the zone map by 0.5).
 - Play-test P2, P3, P4 and P5 (steps above); say how P5's numbers feel (stamina, hunger, thirst, cold and heat, the
   recipes: all proposals).
 - When home: check the P4 plan's proposals (G and Z on the hotbar and in the inventory too, the first screens, the
