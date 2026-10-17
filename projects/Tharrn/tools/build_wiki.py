@@ -14,6 +14,7 @@ import html
 import io
 import json
 import os
+import re
 
 from PIL import Image
 
@@ -35,6 +36,14 @@ ZONE_TYPES = {  # CSV type -> (label, what it means)
 ICONS = ["health", "stamina", "hunger", "hydration", "temperature", "neural", "weapon", "ammo", "crosshair",
          "compass", "minimap", "quickwheel"]  # rendered by build_hud_icons.mjs into docs/deliverables/08-hud-icons
 ICON_SRC = os.path.join(HERE, "..", "docs", "deliverables", "08-hud-icons")
+PICTURE_SRC = os.path.join(HERE, "..", "docs", "pictures")
+PICTURE_WIDTH = 1600   # pictures are copied into the wiki as JPEGs at most this wide (light enough for a phone)
+COASTS = [  # (letter, name, file stem in docs/pictures/p6/coasts, what it is like)
+    ("A", "Hanalei Bay (Kauai)", "a_hanalei", "a crescent bay, a river lowland with marsh, jungle mountains behind"),
+    ("B", "Polihale (Kauai)", "b_polihale", "a long beach under rock ridges"),
+    ("C", "Waimea (Oahu)", "c_waimea", "a rocky bay under cliffs, a valley inland"),
+    ("D", "Point Lobos (California)", "d_point_lobos", "a jagged rocky coast with coves and sea stacks"),
+]
 ARMOUR = {"Light": "cloth, 10 %", "Medium": "composite, 30 %", "Heavy": "alloy, 50 %"}
 
 
@@ -97,6 +106,17 @@ def page(tab, title, subtitle, body, sources):
 </body>
 </html>
 """ % (E(tab), E(tab), title, subtitle, body.strip(), sources)
+
+
+def shot(src, caption, wide=False):
+    """A picture from docs/pictures (copied into the wiki's pictures/ folder by main) with its caption."""
+    name = os.path.splitext(src.replace("/", "_"))[0] + ".jpg"
+    PICTURES[name] = src
+    return ('<figure class="shot%s"><a href="pictures/%s"><img src="pictures/%s" alt="%s" loading="lazy"></a>'
+            '<figcaption>%s</figcaption></figure>' % (" wide" if wide else "", name, name, E(re.sub("<[^>]+>", "", caption)), caption))
+
+
+PICTURES = {}   # wiki picture name -> source under docs/pictures, filled while the pages are made
 
 
 def read_csv(path):
@@ -274,9 +294,36 @@ def world(zones):
 It streams in as you travel. Crossing it should take about 45 minutes on foot and 15 to 20 minutes by hoverbike
 (targets for tuning speeds).</p>
 
+<h2>The island in the editor</h2>
+<p>""" % (DESIGN, area, len(zones), step, step, x1 - x0, y1 - y0) + OPEN + """ A first rough build of the main map in the
+Unreal Editor (a blockout, 2026-10-17), to see the island's size and shape before it is built for real: each zone's
+ground shaped and coloured for its proposed biome, the sea all around, no plants or buildings yet. The layout is
+a proposal waiting for the owner's yes. In the editor: <code>/Game/Tharrn/Scratch/L_Island_Blockout</code>.</p>
+<div class="shots">""" + shot("p6/island/top_labelled.jpg", "From straight above, north up: each zone's name and proposed biome. "
+                              "The yellow dot is where play starts. Green is the coast, pink the Fungal Forest, sand the "
+                              "desert, grey the caverns and the plateau (its cliff edge the dark line), and the lagoon "
+                              "of Floating Archipelago A. The small grey square at the bottom right is a blockout flaw: "
+                              "one patch of ground the bundle's material could not draw.", wide=True) + shot(
+        "p6/island/southwest.jpg", "From over the sea to the south-west, 2.6 km up: the starting coast in front (the "
+        "yellow beacon), the desert and the grey caverns beyond, the plateau's cliff edge at the back.") + shot(
+        "p6/island/start_from_sea.jpg", "The start from 1.5 km out at sea: the yellow beacon marks the beach.") + shot(
+        "p6/island/start_low.jpg", "Coming ashore at the start: the plateau's mesa on the horizon to the right, the "
+        "caverns' hills to the left. Plants, rocks and the outpost come later.") + shot(
+        "p6/main_map_layout.png", "The same layout drawn as a map, with the biome presets each zone would use.") + """</div>
+
+<h2>Where play starts</h2>
+<p>""" + OPEN + """ On the beach at the south-west corner of the Coastal Outpost (Z001), the starter hub. From there you
+push east along Shoreline Flats into the Fungal Fringe, or north into Skitterjaw Hollow. The land of this corner will
+come from one real coast, scanned from the air (public lidar), shaped to fit. Four candidates, each built in the editor
+with the bundle's alien jungle (the plants and rocks are the same whichever coast is picked):</p>
+<div class="shots">""" + "".join(shot("p6/coasts/%s_aerial.jpg" % stem, "<strong>%s %s</strong>: %s. From the air." % (letter, name, what))
+                            + shot("p6/coasts/%s_shore.jpg" % stem, "%s on the shore." % letter) for letter, name, stem, what in COASTS) + """</div>
+<p class="wiki-note">Or a made-up coast, or one whole 10 × 10 km lidar area as the main map's land with the biomes
+painted over it (OQ-06).</p>
+
 <h2>Six biomes</h2>
 <p>You start on the coast and push inland and upward, toward the floating islands of the endgame.</p>
-""" % (DESIGN, area, len(zones), step, step, x1 - x0, y1 - y0) + chain(["Coastal", "Fungal Forest", "Crystalline Desert", "High-Gravity Plateau",
+""" + chain(["Coastal", "Fungal Forest", "Crystalline Desert", "High-Gravity Plateau",
                                                             "Subterranean Caverns", "Floating Archipelagos"]) + table(
         ["Biome", "What it is like", "Resources", "Threats"], [
             ["<strong>Coastal</strong> (start)", "Wreckage, shallow pools, small fauna", "Organic, low-tier minerals", "Skitter packs, tidal storms"],
@@ -293,7 +340,7 @@ desert from its desert, acid and moon sets; the plateau from its columnar rock. 
 
 <h2>Zone map</h2>
 <p>Drawn to scale from the zone data, with y increasing upward (so Amber Buffer North is north of the archipelago).
-Each square is 2.24 km across; the numbers along the edges are kilometres from the world's centre.</p>
+Each square is """ + "%.2f" % step + """ km across; the numbers along the edges are kilometres from the world's centre.</p>
 <figure class="map-figure">""" + "".join(parts) + legend + """</figure>
 
 <h2>Zone types</h2>
@@ -307,12 +354,14 @@ Each square is 2.24 km across; the numbers along the edges are kilometres from t
 <ul>
 <li>""" + OPEN + """ The direction asks for 6 hubs and 8 to 12 PvP hotspots, each inside an amber buffer belt. The map has
 %d hubs, %d flagged zones and %d buffer; some hubs border PvP zones directly.</li>
-<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ The terrain source: real coastal survey data where a landform fits, generated terrain elsewhere (OQ-06),
+<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ The island's layout and a biome per
+zone (the proposal above), and which coast the start is made from.</li>
+<li>""" + OPEN + """ The terrain source: real coastal survey data where a landform fits, generated terrain elsewhere (OQ-06),
 and a test of the ocean (OQ-05).</li>
 </ul>
 """
     return page("World and zones", "World and zones",
-                "About 100 km² of alien archipelago in six biomes, laid out as %d zones." % len(zones), body,
+                "An island of about 100 km² in six biomes, laid out as %d zones." % len(zones), body,
                 "Sources: GDD 0.1 module 07; decisions D-14, D-26 and D-27; zones from the game's <code>Data/Zones.csv</code>.")
 
 
@@ -910,6 +959,11 @@ table.kv td:first-child{color:var(--mak-muted);white-space:nowrap;width:1%}
 .icon-grid figure{margin:0;padding:12px 10px 8px;border:1px solid var(--mak-border);border-radius:10px;background:#14161c;text-align:center}
 .icon-grid img{width:64px;height:64px;display:block;margin:0 auto}
 .icon-grid figcaption{font-size:12px;color:#b9b2c2;margin-top:6px}
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin:14px 0 18px}
+.shot{margin:0}
+.shot.wide{grid-column:1/-1}
+.shot img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--mak-border)}
+.shot figcaption{font-size:13px;line-height:1.5;color:var(--mak-muted);margin-top:6px}
 .wiki-foot{margin-top:52px;padding-top:16px;border-top:1px solid var(--mak-border);font-size:12px;color:var(--mak-muted);line-height:1.7}
 @media(max-width:680px){
 .two{grid-template-columns:1fr}
@@ -930,7 +984,7 @@ html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-pvp{color:#b3263f
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.chain-step){background:#f5f6f9;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.map-figure,.hud-mock){background:#f7f8fb;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .hud-mock>div{border-color:#202a4040}
-html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.wiki-foot,.wiki-note,.chain-arrow,table.kv td:first-child,.hud-mock strong){color:#505b70!important;border-color:#202a4026}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.wiki-foot,.wiki-note,.shot figcaption,.chain-arrow,table.kv td:first-child,.hud-mock strong){color:#505b70!important;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .zone-map{color:#232735}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .card-num{color:#98445e!important}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .icon-grid figure{background:#14161c!important;border-color:#202a4026}
@@ -977,6 +1031,17 @@ def main():
             if not os.path.isfile(path) or open(path, "rb").read() != data:
                 open(path, "wb").write(data)
                 changed.append("icons/" + name)
+    os.makedirs(os.path.join(OUT, "pictures"), exist_ok=True)
+    for name, src in sorted(PICTURES.items()):
+        img = Image.open(os.path.join(PICTURE_SRC, src)).convert("RGB")
+        if img.width > PICTURE_WIDTH:
+            img = img.resize((PICTURE_WIDTH, round(img.height * PICTURE_WIDTH / img.width)), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, "JPEG", quality=82)
+        path = os.path.join(OUT, "pictures", name)
+        if not os.path.isfile(path) or open(path, "rb").read() != buf.getvalue():
+            open(path, "wb").write(buf.getvalue())
+            changed.append("pictures/" + name)
     for name, text in [("wiki.css", CSS)] + [(f, h) for _, f, h in pages]:
         path = os.path.join(OUT, name)
         old = open(path, encoding="utf-8").read() if os.path.isfile(path) else None

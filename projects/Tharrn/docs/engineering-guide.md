@@ -43,7 +43,7 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 | `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py`, `mss_test.py`, `inventory_test.py` (D-25: the inventory with a listen and a dedicated server), `survival_test.py` (P5: vitals, food and water, cold, crafting, running out of stamina, the bag; listen and dedicated server), `nature_test.py` (P6: players run through the bundle's generated nature on `L_CoastTest` with no corrections; listen and dedicated server) |
 | `Tools/UI/` | `build_ui.py` (D-25): icons, the Widget Blueprints in MSS's look, `BP_TharrnHUD`, Easy Game UI's settings copies and its selector, `BP_TharrnGameInstance`, the main menu level, the project's start level |
 | `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange`, `Characters/Player/BP_TharrnPlayer`, `Core/` (BP_TharrnGameMode, BP_TharrnPlayerController, BP_TharrnGameInstance, BP_TharrnMenuGameMode), `Input/` (the hotbar, wheel, pick-up, inventory and pause actions, `IMC_TharrnCombat`), `UI/` (the Widget Blueprints, BP_TharrnHUD, Easy Game UI's settings copies, icons), `Maps/L_TharrnMainMenu`, `Weapons/` (placeholders, the heavy round, `MSS/` Tharrn's MSS weapons) |
-| `Tools/World/` | `build_coast_level.py` (a coast level from a built terrain: landscape, virtual textures, sky, ocean, the bundle's biome volume, generation, pictures; levels under `/Game/Tharrn/Scratch/` are for comparisons, outside Git); `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script) |
+| `Tools/World/` | `build_coast_level.py` (a coast level from a built terrain: landscape, virtual textures, sky, ocean, the bundle's biome volume, generation, pictures; levels under `/Game/Tharrn/Scratch/` are for comparisons, outside Git); `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script); `draw_island_layout.py` (the main map's island and a biome per zone as a picture; its `island()` gives the same coast on any grid) and `island_blockout.py` (the island as a blockout level: terrain, build, pictures labelled with the zones and the start) |
 | `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README); `test_coast.py`, the made-up coast for P6's ocean and biome tests (heights and the bundle's jungle paint layers, run with `Saved/PyTerrain`); `coast_terrain.py`, candidate coasts from USGS 1 m lidar tiles (overview maps, 2 km windows with a seabed and the paint layers) |
 | `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) and its data-driven console variables, collision channels and console variables (`DefaultEngine.ini`, D-18) |
 | `Content/ThirdPerson`, `Characters`, `Input`, `LevelPrototyping` | Template content (tracked) |
@@ -497,6 +497,20 @@ closed: an open editor once took 96 % of the GPU.
 103. PowerShell names ignore case: a parameter `$Cmds` and a variable `$cmds` are one variable (the budget script's
     extra commands were lost that way; the parameter is `-ExtraCmds`). Git Bash rewrites `/Game/...` arguments into
     Windows paths: run such commands with `MSYS_NO_PATHCONV=1`.
+104. `SceneTools.find_actors` does not list Tharrn's sky (`ATharrnSky`) by class, by name or among all actors, though
+    it is in the level: keep the reference `add_to_scene_from_class` returns (the island script keeps it in
+    `level.json`). Deleting a World Partition level with `AssetTools.delete` leaves the files of actors it did not have
+    loaded or listed (the sky; after a reload, actors tied to cells) under `Content/__ExternalActors__/<level path>/`:
+    remove them, or a level made again at that path gets them back.
+105. The Sci-Fi bundle's landscape material runs out of texture slots where too many paint layers meet in one
+    landscape component ("Shader is using too many SRVs: 72 (only 64 supported)" in the log); that component shows
+    Unreal's grey default material. Keep to 4 layers a component (`island_blockout.py`'s `cap_layers`), and use few
+    layers in all.
+106. Unreal's ocean (Water plugin, 5.8.3) drew no water over a 19 km landscape of 8 m points: inside the water zone
+    the surface is missing (zone 3 to 38 km, the ocean at the centre or far out, local tessellation, a higher capture;
+    outside the zone its far mesh shows), while the same steps work on the 2 km coasts. From the air, the "sea"
+    beyond such a level is the sky's planet ground. The island blockout's sea is a flat plane with the bundle's
+    `MI_Water`. To be solved before the real map (P6.3).
 
 ## 8. Working as two agents
 

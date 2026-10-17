@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `30ba8ff` | `p6-island-blockout` | The island blockout's tools (`Tools/World/island_blockout.py`; the level itself, `/Game/Tharrn/Scratch/L_Island_Blockout`, stays out of Git and is made again by the script). Checked: the pictures, the test coast's pictures through the changed level builder |
 | Game `D:\Tharrn` | `2c51e17` | `d27-island` | D-27: the zones rescaled to 2.56 km (about 100 km², sea all around). Checked: data import, 105 tests |
 | Game `D:\Tharrn` | `dd8c093` | `p6-budget-first` | P6.9 so far: HLODs on the test coast, the budget script's `-ExtraCmds` (first numbers in tasks.md) |
 | Game `D:\Tharrn` | `b8637a0` | `p6-time-of-day` | P6.7: the world's hour from the server's clock, the bundle's sky on the test coast. Checked: verify.py 5 of 5 (105 tests), nature_test.py (the same hour on every machine) |
@@ -91,6 +92,7 @@ the owner can say "2" to switch to MST Pro's inventory instead.
 | Test coast | Done | `L_CoastTest`: 1 km of made-up coast (beach, tide pools, marsh, stream, rocky headland) painted with the bundle's jungle shore, swamp, jungle and rock layers ([map](pictures/p6/test_coast_map.jpg)) |
 | P6.1 Ocean test | Done (`ef8a9a5`, verify.py 5 of 5) | Unreal's ocean for the sea, the bundle's water for pools and rivers (pictures below; OQ-05) |
 | P6.2 Biomes online | Done (`d12d728`) | The bundle's jungle shore, swamp and jungle on the test coast (generated in about 35 s); players sprint into the jungle with no corrections, as listen and dedicated server (`nature_test.py`, new). The bushes and small boulders made around players are for looks only (they no longer block) |
+| P6.3 Main map | **A blockout for you** | The island in the editor (`/Game/Tharrn/Scratch/L_Island_Blockout`, outside Git; `Tools/World/island_blockout.py` makes it again): each zone's ground shaped and coloured for its proposed biome, the sea all around, the start marked on the beach with a yellow beacon. No plants yet. Pictures, also on the wiki's World page: [from above, labelled](pictures/p6/island/top_labelled.jpg), [from the sea](pictures/p6/island/southwest.jpg), [the start from the sea](pictures/p6/island/start_from_sea.jpg), [coming ashore](pictures/p6/island/start_low.jpg). The real map comes once the layout and the starting coast are settled |
 | P6.4 Terrain candidates | **Waiting for you** | Four 2 km coasts from public lidar, built in the editor with the ocean and the bundle's jungle ([all four](pictures/p6/coasts/all_coasts.jpg)); pick one (question 5) |
 | P6.7 Sky and time of day | Done (`b8637a0`) | The bundle's environment controller on the test coast, its hour from the server's clock: the same on every machine (checked as listen and dedicated server). A day lasts 60 real minutes, play starts at 9:30 (proposals, OQ-11). At night the jungle's plants glow ([noon](pictures/p6/time_noon.jpg), [evening](pictures/p6/time_evening.jpg), [night](pictures/p6/time_night.jpg), [dawn](pictures/p6/time_dawn.jpg)) |
 | P6.9 Budget | First numbers | The test coast takes 24.8 ms of GPU a frame at 1440p on this PC with the editor open (budget 16.6 on an RTX 3060): the jungle's trees and rocks are most of it; clouds 1.7 ms, grass 1 ms. A clean run with the editor closed and the cuts come next ([table](tasks.md#p6-coastal-slice-first-budget-numbers-2026-10-17)) |
@@ -156,6 +158,11 @@ at the headland ([ocean_headland.jpg](pictures/p6/ocean_headland.jpg)) and from 
   down how the biomes look, how a map is assembled, and which bundle preset makes which Tharrn biome
   ([scifi-bundle.md](scifi-bundle.md#how-the-biomes-look-and-are-assembled-2026-10-17)). Found on the way: the bundle has its own water, rivers and shore pieces, now the
   fallback for the ocean (OQ-05).
+- 2026-10-17, late: the owner could not see the docs folder on the phone, so the island was built as a blockout in
+  the editor and its pictures, with the four candidate coasts, put on the wiki's World page. On the way: Unreal's
+  ocean drew nothing at the main map's size (gotcha 106; the blockout's sea is the bundle's water on a plane), the
+  bundle's landscape material failed where too many paint layers met (105), and the scene search does not find
+  Tharrn's sky (104).
 
 ## Chosen for the owner (proposals in the P4 plan; say if any is wrong)
 
@@ -195,6 +202,7 @@ P6 so far (proposals):
 2. P4's play-test steps ([tasks.md](tasks.md#p4-inventory-hotbar-and-ui-results-2026-10-16)), then P5's
    ([tasks.md](tasks.md#p5-vitals-and-crafting-results-2026-10-16)): stamina, the cold and hot areas, crafting.
 3. This file's "Chosen for the owner" and "Questions" sections.
+4. The island blockout in the editor: open `/Game/Tharrn/Scratch/L_Island_Blockout` (in World Partition, load the regions you want to see).
 
 ## Questions for the owner
 
@@ -205,10 +213,11 @@ P6 so far (proposals):
 3. Bags of a downed player: should they vanish after a while, and should anyone be able to open them (now: they stay,
    anyone can)?
 4. ~~The 100 km² main map~~: answered "Water all around" (D-27: the zones make about 100 km², sea all around; the zone
-   data is rescaled). The proposed island and a biome per zone: [main_map_layout.png](pictures/p6/main_map_layout.png). Does the layout suit
+   data is rescaled). The proposed island and a biome per zone: [main_map_layout.png](pictures/p6/main_map_layout.png); in
+   the editor: [from above, labelled](pictures/p6/island/top_labelled.jpg), [from the sea](pictures/p6/island/southwest.jpg), [the start from the sea](pictures/p6/island/start_from_sea.jpg), [coming ashore](pictures/p6/island/start_low.jpg) (all on the wiki's World page, for the phone). Does the layout suit
    (the coast in the south-west where play starts, the fungal forest east of it, the desert across the middle, the
    plateau in the east, the caverns in the north-west, Floating Archipelago A as a lagoon with islands above it)?
-5. Which coast should the game start on ([all four](pictures/p6/coasts/all_coasts.jpg), each from the air, from the sea and on the shore; maps:
+5. Which coast should the game start on (pictures of each on the wiki's World page; [all four](pictures/p6/coasts/all_coasts.jpg), each from the air, from the sea and on the shore; maps:
    [A](pictures/p6/coasts/a_hanalei_map.jpg), [B](pictures/p6/coasts/b_polihale_map.jpg),
    [C](pictures/p6/coasts/c_waimea_map.jpg), [D](pictures/p6/coasts/d_point_lobos_map.jpg))? A Hanalei Bay (a crescent
    bay, a river lowland with marsh, jungle mountains), B Polihale (a long beach under rock ridges), C Waimea (a rocky

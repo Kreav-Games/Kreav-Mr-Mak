@@ -51,6 +51,11 @@ table.kv td:first-child{color:var(--mak-muted);white-space:nowrap;width:1%}
 .icon-grid figure{margin:0;padding:12px 10px 8px;border:1px solid var(--mak-border);border-radius:10px;background:#14161c;text-align:center}
 .icon-grid img{width:64px;height:64px;display:block;margin:0 auto}
 .icon-grid figcaption{font-size:12px;color:#b9b2c2;margin-top:6px}
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin:14px 0 18px}
+.shot{margin:0}
+.shot.wide{grid-column:1/-1}
+.shot img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--mak-border)}
+.shot figcaption{font-size:13px;line-height:1.5;color:var(--mak-muted);margin-top:6px}
 .wiki-foot{margin-top:52px;padding-top:16px;border-top:1px solid var(--mak-border);font-size:12px;color:var(--mak-muted);line-height:1.7}
 @media(max-width:680px){
 .two{grid-template-columns:1fr}
@@ -71,7 +76,7 @@ html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .tag-pvp{color:#b3263f
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.chain-step){background:#f5f6f9;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.map-figure,.hud-mock){background:#f7f8fb;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .hud-mock>div{border-color:#202a4040}
-html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.wiki-foot,.wiki-note,.chain-arrow,table.kv td:first-child,.hud-mock strong){color:#505b70!important;border-color:#202a4026}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.wiki-foot,.wiki-note,.shot figcaption,.chain-arrow,table.kv td:first-child,.hud-mock strong){color:#505b70!important;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .zone-map{color:#232735}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .card-num{color:#98445e!important}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .icon-grid figure{background:#14161c!important;border-color:#202a4026}

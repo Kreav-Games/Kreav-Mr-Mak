@@ -159,3 +159,14 @@ measuring one feature. **Next:** a clean run with the editor closed, then the cu
 all around; OQ-15 resolved). The zone data scaled to 2.56 km zones (98.3 km²), the zone test and notes with it; the
 wiki's zone map draws its grid from the data. A proposed island layout with a biome per zone for the owner
 ([picture](pictures/p6/main_map_layout.png), `Tools/World/draw_island_layout.py`). **Checks:** verify.py --quick (data import, 105 tests).
+
+*2026-10-17, late.* The owner, on the phone: "I can't see the doc folder on my phone, so can't see where player should
+start and island layout might be ok until I can see a editor screenshot". The island built as a blockout in the editor
+(`Tools/World/island_blockout.py`, `/Game/Tharrn/Scratch/L_Island_Blockout`): 19 x 14 km of landscape at 8 m, the coast from the layout's own shape
+(`draw_island_layout.island()`, now the same at any grid), each zone's ground and paint per proposed biome (the coast
+green, the Fungal Forest the bundle's pink swamp ground, the desert sand, the plateau a 190 m mesa, the caverns rough
+grey hills, the lagoon), a plane of the bundle's water for the sea, a yellow beacon and four player starts on the beach
+at the Coastal Outpost's south-west corner. Pictures from the editor (from above with the zones labelled, from the sea,
+at the start) on the wiki's World page with the four candidate coasts. Gotchas 104 to 106 (the sky not found by the
+scene search, the bundle material's texture slots, Unreal's ocean drawing nothing at this size). **Checks:** the
+pictures; the terrain's paint (at most 4 layers a component, every point adding up).
