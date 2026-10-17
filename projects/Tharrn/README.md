@@ -15,6 +15,7 @@ Wildwright on 2026-10-15.
 | # | File | For | Time |
 |---|---|---|---|
 | 1 | this README | State, rules, next actions | 5 min |
+| — | [docs/while-away.md](docs/while-away.md) | **For the owner, back home:** what was built while away (P4), rollback points and how to go back, choices made for the owner | first, when home |
 | 2 | [docs/gdd/00-overview.md](docs/gdd/00-overview.md) | GDD 0.1: the direction in 13 modules with build notes | 20 min |
 | 3 | [docs/tasks.md](docs/tasks.md) | Current work: the Prototype modules | 2 min |
 | 4 | [docs/decisions.md](docs/decisions.md) | Decisions D-01 to D-25, open questions OQ-01 to OQ-14 | 5 min |
@@ -72,5 +73,5 @@ Wildwright on 2026-10-15.
 | 3 | Remove Wildwright's 7 commits from the Mr. Mak repo's history: Claude prepared and dry-ran the rewrite; Claude Code blocks it without the owner | **Yes** |
 | 4 | Play-test P2, the player character (10 minutes, [steps](docs/tasks.md)) | **Yes** |
 | 5 | Play-test P3, the weapons (10 minutes, [steps](docs/tasks.md)): the launcher, grenades, aiming through the sight and the wheel too; say how the grenade and launcher numbers feel (proposals) and when to move to Tharrn's own weapon models (D-22) | **Yes** |
-| 6 | Okay the P4 plan: the hotbar, inventory and UI (D-25; [plan](docs/tasks.md#p4-inventory-hotbar-and-ui-plan-2026-10-16)) | **Yes** |
-| 7 | Build P4 after the okay; the P2 and P3 play-tests can come before or after | No |
+| 6 | Check the choices made in the P4 plan (D-25; [plan](docs/tasks.md#p4-inventory-hotbar-and-ui-plan-2026-10-16)); the owner said to go ahead | **Yes**, when home |
+| 7 | Build P4 while the owner is away (2026-10-16 on; the owner: "Continue with whats next"); report and rollback points in [docs/while-away.md](docs/while-away.md) | No |

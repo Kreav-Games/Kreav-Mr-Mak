@@ -46,16 +46,30 @@ MSS gives the look and the handling; Tharrn's C++ decides every shot. In the gam
 | Respawns | When the game mode destroys a downed player, the C++ weapon component removes MSS's HUD widget and the server destroys the player's MSS weapons (MSS expects the body to stay) | `UTharrnWeaponComponent::EndPlay` |
 | Checks | `mss_test.py`: a client equips, fires the pistol (one shot a press), reloads, swaps to the SMG and holds the trigger, aims (a picture through the sight), turns the wheel up and down, fires the launcher twice, and throws grenades until none are left; every machine sees the same weapon, the server takes the shots, every round and grenade explodes on the server above the floor, a fourth grenade is refused | `Tools/Checks/mss_test.py` |
 
-Keys (MSS's `IMC_Shooter`): X draw or holster, F next weapon, left mouse fire, right mouse aim, R reload, V hip or
-aimed fire, G grenade mode, Z (hold) drop; gamepad equivalents. Tharrn's own mapping (`IMC_TharrnCombat`) adds only
-the mouse wheel: up presses MSS's swap, down steps MSS's selection on first so the swap lands on the previous weapon.
-D-25 (P4, planned): a 12-slot hotbar replaces F and X (proposed: G and Z too) and the holsters; only the weapon in
-the hands shows on the body.
+Keys since D-25 (P4): Tharrn's mapping `IMC_TharrnCombat` sits above MSS's (priority 2) and holds the hotbar (1 to 9,
+0, - and =), the mouse wheel (next or previous weapon on the hotbar), E (pick up), Tab (inventory) and Esc (Easy Game
+UI's pause menu); it blocks MSS's F (swap), X (draw or holster), G (grenade) and Z (drop) with an action bound to
+nothing (`IA_BlockMss`: an action in a higher mapping consumes its keys). MSS's `IMC_Shooter` keeps left mouse fire,
+right mouse aim, R reload, V hip or aimed fire, and the gamepad equivalents (its gamepad swap still works: the gamepad's
+hotbar is to come).
 
-MSS's grenade throw, as it works: G takes a grenade into the left hand (the server spawns it). Aiming (right mouse)
-shows the arc; only while aiming does the fire button pull the pin (the fuse starts); letting go plays the throw, and
-the grenade leaves the hand at that animation's notify. G again puts an unthrown grenade away. Pressing G before the
-throw animation has finished does nothing.
+How the hotbar drives MSS (C++ `UTharrnWeaponComponent::TickHands`, `TharrnMss`): MSS starts with no weapons
+(`Initial_Holstered_Weapons` empty). When a slot asks for a weapon, the server makes that MSS weapon for the player
+(hidden, in the holster for its class, listed in `Holstered_Weapons_Reference`) and calls MSS's own `CES_Equip`, which
+plays MSS's draw and puts it in the hand, where it shows. Another slot first calls `CES_Equip` on the weapon in the hand
+(MSS's put-away: it hangs it in its holster), then the server hides and removes it. A grenade slot presses MSS's throw
+mode (`IA_Throw_Mode`), as G did. MSS logs a harmless warning as play starts ("Attempted to access index 0 from array
+'Holstered_Weapons_Reference' of length 0": its start looks for a first weapon).
+
+MSS's HUD (`WBP_Shooter_Hud`) keeps its crosshair, ammunition (Tharrn's magazine and the inventory's rounds) and the R
+and V hints; Tharrn hides (not collapses: MSS's layout leans on their space) its weapon selector, weapon name and the X,
+Z, F and G hints at run time (`TharrnMss::HideHudParts`), as the hotbar does those jobs. The pack is not changed.
+
+MSS's grenade throw, as it works: the grenade's hotbar slot (G before D-25) takes a grenade into the left hand (the
+server spawns it and takes one from the inventory). Aiming (right mouse) shows the arc; only while aiming does the fire
+button pull the pin (the fuse starts); letting go plays the throw, and the grenade leaves the hand at that animation's
+notify. The slot again puts an unthrown grenade away (back into the inventory). Pressing it before the throw animation
+has finished does nothing.
 
 Not done yet:
 - Picking weapons up from the ground (`BPI_Interaction`, hold to interact, `PhysicsBody` on the capsule; guide step 7).

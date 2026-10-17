@@ -22,7 +22,7 @@ Proposed order; each module is built server-authoritative from the start (D-04).
 | P1 | **Foundation:** network test harness (PIE listen server and dedicated-server client, simulated latency and loss), CSV data-table pipeline, automation test scaffolding, a grey test range map | A replicated test actor passes the guide's network step; a CSV row imports and reads back in a test | Built and checked 2026-10-15 (ladder steps 1–4, below); closed 2026-10-16 (below) |
 | P2 | **Shooter character:** the Game Animation Sample's motion-matched character as the player, third-person aim-down-sights camera (D-15), sprint, crouch, mantle (the slide was built, then removed by the owner, D-24); replicated | Two clients move and mantle smoothly at 100 ms latency | Built and checked 2026-10-16 (below); **owner play-test** |
 | P3 | **Weapons:** weapon CSV (deliverable 7), SMG and pistol hitscan, one heavy projectile, recoil curves, spread, damage multipliers and armour, server-validated hits with rewind (OQ-09) | Test-range targets; under 2 % desync between two clients; tests for multipliers and armour | Built 2026-10-16 with MSS's weapons and animation (D-23); changed the same day (D-24: grenade launcher, grenades, aiming through the sight, the wheel, no slide); **owner play-test** ([steps](#p3-weapons-results-2026-10-16)) |
-| P4 | **Inventory, hotbar and UI (D-25):** items from data, an inventory the server owns (grid, weight limit, equipment), a 12-slot hotbar (keys 1 to 9, 0, − and =; the wheel) that draws weapons, readies grenades and uses items, pickups and drops; the HUD, the inventory screen and Easy Game UI's menus in MSS's look | Every slot picks the same item on every machine; items move, stack, drop and are picked up through the server, made-up requests refused; the owner's yes | **Plan for the owner's okay** ([plan](#p4-inventory-hotbar-and-ui-plan-2026-10-16)) |
+| P4 | **Inventory, hotbar and UI (D-25):** items from data, an inventory the server owns (grid, weight limit, equipment), a 12-slot hotbar (keys 1 to 9, 0, − and =; the wheel) that draws weapons, readies grenades and uses items, pickups and drops; the HUD, the inventory screen and Easy Game UI's menus in MSS's look | Every slot picks the same item on every machine; items move, stack, drop and are picked up through the server, made-up requests refused; the owner's yes | Started 2026-10-16 while the owner is away ([plan](#p4-inventory-hotbar-and-ui-plan-2026-10-16); report and rollback points: [while-away.md](while-away.md)) |
 | P5 | **Vitals and crafting:** health, stamina, hunger, hydration, temperature as attributes; the two formulas; crafting a bandage and ammo (the crafting screen); the vitals on the HUD; the death screen and dropping the inventory | Thresholds tested; the HUD matches on both clients | — |
 | P6 | **Coastal slice:** about 1–2 km² of the starter biome: terrain (OQ-06), ocean test (OQ-05), Sci-Fi bundle shore and jungle kits and its PCG biome system, following its guides ([reference](scifi-bundle.md)), sky, budget table | Within the D-11 budget; the owner approves the images | — |
 | P7 | **Creatures:** Skitterjaw (desert, D-16), Phase Warden, Grav Raptor (creature CSV, deliverable 5 in part), StateTree behaviour, perception, stagger and weak points | The tutorial fight (creature per OQ-12) works for two clients | — |
@@ -245,7 +245,8 @@ sight; the mouse wheel picks weapons. Weapon mods and the whole UI come later.
 
 ## P4 Inventory, hotbar and UI: plan (2026-10-16)
 
-D-25, **for the owner's okay**. What exists to build on: MSS's weapons and throw, driven by Tharrn's weapon component
+D-25. The owner, on the phone for a few days: "Continue with whats next and when im home we can revisit"; the
+proposals below are checked with the owner then ([while-away.md](while-away.md)). What exists to build on: MSS's weapons and throw, driven by Tharrn's weapon component
 (P3); MSS's own UI styles (`DMD/Widgets/Styles`: borders, text, buttons) and its weapon selector; Easy Game UI's
 menus, options, HUD builder (pickup notices, input prompts) and interaction system; `weight` in `Data/Weapons.csv`;
 armour as an attribute (P3). To work out first: MSS carries at most one weapon of each class (primary, secondary,
@@ -276,7 +277,8 @@ log; the inventory kept between sessions comes with the server's save.
 ## Asked of the owner
 
 - Play-test P2 and P3 (steps above).
-- Okay the P4 plan (above), including its proposals: G and Z on the hotbar and in the inventory too, the first screens, the numbers.
+- When home: check the P4 plan's proposals (G and Z on the hotbar and in the inventory too, the first screens, the
+  numbers) and read [while-away.md](while-away.md).
 - Review GDD 0.1 and the open questions, especially scope (OQ-07) and the tutorial creature (OQ-12); the
   proposals in deliverables 3, 5, 6, 7 and 9.
 - Fab packs or models for creatures (OQ-04); weapons and armour are made for Tharrn (D-22).

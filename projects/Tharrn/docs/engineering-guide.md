@@ -412,6 +412,29 @@ closed: an open editor once took 96 % of the GPU.
     after the server's moment): treating it as still down for the whole grace refused hits the clients saw (6.7 % of
     shots in one run). For the grace after standing up, the server now takes what the shooter saw either way
     (`ITharrnHittable::IsStandingUp`, used by `WeighClaim`); before the moment it counts as down.
+76. A Blueprint class copies into new objects only the class defaults that differed from its C++ parent when it was
+    last compiled. A default set on a Widget Blueprint's class after its compile (`ObjectTools.set_properties` on
+    `Default__WBP_X_C`) reads back fine in the editor but never reaches new widgets (the inventory screen's slot class
+    was None, 2026-10-16): set class defaults first, then compile (`Tools/UI/build_ui.py` does). A widget placed inside
+    another Widget Blueprint keeps its own values: set them on it too.
+77. MSS's HUD lays its ammunition panel out against its weapon selector: collapsing the selector pushed the ammunition
+    off the screen. Hide (not collapse) the parts Tharrn replaces (`TharrnMss::HideHudParts`).
+78. `UUserWidget` (`UWidget`) has a member called `Slot`: a local or parameter of that name in a widget class is a
+    compile error here (warnings as errors, C4458).
+79. Live Coding cannot change a console command registered by a static object (`FAutoConsoleCommand...`): the lambda
+    bound at start keeps running. A new console command in a patch works; a changed one needs the full editor build.
+80. `TharrnPlaySessionToolset.CaptureGameView` reads the viewport, which has no UMG widgets in it; with `bIncludeUI` it
+    renders the game view's Slate widget instead (`FSlateApplication::TakeScreenshot`), HUD and menus included.
+81. `TextureTools.import_file` refuses a name that exists, and `AssetTools.delete` quietly leaves a texture that data
+    tables still point at: `build_ui.py` imports an icon only when it is missing.
+82. `UMGToolSet.GetWidgets` answers with lower-case keys (`widgets`, `parent`, `bInherited`); a tree is cleared by removing
+    its root widgets.
+83. An action in a mapping context of higher priority consumes its keys (`bConsumeInput`, on by default): Tharrn blocks
+    MSS's F, X, G and Z with `IA_BlockMss` in `IMC_TharrnCombat` (priority 2 over MSS's 1). Injected input
+    (`th.Press`, the grenade slot pressing `IA_Throw_Mode`) goes to the action itself and is not blocked.
+84. Easy Game UI finds its settings asset through the class defaults of its `BP_EGUI_GlobalConfigSelector`: pointing
+    that one value at Tharrn's own settings (`DA_TharrnUIConfig`) is the one change Tharrn makes to the pack (listed
+    with a backup in `while-away.md` until the pack is staged again).
 
 ## 8. Working as two agents
 

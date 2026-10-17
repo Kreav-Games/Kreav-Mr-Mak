@@ -1,5 +1,6 @@
 // Tharrn HUD icons (deliverable 8, placeholders for P4): writes 12 SVG line icons and renders each to a 256 x 256 PNG
-// with a transparent background, white on clear so the HUD can tint them.
+// with a transparent background, white on clear so the HUD can tint them. Also two item icons for the inventory (P4,
+// D-25: bandage, armour) until the art direction is set; the game imports them from Data/UI/Icons.
 //
 //   node projects/Tharrn/tools/build_hud_icons.mjs        (from the Mr. Mak folder; uses Microsoft Edge through Playwright)
 //
@@ -26,6 +27,9 @@ const icons = {
   crosshair: '<circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/><circle cx="12" cy="12" r=".9" fill="#fff" stroke="none"/>',
   compass: '<circle cx="12" cy="12" r="9.5"/><path d="M12 5l2.5 7-2.5 7-2.5-7Z"/><path d="M12 5l2.5 7h-5Z" fill="#fff"/>',
   minimap: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2Z"/><path d="M9 4v14M15 6v14"/>',
+  // Item placeholders (P4, D-25): a bandage strip and a chest plate.
+  bandage: '<g transform="rotate(-35 12 12)"><rect x="2.5" y="8.5" width="19" height="7" rx="3.5"/><rect x="9" y="9.5" width="6" height="5" rx="1"/></g><path d="M5.4 11.4h.01M6.6 13.2h.01M17.4 10.8h.01M18.6 12.6h.01"/>',
+  armour: '<path d="M7 3.5l5 2 5-2 3 3.5-2 3V20.5H6V10L4 7Z"/><path d="M12 5.5v15M6 13.5h12"/>',
   quickwheel: '<circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="3.5"/>' +
     [45, 135, 225, 315].map(a => { const r = Math.PI * a / 180, c = Math.cos(r), s = Math.sin(r); return `<path d="M${(12 + 3.5 * c).toFixed(2)} ${(12 + 3.5 * s).toFixed(2)}L${(12 + 9.5 * c).toFixed(2)} ${(12 + 9.5 * s).toFixed(2)}"/>`; }).join(''),
 };
