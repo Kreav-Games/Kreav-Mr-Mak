@@ -154,3 +154,8 @@ machine shows the same hour, before and after the server sets 21:00.
 (budget 16.6 on an RTX 3060), the jungle's trees and rocks most of it (Nanite 9.2 ms), clouds 1.7 ms, grass 1 ms, the
 run-time layer nothing; DLSS did not start with the editor open (TSR ran). `measure_budget.ps1 -ExtraCmds` for
 measuring one feature. **Next:** a clean run with the editor closed, then the cuts.
+
+*2026-10-17, late.* The owner: "Water all around" (D-27: the main map is an island; the zones make about 100 km², sea
+all around; OQ-15 resolved). The zone data scaled to 2.56 km zones (98.3 km²), the zone test and notes with it; the
+wiki's zone map draws its grid from the data. A proposed island layout with a biome per zone for the owner
+([picture](pictures/p6/main_map_layout.png), `Tools/World/draw_island_layout.py`). **Checks:** verify.py --quick (data import, 105 tests).

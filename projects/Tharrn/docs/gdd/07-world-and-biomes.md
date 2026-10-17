@@ -2,8 +2,9 @@
 
 ## Scale and layout
 
-- The main map is **about 100 km²** (D-26, 2026-10-17; D-14 had about 75, the direction 16–25 km²), streamed with
-  World Partition. How the zones fill it is OQ-15.
+- The main map is **an island of about 100 km²** (D-26, D-27, 2026-10-17; D-14 had about 75, the direction 16–25 km²):
+  the 15 zones, 2.56 km each, with sea all around; streamed with World Partition. Proposed layout, a biome per zone:
+  [picture](../pictures/p6/main_map_layout.png).
 - Biome order: **Coastal (start) → Fungal Forest → Crystalline Desert → High-Gravity Plateau →
   Subterranean Caverns → Floating Archipelagos (endgame).**
 - 6 hub towns with safe services, vendors and mission boards.
@@ -49,9 +50,9 @@ level (1 to 30). Columns:
 zone_id;name;type;bounds_min_x;bounds_min_y;bounds_max_x;bounds_max_y;pvp_flag;entry_consent_buffer_seconds;exit_cooldown_seconds;loot_tier;spawn_timer_seconds;recommended_level;notes
 ```
 
-**Scale (D-14, then D-26):** D-26 (2026-10-17) makes the main map about 100 km²; the zones are fitted to it once OQ-15
-is settled. Under D-14 the map is scaled by 0.4375, so each zone is 2.24 × 2.24 km and the 15 zones
-cover 75.3 km² (bounding box 13.4 × 9.0 km); the source is the game repo's `Data/Zones.csv` (imported into `DT_Zones`). Open
+**Scale (D-27):** the owner's map is scaled by 0.5, so each zone is 2.56 × 2.56 km and the 15 zones cover 98.3 km²
+(bounding box 15.4 × 10.2 km), sea all around (D-14 had 0.4375 and 75.3 km²); the source is the game repo's
+`Data/Zones.csv` (imported into `DT_Zones`). Open
 points: buffer belts around every PvP zone (the direction asks for them; the draft has one),
 and hubs that border PvP zones directly. The direction asks for 6 hubs and 8–12 hotspots; the draft has 2
 and 5.

@@ -15,7 +15,7 @@ deep RPG dungeons and quests, and flagged PvP hotspots, in a world built to grow
 | Spec | Value |
 |---|---|
 | Genre | Sci-fi action-RPG / survival / shooter; single player and multiplayer |
-| World | **About 100 km²** (D-26; D-14 had 75, the direction 16–25 km²), streamed (World Partition); on foot ≈ 45 min across, vehicles ≈ 15–20 min (targets, D-19) |
+| World | **An island of about 100 km², sea all around** (D-26, D-27; D-14 had 75, the direction 16–25 km²), streamed (World Partition); on foot ≈ 45 min across, vehicles ≈ 15–20 min (targets, D-19) |
 | Camera | Third person over the shoulder with aim-down-sights (D-15); aiming with a weapon looks through its sight (D-24) |
 | Progression | Level cap 60; talent trees Combat, Survival, Tech |
 | PvP | Flagged on entry to designated zones |

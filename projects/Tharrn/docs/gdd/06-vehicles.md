@@ -11,7 +11,7 @@
 
 - The Sci-Fi Complete Bundle has a hoverbike with Blueprints, effects and sound; it is the starting point
   for the hoverbike, rebuilt for replication (vehicle movement on the server with client prediction).
-- At about 75 km² (D-14; D-26 makes it about 100, checked again with OQ-15) the map is about 13 km across: ≈ 45 minutes on foot means about 5 m/s average
+- At about 75 km² (D-14; D-27 makes it an island of about 100 km², 15.4 km across: speeds are tuned again) the map was about 13 km across: ≈ 45 minutes on foot means about 5 m/s average
   (mostly running), and the hoverbike's 15–20 minutes about 11–15 m/s. Movement and vehicle speeds are
   tuned against these targets (D-19). The Game Animation Sample's character runs at 5 m/s (walk 2,
   sprint 7, crouch 2.25), which already crosses 13.4 km in 44.7 minutes in a straight line.

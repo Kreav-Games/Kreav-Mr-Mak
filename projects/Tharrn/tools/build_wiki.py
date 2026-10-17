@@ -135,7 +135,7 @@ choose to go.</p>
 """ + table(["", ""], [
         ["Genre", "Sci-fi action-RPG, survival, third-person shooter"],
         ["Players", "Single player and multiplayer; co-op; PvP only in flagged zones"],
-        ["World", "About 100 km² of alien archipelago, streamed as you travel"],
+        ["World", "An island of about 100 km² with sea all around, streamed as you travel"],
         ["Camera", "Third person over the shoulder, with aim-down-sights"],
         ["Characters", "MetaHumans for every player and NPC face; 12 presets planned"],
         ["Online", "The server decides everything that matters (damage, loot, flags); built that way from the first system"],
@@ -224,7 +224,7 @@ def world(zones):
     parts = ['<svg class="zone-map" viewBox="%.2f %.2f %.2f %.2f" role="img" aria-labelledby="zm-title zm-desc">' % vb,
              '<title id="zm-title">Tharrn zone map</title>',
              '<desc id="zm-desc">%d zones of the world drawn to scale from the zone data; colour shows the zone type.</desc>' % len(zones)]
-    step = 2.24
+    step = (float(zones[0]["bounds_max_x"]) - float(zones[0]["bounds_min_x"])) / 1000  # one zone's width, km
     k = x0
     while k <= x1 + 1e-6:
         parts.append('<line class="grid" x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f"/>' % (k, -y1, k, -y0))
@@ -270,13 +270,13 @@ def world(zones):
                      E(z["recommended_level"]), E(z["loot_tier"]), pvp, minutes(z["spawn_timer_seconds"]), E(z["notes"])])
 
     body = """
-<p>%s The world is about <strong>%.1f km²</strong>: %d zones of 2.24 × 2.24 km, within a box of %.1f × %.1f km.
+<p>%s The main map is an island of about <strong>%.1f km²</strong> with sea all around: %d zones of %.2f × %.2f km, within a box of %.1f × %.1f km.
 It streams in as you travel. Crossing it should take about 45 minutes on foot and 15 to 20 minutes by hoverbike
 (targets for tuning speeds).</p>
 
 <h2>Six biomes</h2>
 <p>You start on the coast and push inland and upward, toward the floating islands of the endgame.</p>
-""" % (DESIGN, area, len(zones), x1 - x0, y1 - y0) + chain(["Coastal", "Fungal Forest", "Crystalline Desert", "High-Gravity Plateau",
+""" % (DESIGN, area, len(zones), step, step, x1 - x0, y1 - y0) + chain(["Coastal", "Fungal Forest", "Crystalline Desert", "High-Gravity Plateau",
                                                             "Subterranean Caverns", "Floating Archipelagos"]) + table(
         ["Biome", "What it is like", "Resources", "Threats"], [
             ["<strong>Coastal</strong> (start)", "Wreckage, shallow pools, small fauna", "Organic, low-tier minerals", "Skitter packs, tidal storms"],
@@ -307,15 +307,13 @@ Each square is 2.24 km across; the numbers along the edges are kilometres from t
 <ul>
 <li>""" + OPEN + """ The direction asks for 6 hubs and 8 to 12 PvP hotspots, each inside an amber buffer belt. The map has
 %d hubs, %d flagged zones and %d buffer; some hubs border PvP zones directly.</li>
-<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ The main map is about 100 km² (the owner, 2026-10-17);
-the zones above still add up to the earlier 75 km² until they are fitted to it (OQ-15).</li>
-<li>""" + OPEN + """ The terrain source: real coastal survey data where a landform fits, generated terrain elsewhere (OQ-06),
+<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ The terrain source: real coastal survey data where a landform fits, generated terrain elsewhere (OQ-06),
 and a test of the ocean (OQ-05).</li>
 </ul>
 """
     return page("World and zones", "World and zones",
                 "About 100 km² of alien archipelago in six biomes, laid out as %d zones." % len(zones), body,
-                "Sources: GDD 0.1 module 07; decision D-14; zones from the game's <code>Data/Zones.csv</code>.")
+                "Sources: GDD 0.1 module 07; decisions D-14, D-26 and D-27; zones from the game's <code>Data/Zones.csv</code>.")
 
 
 def bestiary(creatures):
@@ -722,6 +720,7 @@ def development():
         ["D-24", "No slide; hip fire kept; a grenade launcher in the heavy slot and hand grenades; aiming looks through the sight; the mouse wheel picks weapons"],
         ["D-25", "A 12-slot survival hotbar replaces the weapon keys and holsters; an inventory the server owns; the game's UI in the shooter pack's look"],
         ["D-26", "The main map is about 100 km², its biomes put together the way the Sci-Fi bundle's example level is"],
+        ["D-27", "The main map is an island: the 15 zones, 2.56 km each, with sea all around"],
     ]
     questions = [
         ["OQ-01", "Consoles", "PC first; decide once the prototype is fun"],
@@ -735,7 +734,6 @@ def development():
         ["OQ-10", "Anti-cheat", "Server checks from the start; Easy Anti-Cheat for an online build"],
         ["OQ-11", "Day length", "Propose with the coastal slice"],
         ["OQ-12", "The tutorial's first creature", "A coastal cousin of the Skitterjaw, a crash site at the desert's edge, or another creature"],
-        ["OQ-15", "How the zones fill the 100 km² map", "Scale the zone map by 0.5: zones of 2.56 km, 98.3 km² of zones, sea around them"],
     ]
     body = """
 <h2>How Tharrn is built</h2>

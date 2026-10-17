@@ -459,7 +459,7 @@ the bundle's foliage presets (the biggest part), the clouds' quality, landscape 
 
 ## Asked of the owner
 
-- How the zones fill the 100 km² main map (OQ-15; proposal: scale the zone map by 0.5).
+- The main map's layout and a biome per zone (proposal, [picture](pictures/p6/main_map_layout.png)).
 - Which coast the game starts on (OQ-06; four candidates in [pictures](pictures/p6/coasts/all_coasts.jpg)).
 - Play-test P2, P3, P4 and P5 (steps above); say how P5's numbers feel (stamina, hunger, thirst, cold and heat, the
   recipes: all proposals).

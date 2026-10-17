@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `5e316ba` | `d27-island` | D-27: the zones rescaled to 2.56 km (about 100 km², sea all around). Checked: data import, 105 tests |
 | Game `D:\Tharrn` | `dd8c093` | `p6-budget-first` | P6.9 so far: HLODs on the test coast, the budget script's `-ExtraCmds` (first numbers in tasks.md) |
 | Game `D:\Tharrn` | `b8637a0` | `p6-time-of-day` | P6.7: the world's hour from the server's clock, the bundle's sky on the test coast. Checked: verify.py 5 of 5 (105 tests), nature_test.py (the same hour on every machine) |
 | Game `D:\Tharrn` | `594f1ed` | `p6-coast-candidates` | P6.4: the tools that make candidate coasts from lidar and build their levels (scripts only; the candidate levels stay out of Git) |
@@ -203,9 +204,10 @@ P6 so far (proposals):
    sway less than the weapon's own spread (the formula as written)?
 3. Bags of a downed player: should they vanish after a while, and should anyone be able to open them (now: they stay,
    anyone can)?
-4. The 100 km² main map (D-26): should the 15 zones together make 100 km² (scaled by 0.5: zones of 2.56 km, a map
-   about 15 × 10 km with sea around it; Claude's proposal), or should the whole map, sea included, be 10 × 10 km (the
-   zone grid redrawn to fit)? OQ-15.
+4. ~~The 100 km² main map~~: answered "Water all around" (D-27: the zones make about 100 km², sea all around; the zone
+   data is rescaled). The proposed island and a biome per zone: [main_map_layout.png](pictures/p6/main_map_layout.png). Does the layout suit
+   (the coast in the south-west where play starts, the fungal forest east of it, the desert across the middle, the
+   plateau in the east, the caverns in the north-west, Floating Archipelago A as a lagoon with islands above it)?
 5. Which coast should the game start on ([all four](pictures/p6/coasts/all_coasts.jpg), each from the air, from the sea and on the shore; maps:
    [A](pictures/p6/coasts/a_hanalei_map.jpg), [B](pictures/p6/coasts/b_polihale_map.jpg),
    [C](pictures/p6/coasts/c_waimea_map.jpg), [D](pictures/p6/coasts/d_point_lobos_map.jpg))? A Hanalei Bay (a crescent
