@@ -744,6 +744,58 @@ first launch.</li>
                 "<code>Data/UI/HudLayout.json</code>.")
 
 
+def md_inline(text):
+    """Markdown inline marks used in the design record (bold, code, links) as HTML, the rest escaped."""
+    text = E(text)
+    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"`(.+?)`", r"<code>\1</code>", text)
+    return re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"\1", text)
+
+
+def map_build():
+    """The main map's build: map-design.md's steps, its progress table and its pictures (docs/pictures/...)."""
+    md = open(os.path.join(HERE, "..", "docs", "map-design.md"), encoding="utf-8").read()
+
+    def section(title):
+        start = md.index("## " + title)
+        end = md.find("\n## ", start + 3)
+        return md[start:end if end > 0 else len(md)]
+
+    def rows(block):
+        lines = [l for l in block.splitlines() if l.startswith("|")][2:]
+        return [[c.strip() for c in l.strip("|").split("|")] for l in lines]
+
+    progress = rows(section("6. Progress"))
+    pictures = re.findall(r"!\[([^\]]*)\]\(pictures/([^)]+)\)", section("7. Pictures"))
+    state_tag = {"Done": BUILT, "Doing": tag("open", "Doing"), "Next": DESIGN, "Later": DESIGN}
+    body = """
+<p>""" + tag("open", "Doing") + """ The owner asked for the whole main map and its biomes to reach "AAA" quality, with
+harvesting built in: trees cut down, rocks mined, sticks and stones picked up, plants harvested for fibre and food.
+This tab follows that work step by step; the full plan is the design record's <code>docs/map-design.md</code>.</p>
+
+<h2>Pictures</h2>
+<div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
+
+<h2>Steps</h2>
+""" + table(["Step", "What", "State"], [[E(r[0]), md_inline(r[1]), state_tag.get(r[2].split()[0], "") + " " + md_inline(" ".join(r[2].split()[1:]))]
+                                       for r in progress]) + """
+<h2>How it is made</h2>
+<ul>
+<li><strong>Terrain:</strong> Tharrn's terrain tool shapes each region on the layout's coast (dunes, sea cliffs and
+stacks; forest ridges; desert dunes, buttes and a crater; the mesa with canyons; karst towers and sinkholes; the
+lagoon), then erodes it with millions of simulated raindrops, finds rivers and lakes from where the water flows, and
+paints the ground with the Sci-Fi bundle's layers.</li>
+<li><strong>Landscape:</strong> 2 m between points over 18.8 × 13.7 km (37 × 27 landscape components, under Epic's
+1,024 limit), the bundle's landscape material with its virtual textures.</li>
+<li><strong>Dressing:</strong> the bundle's biome presets read the paint: each spawns its trees, plants and rocks
+where its layer is painted, and its rock sets turn steep ground into cliffs and spires.</li>
+</ul>
+"""
+    return page("Map build", "Map build",
+                "Building the 100 km² main map to AAA quality, region by region.", body,
+                "Sources: the design record's docs/map-design.md (plan, progress, pictures); D-26, D-27, D-28.")
+
+
 def development():
     modules = [
         ["P1", "Foundation: data tables from the data files, automated tests, the multiplayer test harness, a grey test range",
@@ -1037,6 +1089,7 @@ def main():
         ("Progression and dungeons", "progression.html", progression(dungeon)),
         ("PvP and travel", "pvp.html", pvp(zones)),
         ("Characters and HUD", "characters.html", characters(presets, hud)),
+        ("Map build", "map.html", map_build()),
         ("Development", "development.html", development()),
     ]
     os.makedirs(OUT, exist_ok=True)

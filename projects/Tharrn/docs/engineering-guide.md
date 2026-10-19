@@ -43,7 +43,7 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 | `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py`, `mss_test.py`, `inventory_test.py` (D-25: the inventory with a listen and a dedicated server), `survival_test.py` (P5: vitals, food and water, cold, crafting, running out of stamina, the bag; listen and dedicated server), `nature_test.py` (P6: players run through the bundle's generated nature on `L_CoastTest` with no corrections; listen and dedicated server) |
 | `Tools/UI/` | `build_ui.py` (D-25): icons, the Widget Blueprints in MSS's look, `BP_TharrnHUD`, Easy Game UI's settings copies and its selector, `BP_TharrnGameInstance`, the main menu level, the project's start level |
 | `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange`, `Characters/Player/BP_TharrnPlayer`, `Core/` (BP_TharrnGameMode, BP_TharrnPlayerController, BP_TharrnGameInstance, BP_TharrnMenuGameMode), `Input/` (the hotbar, wheel, pick-up, inventory and pause actions, `IMC_TharrnCombat`), `UI/` (the Widget Blueprints, BP_TharrnHUD, Easy Game UI's settings copies, icons), `Maps/L_TharrnMainMenu`, `Weapons/` (placeholders, the heavy round, `MSS/` Tharrn's MSS weapons) |
-| `Tools/World/` | `build_coast_level.py` (a coast level from a built terrain: landscape, virtual textures, sky, ocean, the bundle's biome volume, generation, pictures; levels under `/Game/Tharrn/Scratch/` are for comparisons, outside Git); `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script); `draw_island_layout.py` (the main map's island and a biome per zone as a picture; its `island()` gives the same coast on any grid) and `island_blockout.py` (the island as a blockout level: terrain, build, pictures labelled with the zones and the start) |
+| `Tools/World/` | `build_coast_level.py` (a coast level from a built terrain: landscape, virtual textures, sky, ocean, the bundle's biome volume, generation, pictures; levels under `/Game/Tharrn/Scratch/` are for comparisons, outside Git); `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script); `draw_island_layout.py` (the main map's island and a biome per zone as a picture; its `island()` gives the same coast on any grid) and `island_blockout.py` (the island as a blockout level: terrain, build, pictures labelled with the zones and the start); `island_terrain.py` (the main map's terrain: each region's landforms, erosion, rivers and lakes, the paint, the 2 m export; numba kernels in `terrain_ops.py`) and `build_main_map.py` (`L_Main` from it) |
 | `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README); `test_coast.py`, the made-up coast for P6's ocean and biome tests (heights and the bundle's jungle paint layers, run with `Saved/PyTerrain`); `coast_terrain.py`, candidate coasts from USGS 1 m lidar tiles (overview maps, 2 km windows with a seabed and the paint layers) |
 | `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) and its data-driven console variables, collision channels and console variables (`DefaultEngine.ini`, D-18) |
 | `Content/ThirdPerson`, `Characters`, `Input`, `LevelPrototyping` | Template content (tracked) |
@@ -510,7 +510,17 @@ closed: an open editor once took 96 % of the GPU.
     the surface is missing (zone 3 to 38 km, the ocean at the centre or far out, local tessellation, a higher capture;
     outside the zone its far mesh shows), while the same steps work on the 2 km coasts. From the air, the "sea"
     beyond such a level is the sky's planet ground. The island blockout's sea is a flat plane with the bundle's
-    `MI_Water`. To be solved before the real map (P6.3).
+    `MI_Water`. The same on the main map's 2 m landscape (2026-10-19; full-precision water data did not help), so
+    `L_Main`'s sea is that plane too, 55 km across (wider, 80 km and more, blew the exposure in every picture). A
+    small test level to find the cause is on the plan (map-design.md, M3).
+107. The Sci-Fi bundle's Columnar biome preset reads a landscape layer called "Sand" and its Background preset one
+    called "Forest"; the combined material has neither, so they spawn nothing. Tharrn's copy
+    `/Game/ScifiOutpost_Tharrn/PCG/BP_Biome_TH_Columnar` reads `Moon_Dune` (`Tools/World/setup_bundle_biomes.py`).
+    The other presets spawn where their layer's weight is at least 0.9 (Desert Grass 0.7), so the main map's paint
+    is crisp.
+108. With `L_Main` loaded (the 64 million point landscape, every cell) the editor uses about 35 GB of memory; check
+    that no play session is running (`EditorAppToolset.IsPIERunning`) before a build changes the level: the owner may
+    be playing.
 
 ## 8. Working as two agents
 

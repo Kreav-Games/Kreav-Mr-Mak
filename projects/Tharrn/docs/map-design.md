@@ -84,3 +84,25 @@ instances too (thousands of actors would be too heavy). Tools, items and recipes
 | M8 | Budget and checks: measured with the editor closed; the network tests on the map; the whole check ladder | 16.6 ms on the target tier; every check passes |
 
 Each step ends with pictures on the wiki and a local commit with a tag (while-away.md's rollback table).
+
+## 6. Progress
+
+| Step | What | State |
+|---|---|---|
+| M1 | Plan and research | Done 2026-10-17 (this page) |
+| M2 | Terrain tool v2 (`Tools/World/island_terrain.py`) | Done 2026-10-19: the island at 2 m (9,399 x 6,859 points), each region's landforms, raindrop and slope erosion, 48 rivers, streams and dry beds, 16 lakes and pools, the bundle's layers painted crisp (97 % of points one layer); refined again as the dressing shows |
+| M3 | The main map level `L_Main` | Doing: built 2026-10-19 with the 2 m landscape, the sky, the sea (the bundle's water on a plane: Unreal's ocean draws nothing on this map, gotcha 106) and the 8 starting locations; rivers and lakes next |
+| M4 | Dressing with the bundle's biome presets | Next |
+| M5 | Harvesting | Later |
+| M6 | Places (crash sites, hubs, ruins, paths) | Later |
+| M7 | Look (per-region fog and light, sound) | Later |
+| M8 | Budget and checks | Later |
+
+## 7. Pictures
+
+- ![The main map in the editor from straight above (2026-10-19): the 2 m landscape painted with the bundle's layers, the zones and the starting locations](pictures/p6/map/main_top_labelled.jpg)
+- ![From the south-west, 2.6 km up: the karst tower field, the desert and the mesa beyond](pictures/p6/map/main_southwest.jpg)
+- ![Coming ashore at the easy start (S01): the karst towers on the horizon; no plants yet](pictures/p6/map/main_start_low.jpg)
+- ![The easy start from 1.5 km out at sea](pictures/p6/map/main_start_from_sea.jpg)
+- ![The terrain tool's paint: jungle green, its swamp pink, shore sand, desert orange with red grass, the mesa grey with its columnar cliffs dark, the karst towers](pictures/p6/map/terrain_paint.jpg)
+- ![The terrain tool's relief by region, with rivers and lakes](pictures/p6/map/terrain_relief.jpg)

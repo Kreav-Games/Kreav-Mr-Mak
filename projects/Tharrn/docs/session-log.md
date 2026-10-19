@@ -176,3 +176,12 @@ again later). The starts are game data, `Data/StartLocations.csv` (8 proposed, i
 not imported yet, P6.12 builds the choice); the layout picture, the island blockout (a beacon coloured by difficulty
 and two player starts tagged with the start's id at each) and the wiki's World page (a table of the starts) read it.
 GDD 01 (§1.3a) and 07 updated.
+
+*2026-10-19.* After a power cut at the owner's home (nothing lost: both repos checked, the work since the last commit
+intact), the owner had the work committed (`f882102`, tag `p6-terrain-wip`; `3c0d377`) and the editor started. M2:
+the terrain tool on a 4 m grid refined to 2 m (9,399 x 6,859 points, heights -86 to 321 m, Z scale 200), biome
+borders wandering near the zones' edges only, karst towers in clusters with giants, coastal uplands, the paint for
+the bundle's presets (gotcha 107: Tharrn's Columnar copy reads Moon_Dune). M3: `L_Main` built (the 2 m landscape in
+about 3.5 minutes, 298 packages, 688 MB); Unreal's ocean draws nothing there either (gotcha 106), so the sea is the
+bundle's water on a plane; the owner was playing L_CoastTest when the first build tried (gotcha 108). The wiki's new
+Map build tab shows the plan's progress and pictures from map-design.md.
