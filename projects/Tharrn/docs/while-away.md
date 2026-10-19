@@ -12,6 +12,7 @@ first, and how to go back.
 
 | Repo | Commit | Tag | What it holds |
 |---|---|---|---|
+| Game `D:\Tharrn` | `f882102` | `p6-terrain-wip` | P6 M2 so far: the main map's terrain tool with erosion, rivers and lakes ([plan](map-design.md)); committed after a power cut (nothing was lost). Checked: the preview runs end to end |
 | Game `D:\Tharrn` | `fb313ae` | `d28-starts` | D-28: the proposed starting locations (`Data/StartLocations.csv`, 8 starts, not imported yet) on the layout picture and in the island blockout. Checked: the blockout rebuilt and its pictures |
 | Game `D:\Tharrn` | `30ba8ff` | `p6-island-blockout` | The island blockout's tools (`Tools/World/island_blockout.py`; the level itself, `/Game/Tharrn/Scratch/L_Island_Blockout`, stays out of Git and is made again by the script). Checked: the pictures, the test coast's pictures through the changed level builder |
 | Game `D:\Tharrn` | `2c51e17` | `d27-island` | D-27: the zones rescaled to 2.56 km (about 100 km², sea all around). Checked: data import, 105 tests |
