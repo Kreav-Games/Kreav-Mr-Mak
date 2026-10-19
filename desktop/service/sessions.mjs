@@ -78,6 +78,7 @@ export class Sessions extends EventEmitter {
       session.terminal = terminal; session.serializer = serializer;
       const screen = await readJson(path.join(this.stateDir, `screen-${session.id}.json`), null);
       if (screen?.data) await new Promise(resolve => terminal.write(screen.data, resolve));
+      session.savedScreen = screen?.data;
     })();
     try { await session.hydrating; } finally { session.hydrating = null; }
   }
@@ -598,14 +599,26 @@ export class Sessions extends EventEmitter {
     return publicSession(session);
   }
   async persist() {
-    this.dirty = false;
     this.saveChain = this.saveChain.catch(() => {}).then(async () => {
+      this.dirty = false;
       await saveJson(path.join(this.stateDir, 'sessions.json'), this.list());
+      let screenError;
       for (const session of this.items.values()) {
         if (!session.terminal) continue;
-        await new Promise(resolve => session.terminal.write('', resolve));
-        await saveJson(path.join(this.stateDir, `screen-${session.id}.json`), { data: session.serializer.serialize({ scrollback: 1500 }) });
+        try {
+          await new Promise(resolve => session.terminal.write('', resolve));
+          const data = session.serializer.serialize({ scrollback: 1500 });
+          if (data === session.savedScreen) continue;
+          await saveJson(path.join(this.stateDir, `screen-${session.id}.json`), { data });
+          session.savedScreen = data;
+        } catch (error) { screenError ??= error; }
       }
+      if (screenError) throw screenError;
+    }).catch(error => {
+      // A failed screen must not prevent the remaining chats from saving or
+      // disappear from the next autosave when there is no further output.
+      this.dirty = true;
+      throw error;
     });
     return this.saveChain;
   }
