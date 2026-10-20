@@ -1,0 +1,169 @@
+/* Tharrn interface: design tokens and shared components (draft 1, 2026-10-19).
+   Direction (owner): The Division 2's menus and HUD, ARK's layout for the survival screens (D-31).
+   Every mock-up in docs/ui/ uses only these; the engine's UMG styles take the same values. Reference size 1920 x 1080. */
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+
+:root {
+  /* Accent: Exodus orange, the Exodus Initiative's signal colour. Focus, selection, the player's own marks. */
+  --exodus: #ff6a13;
+  --exodus-hi: #ff8c42;
+  --exodus-dim: rgba(255, 106, 19, .16);
+  --exodus-line: rgba(255, 106, 19, .55);
+
+  /* Text */
+  --ink: #f2f4f5;
+  --ink-2: #b4bcc3;
+  --ink-3: #737d86;
+  --ink-dark: #0b0d10;
+
+  /* Surfaces: dark glass over the world (blurred behind), from light use to solid */
+  --glass: rgba(9, 12, 16, .62);
+  --glass-2: rgba(14, 18, 23, .80);
+  --glass-3: rgba(20, 25, 31, .92);
+  --hover: rgba(255, 255, 255, .06);
+  --line: rgba(255, 255, 255, .12);
+  --line-2: rgba(255, 255, 255, .26);
+  --blur: 14px;
+
+  /* Meaning: these colours mean one thing everywhere */
+  --health: #eef2f4;
+  --health-loss: #ff3d3d;
+  --armour: #58a8ff;
+  --stamina: #f4d36b;
+  --hunger: #eaa13a;
+  --hydration: #3fb8ea;
+  --cold: #79c6ff;
+  --heat: #ff7a3d;
+  --neural: #b783ff;
+  --pvp: #ff2e4d;
+  --safe: #3ddc97;
+  --buffer: #f0b429;
+  --good: #5bd16f;
+  --bad: #ff5050;
+
+  /* Loot tiers (Zones.csv: Common, Uncommon, Rare, Advanced, Alien) */
+  --tier-common: #c3c9ce;
+  --tier-uncommon: #5bd16f;
+  --tier-rare: #3e8bff;
+  --tier-advanced: #a35bff;
+  --tier-alien: #2ee6d6;
+
+  /* Type: Barlow (SIL Open Font License, can ship with the game) */
+  --font-head: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-num: 'Barlow Semi Condensed', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Space: an 8 px grid; the safe area keeps the HUD off the screen's edges */
+  --u: 8px;
+  --safe-x: 64px;
+  --safe-y: 44px;
+
+  /* Motion */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --t-in: 180ms;
+  --t-out: 120ms;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+/* Screen: a 1920 x 1080 frame over an in-game capture */
+.screen { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #000 center / cover no-repeat; }
+.screen::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px); }
+
+/* HUD over the world: every line of text and icon gets a soft shadow, and the corners where the HUD sits a soft
+   darkening, so it reads over bright sky, sand and snow as well as night (no solid boxes behind it) */
+.hud-text { text-shadow: 0 1px 2px rgba(0,0,0,.9), 0 0 10px rgba(0,0,0,.5); }
+.hud-text .ico { filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.9)); }
+.scrim::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 45% at 0% 100%, rgba(0,0,0,.42), transparent 70%),
+              radial-gradient(45% 40% at 100% 100%, rgba(0,0,0,.38), transparent 70%),
+              radial-gradient(40% 30% at 0% 0%, rgba(0,0,0,.30), transparent 70%),
+              linear-gradient(180deg, rgba(0,0,0,.22), transparent 14%); }
+
+/* Labels */
+.label { font: 600 13px/1 var(--font-head); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
+.label.accent { color: var(--exodus); }
+.title { font: 700 30px/1 var(--font-head); letter-spacing: .08em; text-transform: uppercase; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+
+/* Panel: dark glass, a hairline, accent corner ticks when it has focus */
+.panel { position: relative; background: var(--glass-2); backdrop-filter: blur(var(--blur)); border: 1px solid var(--line); }
+.panel.light { background: var(--glass); }
+.panel.focus::before, .panel.focus::after, .ticks::before, .ticks::after { content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none; }
+.panel.focus::before, .ticks::before { left: -1px; top: -1px; border-left: 2px solid var(--exodus); border-top: 2px solid var(--exodus); }
+.panel.focus::after, .ticks::after { right: -1px; bottom: -1px; border-right: 2px solid var(--exodus); border-bottom: 2px solid var(--exodus); }
+.panel-head { display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 16px;
+  border-bottom: 1px solid var(--line); }
+
+/* Tabs: the top bar of every full-screen menu; Q and E (shoulder buttons) move along them */
+.tabs { display: flex; align-items: stretch; gap: 4px; height: 56px; }
+.tab { display: flex; align-items: center; padding: 0 22px; font: 600 18px/1 var(--font-head); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-3); border-bottom: 2px solid transparent; }
+.tab.on { color: var(--ink); border-bottom-color: var(--exodus); background: linear-gradient(0deg, var(--exodus-dim), transparent 70%); }
+.key { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 6px;
+  font: 600 13px/1 var(--font-mono); color: var(--ink); background: rgba(255,255,255,.1); border: 1px solid var(--line-2);
+  border-bottom-width: 2px; }
+.key.accent { background: var(--exodus); border-color: var(--exodus-hi); color: var(--ink-dark); }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 12px; height: 44px; padding: 0 20px; font: 600 16px/1 var(--font-head);
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid var(--line-2); }
+.btn.primary { background: var(--exodus); border-color: var(--exodus); color: var(--ink-dark); }
+.btn.hover { background: rgba(255,255,255,.14); border-color: var(--ink-2); }
+.btn.disabled { opacity: .38; }
+.btn.hold { position: relative; overflow: hidden; }
+.btn.hold .fill { position: absolute; inset: 0 auto 0 0; background: var(--exodus-dim); border-right: 2px solid var(--exodus); }
+.btn.hold span { position: relative; }
+
+/* List rows: menus, recipes, settings */
+.row { position: relative; display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 8px 16px 8px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.05); color: var(--ink-2); }
+.row .main { font: 600 18px/1.1 var(--font-head); letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+.row .sub { font: 400 14px/1.3 var(--font-body); color: var(--ink-3); }
+.row.hover { background: var(--hover); }
+.row.on { background: linear-gradient(90deg, var(--exodus-dim), rgba(255,106,19,.02) 70%); }
+.row.on::before, .row.hover::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; background: var(--exodus); }
+.row.hover::before { background: var(--ink-2); }
+.row.disabled { opacity: .38; }
+
+/* Item slot: 72 px; the tier shows as a bar at the bottom; the count bottom right; the key top left (hotbar) */
+.slot { position: relative; width: 72px; height: 72px; background: rgba(255,255,255,.035); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center; }
+.slot svg { width: 38px; height: 38px; }
+.slot .count { position: absolute; right: 5px; bottom: 6px; font: 600 15px/1 var(--font-num); color: var(--ink); }
+.slot .k { position: absolute; left: 5px; top: 4px; font: 600 11px/1 var(--font-mono); color: var(--ink-3); }
+.slot .tier { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; }
+.slot.hover { background: rgba(255,255,255,.09); border-color: var(--line-2); }
+.slot.on { border-color: var(--exodus); box-shadow: inset 0 0 0 1px var(--exodus), 0 0 18px rgba(255,106,19,.25); }
+.slot.empty svg { opacity: .18; }
+.slot .cool { position: absolute; inset: 0; background: conic-gradient(rgba(0,0,0,.62) var(--left, 40%), transparent 0); }
+.slot .wear { position: absolute; left: 6px; right: 6px; bottom: 7px; height: 2px; background: rgba(255,255,255,.15); }
+.slot .wear i { display: block; height: 100%; background: var(--ink-2); }
+
+/* Bars */
+.bar { position: relative; height: 8px; background: rgba(255,255,255,.12); }
+.bar > i { position: absolute; inset: 0 auto 0 0; display: block; }
+.bar .loss { background: var(--health-loss); }
+.segments { display: flex; gap: 3px; }
+.segments > i { flex: 1; height: 6px; background: var(--armour); }
+.segments > i.gone { background: rgba(88,168,255,.18); }
+
+/* Prompt: what pressing a key does at the thing in the crosshair */
+.prompt { display: inline-flex; align-items: center; gap: 12px; padding: 10px 16px 10px 12px; background: var(--glass-2);
+  backdrop-filter: blur(var(--blur)); border-left: 3px solid var(--exodus); }
+.prompt .main { font: 600 17px/1 var(--font-head); letter-spacing: .1em; text-transform: uppercase; }
+.prompt .sub { font: 400 14px/1.2 var(--font-body); color: var(--ink-2); margin-top: 4px; }
+
+/* Toast: a line in the loot feed or a notice */
+.toast { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; background: var(--glass);
+  backdrop-filter: blur(var(--blur)); border-right: 3px solid var(--tier-common); font: 600 15px/1 var(--font-head);
+  letter-spacing: .1em; text-transform: uppercase; }
+.toast svg { width: 22px; height: 22px; }
+.toast .plus { color: var(--good); font-family: var(--font-num); letter-spacing: 0; }
+
+/* Icons: line icons on a 24 grid, 2 px, square ends and sharp corners (crisper than P4's set) */
+.ico { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; stroke-linejoin: miter; }

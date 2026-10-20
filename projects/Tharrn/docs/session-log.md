@@ -185,3 +185,11 @@ the bundle's presets (gotcha 107: Tharrn's Columnar copy reads Moon_Dune). M3: `
 about 3.5 minutes, 298 packages, 688 MB); Unreal's ocean draws nothing there either (gotcha 106), so the sea is the
 bundle's water on a plane; the owner was playing L_CoastTest when the first build tried (gotcha 108). The wiki's new
 Map build tab shows the plan's progress and pictures from map-design.md.
+
+*2026-10-19, evening.* The map moved to its own chat (the owner: L_Main scrapped, a better ExampleLevel_Bundled-style
+map there; the uncommitted map tools left for that chat). This chat is now the interface's (the owner: GUI, UI, menus,
+loading screen, to AAA quality; the wiki's Characters and HUD tab becomes GUI, UI, Menus, ours to post to). D-31: The
+Division 2's menus and HUD with ARK's survival layout (D-31; the Building chat's decision is D-30). Draft 1 of the style guide (`docs/ui/tokens.css`, `icons.js`,
+`style-guide.html`: colour, type, parts and their states, icons, HUD layout, motion, sound) and mock-ups over in-game
+captures (HUD, inventory, main menu, loading screen), rendered with `docs/ui/render.mjs`; [ui-design.md](ui-design.md)
+holds the direction, steps U1 to U8 and the pictures, which the wiki's tab reads.

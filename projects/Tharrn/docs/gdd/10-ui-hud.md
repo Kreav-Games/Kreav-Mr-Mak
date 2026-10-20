@@ -49,7 +49,9 @@
   attributes through a view model (the MVVM plugin is available).
 - Pixel sizes are at 1920 × 1080 and scale with the DPI curve; the HUD JSON drives anchors so layout is
   data.
-- The look is the Multiplayer Shooter System's weapon selector (its borders, text styles, colours and font; D-25);
+- The look (D-31, 2026-10-19, superseding D-25's MSS look): The Division 2's menus and HUD with ARK's layout for the
+  survival screens; the style guide and mock-ups are in [ui-design.md](../ui-design.md) and `docs/ui/`. Before that:
+  the Multiplayer Shooter System's weapon selector (its borders, text styles, colours and font; D-25);
   Easy Game UI's global styling is set to match.
 - Prototype UI: the hotbar, weapon panel, crosshair and hit markers, the inventory screen, main and pause menus and
   options (P4, built 2026-10-16: the HUD and inventory screen are Tharrn's C++ widgets in MSS's look, the menus Easy

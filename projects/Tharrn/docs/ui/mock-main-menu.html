@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tharrn main menu mock-up</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* Main menu mock-up (draft 1), The Division 2's way: the world behind (in the game a live 3D scene, slowly moving),
+     a vertical list at the left, the selected entry explained, little else. */
+  .bg { position: absolute; inset: -20px; background: url(backdrops/menu_lagoon.jpg) center / cover;
+    filter: brightness(.55) saturate(.8) contrast(1.1) hue-rotate(-8deg); }
+  .grade { position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(4,6,9,.92) 0%, rgba(4,6,9,.72) 30%, rgba(4,6,9,.12) 62%, rgba(4,6,9,.35) 100%),
+                linear-gradient(0deg, rgba(4,6,9,.75), transparent 35%),
+                radial-gradient(70% 60% at 75% 40%, rgba(255,106,19,.10), transparent 70%); }
+  .frame { position: absolute; inset: 64px 96px 56px; }
+
+  .logo { display: flex; align-items: flex-end; gap: 18px; }
+  .logo .word { font: 700 112px/.8 var(--font-head); letter-spacing: .16em; }
+  .logo .slash { width: 10px; height: 92px; background: var(--exodus); transform: skewX(-18deg); margin-bottom: 2px; }
+  .tagline { margin-top: 20px; font: 600 16px/1 var(--font-head); letter-spacing: .32em; text-transform: uppercase; color: var(--ink-2); }
+
+  .menu { position: absolute; left: 0; bottom: 120px; width: 520px; }
+  .menu .row { min-height: 64px; padding-left: 28px; border-bottom: none; }
+  .menu .row .main { font-size: 28px; letter-spacing: .12em; color: var(--ink-2); }
+  .menu .row.on .main { color: var(--ink); }
+  .menu .row .sub { margin-top: 6px; color: var(--ink-2); font-size: 15px; }
+  .menu .row.on { background: linear-gradient(90deg, rgba(255,106,19,.22), rgba(255,106,19,0) 85%); }
+  .menu .row.on::before { width: 4px; top: 10px; bottom: 10px; }
+  .menu .row .chev { margin-left: auto; color: var(--exodus); font: 600 22px/1 var(--font-head); }
+
+  .side { position: absolute; right: 0; bottom: 120px; width: 460px; }
+  .side .panel { padding: 22px 24px; }
+  .side .title { font-size: 24px; margin: 10px 0 16px; }
+  .side ul { margin: 0; padding: 0; list-style: none; }
+  .side li { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font: 400 15px/1.4 var(--font-body); color: var(--ink-2); }
+  .side li b { display: block; font: 600 15px/1.2 var(--font-head); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); margin-bottom: 2px; }
+  .side li .ico { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--exodus); }
+
+  .foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 28px;
+    font: 600 14px/1 var(--font-head); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .foot span { display: inline-flex; align-items: center; gap: 8px; }
+  .foot .ver { margin-left: auto; font: 500 13px/1 var(--font-mono); letter-spacing: 0; text-transform: none; color: var(--ink-3); }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="bg"></div><div class="grade"></div>
+  <div class="frame">
+    <div class="logo"><span class="slash"></span><span class="word">THARRN</span></div>
+    <div class="tagline">Exodus Initiative · Survival</div>
+
+    <div class="menu">
+      <div class="row on"><div><div class="main">Continue</div><div class="sub">Rook · LV 7 · Coastal Outpost</div></div></div>
+      <div class="row"><div class="main">New character</div></div>
+      <div class="row"><div class="main">Multiplayer</div></div>
+      <div class="row"><div class="main">Settings</div></div>
+      <div class="row"><div class="main">Credits</div></div>
+      <div class="row"><div class="main">Quit</div></div>
+    </div>
+
+    <div class="side">
+      <div class="panel ticks">
+        <div class="label accent">In this build</div>
+        <div class="title">Prototype · P6</div>
+        <ul>
+          <li><i data-ico="health"></i><div><b>Survival</b>Hunger, hydration and body temperature; food and water to keep them up.</div></li>
+          <li><i data-ico="craft"></i><div><b>Crafting</b>Bandages and ammunition from what you gather, right in the inventory.</div></li>
+          <li><i data-ico="map"></i><div><b>The coast</b>Jungle, swamp and shore, with the day running from dawn to glowing night.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span><span class="key">↑</span><span class="key">↓</span>Choose</span><span><span class="key">Enter</span>Select</span><span><span class="key">Esc</span>Back</span>
+      <span class="ver">Prototype 0.6 · 2026-10-19</span>
+    </div>
+  </div>
+</div>
+<script src="icons.js"></script>
+</body>
+</html>

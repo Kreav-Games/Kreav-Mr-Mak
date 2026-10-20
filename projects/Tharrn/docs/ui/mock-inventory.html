@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tharrn inventory mock-up</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* Inventory mock-up (draft 1): ARK's layout (the backpack left, the character and what is worn in the middle with
+     the survival stats, the other side right) in The Division 2's style (tabs across the top, an item card).
+     Contents and numbers are the game's real items (Data/Items.csv, Weapons.csv, the starting kit). */
+  .screen { background-image: url(backdrops/inventory_jungle.jpg); }
+  .dim { position: absolute; inset: 0; backdrop-filter: blur(18px) brightness(.38) saturate(.7); background: rgba(5,7,10,.35); }
+  .frame { position: absolute; inset: 0; padding: 28px var(--safe-x) var(--safe-y); }
+
+  .top { display: flex; align-items: center; height: 56px; border-bottom: 1px solid var(--line); }
+  .top .tabs { margin: 0 auto; }
+  .top .side { width: 340px; display: flex; align-items: center; gap: 12px; font: 600 15px/1 var(--font-head); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+  .top .side.r { justify-content: flex-end; }
+  .top .side b { color: var(--ink); }
+  .top .lv { color: var(--exodus); }
+
+  .cols { display: grid; grid-template-columns: 640px 1fr 540px; gap: 32px; margin-top: 28px; height: 780px; }
+
+  /* Backpack */
+  .bag .head { display: flex; align-items: baseline; justify-content: space-between; }
+  .bag .head .title { font-size: 26px; }
+  .bag .count { font: 600 18px/1 var(--font-num); color: var(--ink-2); }
+  .filters { display: flex; gap: 6px; margin: 16px 0 12px; }
+  .chip { padding: 8px 12px; font: 600 13px/1 var(--font-head); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); border: 1px solid var(--line); }
+  .chip.on { color: var(--ink-dark); background: var(--ink); border-color: var(--ink); }
+  .search { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 12px; border: 1px solid var(--line); color: var(--ink-3); font: 400 15px/1 var(--font-body); }
+  .grid { display: grid; grid-template-columns: repeat(6, 100px); gap: 8px; margin-top: 12px; }
+  .grid .slot { width: 100px; height: 100px; }
+  .grid .slot svg { width: 40px; height: 40px; }
+  .weight { margin-top: 18px; }
+  .weight .line { display: flex; justify-content: space-between; font: 600 14px/1 var(--font-head); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 8px; }
+  .weight .line b { font: 600 17px/1 var(--font-num); color: var(--ink); letter-spacing: 0; }
+
+  /* Character */
+  .char { position: relative; }
+  .figure { position: absolute; left: 50%; top: 10px; width: 300px; height: 520px; transform: translateX(-50%); }
+  .figure svg { width: 100%; height: 100%; }
+  .figure .tag { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); font: 500 12px/1 var(--font-mono); color: var(--ink-3); white-space: nowrap; }
+  .eq { position: absolute; width: 190px; }
+  .eq .label { margin-bottom: 8px; }
+  .eq .slot { width: 84px; height: 84px; }
+  .eq .slot svg { width: 40px; height: 40px; }
+  .eq .what { font: 500 14px/1.3 var(--font-body); color: var(--ink-2); margin-top: 6px; }
+  .eq.r { text-align: right; } .eq.r .slot { margin-left: auto; }
+  .stats { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .stat { display: flex; align-items: center; gap: 10px; }
+  .stat .ico { width: 20px; height: 20px; flex: none; }
+  .stat .n { font: 600 13px/1 var(--font-head); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+  .stat .v { margin-left: auto; font: 600 18px/1 var(--font-num); }
+  .stat .bar { height: 3px; margin-top: 6px; }
+
+  /* Item card */
+  .card { height: 100%; display: flex; flex-direction: column; }
+  .card .band { height: 4px; background: var(--tier-common); }
+  .card .hd { padding: 20px 22px 16px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(195,201,206,.10), transparent); }
+  .card .tierline { display: flex; justify-content: space-between; }
+  .card .name { font: 700 34px/1 var(--font-head); letter-spacing: .06em; text-transform: uppercase; margin-top: 10px; }
+  .card .kind { margin-top: 8px; font: 500 15px/1 var(--font-body); color: var(--ink-2); }
+  .card .art { height: 150px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--line); color: var(--ink); }
+  .card .art svg { width: 210px; height: 120px; stroke-width: 1.2; }
+  .card .body { padding: 16px 22px; flex: 1; }
+  .kv { display: flex; align-items: center; justify-content: space-between; height: 38px; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .kv .k { font: 600 14px/1 var(--font-head); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+  .kv .v { font: 600 18px/1 var(--font-num); }
+  .kv .meter { width: 150px; margin-left: 16px; }
+  .kv .v-wrap { display: flex; align-items: center; }
+  .desc { margin-top: 14px; font: 400 15px/1.45 var(--font-body); color: var(--ink-2); }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 22px; border-top: 1px solid var(--line); }
+
+  .hotbar-row { position: absolute; left: var(--safe-x); right: var(--safe-x); bottom: 74px; display: flex; align-items: center; gap: 20px; }
+  .hotbar-row .slots { display: flex; gap: 6px; }
+  .hotbar-row .slot { width: 64px; height: 64px; }
+  .hotbar-row .slot svg { width: 30px; height: 30px; }
+  .foot { position: absolute; left: var(--safe-x); right: var(--safe-x); bottom: 24px; display: flex; gap: 28px; font: 600 14px/1 var(--font-head); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .foot span { display: inline-flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="dim"></div>
+  <div class="frame">
+    <div class="top">
+      <div class="side"><span class="key">Q</span></div>
+      <div class="tabs">
+        <div class="tab on">Inventory</div><div class="tab">Crafting</div><div class="tab">Map</div><div class="tab">Character</div><div class="tab">Journal</div>
+      </div>
+      <div class="side r"><b>Rook</b><span class="lv">LV 7</span><span class="key">E</span></div>
+    </div>
+
+    <div class="cols">
+      <div class="bag">
+        <div class="head"><div class="title">Backpack</div><div class="count">6 / 30</div></div>
+        <div class="filters"><span class="chip on">All</span><span class="chip">Weapons</span><span class="chip">Ammo</span><span class="chip">Use</span><span class="chip">Resources</span><span class="chip">Wear</span></div>
+        <div class="search"><i data-ico="search" style="width:18px;height:18px"></i>Search the backpack</div>
+        <div class="grid" id="grid"></div>
+        <div class="weight">
+          <div class="line"><span>Carrying</span><span><b>18.2</b> / 60 kg</span></div>
+          <div class="bar" style="height:6px"><i style="width: 30%; background: var(--ink)"></i></div>
+        </div>
+      </div>
+
+      <div class="char">
+        <div class="figure">
+          <svg viewBox="0 0 300 520" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.5">
+            <path d="M150 30a34 34 0 1 1 0 68 34 34 0 0 1 0-68Z"/>
+            <path d="M118 112h64l30 18 18 120-24 6-16-96-6 104 10 120-6 120h-30l-6-120h-4l-6 120h-30l-6-120 10-120-6-104-16 96-24-6 18-120Z"/>
+          </svg>
+          <span class="tag">3D character preview (live in the game)</span>
+        </div>
+        <div class="eq" style="left: 0; top: 20px"><div class="label">Head</div><div class="slot empty"><i data-ico="head"></i></div><div class="what">Nothing worn</div></div>
+        <div class="eq r" style="right: 0; top: 20px"><div class="label">Back</div><div class="slot empty"><i data-ico="back"></i></div><div class="what">Nothing worn</div></div>
+        <div class="eq" style="left: 0; top: 230px"><div class="label">Chest</div><div class="slot"><i data-ico="vest"></i><span class="tier" style="background: var(--tier-common)"></span></div><div class="what">Cloth vest · stops 10 %</div></div>
+        <div class="eq r" style="right: 0; top: 230px"><div class="label">Legs</div><div class="slot empty"><i data-ico="legs"></i></div><div class="what">Nothing worn</div></div>
+        <div class="stats">
+          <div><div class="stat"><i data-ico="health" style="color: var(--health)"></i><span class="n">Health</span><span class="v">94 / 100</span></div><div class="bar"><i style="width: 94%; background: var(--health)"></i></div></div>
+          <div><div class="stat"><i data-ico="armour" style="color: var(--armour)"></i><span class="n">Armour</span><span class="v">10 %</span></div><div class="bar"><i style="width: 10%; background: var(--armour)"></i></div></div>
+          <div><div class="stat"><i data-ico="stamina" style="color: var(--stamina)"></i><span class="n">Stamina</span><span class="v">100</span></div><div class="bar"><i style="width: 100%; background: var(--stamina)"></i></div></div>
+          <div><div class="stat"><i data-ico="hunger" style="color: var(--hunger)"></i><span class="n">Hunger</span><span class="v">58 %</span></div><div class="bar"><i style="width: 58%; background: var(--hunger)"></i></div></div>
+          <div><div class="stat"><i data-ico="hydration" style="color: var(--hydration)"></i><span class="n">Hydration</span><span class="v">72 %</span></div><div class="bar"><i style="width: 72%; background: var(--hydration)"></i></div></div>
+          <div><div class="stat"><i data-ico="temperature" style="color: var(--safe)"></i><span class="n">Body · comfort 10–30 °C</span><span class="v">20 °C</span></div><div class="bar"><i style="left: 33%; width: 34%; background: rgba(61,220,151,.4)"></i><i style="left: 48%; width: 3px; background: var(--ink)"></i></div></div>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="band"></div>
+        <div class="hd">
+          <div class="tierline"><span class="label" style="color: var(--tier-common)">Common</span><span class="label">Weapon · SMG</span></div>
+          <div class="name">SMG A1</div>
+          <div class="kind">Hotbar 1 · in the hands</div>
+        </div>
+        <div class="art"><i data-ico="rifle"></i></div>
+        <div class="body">
+          <div class="kv"><span class="k">Damage per hit</span><span class="v-wrap"><span class="v">16</span><div class="bar meter"><i style="width: 16%; background: var(--ink)"></i></div></span></div>
+          <div class="kv"><span class="k">Fire rate</span><span class="v-wrap"><span class="v">900 rpm</span><div class="bar meter"><i style="width: 90%; background: var(--ink)"></i></div></span></div>
+          <div class="kv"><span class="k">Range</span><span class="v-wrap"><span class="v">200 m</span><div class="bar meter"><i style="width: 33%; background: var(--ink)"></i></div></span></div>
+          <div class="kv"><span class="k">Magazine</span><span class="v">34 / 40</span></div>
+          <div class="kv"><span class="k">Ammunition</span><span class="v" style="font-size:16px">SMG rounds · 160</span></div>
+          <div class="kv"><span class="k">Weight</span><span class="v">2.1 kg</span></div>
+          <div class="desc">High fire rate, close quarters. Full auto; reloads in 1.8 s.</div>
+        </div>
+        <div class="actions">
+          <span class="btn"><span class="key">Drag</span>Move</span>
+          <span class="btn"><span class="key">Space</span>Drop</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hotbar-row"><span class="label">Hotbar</span><div class="slots" id="hotbar"></div></div>
+    <div class="foot">
+      <span><span class="key">Tab</span>Close</span><span><span class="key">Q</span><span class="key">E</span>Tabs</span>
+      <span><span class="key">Drag</span>Move</span><span><span class="key">Right-drag</span>Half a stack</span><span><span class="key">Double-click</span>Use, wear or take off</span>
+    </div>
+  </div>
+</div>
+<script>
+  // The hotbar slots are the inventory's first twelve (D-25): the starting kit's weapons and things to use; the backpack
+  // holds the rest (ammunition, what a short run picks up). The cloth vest is worn. All real items.
+  const items = [['rifle', '34', 'common', true], ['pistol', '12'], ['launcher', '2'], ['grenade', '4'], ['bandage', '3'], ['ration', '2'], ['water', '1']];
+  const bag = [['ammo', '160'], ['ammo', '48'], ['ammo', '16'], ['organic', '14'], ['mineral', '6'], ['alloy', '4']];
+  const grid = document.getElementById('grid');
+  grid.innerHTML = Array.from({ length: 30 }, (_, i) => {
+    const it = bag[i];
+    if (!it) return '<div class="slot empty"></div>';
+    return '<div class="slot' + (it[3] ? ' on' : '') + '"><i data-ico="' + it[0] + '"></i><span class="count">' + it[1] + '</span><span class="tier" style="background:var(--tier-common)"></span></div>';
+  }).join('');
+  const keys = ['1','2','3','4','5','6','7','8','9','0','-','='];
+  document.getElementById('hotbar').innerHTML = keys.map((k, i) => {
+    const it = items[i] && i < 7 ? items[i] : null;
+    return '<div class="slot' + (i === 0 ? ' on' : (it ? '' : ' empty')) + '"><span class="k">' + k + '</span>' + (it ? '<i data-ico="' + it[0] + '"></i><span class="count">' + it[1] + '</span>' : '') + '</div>';
+  }).join('');
+</script>
+<script src="icons.js"></script>
+</body>
+</html>
