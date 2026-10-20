@@ -53,6 +53,9 @@ rarity, and need blueprints.
   tests; two clients at 100 ms simulated latency hit what they aim at (server logs under 2 % desync,
   direction §6.2); stagger and one weak point on the Skitterjaw.
 
+- **Tharrn's own models (D-22, D-32):** weapons, tools and attachments are made in the Weapons and Tools chat from the
+  shooter pack's modular construction; the model contract, the pipeline and progress are in [weapons.md](../weapons.md).
+
 ## From the owner's package ([owner's package review](../reviews/owner-package-2026-10-15.md))
 
 First weapon rows (deliverable 7; units: damage per hit, fire rate in rounds per minute, range in metres,

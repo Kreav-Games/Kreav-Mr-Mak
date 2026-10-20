@@ -7,7 +7,7 @@
       "type": "group",
       "category": "project",
       "created": "2026-10-15",
-      "updated": "2026-10-16",
+      "updated": "2026-10-19",
       "folder": "2026-10-15_tharrn-wiki",
       "steps": [
         {
@@ -15,7 +15,7 @@
           "path": "index.html"
         },
         {
-          "name": "World and zones",
+          "name": "World and map",
           "path": "world.html"
         },
         {
@@ -27,11 +27,11 @@
           "path": "combat.html"
         },
         {
-          "name": "Survival and building",
+          "name": "Building Assets",
           "path": "survival.html"
         },
         {
-          "name": "Progression and dungeons",
+          "name": "Progression and Story",
           "path": "progression.html"
         },
         {
@@ -39,7 +39,7 @@
           "path": "pvp.html"
         },
         {
-          "name": "Characters and HUD",
+          "name": "GUI, UI, Menus",
           "path": "characters.html"
         },
         {

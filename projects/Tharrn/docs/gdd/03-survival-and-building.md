@@ -44,6 +44,9 @@ flagged PvP zones.
 - **Building:** the Sci-Fi Complete Bundle's modular structures (its building Blueprints have parent
   classes for pieces) as the kit; snapping, ghost preview and validity in C++; power grid as a server
   subsystem summing producers and consumers per connected network; decay as a slow server tick.
+- **The kit and tiers (D-30, 2026-10-19):** the bundle's pieces are remade into individual parts that snap on its 3 m
+  grid (foundations, floors, walls, doors, windows, roofs, stairs and more), in four tiers: Wooden Fiber, Salvaged Mineral, Enhanced Alloy and Biotech (D-33); its machines
+  become the work stations. Plan, tools and progress: [building.md](../building.md).
 - **Done when (Prototype):** hunger, hydration and temperature replicate and drive the two formulas
   (tested); bandage and ammo crafting; foundation, generator and bench placeable by two clients, seen the
   same by both.

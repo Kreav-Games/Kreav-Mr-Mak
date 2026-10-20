@@ -42,6 +42,14 @@ table.kv td:first-child{color:var(--mak-muted);white-space:nowrap;width:1%}
 .zone-map .zname{font-size:.185px}
 .zone-map .zmeta{font-size:.16px;fill-opacity:.75}
 .zone-map .axis{font-size:.19px;fill-opacity:.55}
+.acts{display:block;width:100%;height:auto;color:inherit}
+.acts .act-box{fill:#ffffff08;stroke:currentColor;stroke-opacity:.35;stroke-width:.15}
+.acts text{fill:currentColor;text-anchor:middle}
+.acts .act-name{font-size:2.2px;font-weight:700}
+.acts .act-levels{font-size:1.7px;fill-opacity:.8}
+.acts .act-where{font-size:1.45px;fill-opacity:.6}
+.cards-wide{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.grid-cards .mak-card table{margin:8px 0 0}
 .legend{display:flex;flex-wrap:wrap;gap:8px 20px;list-style:none;padding:0;margin:12px 0 0;font-size:13px}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:7px}
 .steps li{margin:8px 0}
@@ -70,6 +78,7 @@ table.kv td:first-child{color:var(--mak-muted);white-space:nowrap;width:1%}
 .zone-map .ytitle{display:none}
 .map-figure{padding:8px}
 .hud-mock{grid-template-columns:1fr;grid-template-areas:"tl" "tc" "tr" "cc" "bl" "bc" "br"}
+.acts-figure{display:none}
 .hud-mock .cc{margin:0;text-align:left}
 }
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.tag-built,.tag-easy){color:#16794a!important;border-color:#16794a59;background:#16794a12}
@@ -83,6 +92,8 @@ html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.map-figure,.hud-m
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .hud-mock>div{border-color:#202a4040}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.wiki-foot,.wiki-note,.shot figcaption,.chain-arrow,table.kv td:first-child,.hud-mock strong){color:#505b70!important;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .zone-map{color:#232735}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .acts{color:#232735}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .acts .act-box{fill:#20283f08}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .card-num{color:#98445e!important}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .icon-grid figure{background:#14161c!important;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .icon-grid figcaption{color:#c9c1d2!important}

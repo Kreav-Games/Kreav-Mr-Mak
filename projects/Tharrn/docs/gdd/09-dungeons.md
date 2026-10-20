@@ -34,3 +34,8 @@ recommended level 12, entry by activation key or a group of 3; rooms puzzle → 
 chamber → trap corridor → boss arena; modifiers gravity_shift, fog_of_war, enemy_variation; boss CR006;
 loot boss_blueprint, alien_core, rare_alloy. To confirm when built: Apex Titan (the direction's
 multi-phase boss) at level 12, and the caverns zone recommending level 15.
+
+## Dungeons in the story (2026-10-19)
+
+The dungeons proposed for each region (DGN_002 to DGN_006), their bosses, the endgame difficulties and the raids are in
+[story.md](../story.md) §11 and §12, the Story chat's page.

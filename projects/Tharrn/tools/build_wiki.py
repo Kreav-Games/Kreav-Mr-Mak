@@ -143,7 +143,7 @@ you fight, sixty levels of RPG progression with dungeons and quests, and player-
 choose to go.</p>
 
 <div class="stats">
-<div><strong>100 km²</strong><small>main map, in 15 zones</small></div>
+<div><strong>714 km²</strong><small>main map, an island 46 km long</small></div>
 <div><strong>6</strong><small>biomes, from coast to floating islands</small></div>
 <div><strong>60</strong><small>levels, 3 talent trees</small></div>
 <div><strong>6</strong><small>creatures designed so far</small></div>
@@ -155,7 +155,7 @@ choose to go.</p>
 """ + table(["", ""], [
         ["Genre", "Sci-fi action-RPG, survival, third-person shooter"],
         ["Players", "Single player and multiplayer; co-op; PvP only in flagged zones"],
-        ["World", "An island of about 100 km² with sea all around, streamed as you travel"],
+        ["World", "An island 46 km from south to north (714 km²) with sea all around, streamed as you travel"],
         ["Camera", "Third person over the shoulder, with aim-down-sights"],
         ["Characters", "MetaHumans for every player and NPC face; 12 presets planned"],
         ["Online", "The server decides everything that matters (damage, loot, flags); built that way from the first system"],
@@ -206,10 +206,10 @@ tech for the whole server.</p>
         ["World and zones", "Scale, the six biomes, the zone map and every zone"],
         ["Bestiary", "The creatures designed so far, with their stats"],
         ["Combat and arsenal", "Damage, armour, accuracy, the weapons, attachments, movement"],
-        ["Survival and building", "Vitals and their formulas, resources, base building, crafting"],
-        ["Progression and dungeons", "Levels, talents, quests, loot tiers, dungeons and bosses"],
+        ["Building Assets", "Base building: progress pictures, design ideas, tiers, work stations; the survival rules (vitals, resources, crafting)"],
+        ["Progression and Story", "The story behind the game and how we got here; quests, levels, talents, loot, dungeons, raids and the endgame"],
         ["PvP and travel", "How flagging works, extraction, fair-play rules, vehicles"],
-        ["Characters and HUD", "Character creation, origins, presets, the HUD and menus"],
+        ["GUI, UI, Menus", "Character creation, origins, presets, the HUD and menus"],
         ["Development", "How the game is built, the roadmap, what is done, decisions and open questions"],
     ]) + """
 
@@ -231,152 +231,6 @@ tech for the whole server.</p>
                 "A sci-fi action-RPG survival shooter on a vast alien archipelago, for one player or many. "
                 "The guide to the game as designed, and as built so far.",
                 body, "Source: GDD 0.1, modules 00 and 01 (design record <code>projects/Tharrn/docs/gdd/</code>).")
-
-
-def world(zones, starts):
-    # Zone map: inline SVG in kilometres from Data/Zones.csv (metres); x to the right, y up (SVG y is flipped), so
-    # Amber Buffer North sits north of the archipelago.
-    xs = [float(z[k]) / 1000 for z in zones for k in ("bounds_min_x", "bounds_max_x")]
-    ys = [float(z[k]) / 1000 for z in zones for k in ("bounds_min_y", "bounds_max_y")]
-    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
-    pad_l, pad_t, pad_r, pad_b = 0.95, 0.25, 0.3, 0.65
-    vb = (x0 - pad_l, -y1 - pad_t, (x1 - x0) + pad_l + pad_r, (y1 - y0) + pad_t + pad_b)
-    parts = ['<svg class="zone-map" viewBox="%.2f %.2f %.2f %.2f" role="img" aria-labelledby="zm-title zm-desc">' % vb,
-             '<title id="zm-title">Tharrn zone map</title>',
-             '<desc id="zm-desc">%d zones of the world drawn to scale from the zone data; colour shows the zone type.</desc>' % len(zones)]
-    step = (float(zones[0]["bounds_max_x"]) - float(zones[0]["bounds_min_x"])) / 1000  # one zone's width, km
-    k = x0
-    while k <= x1 + 1e-6:
-        parts.append('<line class="grid" x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f"/>' % (k, -y1, k, -y0))
-        parts.append('<text class="axis" x="%.2f" y="%.2f" text-anchor="middle">%.1f</text>' % (k, -y0 + 0.3, k))
-        k += step
-    k = y0
-    while k <= y1 + 1e-6:
-        parts.append('<line class="grid" x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f"/>' % (x0, -k, x1, -k))
-        parts.append('<text class="axis" x="%.2f" y="%.2f" text-anchor="end">%.1f</text>' % (x0 - 0.1, -k + 0.07, k))
-        k += step
-    parts.append('<text class="axis" x="%.2f" y="%.2f" text-anchor="middle">x (km)</text>' % ((x0 + x1) / 2, -y0 + 0.58))
-    parts.append('<text class="axis ytitle" x="%.2f" y="%.2f" text-anchor="middle" transform="rotate(-90 %.2f %.2f)">y (km)</text>' % (
-        x0 - 0.75, -(y0 + y1) / 2, x0 - 0.75, -(y0 + y1) / 2))
-    for z in zones:
-        zx0, zy0 = float(z["bounds_min_x"]) / 1000, float(z["bounds_min_y"]) / 1000
-        zx1, zy1 = float(z["bounds_max_x"]) / 1000, float(z["bounds_max_y"]) / 1000
-        cx = (zx0 + zx1) / 2
-        top, bottom = -zy1, -zy0  # drawn edges, y flipped
-        parts.append('<g><rect class="cell %s" x="%.2f" y="%.2f" width="%.2f" height="%.2f"/>' % (
-            E(z["type"]), zx0, top, zx1 - zx0, zy1 - zy0))
-        parts.append('<text class="zid" x="%.2f" y="%.2f" text-anchor="middle">%s</text>' % (cx, top + 0.62, E(z["zone_id"])))
-        words = z["name"].split()
-        lines = [z["name"]]
-        if len(z["name"]) > 13 and len(words) > 1:
-            cut = max(range(1, len(words)), key=lambda i: -abs(len(" ".join(words[:i])) - len(" ".join(words[i:]))))
-            lines = [" ".join(words[:cut]), " ".join(words[cut:])]
-        for i, line in enumerate(lines):
-            parts.append('<text class="zname" x="%.2f" y="%.2f" text-anchor="middle">%s</text>' % (cx, top + 1.0 + i * 0.24, E(line)))
-        meta = "Lv %s" % z["recommended_level"] + (" · PvP" if z["pvp_flag"].lower() == "true" else "")
-        parts.append('<text class="zmeta" x="%.2f" y="%.2f" text-anchor="middle">%s</text></g>' % (cx, bottom - 0.22, E(meta)))
-    parts.append("</svg>")
-    legend = '<ul class="legend">' + "".join(
-        '<li><i class="sw %s"></i>%s</li>' % (t, E(label)) for t, (label, _) in ZONE_TYPES.items()) + "</ul>"
-
-    area = sum((float(z["bounds_max_x"]) - float(z["bounds_min_x"])) * (float(z["bounds_max_y"]) - float(z["bounds_min_y"]))
-               for z in zones) / 1e6
-    counts = {t: sum(1 for z in zones if z["type"] == t) for t in ZONE_TYPES}
-    level_of = {z["zone_id"]: (z["recommended_level"], z["name"]) for z in zones}
-    rows = []
-    for z in zones:
-        flagged = z["pvp_flag"].lower() == "true"
-        pvp = (tag("pvp", "Flagged") + " %s s consent · %s s exit" % (z["entry_consent_buffer_seconds"], z["exit_cooldown_seconds"])) if flagged else "—"
-        rows.append(["<code>%s</code>" % E(z["zone_id"]), "<strong>%s</strong>" % E(z["name"]), E(ZONE_TYPES.get(z["type"], (z["type"],))[0]),
-                     E(z["recommended_level"]), E(z["loot_tier"]), pvp, minutes(z["spawn_timer_seconds"]), E(z["notes"])])
-
-    body = """
-<p>%s The main map is an island of about <strong>%.1f km²</strong> with sea all around: %d zones of %.2f × %.2f km, within a box of %.1f × %.1f km.
-It streams in as you travel. Crossing it should take about 45 minutes on foot and 15 to 20 minutes by hoverbike
-(targets for tuning speeds).</p>
-
-<h2>The island in the editor</h2>
-<p>""" % (DESIGN, area, len(zones), step, step, x1 - x0, y1 - y0) + OPEN + """ A first rough build of the main map in the
-Unreal Editor (a blockout, 2026-10-17), to see the island's size and shape before it is built for real: each zone's
-ground shaped and coloured for its proposed biome, the sea all around, no plants or buildings yet. The layout is
-a proposal that stands for now (the owner may change it at the PC). In the editor: <code>/Game/Tharrn/Scratch/L_Island_Blockout</code>.</p>
-<div class="shots">""" + shot("p6/island/top_labelled.jpg", "From straight above, north up: each zone's name and proposed biome. "
-                              "The dots are the starting locations (green easy, yellow medium, red hard) with their "
-                              "zone's level. Green ground is the coast, pink the Fungal Forest, sand the "
-                              "desert, grey the caverns and the plateau (its cliff edge the dark line), and the lagoon "
-                              "of Floating Archipelago A. The small grey square at the bottom right is a blockout flaw: "
-                              "one patch of ground the bundle's material could not draw.", wide=True) + shot(
-        "p6/island/southwest.jpg", "From over the sea to the south-west, 2.6 km up: the easy coastal start in front (S01's "
-        "green beacon), the desert and the grey caverns beyond, the plateau's cliff edge at the back.") + shot(
-        "p6/island/start_from_sea.jpg", "The easy coastal start (S01) from 1.5 km out at sea: its beacon marks the "
-        "beach.") + shot(
-        "p6/island/start_low.jpg", "Coming ashore at S01: the plateau's mesa on the horizon to the right, the "
-        "caverns' hills to the left. Plants, rocks and the outpost come later.") + shot(
-        "p6/main_map_layout.png", "The same layout drawn as a map, with the biome presets each zone would use.") + """</div>
-
-<h2>Where you can start</h2>
-<p>""" + DESIGN + """ You pick where to start: one or two starting locations in each region, by the difficulty you
-want (D-28). The convoy's crash scattered its survivors across the island, so each start is a crash site. A start's
-difficulty follows its zone's recommended level; the Floating Archipelagos are all endgame PvP, so none starts
-there.</p>
-<p>""" + OPEN + """ Which zones the starts are in is a proposal (OQ-16), read from the game's
-<code>Data/StartLocations.csv</code>:</p>
-""" + table(["Start", "Difficulty", "Level", "Region", "Zone", "What it is like"], [
-        ["<code>%s</code> <strong>%s</strong>" % (E(s["start_id"]), E(s["name"])), tag(s["difficulty"].lower(), s["difficulty"]),
-         E(level_of[s["zone_id"]][0]), E(s["region"]), "%s %s" % (E(s["zone_id"]), E(level_of[s["zone_id"]][1])),
-         E(s["notes"])] for s in starts]) + """
-<h3>The coast of the Coastal region</h3>
-<p>""" + OPEN + """ The land around the easy coastal start (S01, at the Coastal Outpost) will come from one real
-coast, scanned from the air (public lidar), shaped to fit. Four candidates, each built in the editor with the bundle's
-alien jungle (the plants and rocks are the same whichever coast is picked):</p>
-<div class="shots">""" + "".join(shot("p6/coasts/%s_aerial.jpg" % stem, "<strong>%s %s</strong>: %s. From the air." % (letter, name, what))
-                            + shot("p6/coasts/%s_shore.jpg" % stem, "%s on the shore." % letter) for letter, name, stem, what in COASTS) + """</div>
-<p class="wiki-note">Or a made-up coast, or one whole 10 × 10 km lidar area as the main map's land with the biomes
-painted over it (OQ-06).</p>
-
-<h2>Six biomes</h2>
-<p>The regions get harder inland and upward, toward the floating islands of the endgame; you choose which one to
-start in (above).</p>
-""" + chain(["Coastal", "Fungal Forest", "Crystalline Desert", "High-Gravity Plateau",
-                                                            "Subterranean Caverns", "Floating Archipelagos"]) + table(
-        ["Biome", "What it is like", "Resources", "Threats"], [
-            ["<strong>Coastal</strong> (start)", "Wreckage, shallow pools, small fauna", "Organic, low-tier minerals", "Skitter packs, tidal storms"],
-            ["<strong>Fungal Forest</strong>", "Bioluminescent flora, spore clouds", "Biotech cores, organic fibre", "Spore bloom, Lumivine Colossus"],
-            ["<strong>Crystalline Desert</strong>", "Crystal fields, gravity anomalies", "Energy crystals, alloy veins", "Sand raptors, grav raptors, Skitterjaws"],
-            ["<strong>High-Gravity Plateau</strong>", "Heavy fauna, slow movement", "Rare alloys", "Heavy grazers, territorial titans"],
-            ["<strong>Subterranean Caverns</strong>", "Oxygen limits, echo swarms", "Alien cores, rare minerals", "Echo Swarm, cave collapses"],
-            ["<strong>Floating Archipelagos</strong> (endgame)", "Aerial traversal, PvP warzones", "Endgame blueprints", "Aerial predators, faction fortresses"],
-        ]) + """
-<p class="wiki-note">The world will be built from the Sci-Fi Complete Bundle's biome presets, put together the way
-its own example level is: the coast from its jungle shore, swamp and jungle; the Fungal Forest from the jungle; the
-desert from its desert, acid and moon sets; the plateau from its columnar rock. The caves cannot be ordinary terrain
-(it has no overhangs), and the floating islands will be their own streamed levels.</p>
-
-<h2>Zone map</h2>
-<p>Drawn to scale from the zone data, with y increasing upward (so Amber Buffer North is north of the archipelago).
-Each square is """ + "%.2f" % step + """ km across; the numbers along the edges are kilometres from the world's centre.</p>
-<figure class="map-figure">""" + "".join(parts) + legend + """</figure>
-
-<h2>Zone types</h2>
-""" + table(["Type", "Zones", "Meaning"], [["<strong>%s</strong>" % E(label), str(counts[t]), E(text)] for t, (label, text) in ZONE_TYPES.items()]) + """
-
-<h2>Every zone</h2>
-<p>Level is the recommended level. Respawn is how often its resources and creatures come back.</p>
-""" + table(["ID", "Zone", "Type", "Level", "Loot", "PvP", "Respawn", "Notes"], rows) + """
-
-<h2>Still to settle</h2>
-<ul>
-<li>""" + OPEN + """ The direction asks for 6 hubs and 8 to 12 PvP hotspots, each inside an amber buffer belt. The map has
-%d hubs, %d flagged zones and %d buffer; some hubs border PvP zones directly.</li>
-<li>""" % (counts["SafeHub"], counts["FlaggedPvP"], counts["BufferZone"]) + OPEN + """ Which zones the starts are in
-(OQ-16), and which real coast the Coastal region is made from. The layout and a biome per zone stand for now.</li>
-<li>""" + OPEN + """ The terrain source: real coastal survey data where a landform fits, generated terrain elsewhere (OQ-06),
-and a test of the ocean (OQ-05).</li>
-</ul>
-"""
-    return page("World and zones", "World and zones",
-                "An island of about 100 km² in six biomes, laid out as %d zones." % len(zones), body,
-                "Sources: GDD 0.1 module 07; decisions D-14, D-26 and D-27; zones from the game's <code>Data/Zones.csv</code>.")
 
 
 def bestiary(creatures):
@@ -436,6 +290,15 @@ flyer, three different problems.</li>
 
 
 def combat(weapons):
+    """Combat and arsenal: the Weapons and Tools chat's workshop (docs/weapons.md: the pack taken apart, the model
+    contract, the AI and tools, the arsenal, progress, pictures), then the combat rules of GDD 02."""
+    md = open(os.path.join(HERE, "..", "docs", "weapons.md"), encoding="utf-8").read()
+    progress = md_rows(md_section(md, "7. Steps"))
+    pictures = md_pictures(md_section(md, "9. Pictures"))
+    pack = md_rows(md_section(md, "1. What the shooter pack has"))
+    arsenal = md_rows(md_section(md, "5. The arsenal and the look"))
+    tools = md_rows(md_section(md, "6. Tools"))
+    ai = md_rows(md_section(md, "4. Which AI and tools"))
     rows = []
     for w in weapons:
         thrown = w["hit_type"] == "thrown"  # a hand grenade: no fire rate, and its "magazine" is how many you carry
@@ -444,6 +307,49 @@ def combat(weapons):
                      "—" if thrown else E(w["fire_rate"]), dps, E(w["mag_size"]) + (" carried" if thrown else ""), E(w["weight"]),
                      "—" if thrown else E(w["range"]), E(w["hit_type"]), E(w["notes"])])
     body = """
+<p>""" + tag("open", "Doing") + """ This tab is the arsenal's workshop (the Weapons and Tools chat, D-32): the shooter
+pack's weapons taken apart, what Tharrn's own weapons, tools and attachments have to be, which AI and tools make them,
+and the steps, with pictures as each lands. The full plan is the design record's <code>docs/weapons.md</code>.</p>
+
+<h2>Pictures</h2>
+<div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
+
+<h2>Steps</h2>
+""" + progress_table(progress) + """
+
+<h2>The shooter pack's weapons, taken apart</h2>
+<p>""" + BUILT + """ Measured in the editor on 2026-10-19. Each gun is modular: one skeletal mesh per part on one weapon
+skeleton per class, whose bones MSS's reload and fire animations move. The pack's muzzle, stock, magazine and sight
+parts are already the barrel, stock, magazine and optic slots of the attachment system; Tharrn's own models keep that
+construction and add sockets, a core slot, scopes and tools.</p>
+""" + table(["Weapon", "Stands in for", "Vertices, LOD0 to LOD3", "Parts (vertices)", "Bones", "Size"],
+            [[md_inline(r[0]), md_inline(r[1]), E(r[2]), E(r[3]), E(r[4]), E(r[5])] for r in pack]) + """
+
+<h2>What a Tharrn weapon model has to be</h2>
+<p>""" + DESIGN + """ Parts as separate meshes on the pack's weapon skeleton for the class (so its animations play
+unchanged); body, grip, magazine, muzzle, sight, stock and a core; sockets for the muzzle, the sight's eye, the magazine,
+the front hand, the shell and the core; real-world size with the root at the grip; about 40,000 to 80,000 triangles with
+its parts and 4 LODs; one 4K texture set for the body and 2K per part on a master material with colour layers, so
+rarity and tiers tint a gun without new textures. Proposal, in <code>docs/weapons.md</code> section 3.</p>
+
+<h2>Which AI and tools</h2>
+""" + table(["Job", "Tool", "Connected now?", "Cost"], [[md_inline(c) for c in r[:4]] for r in ai]) + """
+<p class="wiki-note">Nothing new is needed to start: the one-weapon trial (W2) runs on Higgsfield's free credits, the
+owner's Lychee Studio project and Blender. Making the whole arsenal needs a paid plan, chosen after the trial (OQ-22).
+Generated meshes are the high-poly source; the game mesh is made from them in Blender, which is what keeps the parts
+and attachments working.</p>
+
+<h2>The arsenal to make</h2>
+<p>""" + OPEN + """ The look (OQ-20, proposal): colony-made, printed at the convoy's fabricators, clean sci-fi beside the
+bundle's outposts with the interface's orange as the accent, in the same tiers as building: Salvage, Colony, Fortified,
+Alien. The order: first the guns in the Prototype's hands, so the placeholders go.</p>
+""" + table(["ID", "Weapon", "Class skeleton", "Wave", "Note"], [[md_inline(c) for c in r[:5]] for r in arsenal]) + """
+
+<h2>Tools</h2>
+<p>""" + OPEN + """ The hand tools of the survival loop (OQ-21, proposal): a tool is a weapon row with a <code>melee</code>
+hit type, a short swing the server checks like a shot, so harvesting only listens for the hit.</p>
+""" + table(["Tool", "Use", "Logic lives in", "Model from this chat"], [[md_inline(c) for c in r[:4]] for r in tools]) + """
+
 <h2>How a shot works online</h2>
 <p>%s Your game fires at once, so it feels instant: muzzle flash, recoil, tracer and a predicted hit marker. The
 server then checks the shot against where the targets were at the moment you fired, and only the server applies
@@ -488,13 +394,13 @@ moving.</li>
 otherwise (D-24). Scopes come with the optic attachments.</li>
 <li><strong>Aim assist</strong> on controllers only: a gentle pull within 0.6° of a target, strength 0.15, both
 adjustable.</li>
-<li><strong>Vitals</strong> change your aim: thirst and low neural stability add sway (see Survival and building).</li>
+<li><strong>Vitals</strong> change your aim: thirst and low neural stability add sway (see the survival rules under Building Assets).</li>
 </ul>
 
 <h2>Attachments</h2>
 <p>Five slots: <strong>barrel, stock, magazine, optic and core</strong>. Attachments change recoil, accuracy,
-handling and weight, come in rarities, and need blueprints. They come later, with Tharrn's own weapon models (D-22,
-D-24).</p>
+handling and weight, come in rarities, and need blueprints. They come with Tharrn's own weapon models (D-22, D-24):
+step W6 above, as part files on the class skeletons.</p>
 
 <h2>Movement</h2>
 """ + chain(["Sprint", "Mantle", "Jetpack burst (uses stamina)", "Grapple tether"]) + """
@@ -508,13 +414,55 @@ the damage multipliers and armour covered by automated tests; two players at 100
 """
     return page("Combat and arsenal", "Combat and arsenal",
                 "Precise third-person shooting that the server checks: damage, armour, the weapons and how you move.",
-                body, "Sources: GDD 0.1 module 02; weapons from the game's <code>Data/Weapons.csv</code>.")
+                body, "Sources: the design record's docs/weapons.md (the pack measured, the contract, the AI and tools, progress, "
+                "pictures); GDD 0.1 module 02; deliverable 7; weapons from the game's <code>Data/Weapons.csv</code>; D-22 to D-24, D-32.")
 
 
-def survival():
+def building_assets():
+    """Building Assets: the Building chat's space (docs/building.md: progress and design-idea pictures, tiers, AI and
+    tools, work stations, steps), then the survival rules the bases serve (GDD 03)."""
+    md = open(os.path.join(HERE, "..", "docs", "building.md"), encoding="utf-8").read()
+    progress_pics, idea_pics = (md_pictures(part) for part in md_section(md, "10. Pictures").split("### Design ideas"))
+    steps = [[r[0], r[1], r[3]] for r in md_rows(md_section(md, "9. Steps"))]
+
+    def shots(pictures):
+        return "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures))
+
+    def md_table(headers, section):
+        return table(headers, [[md_inline(c) for c in r] for r in md_rows(md_section(md, section))])
+
     body = """
-<h2>Vitals</h2>
-<p>%s Five vitals change how you fight, not only whether you live.</p>
+<p>""" + tag("open", "Doing") + """ The owner's and the Building chat's space (D-30): the Sci-Fi bundle's building pieces
+remade into individual parts that players snap together however they like, in tiers of building, and its machines
+made into work stations, built together to AAA quality. Pictures of progress and design ideas land here first; the
+full plan is the design record's <code>docs/building.md</code>.</p>
+
+<h2>Progress</h2>
+<div class="shots">""" + shots(progress_pics) + """</div>
+
+<h2>Design ideas</h2>
+<div class="shots">""" + shots(idea_pics) + """</div>
+
+<h2>Tiers of building</h2>
+<p>""" + DESIGN + """ The owner named the four tiers (D-33); how each looks and is made are proposals. Every tier keeps
+the same footprint and snap points, so a piece upgrades where it stands, and the bundle's own damage value shows wear
+as a piece loses health.</p>
+""" + md_table(["Tier", "Look", "How it is made", "Needs"], "4. Tiers") + """
+
+<h2>Which AI does what</h2>
+<p>Nothing new needs connecting to start. The remodel is exact cutting and joining, which Claude does in the editor:
+generated meshes are one sculpted lump with baked textures, so they would not snap on a 3 m grid or take the bundle's
+paint, dirt and damage. AI generation comes in for art the bundle does not have.</p>
+""" + md_table(["Job", "Tool", "Connected now?", "Cost"], "3. Which AI") + """
+
+<h2>Work stations from the bundle</h2>
+""" + md_table(["Role", "Bundle piece", "Blueprint"], "6. Work stations") + """
+
+<h2>Steps</h2>
+""" + progress_table(steps) + """
+
+<h2>Survival rules the bases serve</h2>
+<p>%s From GDD 03. Five vitals change how you fight, not only whether you live.</p>
 """ % DESIGN + table(["Vital", "Range", "What it does"], [
         ["<strong>Hunger</strong>", "0–100", "Below 30, stamina recovers 40 % slower"],
         ["<strong>Hydration</strong>", "0–100", "Below 30, aim sway grows by 25 %"],
@@ -523,29 +471,29 @@ def survival():
         ["<strong>Neural stability</strong>", "0–100", "Low values bring hallucinations (visual noise, phantom enemies) and aim jitter"],
     ]) + """
 
-<h2>The formulas</h2>
+<h3>The formulas</h3>
 <pre><code>StaminaRegen = BaseRegen × (1 − HungerPenalty) × (1 − TempPenalty)
 AimSway      = BaseSway × (1 + (30 − Hydration)/100 × 0.8 + (100 − Neural)/100 × 0.5)</code></pre>
 <p class="wiki-note">""" + OPEN + """ As written, a well-hydrated player sways less than normal (at full hydration and
 neural stability the sway multiplier is 0.44). The build (P5) counts the hydration term only below 30,
 <code>max(0, 30 − Hydration)</code>, so thirst only ever adds sway: a proposal to confirm with the owner.</p>
 
-<h2>Resources</h2>
+<h3>Resources</h3>
 """ + chain(["Organic", "Mineral", "Alloy", "Biotech core", "Energy crystal"]) + """
 <p>Resource nodes grow back on timers (each zone has its own, see World and zones). Rare nodes appear in flagged PvP
 zones.</p>
 
-<h2>Base building</h2>
+<h3>Base rules</h3>
 """ + table(["Part", "How it works"], [
         ["Modules", "Foundation, wall, door, turret, generator, filtration, crafting bench"],
         ["Power", "Generators make energy, devices use it; too many devices on one network overloads it and it shuts down"],
         ["Decay", "Structures nobody maintains decay, by default 1 % a day"],
         ["Claims", "Plots in PvP zones can be claimed, with timers and upkeep costs"],
     ]) + """
-<p>The building pieces come from the Sci-Fi Complete Bundle's modular outpost kit. Placing shows a ghost preview that
-snaps to other pieces; the server checks every placement.</p>
+<p>The pieces are the Sci-Fi bundle's own, remade into individual parts on its 3 m grid (above). Placing shows a ghost
+preview that snaps to other pieces; the server checks every placement.</p>
 
-<h2>Inventory and crafting</h2>
+<h3>Inventory and crafting</h3>
 <ul>
 <li>A grid inventory with a weight limit, filters by type and quick-craft recipes.</li>
 <li>You ask to craft; the server checks the recipe and your inventory, then changes both. Crafts wait in a
@@ -554,52 +502,118 @@ queue.</li>
 scrap, five crafts at a time; cancelling gives the inputs back.</li>
 </ul>
 
-<h2>The first milestone</h2>
+<h3>The first milestone</h3>
 <p>Hunger, hydration and temperature working online and driving the two formulas (with tests at the thresholds);
 crafting a bandage and ammo; a foundation, a generator and a bench that two players can place and both see.</p>
 """
-    return page("Survival and building", "Survival and building",
-                "Vitals that change how you fight, resources worth the risk, and a base to hold.", body,
-                "Source: GDD 0.1 module 03.")
+    return page("Building Assets", "Building Assets",
+                "Bases, building pieces and work stations, built together to AAA quality, and the survival rules they serve.",
+                body, "Sources: the design record's docs/building.md (plan, steps, pictures); GDD 0.1 module 03; D-30.")
 
 
-def progression(dungeon):
+def progression_and_story(dungeon):
+    """Progression and Story: the Story chat's space (docs/story.md: the story, factions, origins, the acts, quests,
+    levels and XP, talents, loot, dungeons, raids and the endgame), with the draft dungeon's card from the game's data."""
+    md = open(os.path.join(HERE, "..", "docs", "story.md"), encoding="utf-8").read()
+    sec = lambda title: md_body(md_section(md, title))
+    cards = lambda title: md_body(md_section(md, title), cards=True)
+    steps = [[r[0], r[1], r[2]] for r in md_rows(md_section(md, "14. Steps"))]
+    pictures = md_pictures(md_section(md, "15. Pictures"))
+    acts = md_rows(md_section(md, "6. The main story"))  # Act | Levels | Where | Chapters | Ends when
     rooms = " → ".join(r["type"].replace("_", " ") for r in dungeon.get("rooms", []))
-    body = """
-<h2>Levels and talents</h2>
-<p>%s Sixty levels. The XP for each next level grows by 12 %%:</p>
-<pre><code>XP(level) = baseXP × 1.12^(level − 1)</code></pre>
-<p class="wiki-note">%s <code>baseXP</code> is not set yet; it will be chosen from how long reaching level 60 should take.</p>
-<p>Each level gives one talent point for one of three trees. Nodes have prerequisites and unlock new mechanics.</p>
-""" % (DESIGN, OPEN) + table(["Tree", "Example talents"], [
-        ["<strong>Combat</strong>", "Precision Training (less recoil) · Quick Reload (15 % faster) · Suppressive Fire (suppresses an area)"],
-        ["<strong>Survival</strong>", "Efficient Forager (+20 % resources) · Advanced Filtration (uses less water) · Field Medic (faster healing)"],
-        ["<strong>Tech</strong>", "Drone Control (deploy a drone) · Power Optimization (generators use less) · Alien Synthesis (craft alien cores)"],
-    ]) + """
 
-<h2>Loot tiers</h2>
-""" + chain(["Common", "Uncommon", "Rare", "Advanced", "Alien"]) + """
-<p>Higher tiers need blueprints. Each zone has a loot tier (see World and zones).</p>
+    # The five acts as a strip (desktop only: the cards below carry it on a phone), drawn in SVG so it scales.
+    def wrap(text, width):
+        lines, line = [], ""
+        for word in re.sub(r"\*", "", text).split():
+            if line and len(line) + 1 + len(word) > width:
+                lines.append(line)
+                line = word
+            else:
+                line = (line + " " + word).strip()
+        return lines + ([line] if line else [])
+
+    boxes = [(wrap(a[0], 18), wrap("Levels " + a[1], 19), wrap(a[2], 23)) for a in acts]
+    n, gap = len(boxes), 1.2
+    w = 100.0 / n
+    h = max(6.2 + 2.0 * len(lv) + 1.8 * len(wh) for _, lv, wh in boxes)
+    strip = ['<svg class="acts" viewBox="0 0 100 %.1f" role="img" aria-label="The five acts of the main story, '
+             'with their levels and regions">' % (h + 1)]
+    for i, (name, levels, where) in enumerate(boxes):
+        x = i * w + w / 2
+        strip.append('<rect class="act-box" x="%.2f" y="0.5" width="%.2f" height="%.1f" rx="1"/>' % (i * w + gap / 2, w - gap, h))
+        strip.append('<text class="act-name" x="%.2f" y="4.0">%s</text>' % (x, E(" ".join(name))))
+        y = 6.8
+        for line in levels:
+            strip.append('<text class="act-levels" x="%.2f" y="%.1f">%s</text>' % (x, y, E(line)))
+            y += 2.0
+        y += 0.2
+        for line in where:
+            strip.append('<text class="act-where" x="%.2f" y="%.1f">%s</text>' % (x, y, E(line)))
+            y += 1.8
+    strip.append("</svg>")
+
+    body = """
+<p>""" + tag("open", "Doing") + """ The Story chat's space: the story behind the game, how we got here and what we do,
+the factions, the quests, levels and talents, the dungeons, the raids and the endgame. Draft 1 (2026-10-19) for the
+owner's review; names are placeholders. The full page is the design record's <code>docs/story.md</code>. Spoilers
+throughout.</p>
+
+<h2>The story in one page</h2>
+""" + sec("1. The story in one page") + """
+
+<h2>The main story</h2>
+<figure class="map-figure acts-figure">""" + "".join(strip) + """</figure>
+""" + cards("6. The main story") + """
+
+<h2>Pictures</h2>
+<div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
+
+<h2>Timeline</h2>
+""" + sec("2. Timeline") + """
+
+<h2>The island's secrets, act by act</h2>
+""" + sec("3. The island's secrets, act by act") + """
+
+<h2>Factions</h2>
+""" + cards("4. Factions") + """
+
+<h2>Origins</h2>
+""" + cards("5. Origins") + """
 
 <h2>Quests</h2>
-<p>Five kinds: main, side, faction, timed and dungeon quests, each in stages with objectives and rewards. The first
-faction questline comes with the vertical slice.</p>
+""" + sec("7. Quests") + """
+
+<h2>Levels and XP</h2>
+<p>""" + DESIGN + """ Sixty levels and the direction's curve; """ + OPEN + """ <code>baseXP</code>, the XP sources and
+the level bands are proposals (OQ-26).</p>
+""" + sec("8. Levels and XP") + """
+
+<h2>Talents</h2>
+<p>""" + DESIGN + """ Three trees, one point a level (GDD 04); the direction's nine example talents are marked. """ + OPEN + """ The
+rest of the trees are proposals.</p>
+""" + sec("9. Talents") + """
+
+<h2>Loot, blueprints, mastery and reputation</h2>
+""" + sec("10. Loot, blueprints, mastery and reputation") + """
 
 <h2>Dungeons</h2>
-<p>Instanced and assembled from room templates, with a seed and modifiers that change each run.</p>
+""" + cards("11. Dungeons") + """
+<h3>How a dungeon is built</h3>
+<p>""" + DESIGN + """ Instanced and assembled from room templates, with a seed and modifiers that change each run (GDD 09).</p>
 """ + table(["Room", "What happens"], [
-        ["Puzzle room", "Needs a crafted item or a trigger in the room"],
-        ["Combat arena", "Waves of enemies, with cover and height"],
+        ["Antechamber", "Entry, a respawn beacon, the dungeon's lore panel, a chest after the boss (deliverable 6's sixth room)"],
+        ["Puzzle room", "Needs a crafted item or a trigger in the room: power routing, resonance or gravity alignment"],
+        ["Combat arena", "Waves of enemies, with cover and height; a mini-boss variant has one elite instead"],
         ["Traversal chamber", "Platforming and shifting gravity"],
-        ["Trap corridor", "Timed hazards and detection"],
+        ["Trap corridor", "Timed hazards (pulse sweeps) and detection (sentry scans)"],
         ["Boss arena", "A boss in several phases, using the room against you"],
     ]) + """
-<p>Modifiers: gravity shift (low or high), fog of war, enemy loadout variation, a time limit. Bosses change at 75, 50
-and 25 %% health, adding a shield, minions or a hazard, and drop unique blueprints and rare loot. %s The direction counts
-six room types but names five.</p>
-
-<div class="mak-card"><p class="card-num">%s</p><h3>%s</h3>
-""" % (OPEN, E(dungeon.get("dungeon_id", "")), E(dungeon.get("name", ""))) + table(["", ""], [
+<p>Modifiers: gravity shift (low or high), fog of war, enemy variation, a time limit. Bosses change at 75, 50 and 25 %
+health, adding a shield, minions or a hazard, and drop unique blueprints and rare loot.</p>
+<div class="mak-card"><p class="card-num">""" + E(dungeon.get("dungeon_id", "")) + """</p><h3>""" + E(dungeon.get("name", "")) + """</h3>
+<p class="wiki-note">The owner's draft dungeon, from the game's <code>Data/Dungeons/DGN_001.json</code>.</p>
+""" + table(["", ""], [
         ["Where", E(dungeon.get("biome", ""))],
         ["Recommended level", E(str(dungeon.get("recommended_level", "")))],
         ["Entry", E(dungeon.get("entry_requirements", ""))],
@@ -610,11 +624,20 @@ six room types but names five.</p>
     ], "kv") + """
 <p class="wiki-note">""" + OPEN + """ The Apex Titan is the direction's big multi-phase boss, here at level 12, and the
 caverns zone recommends level 15.</p></div>
-"""
-    return page("Progression and dungeons", "Progression and dungeons",
-                "Sixty levels, three talent trees, five loot tiers, and dungeons built from rooms.", body,
-                "Sources: GDD 0.1 modules 04 and 09; the dungeon from the game's <code>Data/Dungeons/DGN_001.json</code>.")
 
+<h2>Raids and the endgame</h2>
+""" + cards("12. Raids and the endgame") + """
+
+<h2>For the owner</h2>
+""" + sec("13. Open questions for the owner") + """
+
+<h2>Steps</h2>
+""" + progress_table(steps) + """
+"""
+    return page("Progression and Story", "Progression and Story",
+                "The story behind the game, how we got here and what we do: quests, levels, talents, dungeons, raids and the endgame.",
+                body, "Sources: the design record's docs/story.md (the Story chat, draft 1); GDD 0.1 modules 01, 04 and 09; "
+                "deliverable 6; the dungeon from the game's <code>Data/Dungeons/DGN_001.json</code>; OQ-25 to OQ-27.")
 
 def pvp(zones):
     flagged = [z for z in zones if z["pvp_flag"].lower() == "true"]
@@ -660,10 +683,14 @@ sprint 7), so a straight run across takes about 45 minutes and a real route with
                 "Sources: GDD 0.1 modules 05 and 06; flagged zones from the game's <code>Data/Zones.csv</code>.")
 
 
-def characters(presets, hud):
+def gui_ui_menus(presets):
+    """GUI, UI, Menus: the interface's workshop (docs/ui-design.md: direction, progress, pictures), what the game has
+    today, the HUD icons, and character creation."""
+    md = open(os.path.join(HERE, "..", "docs", "ui-design.md"), encoding="utf-8").read()
+    progress = md_rows(md_section(md, "2. Progress"))
+    pictures = md_pictures(md_section(md, "3. Pictures"))
+    direction = [md_inline(l[2:].strip()) for l in md_section(md, "1. Direction").split("\n- ")[1:]]
     p = presets[0] if presets else {}
-    h = hud.get("hud", {})
-    cross = h.get("crosshair", {}).get("variants", [])
     preset_rows = [
         ["Name", E(p.get("display_name", ""))], ["Origin", E(p.get("origin", ""))],
         ["Height", "%.2f m" % p.get("body", {}).get("height_meters", 0)],
@@ -674,74 +701,66 @@ def characters(presets, hud):
         ["Notes", E(p.get("notes", ""))],
     ]
     body = """
-<h2>Creating your character</h2>
-<p>%s Every face is a MetaHuman.</p>
-""" % DESIGN + chain(["Preset", "Face", "Body", "Implants and scars", "Voice", "Origin", "Loadout", "Confirm"]) + table(["Step", "Choices"], [
-        ["Preset", "12 curated MetaHumans with a balanced range of looks"],
-        ["Face", "Sliders for jaw, brow, nose, cheeks and lips; iris colour, sclera tint, small scars; live preview with breathing and eye movement"],
-        ["Body", "Height within ±15 %, musculature, limb length, posture"],
-        ["Implants and scars", "Alien biotech: glowing nodes, plates under the skin; tattoos"],
-        ["Voice", "8 voice packs with lip sync; pitch"],
-        ["Origin", "Sets a starting talent point, a unique starter item and a three-step intro quest"],
-        ["Loadout", "A weapon type and a survival tool"],
-    ]) + """
-<p class="wiki-note">""" + OPEN + """ The direction asks for 120 face sliders while you play. MetaHuman creation is an
-editor tool, so the prototype starts with the presets plus body, materials, tattoos and implants; changing faces
-in the game is its own research step (OQ-03).</p>
+<p>""" + tag("open", "Doing") + """ This tab is the interface's workshop: the HUD, the menus, the survival screens and
+the loading screen, designed and built to AAA quality, with pictures as each step lands. The direction is the owner's
+(D-31): <strong>The Division 2's menus and HUD, with ARK's layout for the survival parts</strong>. Mock-ups are drawn
+over real captures from the game, with the game's real items and values.</p>
 
-<h2>Origins</h2>
-<div class="grid-cards">
-<div class="mak-card"><h3>Scientist</h3></div><div class="mak-card"><h3>Soldier</h3></div>
-<div class="mak-card"><h3>Scavenger</h3></div><div class="mak-card"><h3>Corporate Envoy</h3></div>
-</div>
-<p>Each gives a starting talent point, a starter item and an intro quest; the details are still to be written.</p>
+<h2>Latest pictures</h2>
+<div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
 
-<h2>The first preset</h2>
-<p>One of the twelve presets exists as data so far.</p>
-""" + table(["", ""], preset_rows, "kv") + """
+<h2>Steps</h2>
+""" + progress_table(progress) + """
+<h2>Direction</h2>
+<ul>""" + "".join("<li>%s</li>" % d.replace("\n  ", " ") for d in direction) + """</ul>
 
-<h2>The HUD</h2>
-<p>Layout for a 1920 × 1080 screen; it scales with resolution.</p>
-<div class="hud-mock" role="img" aria-label="HUD layout: buffs top left, compass top centre, minimap top right, crosshair in the centre, vitals bottom left, weapon bottom centre, quick-use wheel bottom right">
-<div class="tl"><strong>Top left</strong>Name, level, buffs and debuffs</div>
-<div class="tc"><strong>Top centre</strong>Compass (%s) with PvP and objective markers; notifications</div>
-<div class="tr"><strong>Top right</strong>Minimap (%s), extraction points, flagged areas</div>
-<div class="cc"><strong>Centre</strong>Dynamic crosshair (%s), hit markers, damage numbers, weak-point indicators</div>
-<div class="bl"><strong>Bottom left</strong>Vitals: %s</div>
-<div class="bc"><strong>Bottom centre</strong>Weapon (%s): ammo, fire mode, attachments</div>
-<div class="br"><strong>Bottom right</strong>Quick-use wheel, %s slots with cooldowns</div>
-</div>
-""" % (E(h.get("compass", {}).get("size", "")), E(h.get("minimap", {}).get("size", "")), E(", ".join(cross)),
-       E(", ".join(h.get("vitals", {}).get("elements", []))), E(h.get("weapon", {}).get("size", "")),
-       E(str(h.get("quickwheel", {}).get("slots", "")))) + """
-<p>The death screen lists what you dropped, the respawn options, a recovery timer and a ping for teammates.</p>
+<h2>In the game today</h2>
+<p>""" + BUILT + """ What the build has now, before the new style: Tharrn's C++ widgets for the HUD (health,
+survival meters, the twelve-slot hotbar, the weapon, prompts), the inventory screen with crafting, and the death
+screen (P4, P5); the main menu, pause menu and options from Easy Game UI Ultimate (D-21). Each is rebuilt in the new
+style (steps U3 to U7).</p>
+<div class="shots">""" + shot("p5/hud_vitals.jpg", "The HUD today (P5): health, survival meters, the hotbar, the weapon.") + shot(
+        "p5/crafting.jpg", "The inventory and crafting today (P5).") + shot("p4/main_menu.jpg", "The main menu today (Easy Game UI, P4).") + """</div>
 
-<h2>HUD icons</h2>
-<p>""" + DESIGN + """ Twelve placeholder line icons for the Prototype HUD, white on a clear background so the HUD can
-tint them; shown here on a dark tile. Select one to see it full size; the PNG link under each is the transparent
-file the game uses. The art direction is still the owner's.</p>
+<h2>HUD icons (P4 set)</h2>
+<p>""" + DESIGN + """ The placeholder icons the build uses now, white on a clear background so the HUD can tint them,
+shown here on a dark tile. The style guide redraws them crisper (square ends, sharp corners). Select one to see it
+full size; the PNG link under each is the transparent file the game uses.</p>
 <div class="icon-grid">
 """ + "".join('<figure><img src="icons/%s_preview.png" alt="%s HUD icon on a dark tile" loading="lazy" width="256" height="256">'
               '<figcaption>%s · <a href="icons/%s.png" download>PNG</a></figcaption></figure>'
               % (n, n, n, n) for n in ICONS) + """
 </div>
 
-<h2>Menus</h2>
+<h2>Screens to come</h2>
 <ul>
-<li><strong>Hotbar:</strong> twelve slots on keys 1 to 9, 0, − and = choose what is in your hands: weapons, grenades, things to use (D-25).</li>
-<li><strong>Inventory:</strong> a grid with a weight limit, equipment slots and the hotbar row, quick-craft recipes and filters.</li>
 <li><strong>Map:</strong> layers for PvP zones, resource nodes and dungeon entrances; several zoom levels.</li>
-<li><strong>Quest log:</strong> objectives, stages, lore entries and map markers.</li>
-<li><strong>Loading screens:</strong> tips, the status of PvP hotspots, your last base and active quests, with
-MetaHuman close-ups.</li>
+<li><strong>Journal:</strong> objectives, stages, lore entries and map markers.</li>
+<li><strong>Starting location:</strong> pick where to start, one or two places in each region by difficulty (D-28).</li>
 <li><strong>Accessibility:</strong> UI scale, colour-blind modes, subtitle sizes, controller remapping; offered at
 first launch.</li>
 </ul>
-"""
-    return page("Characters and HUD", "Characters and HUD",
-                "Who you play, how you make them, and what you see on screen.", body,
-                "Sources: GDD 0.1 modules 01 and 10; the preset from <code>Data/MetaHumanPresets.json</code> and the layout from "
-                "<code>Data/UI/HudLayout.json</code>.")
+
+<h2>Characters</h2>
+<p>""" + DESIGN + """ Every face is a MetaHuman; character creation is a screen of its own (step U8).</p>
+""" + chain(["Preset", "Face", "Body", "Implants and scars", "Voice", "Origin", "Loadout", "Confirm"]) + table(["Step", "Choices"], [
+        ["Preset", "12 curated MetaHumans with a balanced range of looks"],
+        ["Face", "Sliders for jaw, brow, nose, cheeks and lips; iris colour, sclera tint, small scars; live preview with breathing and eye movement"],
+        ["Body", "Height within ±15 %, musculature, limb length, posture"],
+        ["Implants and scars", "Alien biotech: glowing nodes, plates under the skin; tattoos"],
+        ["Voice", "8 voice packs with lip sync; pitch"],
+        ["Origin", "Scientist, Soldier, Scavenger or Corporate Envoy: a starting talent point, a starter item and a three-step intro quest"],
+        ["Loadout", "A weapon type and a survival tool"],
+    ]) + """
+<p class="wiki-note">""" + OPEN + """ The direction asks for 120 face sliders while you play. MetaHuman creation is an
+editor tool, so the prototype starts with the presets plus body, materials, tattoos and implants; changing faces
+in the game is its own research step (OQ-03).</p>
+<h3>The first preset</h3>
+""" + table(["", ""], preset_rows, "kv")
+    return page("GUI, UI, Menus", "GUI, UI, Menus",
+                "Designing and building Tharrn's interface to AAA quality: the HUD, the menus, the survival screens, the loading screen.",
+                body, "Sources: the design record's docs/ui-design.md and docs/ui/ (style guide, mock-ups); D-21, D-25, D-28, D-31; "
+                "GDD 0.1 modules 01 and 10; the preset from <code>Data/MetaHumanPresets.json</code>.")
 
 
 def md_inline(text):
@@ -749,51 +768,281 @@ def md_inline(text):
     text = E(text)
     text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"`(.+?)`", r"<code>\1</code>", text)
+    text = re.sub(r"(?<![\w*])\*(?!\*)([^*\n]+?)\*(?![\w*])", r"<em>\1</em>", text)
     return re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"\1", text)
 
 
-def map_build():
-    """The main map's build: map-design.md's steps, its progress table and its pictures (docs/pictures/...)."""
+def md_section(md, title):
+    """A '## title' section of a design record page, up to the next one."""
+    start = md.index("## " + title)
+    end = md.find("\n## ", start + 3)
+    return md[start:end if end > 0 else len(md)]
+
+
+def md_rows(block):
+    """A Markdown table's body rows as lists of cells."""
+    lines = [l for l in block.splitlines() if l.startswith("|")][2:]
+    return [[c.strip() for c in l.strip("|").split("|")] for l in lines]
+
+
+def md_pictures(block):
+    """Pictures listed as ![caption](pictures/...): (caption, path under docs/pictures)."""
+    return re.findall(r"!\[([^\]]*)\]\(pictures/([^)]+)\)", block)
+
+
+def md_cards(cells):
+    """A Markdown table's rows as cards: the first column the title, the rest a label-and-value table (reads well on
+    a phone, where a five-column table would wrap to a word a line)."""
+    head = cells[0]
+    out = ['<div class="grid-cards cards-wide">']
+    for r in cells[2:]:
+        out.append('<div class="mak-card"><h3>%s</h3>%s</div>' % (
+            md_inline(re.sub(r"\*", "", r[0])), table(["", ""], [[E(h), md_inline(c)] for h, c in zip(head[1:], r[1:])], "kv")))
+    out.append("</div>")
+    return "".join(out)
+
+
+def md_body(block, skip_heading=True, cards=False):
+    """A design record section as HTML: paragraphs, bullet lists, ### headings and tables (the record's Markdown);
+    with cards, each table's rows become cards."""
+    out, para, bullets, rows = [], [], [], []
+
+    def flush():
+        if para:
+            out.append("<p>%s</p>" % md_inline(" ".join(para)))
+            del para[:]
+        if bullets:
+            out.append("<ul>%s</ul>" % "".join("<li>%s</li>" % md_inline(b) for b in bullets))
+            del bullets[:]
+        if rows:
+            cells = [[c.strip() for c in r.strip("|").split("|")] for r in rows]
+            out.append(md_cards(cells) if cards else
+                       table([md_inline(h) for h in cells[0]], [[md_inline(c) for c in r] for r in cells[2:]]))
+            del rows[:]
+
+    lines = block.splitlines()[1:] if skip_heading else block.splitlines()
+    for line in lines:
+        t = line.rstrip()
+        if not t.strip():
+            flush()
+        elif t.startswith("|"):
+            if para or bullets:
+                flush()
+            rows.append(t)
+        elif t.startswith("### "):
+            flush()
+            out.append("<h3>%s</h3>" % md_inline(t[4:]))
+        elif t.startswith("- "):
+            if para or rows:
+                flush()
+            bullets.append(t[2:])
+        elif bullets and t.startswith("  "):
+            bullets[-1] += " " + t.strip()
+        else:
+            if rows or bullets:
+                flush()
+            para.append(t.strip())
+    flush()
+    return "".join(out)
+
+
+STATE_TAG = {"Done": BUILT, "Doing": tag("open", "Doing"), "Next": DESIGN, "Later": DESIGN}
+
+
+def progress_table(progress):
+    return table(["Step", "What", "State"], [[E(r[0]), md_inline(r[1]), STATE_TAG.get(r[2].split()[0], "") + " " + md_inline(" ".join(r[2].split()[1:]))]
+                                           for r in progress])
+
+
+def zone_map_svg(zones):
+    """The zone grid drawn to scale from Data/Zones.csv (km); x to the right, y up (SVG y is flipped)."""
+    xs = [float(z[k]) / 1000 for z in zones for k in ("bounds_min_x", "bounds_max_x")]
+    ys = [float(z[k]) / 1000 for z in zones for k in ("bounds_min_y", "bounds_max_y")]
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    pad_l, pad_t, pad_r, pad_b = 0.95, 0.25, 0.3, 0.65
+    vb = (x0 - pad_l, -y1 - pad_t, (x1 - x0) + pad_l + pad_r, (y1 - y0) + pad_t + pad_b)
+    parts = ['<svg class="zone-map" viewBox="%.2f %.2f %.2f %.2f" role="img" aria-labelledby="zm-title zm-desc">' % vb,
+             '<title id="zm-title">Tharrn zone map</title>',
+             '<desc id="zm-desc">%d zones drawn to scale from the zone data; colour shows the zone type.</desc>' % len(zones)]
+    step = (float(zones[0]["bounds_max_x"]) - float(zones[0]["bounds_min_x"])) / 1000
+    k = x0
+    while k <= x1 + 1e-6:
+        parts.append('<line class="grid" x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f"/>' % (k, -y1, k, -y0))
+        parts.append('<text class="axis" x="%.2f" y="%.2f" text-anchor="middle">%.1f</text>' % (k, -y0 + 0.3, k))
+        k += step
+    k = y0
+    while k <= y1 + 1e-6:
+        parts.append('<line class="grid" x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f"/>' % (x0, -k, x1, -k))
+        parts.append('<text class="axis" x="%.2f" y="%.2f" text-anchor="end">%.1f</text>' % (x0 - 0.1, -k + 0.07, k))
+        k += step
+    for z in zones:
+        zx0, zy0 = float(z["bounds_min_x"]) / 1000, float(z["bounds_min_y"]) / 1000
+        zx1, zy1 = float(z["bounds_max_x"]) / 1000, float(z["bounds_max_y"]) / 1000
+        cx, top, bottom = (zx0 + zx1) / 2, -zy1, -zy0
+        parts.append('<g><rect class="cell %s" x="%.2f" y="%.2f" width="%.2f" height="%.2f"/>' % (E(z["type"]), zx0, top, zx1 - zx0, zy1 - zy0))
+        parts.append('<text class="zid" x="%.2f" y="%.2f" text-anchor="middle">%s</text>' % (cx, top + 0.62, E(z["zone_id"])))
+        words = z["name"].split()
+        lines = [z["name"]]
+        if len(z["name"]) > 13 and len(words) > 1:
+            cut = max(range(1, len(words)), key=lambda i: -abs(len(" ".join(words[:i])) - len(" ".join(words[i:]))))
+            lines = [" ".join(words[:cut]), " ".join(words[cut:])]
+        for i, line in enumerate(lines):
+            parts.append('<text class="zname" x="%.2f" y="%.2f" text-anchor="middle">%s</text>' % (cx, top + 1.0 + i * 0.24, E(line)))
+        meta = "Lv %s" % z["recommended_level"] + (" · PvP" if z["pvp_flag"].lower() == "true" else "")
+        parts.append('<text class="zmeta" x="%.2f" y="%.2f" text-anchor="middle">%s</text></g>' % (cx, bottom - 0.22, E(meta)))
+    parts.append("</svg>")
+    legend = '<ul class="legend">' + "".join('<li><i class="sw %s"></i>%s</li>' % (t, E(label)) for t, (label, _) in ZONE_TYPES.items()) + "</ul>"
+    return "".join(parts) + legend, step
+
+
+def md_table_html(block):
+    """A design-record Markdown table (its header row and body) as an HTML table."""
+    lines = [l for l in block.splitlines() if l.startswith("|")]
+    head = [md_inline(c.strip()) for c in lines[0].strip("|").split("|")]
+    return table(head, [[md_inline(c) for c in r] for r in md_rows(block)])
+
+
+def md_list_html(block):
+    """A Markdown bullet list (- item, - [x] done, - [ ] to do) as HTML, continuation lines joined."""
+    items = []
+    for line in block.splitlines():
+        if line.startswith("- "):
+            items.append(line[2:].strip())
+        elif line.startswith("  ") and items:
+            items[-1] += " " + line.strip()
+    out = []
+    for it in items:
+        if it.startswith("!["):
+            continue
+        if it.startswith("[x] "):
+            out.append('<li class="todo done">%s %s</li>' % (BUILT, md_inline(it[4:])))
+        elif it.startswith("[ ] "):
+            out.append('<li class="todo">%s %s</li>' % (tag("open", "To do"), md_inline(it[4:])))
+        else:
+            out.append("<li>%s</li>" % md_inline(it))
+    return "<ul>%s</ul>" % "".join(out) if out else ""
+
+
+def md_paragraphs(block):
+    """The prose of a section (no tables, lists, pictures or numbered steps), as paragraphs."""
+    paras, cur = [], []
+    for line in block.splitlines()[1:]:
+        if not line.strip() or line.startswith(("|", "- ", "  ", "!", "#")) or re.match(r"^\d+\. ", line):
+            if cur:
+                paras.append(" ".join(cur))
+                cur = []
+            continue
+        cur.append(line.strip())
+    if cur:
+        paras.append(" ".join(cur))
+    return "".join("<p>%s</p>" % md_inline(p) for p in paras)
+
+
+def md_numbered_html(block):
+    """A Markdown numbered list (1. item, continuation lines indented) as HTML."""
+    items = []
+    for line in block.splitlines():
+        m = re.match(r"^(\d+)\. (.*)", line)
+        if m:
+            items.append(m.group(2).strip())
+        elif line.startswith("   ") and items:
+            items[-1] += " " + line.strip()
+    return "<ol>%s</ol>" % "".join("<li>%s</li>" % md_inline(it) for it in items) if items else ""
+
+
+def world_map(zones, starts):
+    """World and map: the main map's design, its build, its questions and to-do list (the design record's
+    docs/map-design.md, the Map chat's page), with the zone and start data from the game's Data/ folder."""
     md = open(os.path.join(HERE, "..", "docs", "map-design.md"), encoding="utf-8").read()
 
-    def section(title):
-        start = md.index("## " + title)
-        end = md.find("\n## ", start + 3)
-        return md[start:end if end > 0 else len(md)]
+    def sec(title):
+        return md_section(md, title)
 
-    def rows(block):
-        lines = [l for l in block.splitlines() if l.startswith("|")][2:]
-        return [[c.strip() for c in l.strip("|").split("|")] for l in lines]
-
-    progress = rows(section("6. Progress"))
-    pictures = re.findall(r"!\[([^\]]*)\]\(pictures/([^)]+)\)", section("7. Pictures"))
-    state_tag = {"Done": BUILT, "Doing": tag("open", "Doing"), "Next": DESIGN, "Later": DESIGN}
+    pictures = md_pictures(sec("12. Pictures"))
+    svg, step = zone_map_svg(zones)
+    counts = {t: sum(1 for z in zones if z["type"] == t) for t in ZONE_TYPES}
+    level_of = {z["zone_id"]: (z["recommended_level"], z["name"]) for z in zones}
+    zone_rows = []
+    for z in zones:
+        flagged = z["pvp_flag"].lower() == "true"
+        pvp = (tag("pvp", "Flagged") + " %s s consent · %s s exit" % (z["entry_consent_buffer_seconds"], z["exit_cooldown_seconds"])) if flagged else "—"
+        zone_rows.append(["<code>%s</code>" % E(z["zone_id"]), "<strong>%s</strong>" % E(z["name"]), E(ZONE_TYPES.get(z["type"], (z["type"],))[0]),
+                          E(z["recommended_level"]), E(z["loot_tier"]), pvp, minutes(z["spawn_timer_seconds"]), E(z["notes"])])
+    example = sec("2. The bundle's example level, and what the new map takes from it")
+    tool = sec("6. The terrain tool and the level builder")
+    harvest = sec("8. Harvesting (built into the map from the start)")
     body = """
-<p>""" + tag("open", "Doing") + """ The owner asked for the whole main map and its biomes to reach "AAA" quality, with
-harvesting built in: trees cut down, rocks mined, sticks and stones picked up, plants harvested for fibre and food.
-This tab follows that work step by step; the full plan is the design record's <code>docs/map-design.md</code>.</p>
+<p>""" + tag("open", "Doing") + """ The main map is being rebuilt from the Sci-Fi bundle's example level (D-34): an
+island <strong>45.9 km from south to north</strong> and 22.4 km wide, <strong>714 km²</strong> of land with sea all
+around, a landscape at 1 m everywhere with Nanite, regions that blend into each other instead of meeting at hard edges,
+open ground for the hoverbike and buggy, and the arctic in the north-west. This tab is the Map chat's: the plan, how it
+is built, the pictures, the questions for the owner and the to-do list. The full plan is the design record's
+<code>docs/map-design.md</code>.</p>
 
 <h2>Pictures</h2>
 <div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
 
-<h2>Steps</h2>
-""" + table(["Step", "What", "State"], [[E(r[0]), md_inline(r[1]), state_tag.get(r[2].split()[0], "") + " " + md_inline(" ".join(r[2].split()[1:]))]
-                                       for r in progress]) + """
-<h2>How it is made</h2>
-<ul>
-<li><strong>Terrain:</strong> Tharrn's terrain tool shapes each region on the layout's coast (dunes, sea cliffs and
-stacks; forest ridges; desert dunes, buttes and a crater; the mesa with canyons; karst towers and sinkholes; the
-lagoon), then erodes it with millions of simulated raindrops, finds rivers and lakes from where the water flows, and
-paints the ground with the Sci-Fi bundle's layers.</li>
-<li><strong>Landscape:</strong> 2 m between points over 18.8 × 13.7 km (37 × 27 landscape components, under Epic's
-1,024 limit), the bundle's landscape material with its virtual textures.</li>
-<li><strong>Dressing:</strong> the bundle's biome presets read the paint: each spawns its trees, plants and rocks
-where its layer is painted, and its rock sets turn steep ground into cliffs and spires.</li>
-</ul>
+<h2>Questions for the owner</h2>
+""" + md_table_html(sec("10. Questions for the owner")) + """
+
+<h2>To do</h2>
+""" + md_list_html(sec("11. To do")) + """
+
+<h2>Progress</h2>
+""" + progress_table(md_rows(sec("9. Progress"))) + """
+
+<h2>Size and travel</h2>
+""" + md_table_html(sec("1. Size and travel")) + """
+
+<h2>The layout</h2>
+""" + md_paragraphs(sec("3. The layout")) + md_table_html(sec("3. The layout")) + """
+<h2>Biome transitions</h2>
+""" + md_paragraphs(sec("4. Biome transitions")) + md_list_html(sec("4. Biome transitions")) + """
+
+<h2>What it takes from the bundle's example level</h2>
+""" + md_paragraphs(example) + md_table_html(example) + """
+
+<h2>How it is built</h2>
+""" + md_table_html(sec("5. Technical set-up")) + md_paragraphs(sec("5. Technical set-up")) + md_numbered_html(tool) + md_paragraphs(tool) + """
+
+<h2>Where you can start</h2>
+<p>""" + DESIGN + """ You pick where to start: one or two starting locations in each region, by the difficulty you
+want (D-28). The convoy's crash scattered its survivors across the island, so each start is a crash site.</p>
+<p>""" + OPEN + """ The starts below are still placed on the first island's layout; they are laid out again on the new
+map (to do).</p>
+""" + table(["Start", "Difficulty", "Level", "Region", "Zone", "What it is like"], [
+        ["<code>%s</code> <strong>%s</strong>" % (E(s["start_id"]), E(s["name"])), tag(s["difficulty"].lower(), s["difficulty"]),
+         E(level_of[s["zone_id"]][0]), E(s["region"]), "%s %s" % (E(s["zone_id"]), E(level_of[s["zone_id"]][1])),
+         E(s["notes"])] for s in starts]) + """
+
+<h2>Zones</h2>
+<p>""" + OPEN + """ The zone data is still the first island's grid of %d zones of %.2f km (D-27); on the new map each
+zone becomes part of a region (OQ-24). Drawn to scale from the zone data, y increasing upward.</p>
+<figure class="map-figure">""" % (len(zones), step) + svg + """</figure>
+""" + table(["Type", "Zones", "Meaning"], [["<strong>%s</strong>" % E(label), str(counts[t]), E(text)] for t, (label, text) in ZONE_TYPES.items()]) + """
+<h3>Every zone</h3>
+<p>Level is the recommended level. Respawn is how often its resources and creatures come back.</p>
+""" + table(["ID", "Zone", "Type", "Level", "Loot", "PvP", "Respawn", "Notes"], zone_rows) + """
+
+<h2>The biomes</h2>
+<p>The regions get harder toward the north, and toward the floating islands of the endgame.</p>
+""" + table(["Biome", "What it is like", "Resources", "Threats"], [
+        ["<strong>Coastal</strong> (start)", "Wreckage, shallow pools, small fauna", "Organic, low-tier minerals", "Skitter packs, tidal storms"],
+        ["<strong>Fungal Forest</strong>", "Bioluminescent flora, spore clouds", "Biotech cores, organic fibre", "Spore bloom, Lumivine Colossus"],
+        ["<strong>Crystalline Desert</strong>", "Crystal fields, gravity anomalies", "Energy crystals, alloy veins", "Sand raptors, grav raptors, Skitterjaws"],
+        ["<strong>High-Gravity Plateau</strong>", "Heavy fauna, slow movement", "Rare alloys", "Heavy grazers, territorial titans"],
+        ["<strong>Subterranean Caverns</strong>", "Oxygen limits, echo swarms", "Alien cores, rare minerals", "Echo Swarm, cave collapses"],
+        ["<strong>Arctic</strong> (the north-west)", "Snow mountains, fjords, tundra; cold", "To design", "To design"],
+        ["<strong>Floating Archipelagos</strong> (endgame)", "Aerial traversal, PvP warzones", "Endgame blueprints", "Aerial predators, faction fortresses"],
+    ]) + """
+
+<h2>Harvesting</h2>
+""" + md_table_html(harvest) + md_paragraphs(harvest) + """
 """
-    return page("Map build", "Map build",
-                "Building the 100 km² main map to AAA quality, region by region.", body,
-                "Sources: the design record's docs/map-design.md (plan, progress, pictures); D-26, D-27, D-28.")
+    return page("World and map", "World and map",
+                "The main map: an island 46 km long, rebuilt from the bundle's example level, region by region.", body,
+                "Sources: the design record's docs/map-design.md (the Map chat's); decisions D-19, D-26 to D-28 and D-34; "
+                "zones and starts from the game's <code>Data/Zones.csv</code> and <code>Data/StartLocations.csv</code>.")
 
 
 def development():
@@ -837,6 +1086,8 @@ def development():
         ["D-26", "The main map is about 100 km², its biomes put together the way the Sci-Fi bundle's example level is"],
         ["D-27", "The main map is an island: the 15 zones, 2.56 km each, with sea all around"],
         ["D-28", "A new player picks where to start: one or two starting locations in each region, by difficulty"],
+        ["D-30", "Players build bases from the Sci-Fi bundle's pieces, remade into individual parts that snap together, in tiers of building"],
+        ["D-33", "Building tiers: Wooden Fiber, Salvaged Mineral, Enhanced Alloy, Biotech; the bundle's 4.5 m storey; the Hyper template only a reference"],
     ]
     questions = [
         ["OQ-01", "Consoles", "PC first; decide once the prototype is fun"],
@@ -1018,6 +1269,14 @@ table.kv td:first-child{color:var(--mak-muted);white-space:nowrap;width:1%}
 .zone-map .zname{font-size:.185px}
 .zone-map .zmeta{font-size:.16px;fill-opacity:.75}
 .zone-map .axis{font-size:.19px;fill-opacity:.55}
+.acts{display:block;width:100%;height:auto;color:inherit}
+.acts .act-box{fill:#ffffff08;stroke:currentColor;stroke-opacity:.35;stroke-width:.15}
+.acts text{fill:currentColor;text-anchor:middle}
+.acts .act-name{font-size:2.2px;font-weight:700}
+.acts .act-levels{font-size:1.7px;fill-opacity:.8}
+.acts .act-where{font-size:1.45px;fill-opacity:.6}
+.cards-wide{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.grid-cards .mak-card table{margin:8px 0 0}
 .legend{display:flex;flex-wrap:wrap;gap:8px 20px;list-style:none;padding:0;margin:12px 0 0;font-size:13px}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:7px}
 .steps li{margin:8px 0}
@@ -1046,6 +1305,7 @@ table.kv td:first-child{color:var(--mak-muted);white-space:nowrap;width:1%}
 .zone-map .ytitle{display:none}
 .map-figure{padding:8px}
 .hud-mock{grid-template-columns:1fr;grid-template-areas:"tl" "tc" "tr" "cc" "bl" "bc" "br"}
+.acts-figure{display:none}
 .hud-mock .cc{margin:0;text-align:left}
 }
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.tag-built,.tag-easy){color:#16794a!important;border-color:#16794a59;background:#16794a12}
@@ -1059,6 +1319,8 @@ html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.map-figure,.hud-m
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .hud-mock>div{border-color:#202a4040}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) :is(.wiki-foot,.wiki-note,.shot figcaption,.chain-arrow,table.kv td:first-child,.hud-mock strong){color:#505b70!important;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .zone-map{color:#232735}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .acts{color:#232735}
+html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .acts .act-box{fill:#20283f08}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .card-num{color:#98445e!important}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .icon-grid figure{background:#14161c!important;border-color:#202a4026}
 html[data-mrmak-theme=light]:not([data-mak-theme=custom]) .icon-grid figcaption{color:#c9c1d2!important}
@@ -1077,19 +1339,16 @@ def main():
         dungeon = json.load(f)
     with open(os.path.join(args.data, "MetaHumanPresets.json"), encoding="utf-8") as f:
         presets = json.load(f)
-    with open(os.path.join(args.data, "UI", "HudLayout.json"), encoding="utf-8") as f:
-        hud = json.load(f)
 
     pages = [  # (tab name, file, html)
         ("Overview", "index.html", overview()),
-        ("World and zones", "world.html", world(zones, starts)),
+        ("World and map", "world.html", world_map(zones, starts)),
         ("Bestiary", "bestiary.html", bestiary(creatures)),
         ("Combat and arsenal", "combat.html", combat(weapons)),
-        ("Survival and building", "survival.html", survival()),
-        ("Progression and dungeons", "progression.html", progression(dungeon)),
+        ("Building Assets", "survival.html", building_assets()),
+        ("Progression and Story", "progression.html", progression_and_story(dungeon)),
         ("PvP and travel", "pvp.html", pvp(zones)),
-        ("Characters and HUD", "characters.html", characters(presets, hud)),
-        ("Map build", "map.html", map_build()),
+        ("GUI, UI, Menus", "characters.html", gui_ui_menus(presets)),
         ("Development", "development.html", development()),
     ]
     os.makedirs(OUT, exist_ok=True)

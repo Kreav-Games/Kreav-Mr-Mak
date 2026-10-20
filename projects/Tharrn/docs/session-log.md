@@ -193,3 +193,35 @@ Division 2's menus and HUD with ARK's survival layout (D-31; the Building chat's
 `style-guide.html`: colour, type, parts and their states, icons, HUD layout, motion, sound) and mock-ups over in-game
 captures (HUD, inventory, main menu, loading screen), rendered with `docs/ui/render.mjs`; [ui-design.md](ui-design.md)
 holds the direction, steps U1 to U8 and the pictures, which the wiki's tab reads.
+
+*2026-10-19, evening.* The Building chat (Claude Code). The owner opened a chat for base building: "Here we will
+access all the Bundles assests, like the floors, barrack's ect. Here we will find what AI we need to connect to for
+rebuilding these assets [...] we will rebuild the assests to be individual parts so a player can build as they'd like
+so remodeling will need to happen. we will also have different tiers of building." D-30 recorded (first written as
+D-29 at the same moment as the interface chat's decision; the two chats settled on D-30 for building and D-31 for the
+interface), OQ-17 (tiers), OQ-18 (storey height) and OQ-19 (the Hyper template) opened, [building.md](building.md)
+written. Read from the open editor without changing it: sizes, triangles, materials and Nanite of 70 bundle pieces and
+thumbnails of 48 (no package left unsaved). The barrack kit is on a 3 m grid with 4.5 m storeys and walls 1.8 m deep
+at their widest; `_D` meshes are mesh decals and `_W` window glass; the main guide gives the look values
+(`F_CustomPrimitiveVisuals`: five colours, dirt, dust, damage) and the level objects' power states. The Fab library's
+flags: the bundle and the Hyper survival template are not marked "no AI". Higgsfield is on a free plan with 10
+credits, its 3D models 5 to 25 credits each; fal.ai is not connected; Geometry Script is loaded in Tharrn's editor.
+The owner then gave this chat the wiki's Survival and building tab, now **Building Assets**: "this is where you can
+post pictures of progress and design ideas, its out space to build together and reach the triple A quality we need".
+It reads building.md (progress and design-idea pictures, tiers, AI and tools, work stations, steps) and keeps GDD 03's
+survival rules below; new pictures: the bundle's example colony from the open editor (the viewport's camera put back
+afterwards) and a design picture of the grid, walls and tiers. **Checked** in Edge at 1280, 768 and 390 px, dark and
+the app's light theme: no sideways scrolling, all 6 pictures load, the viewer opens with Download. **Next:** the
+owner's choices (OQ-17 to OQ-19), then B2, the piece factory.
+
+*2026-10-19, evening.* The owner opened the Weapons and Tools chat (D-32): the wiki's Combat and arsenal tab is its
+space. W0 (Claude Code): the shooter pack's weapons measured through Unreal MCP without changing anything (vertices per LOD,
+parts, bones, materials, 4K textures; thumbnails composed into sheets in `docs/pictures/weapons/`): each gun is modular, one
+skeletal mesh per part on one weapon skeleton per class, with no sockets on the meshes (the muzzle is a child actor, the eye
+behind the sight a tuned number). [weapons.md](weapons.md): the model contract (parts on the pack's class skeletons, sockets,
+budgets, a core slot), which AI and tools do what and what is missing (nothing to start; the Higgsfield CLI's binary is
+missing; a paid plan or a Lychee seat once the arsenal is made for real), the arsenal in waves, the hand tools as `melee`
+weapon rows (proposals), steps W0 to W9. OQ-20 to OQ-22 opened. The wiki's Combat and arsenal tab now reads the page's
+progress, pictures and tables. **Checks:** the wiki rebuilt; the Higgsfield balance read (10 credits, free plan).
+
+*2026-10-19, evening.* The Story chat (Claude Code). The owner: "you are the story behind the game, how we got here, what we do, quests, progression, raids ect. you controll the Progression and dungeons tab, name is Progression and Story." [story.md](story.md), draft 1: the story in one page (the Exodus Initiative's First Signal, the two convoys, the Lattice and the Choir, the keeper's call), a timeline, the island's secrets act by act, four factions with hubs and reputation, the four origins' starter items and three-step intro quests, five acts with chapters and what each milestone needs, the five quest types with examples, cadence and a `Quests.csv` format, levels and XP (baseXP 100, rewards scaled by the curve, the level bands by region against the Map chat's layout), three talent trees of five tiers with keystones (the direction's nine kept), loot tiers' sources, blueprints, weapon mastery and reputation ranks, six dungeons with bosses and endgame difficulties, two raids, world bosses, faction wars and seasons; OQ-25 to OQ-27 opened; steps Q1 to Q8. The wiki's tab renamed **Progression and Story**: it reads story.md (an act strip drawn from the acts table, the sections, the steps) and keeps the draft dungeon's card from the game's data; GDD 04 and 09 point at the page. **Checked** with Playwright (Edge) at 1280, 768 and 390 px, dark and the app's light theme: no sideways scrolling, the picture loads, no page errors. Nothing committed: the owner's call.

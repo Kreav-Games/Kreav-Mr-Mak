@@ -29,6 +29,13 @@ Proposed order; each module is built server-authoritative from the start (D-04).
 | P8 | **MetaHuman base:** the player as a MetaHuman from presets (OQ-03), customisation JSON saved and loaded | A preset choice survives a reload and shows on both clients | — |
 | P9 | **Prototype play-through:** crash site → vitals → scavenge and craft → Skitterjaw fight → shelter (foundation, generator, bench) | The owner plays it for 10–15 minutes and calls it fun | — |
 
+## Base building track (the Building chat, D-30)
+
+Runs beside the prototype modules and the map work: the Sci-Fi bundle's building pieces remade into individual
+parts in tiers of building, and its machines made into work stations. Plan, steps B0 to B8 and progress:
+[building.md](building.md); pictures on the wiki's Building Assets tab. It feeds P9's shelter (foundation,
+generator, bench). B0 and B1 done 2026-10-19 (D-33: the tiers, the 4.5 m storey); B2, the piece factory, in progress.
+
 ## P1 Foundation: what was built and checked
 
 - **Data:** `Data/Weapons.csv`, `Creatures.csv`, `Zones.csv` import into `DT_Weapons`, `DT_Creatures`, `DT_Zones`

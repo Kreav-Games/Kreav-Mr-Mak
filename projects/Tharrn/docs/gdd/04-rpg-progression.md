@@ -31,3 +31,9 @@ Common, Uncommon, Rare, Advanced, Alien; higher tiers need blueprints.
   at a target number of hours, OQ to raise then).
 - Quests as data (stages, objectives, rewards) driven by a small server-side quest subsystem.
 - Not in the Prototype; first appears in the vertical slice (one faction questline).
+
+## Story, quests and progression design (2026-10-19)
+
+The story bible and the progression design (factions, origins, the main story by act, the quest types and data, XP
+sources, the talent trees, loot and blueprints, raids and the endgame) are in [story.md](../story.md), the Story
+chat's page, read by the wiki's Progression and Story tab; proposals OQ-25 to OQ-27.
