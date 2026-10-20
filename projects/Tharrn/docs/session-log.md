@@ -225,3 +225,27 @@ weapon rows (proposals), steps W0 to W9. OQ-20 to OQ-22 opened. The wiki's Comba
 progress, pictures and tables. **Checks:** the wiki rebuilt; the Higgsfield balance read (10 credits, free plan).
 
 *2026-10-19, evening.* The Story chat (Claude Code). The owner: "you are the story behind the game, how we got here, what we do, quests, progression, raids ect. you controll the Progression and dungeons tab, name is Progression and Story." [story.md](story.md), draft 1: the story in one page (the Exodus Initiative's First Signal, the two convoys, the Lattice and the Choir, the keeper's call), a timeline, the island's secrets act by act, four factions with hubs and reputation, the four origins' starter items and three-step intro quests, five acts with chapters and what each milestone needs, the five quest types with examples, cadence and a `Quests.csv` format, levels and XP (baseXP 100, rewards scaled by the curve, the level bands by region against the Map chat's layout), three talent trees of five tiers with keystones (the direction's nine kept), loot tiers' sources, blueprints, weapon mastery and reputation ranks, six dungeons with bosses and endgame difficulties, two raids, world bosses, faction wars and seasons; OQ-25 to OQ-27 opened; steps Q1 to Q8. The wiki's tab renamed **Progression and Story**: it reads story.md (an act strip drawn from the acts table, the sections, the steps) and keeps the draft dungeon's card from the game's data; GDD 04 and 09 point at the page. **Checked** with Playwright (Edge) at 1280, 768 and 390 px, dark and the app's light theme: no sideways scrolling, the picture loads, no page errors. Nothing committed: the owner's call.
+
+*2026-10-19, night.* The Building chat (Claude Code). The owner's answers: "1. Tiers ( Wooden Fiber, Salvaged Mineral,
+Enhanced Alloy, Biotech ) 2. yes 3. agree 4. yes, then continue with piece factory. and commit". D-33 recorded (the
+four tiers, the 4.5 m storey, the Hyper template only a reference; OQ-17 to OQ-19 resolved); the tiers' looks are
+proposals in [building.md](building.md) (the bundle as it ships becomes Enhanced Alloy). The shared record was committed
+whole (`40bddde`) after the interface, weapons, map and story chats agreed. B2, the piece factory (game repo):
+`Data/BuildPieces.csv` and `Tools/Building/build_pieces.py`, which cuts and joins the bundle's barrack meshes with
+Geometry Script in a background editor beside the open one, into one frame (the storey's floor at z = 0, every bundle
+mesh 80.4 cm down), with snap sockets (tag `TB`), box collision and a decal and glass mesh of their own. First six
+pieces under `/Game/Tharrn/Building/Pieces`: foundation (the barrack floor, a ring of footings and a solid core in the
+bundle's outside paint, its texture scale and wear colour copied from the barrack roof), floor and ceiling, roof, wall,
+doorway wall, window wall. Found on the way: the bundle wall's body is 0.58 m (inside face at y 3, outside panel at
+61) with ledges reaching up to 1 m into the room; trimming them above the floor only keeps the base flange under it,
+so a wall still reaches 60 cm down and storeys overlap as in the bundle; footings are open frames (a foundation needs a
+core); the bundle's base units are placeholder volumes in the grid material; a mesh's sockets are read with
+`get_sockets_by_tag`, not the protected `sockets` property; a background editor sometimes crashes on exit after its
+work is saved (the RESULT line is what counts); a background editor must not run while another chat compiles the
+game's C++ (it holds the DLLs); and the open editor keeps a Nanite mesh's file open once it has drawn it, even for a
+thumbnail, so later background saves of those pieces only logged "MoveFile was unable to move" (the first two game-repo
+commits, `aa93a8b` and `ee76830`, hold the first build's meshes): the tool now checks every file it saves, and pictures
+come from copies built with `TH_PREVIEW`. **Checks:** `build_pieces.py` RESULT ok (6 pieces, 0 problems: sizes against the
+CSV, every socket, walls reaching under the wall below, every file written); game repo `c509229`; the Building Assets
+tab in Edge at 1280, 768 and 390 px, dark and light, every picture loading. **Next:** B3, a gallery level built in a background editor
+and pictures from the game, then the open points in building.md's piece factory section.

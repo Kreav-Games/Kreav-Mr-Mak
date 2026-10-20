@@ -34,7 +34,8 @@ Proposed order; each module is built server-authoritative from the start (D-04).
 Runs beside the prototype modules and the map work: the Sci-Fi bundle's building pieces remade into individual
 parts in tiers of building, and its machines made into work stations. Plan, steps B0 to B8 and progress:
 [building.md](building.md); pictures on the wiki's Building Assets tab. It feeds P9's shelter (foundation,
-generator, bench). B0 and B1 done 2026-10-19 (D-33: the tiers, the 4.5 m storey); B2, the piece factory, in progress.
+generator, bench). B0 to B2 done 2026-10-19 (D-33: the tiers, the 4.5 m storey; the piece factory and its first six pieces); next, B3:
+the gallery level and the rest of the Enhanced Alloy set.
 
 ## P1 Foundation: what was built and checked
 

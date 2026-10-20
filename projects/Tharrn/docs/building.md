@@ -159,13 +159,45 @@ server subsystem; decay as a slow server tick. Added here (proposal):
 - The Hyper survival template's building system (UE 5.5, Blueprints) is a reference for the piece list and how
   building feels, not code to bring in (D-33).
 
+### The piece factory (B2)
+
+`Data/BuildPieces.csv` (game repo) lists the pieces: their meshes, the size each should have and its snap sockets.
+`Tools/Building/build_pieces.py` makes them from the bundle's barrack meshes in a background editor and checks them;
+every run rebuilds every piece the same way (D-06). It cuts and joins with Unreal's Geometry Script, so the pieces keep
+the bundle's materials, wear colours and UVs.
+
+- **One frame for every piece:** z = 0 is the storey's floor, so every bundle mesh moves down 80.4 cm (the bundle's
+  raised floor). Floors and foundations have their pivot at the cell's centre on the floor; a roof's pivot is where the
+  next storey's floor would be, so it sits on the walls' tops; a wall's is the middle of its base line, its body
+  centred on the cell's edge, the outside facing +Y.
+- **Three meshes a piece:** the piece (Nanite), its decals (`_D`: stripes, signs and grime, see-through, so not Nanite)
+  and, for windows, its glass (`_W`).
+- **Sockets** (tag `TB`): floors and foundations have `Snap_Center`, four edges and four corners; walls `Snap_Base`,
+  `Snap_Top` (4.5 m up), `Snap_Left` and `Snap_Right`; the doorway a `Door` socket for the door.
+- **Collision:** simple boxes; the doorway's leave its opening free.
+- **Remodel:** walls are trimmed where they reached into the room above the floor (the ledge, floor strips, skirting,
+  the ceiling ledge with its lights); under the floor their base stays, hidden, and reaches 60 cm down so storeys
+  overlap as in the bundle. A foundation is the barrack floor, a ring of footings and a solid core 1.8 m deep in the
+  bundle's outside paint (the footings alone are an open frame you can see through).
+- **Checks:** each piece's size against the CSV (walls measured above their floor), every socket, and that a wall's
+  base reaches under the top of the wall below.
+
+To look at in the gallery (B3): between storeys a 14 cm line can open on the outside between a wall's top band and
+the wall above (the bundle's barracks are one storey high and its roof closes that line); a floor's sandwich (the
+floor on top, the ceiling 1 m under it) is open at an edge with no wall, which wants an edge trim piece; walking
+through the doorway's opening; how the trimmed walls' cut faces look from inside.
+
 ## 8. Working beside the map chat
 
 Both chats use one editor, and an editor has one open level. So this chat only reads the open editor (sizes, pictures)
 while the map work runs. Pieces are made in a second editor started in the background, which cannot take MCP's port
 (harmless, engineering guide gotcha 4) and saves only under `/Game/Tharrn/Building`. Pieces are rebuilt only while no
-open level uses them. Anything that needs its own level (the piece gallery, play-tests) waits for the owner's go while
-the map chat is idle. The bundle's own folders are never saved (D-08).
+open level uses them, and not while another chat compiles the game's C++ (a background editor holds the game's DLLs).
+Once the open editor has drawn a piece (a thumbnail is enough) it keeps that Nanite mesh's file open, and a background
+build can no longer replace it: build first, look at `TH_PREVIEW` copies, or wait for the editor's next restart. The
+factory checks every file it saves, so this fails loudly instead of leaving an old piece.
+Anything that needs its own level (the piece gallery, play-tests) waits for the owner's go while the map chat is idle.
+The bundle's own folders are never saved (D-08).
 
 ## 9. Steps
 
@@ -173,8 +205,8 @@ the map chat is idle. The bundle's own folders are never saved (D-08).
 |---|---|---|---|
 | B0 | The bundle's pieces measured and pictured; the remodel, the AI and tools, the tiers and the work stations proposed (this page) | The owner has read it | Done 2026-10-19 |
 | B1 | The owner's choices: the tiers, the storey height, the Hyper template | Decisions logged | Done 2026-10-19 (D-33) |
-| B2 | Piece factory: `Data/BuildPieces.csv` and `Tools/Building/build_pieces.py` (Geometry Script in a background editor) make every piece under `/Game/Tharrn/Building` from the bundle's meshes | Every piece rebuilds from the CSV with no problems; a test checks sizes and snap points | Doing |
-| B3 | The Enhanced Alloy set (the bundle's look): square and triangle foundations and floors, wall, half wall, doorway and door, window wall, wall frame, corner post, roof, stairs, ramp; a gallery level with pictures | The owner approves the pictures | Later |
+| B2 | Piece factory: `Data/BuildPieces.csv` and `Tools/Building/build_pieces.py` (Geometry Script in a background editor) make every piece under `/Game/Tharrn/Building` from the bundle's meshes | Every piece rebuilds from the CSV with no problems; a test checks sizes and snap points | Done 2026-10-19: six pieces, RESULT ok (game repo `c509229`) |
+| B3 | A gallery level with pictures from the game; the open points of the piece factory (section 7); the rest of the Enhanced Alloy set (the bundle's look): triangle foundation and floor, half wall, wall frame, door, corner post, edge trim, stairs, ramp | The owner approves the pictures | Next |
 | B4 | The building system in C++: build tool, ghost preview, snapping, checks, placing, removing and upgrading on the server; instanced drawing | Tests; the network test with 2 clients and a late joiner; made-up placements refused | Later |
 | B5 | Tier looks: the Wooden Fiber pieces; colour, dirt and damage presets and new detail for Salvaged Mineral and Biotech (Higgsfield or Blender) | Pictures of each tier; the owner's yes | Later |
 | B6 | Work stations and base machines from the bundle (section 6), replicated | Each works for two clients | Later |
@@ -188,6 +220,7 @@ first in each list).
 
 ### Progress
 
+- ![The piece factory's first six pieces (B2, 2026-10-19), Enhanced Alloy from the bundle: the foundation with its solid core, floor and ceiling, roof, wall, doorway wall and window wall](pictures/building/pieces_b2.jpg)
 - ![The barrack kit, the main kit for player building: floors, footings, walls with windows and doorways, corners, roofs and ceilings, the pressure door and stairs (2026-10-19)](pictures/building/bundle_barrack_kit.jpg)
 - ![The bundle's other building kits: the round base, airlock connectors and tunnel, scaffolding, the landing pad, fences, ground plates, pillars, ladders and tanks](pictures/building/bundle_other_kits.jpg)
 - ![Work stations and base machines already in the bundle: printer, machine platform, scanner, transformer, solar panel, pump, hydroponics, cryo chamber, bed, locker, container, comms mast, computer, wall machine, turret](pictures/building/bundle_workstations.jpg)

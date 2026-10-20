@@ -83,6 +83,13 @@ powershell -NoProfile -File D:\Tharrn\Tools\Checks\measure_budget.ps1 -Map /Game
 # Packs (editor closed): stage, list sizes, or remove
 python D:\Tharrn\Tools\Packs\stage_packs.py [--pack SciFiBundle] [--dry-run] [--remove "<Pack>"]
 
+# Building pieces from the Sci-Fi bundle (D-30, building.md): a background editor beside the open one, not while C++
+# compiles; ends with [THBuild] RESULT ok, report in Saved\Building\pieces_report.json; $env:TH_PIECES="WALL" for one.
+# The open editor locks a Nanite mesh's file once it has drawn it (thumbnails too): the tool then fails a save loudly;
+# $env:TH_PREVIEW="<name>" builds copies under /Game/Tharrn/Scratch/BuildPreview/ to look at instead
+& "$UE\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Proj -ExecutePythonScript="D:\Tharrn\Tools\Building\build_pieces.py" `
+  -unattended -RenderOffscreen -nosplash -nosound -abslog=D:\Tharrn\Saved\Logs\build_pieces.log
+
 # With the editor open (they talk to Unreal MCP); each ends with RESULT ok or RESULT failed
 python D:\Tharrn\Tools\Checks\verify.py [--quick]                 # ladder steps 1-4: game build, plugins, data, tests, network
 python D:\Tharrn\Tools\Data\import_data_tables.py [Weapons]    # Data/*.csv -> /Game/Tharrn/Data
