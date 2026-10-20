@@ -100,6 +100,14 @@ The owner named the four tiers after GDD 03's resources. How each looks and is m
 | 3 Enhanced Alloy | The bundle as it ships: clean alloy prefab panels in colony colours | The remodelled bundle pieces | Alloy; panels printed at the fabricator |
 | 4 Biotech | Living technology: grown biotech panels with glowing seams | The bundle's shapes with biotech growth and glow (new detail, B5) | Biotech cores and a blueprint (GDD 04: higher tiers need blueprints) |
 
+The looks follow the story's tier guide ([story.md](story.md) section 13, the Story chat): Wooden Fiber is the Wreck
+(timber and woven fibre lashed to lander plating, scorched off-white polymer, improvised and uneven), Salvaged Mineral
+the Flats (cast stone, mismatched bolted plates, rust, rope, hazard paint by hand), Enhanced Alloy the Outpost (the
+bundle as it ships: matte off-white panels, dark alloy frames, square panel lines, with the Exodus orange stripe) and
+Biotech the Choir (grown panels with no cut edges, seams of light that breathe). Every glow is one colour, the
+interface's Neural token; the pulse silences powered Outpost and Flats pieces (lights, turrets, generators) for a few
+seconds while Choir pieces keep working; a base's age should read from across a field.
+
 Rules (proposal): every tier keeps the same footprint and snap points, so a piece upgrades where it stands (hold the
 build tool on it and pay for the next tier). A higher tier has more health and armour. On the bundle's shapes its damage
 value rises as a piece loses health, so wear shows without extra models, and dirt and dust grow while a base decays
@@ -118,7 +126,7 @@ of survival games, and the pieces of the Hyper survival template's building syst
 | Doorway and door; wide gate | Barrack doorway and pressure door; landing pad or airlock parts |
 | Window wall | Barrack window wall and its glass |
 | Wall frame (for a door or window to go in) | Barrack doorway, cut |
-| Corner post; pillar | Barrack corner trim; medium pillar |
+| Corner post (built, B3) | The bundle's medium pillar, its middle section stacked and scaled 1.2 |
 | Roof and roof edge (flat, the bundle's style) | Barrack roof and ceiling |
 | Stairs, ramp, ladder | Bundle stairs; a new ramp; cage ladder |
 | Railing, fence | Pipe fence |
@@ -178,14 +186,28 @@ the bundle's materials, wear colours and UVs.
 - **Remodel:** walls are trimmed where they reached into the room above the floor (the ledge, floor strips, skirting,
   the ceiling ledge with its lights); under the floor their base stays, hidden, and reaches 60 cm down so storeys
   overlap as in the bundle. A foundation is the barrack floor, a ring of footings and a solid core 1.8 m deep in the
-  bundle's outside paint (the footings alone are an open frame you can see through).
+  bundle's outside paint (the footings alone are an open frame you can see through). A floor and ceiling has the same
+  ring of footings and a core resting on its ceiling, so its edges are closed and every storey stands on the same
+  base band. A corner post closes the outside corner where two walls meet: the bundle closes its corners with an
+  L-shaped corner wall, so two of its walls meeting at a corner leave an opening.
 - **Checks:** each piece's size against the CSV (walls measured above their floor), every socket, and that a wall's
   base reaches under the top of the wall below.
 
-To look at in the gallery (B3): between storeys a 14 cm line can open on the outside between a wall's top band and
-the wall above (the bundle's barracks are one storey high and its roof closes that line); a floor's sandwich (the
-floor on top, the ceiling 1 m under it) is open at an edge with no wall, which wants an edge trim piece; walking
-through the doorway's opening; how the trimmed walls' cut faces look from inside.
+### The gallery (B3)
+
+`Tools/Building/build_gallery.py` builds `/Game/Tharrn/Building/L_BuildGallery` in a background editor: the Tharrn
+sky, a ground in the landing pad's surface, a base built from the pieces the way a player would (three by two cells,
+two storeys over four of them, a doorway, windows, roofs, a floor overhanging its wall, corner posts) and every piece on
+its own. It writes the camera views to `Tools/Building/gallery_views.csv`, and `Tools/Terrain/capture.ps1` photographs
+them from the running game (pictures in section 10). The standard is the owner's: no tears or openings anywhere; the
+pieces look finished from every side and in any combination.
+
+First pictures (2026-10-19) and what they changed: an opening at every outside corner (the corner post now closes it);
+a floor's edge open between the floor and the ceiling 0.6 m under it (now its footings and core close it); a messy line
+between storeys (now the same base band as at the ground); a floor's core hiding its ceiling's coffers (it now rests on
+the ceiling). Already right: walls joined in a line, a wall's free end, the inside faces where the ledges were trimmed,
+inside corners, the roof's parapet. Still to do: walking through the doorway (B4, with collision in play), the rest of
+the set (step B3).
 
 ## 8. Working beside the map chat
 
@@ -206,7 +228,7 @@ The bundle's own folders are never saved (D-08).
 | B0 | The bundle's pieces measured and pictured; the remodel, the AI and tools, the tiers and the work stations proposed (this page) | The owner has read it | Done 2026-10-19 |
 | B1 | The owner's choices: the tiers, the storey height, the Hyper template | Decisions logged | Done 2026-10-19 (D-33) |
 | B2 | Piece factory: `Data/BuildPieces.csv` and `Tools/Building/build_pieces.py` (Geometry Script in a background editor) make every piece under `/Game/Tharrn/Building` from the bundle's meshes | Every piece rebuilds from the CSV with no problems; a test checks sizes and snap points | Done 2026-10-19: six pieces, RESULT ok (game repo `c509229`) |
-| B3 | A gallery level with pictures from the game; the open points of the piece factory (section 7); the rest of the Enhanced Alloy set (the bundle's look): triangle foundation and floor, half wall, wall frame, door, corner post, edge trim, stairs, ramp | The owner approves the pictures | Next |
+| B3 | A gallery level with pictures from the game; the open points of the piece factory (section 7); the rest of the Enhanced Alloy set (the bundle's look): triangle foundation and floor, half wall, wall frame, door, stairs, ramp | The owner approves the pictures | Doing: the gallery built and photographed from the game; the openings it showed closed (corners, floor edges, the line between storeys); the corner post added (game repo `42bc60a`) |
 | B4 | The building system in C++: build tool, ghost preview, snapping, checks, placing, removing and upgrading on the server; instanced drawing | Tests; the network test with 2 clients and a late joiner; made-up placements refused | Later |
 | B5 | Tier looks: the Wooden Fiber pieces; colour, dirt and damage presets and new detail for Salvaged Mineral and Biotech (Higgsfield or Blender) | Pictures of each tier; the owner's yes | Later |
 | B6 | Work stations and base machines from the bundle (section 6), replicated | Each works for two clients | Later |
@@ -220,6 +242,12 @@ first in each list).
 
 ### Progress
 
+- ![Before and after at an outside corner (B3, 2026-10-19): two walls meeting left an opening into the structure; the new corner post closes it](pictures/building/gallery_corner_before_after.jpg)
+- ![The gallery's base from the game (B3): seven pieces built into a two-storey base, corner posts on every outside corner, roofs and a parapet](pictures/building/gallery_base_overview.jpg)
+- ![The base's front: doorway, windows, and the second storey standing on the same base band as the first](pictures/building/gallery_base_front.jpg)
+- ![A floor overhanging its wall: its edge closed by the footings and core, with no gap between floor and ceiling](pictures/building/gallery_overhang.jpg)
+- ![Inside the base: wall panels, windows, the floor's inlays and the ceiling's coffers](pictures/building/gallery_inside.jpg)
+- ![Single pieces in a row, each with its edges in view: a window wall on its foundation, a doorway wall, a floor on its own](pictures/building/gallery_lineup.jpg)
 - ![The piece factory's first six pieces (B2, 2026-10-19), Enhanced Alloy from the bundle: the foundation with its solid core, floor and ceiling, roof, wall, doorway wall and window wall](pictures/building/pieces_b2.jpg)
 - ![The barrack kit, the main kit for player building: floors, footings, walls with windows and doorways, corners, roofs and ceilings, the pressure door and stairs (2026-10-19)](pictures/building/bundle_barrack_kit.jpg)
 - ![The bundle's other building kits: the round base, airlock connectors and tunnel, scaffolding, the landing pad, fences, ground plates, pillars, ladders and tanks](pictures/building/bundle_other_kits.jpg)

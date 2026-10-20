@@ -249,3 +249,18 @@ come from copies built with `TH_PREVIEW`. **Checks:** `build_pieces.py` RESULT o
 CSV, every socket, walls reaching under the wall below, every file written); game repo `c509229`; the Building Assets
 tab in Edge at 1280, 768 and 390 px, dark and light, every picture loading. **Next:** B3, a gallery level built in a background editor
 and pictures from the game, then the open points in building.md's piece factory section.
+
+*2026-10-19, night (later).* The Building chat (Claude Code), B3. The owner: "You can go ahead, but remember that the
+modular components can't have tears or openings in the graphics, they have to look like triple "A" parts players get to
+used to build with." `Tools/Building/build_gallery.py` builds `/Game/Tharrn/Building/L_BuildGallery` in a background
+editor (the Tharrn sky, a ground in the landing pad's surface, a two-storey base built from the pieces as a player would,
+every piece on its own) with 12 camera views, photographed from the game with `capture.ps1`. The pictures showed an
+opening at every outside corner (the bundle closes its corners with an L-shaped corner wall), a floor's edge open
+between floor and ceiling, a messy line between storeys and, after the first fix, a floor core hiding its ceiling's
+coffers. Now closed: a corner post (the bundle's medium pillar, its middle section stacked and scaled 1.2); floors carry
+the foundation's ring of footings and a core resting on their ceiling. Right from the start: walls joined in a line, a
+wall's free end, the trimmed inside faces, inside corners, the parapet. The Story chat's tier guide (story.md section
+13) now sets the tiers' looks (building.md section 4). **Checks:** `build_pieces.py` RESULT ok (7 pieces, 0 problems),
+`build_gallery.py` RESULT ok (54 pieces, 12 views), the capture RESULT ok twice; the pictures before and after on the
+wiki's Building Assets tab; game repo `42bc60a`. **Next:** the rest of the set (triangle foundation and floor, half
+wall, wall frame, door, stairs, ramp), each checked in the gallery the same way.

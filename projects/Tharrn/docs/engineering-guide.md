@@ -89,6 +89,12 @@ python D:\Tharrn\Tools\Packs\stage_packs.py [--pack SciFiBundle] [--dry-run] [--
 # $env:TH_PREVIEW="<name>" builds copies under /Game/Tharrn/Scratch/BuildPreview/ to look at instead
 & "$UE\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Proj -ExecutePythonScript="D:\Tharrn\Tools\Building\build_pieces.py" `
   -unattended -RenderOffscreen -nosplash -nosound -abslog=D:\Tharrn\Saved\Logs\build_pieces.log
+# The building gallery from the pieces (then [THGallery] RESULT ok), and its pictures from the game (the game locks the
+# pieces' files while it runs, so not during a piece build)
+& "$UE\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Proj -ExecutePythonScript="D:\Tharrn\Tools\Building\build_gallery.py" `
+  -unattended -RenderOffscreen -nosplash -nosound -abslog=D:\Tharrn\Saved\Logs\build_gallery.log
+powershell -NoProfile -File D:\Tharrn\Tools\Terrain\capture.ps1 -Map /Game/Tharrn/Building/L_BuildGallery `
+  -Views D:\Tharrn\Tools\Building\gallery_views.csv -Out D:\Tharrn\Saved\Captures\building
 
 # With the editor open (they talk to Unreal MCP); each ends with RESULT ok or RESULT failed
 python D:\Tharrn\Tools\Checks\verify.py [--quick]                 # ladder steps 1-4: game build, plugins, data, tests, network
