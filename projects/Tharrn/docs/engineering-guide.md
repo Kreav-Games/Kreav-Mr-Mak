@@ -95,6 +95,15 @@ python D:\Tharrn\Tools\Packs\stage_packs.py [--pack SciFiBundle] [--dry-run] [--
   -unattended -RenderOffscreen -nosplash -nosound -abslog=D:\Tharrn\Saved\Logs\build_gallery.log
 powershell -NoProfile -File D:\Tharrn\Tools\Terrain\capture.ps1 -Map /Game/Tharrn/Building/L_BuildGallery `
   -Views D:\Tharrn\Tools\Building\gallery_views.csv -Out D:\Tharrn\Saved\Captures\building
+# Closing the pieces (D-41: no opening from any angle). After a recipe changes: the pieces without closures (in memory,
+# no asset saved) to Saved\Building\raw, then the walls' end caps and the patches over openings (outside the editor;
+# make_closures needs numba: Tools\Building\requirements.txt), then the real build, which refuses stale closure files
+$env:TH_RAW_ONLY="1"; & "$UE\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Proj -ExecutePythonScript="D:\Tharrn\Tools\Building\build_pieces.py" -unattended -nullrhi
+python D:\Tharrn\Tools\Building\make_caps.py; python D:\Tharrn\Tools\Building\make_closures.py
+# ($env:TH_EXPORT_ONLY="1" instead: a trial with the closures, written to Saved\Building\final, no asset saved)
+# The building system's network test (B4; DT_BuildPieces imported, the gallery built): a dedicated server and three
+# players as separate game processes beside the open editor (about 6 minutes, about 20 GB; stops under 6 GB free)
+python D:\Tharrn\Tools\Building\build_net_test.py
 
 # With the editor open (they talk to Unreal MCP); each ends with RESULT ok or RESULT failed
 python D:\Tharrn\Tools\Checks\verify.py [--quick]                 # ladder steps 1-4: game build, plugins, data, tests, network
@@ -534,6 +543,15 @@ closed: an open editor once took 96 % of the GPU.
 108. With `L_Main` loaded (the 64 million point landscape, every cell) the editor uses about 35 GB of memory; check
     that no play session is running (`EditorAppToolset.IsPIERunning`) before a build changes the level: the owner may
     be playing.
+122. A game process started with a server's address runs its command-line commands (`-ExecCmds`) in its start-up world,
+    and joining the server replaces that world: commands that wait for the player (a camera, a script) die with it. The
+    building's test commands keep themselves and start again in every game world that begins play
+    (`UTharrnBuildSubsystem::OnWorldBeginPlay`).
+123. An `FName`'s hash is its index in that process's name table: two machines hash the same names differently. Compare
+    states between machines by their contents (the building's network test rebuilds each machine's piece list from its
+    log), never by a hash of names.
+124. A mesh written by Geometry Script without collision has none: the gallery's ground let the players fall through it
+    until it got a box (the network test's builder was refused everything as out of reach, 40 m further every second).
 
 ## 8. Working as two agents
 

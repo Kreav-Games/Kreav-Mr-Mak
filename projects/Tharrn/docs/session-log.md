@@ -264,3 +264,42 @@ wall's free end, the trimmed inside faces, inside corners, the parapet. The Stor
 `build_gallery.py` RESULT ok (54 pieces, 12 views), the capture RESULT ok twice; the pictures before and after on the
 wiki's Building Assets tab; game repo `42bc60a`. **Next:** the rest of the set (triangle foundation and floor, half
 wall, wall frame, door, stairs, ramp), each checked in the gallery the same way.
+
+*2026-10-19, night (corner posts).* The Building chat. The owner asked: "the corner posts are apart of each wall now?"
+No: the corner post is a piece of its own, the walls are unchanged (their ends were already closed), and the post fills
+only the outside corner where two walls meet; the gallery places them by hand, the building system (B4) would add and
+remove them itself. Logged as OQ-30 with that recommendation. The Building Assets tab now opens with the chat's next
+step, OQ-30 and the decisions taken for it (D-30, D-33), as the README's rule asks.
+
+*2026-10-19, night (the owner's corner test).* The owner: the post is approved and can be committed only once players
+"can't see any openings like in the first picture, from any angle, including if a second player is standing near by
+watching a player build, and the pillar covers the corners instantly"; otherwise keep working. Not yet a yes, so nothing
+was committed. Found: the bundle's barrack pieces are thin layered panels with open ends and undersides, meant to be hidden
+by the bundle's own corner pieces. A numba ray tracer over the exported pieces (game repo `Tools/Building/export_pieces.py`,
+`check_corners.py`; scratchpad `rt.py`, `sweep.py`) paints the inside of any surface magenta. It confirms the post closes
+the corner in the "after" view, but from other reachable angles every piece shows openings: a wall's free end (hollow),
+the foundation's and floor's plate edges seen from above, the roof's underside edge, wall ends at straight joints and at
+the post's sides. Its see-through count is still too loose (collision boxes include recesses), so it needs the boxes
+shrunk by 15 cm. **Next:** close the pieces in `build_pieces.py` (end caps on walls, closed plate edges and undersides),
+re-sweep until 0 magenta in every view, then B4's core: walls placed on the server, posts derived on every machine in the
+same frame (instant, the same for a watching player and a late joiner), with a two-client test; then the commit.
+
+*2026-10-20 (the owner's corner test).* The Building chat (Claude Code). The owner: "as long as players can see any
+openings like in the first picture, from any angle, including if a second player is standing near by watching a player
+build, and the pillar covers the corners instantly, then yes the second picture looks good and can commit. if you cant
+say yes that it works how i described then continue to work on it." Logged as D-41 (resolves OQ-30), with those
+conditions as its test.
+**Any angle.** A small ray tracer outside the editor (`Tools/Building/raytrace.py`, numba) painted every surface seen
+from behind magenta: the corner itself was closed by the post, but every piece opened from some angle (a wall's free end
+hollow between its two panels; slits along floor, foundation and roof edges; the bands where the walls' ledges were
+trimmed). The factory now closes them: wall end caps in the wall's own outline (`make_caps.py`), thin patches over every
+opening seen straight on (`make_closures.py`, 3 to 80 a piece), two-sided copies of the bundle's materials
+(`/Game/Tharrn/Building/Materials`). The gallery gained the junctions a player builds (an L-shaped house with an inside
+corner, a free-standing wall, a T), posts placed by the building system's rule, and 49 views round them: none shows an
+opening.
+**At once, for a watching player.** The building system's core in C++ (`Source/Tharrn/Building`): the server checks and
+places pieces (`ATharrnBuilding`, `UTharrnBuildComponent`), every machine draws them as instanced meshes and adds a
+corner post in the same call, the same frame, as the wall that forms its corner; tests (`Tharrn.Building.*`) and a
+network test with a builder, a watcher (a screenshot of every frame a wall arrives) and a late joiner
+(`Tools/Building/build_net_test.py`).
+**Checks:** pieces built (RESULT ok, 7 pieces, 0 problems); gallery (RESULT ok, 82 pieces, posts by the rule: 8 on the base, 6 on the junctions); 49 pictures from the game, no opening; game and editor targets build with no warnings; `Tharrn.Building.*` 5 of 5 pass; `build_net_test.py` RESULT ok (14 placed, 1 removed, 3 made-up refused; four machines with the same 13 pieces and 4 posts; each corner's post in its wall's frame on both players' machines; 10 watcher screenshots). Not yet committed: the commit is a git round through the Master chat. **Next:** that commit (both repos, only this chat's lines), then the rest of the set, the build tool and ghost preview.

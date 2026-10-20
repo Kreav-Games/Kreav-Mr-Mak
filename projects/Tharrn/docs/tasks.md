@@ -35,8 +35,10 @@ Runs beside the prototype modules and the map work: the Sci-Fi bundle's building
 parts in tiers of building, and its machines made into work stations. Plan, steps B0 to B8 and progress:
 [building.md](building.md); pictures on the wiki's Building Assets tab. It feeds P9's shelter (foundation,
 generator, bench). B0 to B2 done 2026-10-19 (D-33: the tiers, the 4.5 m storey; the piece factory and its first six pieces); B3 under way:
-the gallery level is built and photographed from the game and the openings it showed are closed; the rest of the
-Enhanced Alloy set is next.
+the gallery level is built and photographed from the game, and every piece is closed at its ends and seams (the owner's
+test, D-41: no opening from any angle). B4's core is in (the server places pieces; every machine adds corner posts in the
+frame their corner forms; tests and a network test with a builder, a watcher and a late joiner). Next: the rest of the
+Enhanced Alloy set, then the build tool and ghost preview.
 
 ## P1 Foundation: what was built and checked
 

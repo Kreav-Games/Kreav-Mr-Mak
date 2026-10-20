@@ -189,7 +189,19 @@ the bundle's materials, wear colours and UVs.
   bundle's outside paint (the footings alone are an open frame you can see through). A floor and ceiling has the same
   ring of footings and a core resting on its ceiling, so its edges are closed and every storey stands on the same
   base band. A corner post closes the outside corner where two walls meet: the bundle closes its corners with an
-  L-shaped corner wall, so two of its walls meeting at a corner leave an opening.
+  L-shaped corner wall, so two of its walls meeting at a corner leave an opening. The post is a piece of its own, not
+  part of the walls: the building system puts one wherever exactly two walls meet at a right angle, an outside or an
+  inside corner (D-41).
+- **Closed from every angle (D-41, 2026-10-20):** the bundle's panels are thin sheets with gaps between them, open
+  wherever the bundle hides them with its own next piece: a wall is an outer and an inner panel with a hollow between,
+  open at both ends; floors and roofs have open slits along their edges. Looking at every piece from all round (a ray
+  tracer outside the editor, `Tools/Building/raytrace.py`, paints anything seen from inside magenta) found them, and
+  the factory now closes them: each wall's ends get a cap in the wall's own outline (`make_caps.py`), every opening
+  seen straight on gets a thin patch a few millimetres behind the surfaces round it (`make_closures.py`: 3 to 80 per
+  piece), both in the bundle's paint; and every piece's materials are two-sided copies of the bundle's
+  (`/Game/Tharrn/Building/Materials`), so the inside of a panel glimpsed through a seam is drawn, never a hole. The
+  data comes from the pieces as built without closures (`TH_RAW_ONLY=1`); `TH_EXPORT_ONLY=1` is a trial that saves no
+  asset.
 - **Checks:** each piece's size against the CSV (walls measured above their floor), every socket, and that a wall's
   base reaches under the top of the wall below.
 
@@ -198,9 +210,11 @@ the bundle's materials, wear colours and UVs.
 `Tools/Building/build_gallery.py` builds `/Game/Tharrn/Building/L_BuildGallery` in a background editor: the Tharrn
 sky, a ground in the landing pad's surface, a base built from the pieces the way a player would (three by two cells,
 two storeys over four of them, a doorway, windows, roofs, a floor overhanging its wall, corner posts) and every piece on
-its own. It writes the camera views to `Tools/Building/gallery_views.csv`, and `Tools/Terrain/capture.ps1` photographs
-them from the running game (pictures in section 10). The standard is the owner's: no tears or openings anywhere; the
-pieces look finished from every side and in any combination.
+its own, and north-east of it the junctions a player builds: an L-shaped house (five outside corners and one inside
+corner), a wall standing alone and a T. Its corner posts follow the building system's rule (D-41), not a list. It
+writes 49 camera views to `Tools/Building/gallery_views.csv`, rings round every kind of junction, near and far, low and
+high, and `Tools/Terrain/capture.ps1` photographs them from the running game (pictures in section 10). The standard is
+the owner's: no tears or openings anywhere; the pieces look finished from every side and in any combination.
 
 First pictures (2026-10-19) and what they changed: an opening at every outside corner (the corner post now closes it);
 a floor's edge open between the floor and the ceiling 0.6 m under it (now its footings and core close it); a messy line
@@ -208,6 +222,36 @@ between storeys (now the same base band as at the ground); a floor's core hiding
 the ceiling). Already right: walls joined in a line, a wall's free end, the inside faces where the ledges were trimmed,
 inside corners, the roof's parapet. Still to do: walking through the doorway (B4, with collision in play), the rest of
 the set (step B3).
+
+The owner's test (2026-10-19): no opening like the first picture from any angle, for a second player watching too, and
+the post there at once. Looking from every angle showed far more than corners: every piece open at its ends and seams
+from some angles (a wall's free end hollow, slits along floor and roof edges). All closed (section 7); 49 pictures from
+the game, round every junction, show none (2026-10-20). The second player and "at once" are the building system's
+network test (B4), passed the same day (below).
+
+### The building system's core (B4, 2026-10-20)
+
+`Source/Tharrn/Building` (C++, D-04: the server decides):
+
+- `FTharrnBuildGrid`: the grid's rules without a world. A foundation on the ground storey touching another; a floor or
+  roof over a wall or beside a floor; a wall beside a foundation or floor, facing out on an outer edge (its base under
+  the floor slopes into the room). A corner post wherever exactly two walls meet at a right angle on a storey (D-41).
+- `ATharrnBuilding`: one building's pieces, a replicated list only the server changes. Every machine draws what changed
+  as instanced meshes (one set per mesh, Nanite) and adds or removes the posts at the ends of every wall that came or
+  went in the same call, so a post is there the frame its corner forms, on every machine, and a late joiner gets them
+  with the rest. Log lines `[THBuild]`.
+- `UTharrnBuildComponent`: a player's requests; the server refuses an unknown piece, one out of reach (12 m) or one the
+  rules forbid, and nothing changes anywhere. `UTharrnBuildSubsystem` gives every player one, and holds the test
+  commands (`th.BuildOrigin`, `th.Build`, `th.BuildScript corner`, `th.BuildWatch`, `th.BuildState`).
+- Pieces come from `DT_BuildPieces` (`Data/BuildPieces.csv`).
+
+Checks: `Tharrn.Building.*` (5 tests: corner posts, placement rules, wall facing, grid places, the piece table);
+`Tools/Building/build_net_test.py`: a dedicated server, a player who builds (four foundations, then walls one by one, a
+wall taken away and put back, an inner wall making a T, then three made-up placements), a player who watches from a
+fixed camera with a screenshot of every frame a wall arrives, and one who joins late; 50 ms latency and 1 % loss.
+First pass 2026-10-20: 14 placed, 1 removed, the 3 made-up placements refused; all four machines with the same 13 pieces
+and 4 posts; on both players' machines each of the 5 corner-forming walls arrived in the same frame as its post, and the
+removed wall took its post in the same frame.
 
 ## 8. Working beside the map chat
 
@@ -219,7 +263,8 @@ Once the open editor has drawn a piece (a thumbnail is enough) it keeps that Nan
 build can no longer replace it: build first, look at `TH_PREVIEW` copies, or wait for the editor's next restart. The
 factory checks every file it saves, so this fails loudly instead of leaving an old piece.
 Anything that needs its own level (the piece gallery, play-tests) waits for the owner's go while the map chat is idle.
-The bundle's own folders are never saved (D-08).
+Every background-editor run and gallery capture is first announced to the owner's Master chat (README), and none
+starts during another chat's editor build or restart. The bundle's own folders are never saved (D-08).
 
 ## 9. Steps
 
@@ -228,8 +273,8 @@ The bundle's own folders are never saved (D-08).
 | B0 | The bundle's pieces measured and pictured; the remodel, the AI and tools, the tiers and the work stations proposed (this page) | The owner has read it | Done 2026-10-19 |
 | B1 | The owner's choices: the tiers, the storey height, the Hyper template | Decisions logged | Done 2026-10-19 (D-33) |
 | B2 | Piece factory: `Data/BuildPieces.csv` and `Tools/Building/build_pieces.py` (Geometry Script in a background editor) make every piece under `/Game/Tharrn/Building` from the bundle's meshes | Every piece rebuilds from the CSV with no problems; a test checks sizes and snap points | Done 2026-10-19: six pieces, RESULT ok (game repo `c509229`) |
-| B3 | A gallery level with pictures from the game; the open points of the piece factory (section 7); the rest of the Enhanced Alloy set (the bundle's look): triangle foundation and floor, half wall, wall frame, door, stairs, ramp | The owner approves the pictures | Doing: the gallery built and photographed from the game; the openings it showed closed (corners, floor edges, the line between storeys); the corner post added (game repo `42bc60a`) |
-| B4 | The building system in C++: build tool, ghost preview, snapping, checks, placing, removing and upgrading on the server; instanced drawing | Tests; the network test with 2 clients and a late joiner; made-up placements refused | Later |
+| B3 | A gallery level with pictures from the game; the open points of the piece factory (section 7); the rest of the Enhanced Alloy set (the bundle's look): triangle foundation and floor, half wall, wall frame, door, stairs, ramp | The owner approves the pictures | Doing: the gallery built and photographed from the game; the openings it showed closed (corners, floor edges, the line between storeys); the corner post added (game repo `42bc60a`); every piece closed at its ends and seams, 49 pictures from the game round every junction (2026-10-20) |
+| B4 | The building system in C++: build tool, ghost preview, snapping, checks, placing, removing and upgrading on the server; corner posts added and removed where two walls meet at a right angle (D-41); instanced drawing | Tests; the network test with 2 clients and a late joiner; made-up placements refused | Doing: the core done and checked 2026-10-20 (section 7): 5 tests pass; the network test passes (a builder, a watcher, a late joiner, 50 ms latency and 1 % loss); next the build tool and ghost preview, removing and upgrading with what rests on a piece, collision in play |
 | B5 | Tier looks: the Wooden Fiber pieces; colour, dirt and damage presets and new detail for Salvaged Mineral and Biotech (Higgsfield or Blender) | Pictures of each tier; the owner's yes | Later |
 | B6 | Work stations and base machines from the bundle (section 6), replicated | Each works for two clients | Later |
 | B7 | Base rules (GDD 03): power grid, decay, claims, damage, saving the base | Tests; the network test | Later |
@@ -242,6 +287,10 @@ first in each list).
 
 ### Progress
 
+- ![The owner's test from a second player's screen (2026-10-20): another player builds; the watching player's game draws the first wall alone, then, in the very frame the second wall arrives, the corner post with it](pictures/building/net_watch_corner.jpg)
+- ![Every frame a wall arrived on the watching player's screen during the network test: each corner's post in the same frame as the wall that forms the corner (yellow); a straight joint and the T get none](pictures/building/net_watch_frames.jpg)
+- ![The owner's test, from the game (2026-10-20): an outside corner from nine angles, near and far, low and high, along each wall and into the corner; no opening](pictures/building/gallery_v2_corner_angles.jpg)
+- ![The other junctions (2026-10-20): an inside corner from outside and from the room, a wall's free end with its cap, a T (no post), the corner post on its own, the room's walls at the foot and top](pictures/building/gallery_v2_junctions.jpg)
 - ![Before and after at an outside corner (B3, 2026-10-19): two walls meeting left an opening into the structure; the new corner post closes it](pictures/building/gallery_corner_before_after.jpg)
 - ![The gallery's base from the game (B3): seven pieces built into a two-storey base, corner posts on every outside corner, roofs and a parapet](pictures/building/gallery_base_overview.jpg)
 - ![The base's front: doorway, windows, and the second storey standing on the same base band as the first](pictures/building/gallery_base_front.jpg)
