@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { DesktopState, Preview, ServiceEvent } from './types'
+import { anySignal } from '../lib/abort'
 
 const params = new URLSearchParams(window.location.search)
 export const isDesktop = params.get('desktop') === '1'
@@ -67,6 +68,14 @@ export async function uploadFile(file: File, folder: string): Promise<{ path: st
   })
   const value = await response.json()
   if (!response.ok) throw new Error(value.error || 'File could not be copied')
+  return value
+}
+export async function uploadCardImage(entityId: string, step: number, file: File): Promise<{ image: string }> {
+  const response = await fetch(`/api/workspace/cards/${encodeURIComponent(entityId)}/${step}/images?name=${encodeURIComponent(file.name)}`, {
+    method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/octet-stream' }, body: file,
+  })
+  const value = await response.json()
+  if (!response.ok) throw new Error(value.error || 'The image could not be added.')
   return value
 }
 export function sendEvent(value: unknown) {
@@ -138,8 +147,13 @@ function connect() {
 window.addEventListener('pagehide', () => { token = ''; socket?.close(); clearTimeout(reconnectTimer) })
 
 export async function transcribeDesktopAudio(recording: import('../mobile/voice-drafts').VoiceDraft, signal: AbortSignal): Promise<{ text: string }> {
-  const response = await fetch('/api/transcribe', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': recording.audio.type, 'X-Transcription-Id': recording.id }, body: recording.audio, signal: AbortSignal.any([signal, AbortSignal.timeout(270000)]) })
+  const response = await fetch('/api/transcribe', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': recording.audio.type, 'X-Transcription-Id': recording.id }, body: recording.audio, signal: anySignal([signal, AbortSignal.timeout(270000)]) })
   const result = await response.json()
   if (!response.ok) throw new Error(result.error || 'Could not transcribe this recording.')
   return result
+}
+export async function speakDesktopText(sessionId: string, voice: string, text: string, signal: AbortSignal): Promise<ArrayBuffer> {
+  const response = await fetch(`/api/sessions/${sessionId}/speak`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ voice, text }), signal })
+  if (!response.ok) { const result = await response.json().catch(() => ({})); throw new Error(result.error || 'Speech generation failed.') }
+  return response.arrayBuffer()
 }

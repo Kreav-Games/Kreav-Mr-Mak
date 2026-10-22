@@ -63,16 +63,19 @@ for (const [index, id] of ids.entries()) {
   session.process = { write: data => writes.push({ id, data }), resize: () => {}, onExit: callback => { exits.add(callback); return { dispose: () => exits.delete(callback) }; }, kill: () => { session.process = null; session.status = 'closed'; service.sessions.changed(session); for (const callback of [...exits]) callback({ exitCode: 0 }); } };
   service.sessions.items.set(id, session); await service.sessions.hydrate(session);
   session.preview = 'Latest notes: [Review the animation](C:/Projects/game/characters/' + 'very-long-character-name-'.repeat(12) + '/review.html) and https://example.com/research/' + 'reference'.repeat(40);
-  await new Promise(resolve => session.terminal.write(Array.from({ length: 90 }, (_, line) => `Line ${line + 1}: live agent output\r\n`).join(''), resolve));
+  await new Promise(resolve => session.terminal.write(Array.from({ length: 90 }, (_, line) => `Line ${line + 1}: live agent output\r\n`).join('') + `╭${'─'.repeat(60)}╮\r\n│ A long reply line that the desktop terminal draws at its full width and the phone wraps.      │\r\n`, resolve));
 }
-service.mobile.transcripts.read = async session => ({ supported: true, activity: [{ id: 'tool-one', name: 'Read test file', status: 'completed', at: new Date().toISOString() }], messages: [
+service.mobile.transcripts.read = async session => ({ supported: true, activity: [{ id: 'tool-one', name: 'Read test file', status: 'completed', at: new Date().toISOString() }],
+  agents: [{ id: 'agent-one', name: 'Bot Coder: task 8', type: 'general-purpose', step: 'Bash · Run the tests', startedAt: new Date(Date.now() - 5 * 60000).toISOString(), updatedAt: new Date().toISOString() }],
+  commands: [{ id: 'command-one', name: 'PowerShell', title: 'Run the Playwright suite', startedAt: new Date(Date.now() - 2 * 60000).toISOString(), agent: 'Bot Coder: task 8' }], messages: [
   { id: 'old-user', role: 'user', text: 'Older request excluded from speech.', at: '' },
   { id: 'old-agent', role: 'assistant', text: 'Older answer excluded from speech.', at: '' },
   { id: 'user', role: 'user', text: 'Can we make the next iteration easier to review?', at: new Date().toISOString() },
   { id: 'progress', role: 'assistant', text: 'Intermediate agent progress is included.', at: '' },
   { id: 'assistant', role: 'assistant', imageRefs: [path.join(repo, 'shared-picture.png'), path.join(repo, recordingName)], text: '## Ready for review\n\nThe latest results are in your Workspace.\n\n- **Character:** proportions updated\n- **Motion:** timing checked\n- **Next step:** choose the version you prefer\n\n[Open the source](https://example.com/source)\n\n' + (session.id === ids[0] ? 'Your agent is still working on the computer.' : 'Send a follow-up whenever an idea comes to mind.'), at: new Date().toISOString() },
 ] });
-let browser, qrSource;
+let browser, qrSource, diagnosticPhone;
+const reportResponses = [];
 try {
   browser = await launchBrowser({ args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] });
   const recordingPage = await browser.newPage();
@@ -146,6 +149,12 @@ try {
   let reloadingPhone = false;
   const navigationCancellations = [];
   const phone = await mobileContext.newPage(); phone.setDefaultTimeout(12000);
+  diagnosticPhone = phone;
+  phone.on('response', async response => {
+    if (!response.url().endsWith('/mobile/api/reports/open')) return;
+    const value = await response.json().catch(() => ({}));
+    reportResponses.push({ status: response.status(), kind: value.kind, step: value.step, error: value.error });
+  });
   await phone.exposeFunction('testUnhandledRejection', message => errors.push(`Unhandled rejection: ${message}`));
   await phone.addInitScript(() => window.addEventListener('unhandledrejection', event => { void window.testUnhandledRejection(String(event.reason)).catch(() => {}); }));
   phone.on('pageerror', error => {
@@ -191,7 +200,9 @@ try {
   assert.deepEqual(await phone.locator('.mobile-main-nav button.active').evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label'))), ['History']);
   assert.equal(await phone.locator('.mobile-header-count').count(), 1);
   assert.equal(await phone.locator('.mobile-list-count').count(), 0);
-  await phone.getByRole('button', { name: 'History', exact: true }).click();
+  // The phone's back gesture returns to the screen above instead of leaving the app. Esc is the
+  // desktop's close request, the same one Android's back gesture sends.
+  await phone.keyboard.press('Escape');
   await phone.getByRole('heading', { name: 'Chats', exact: true }).waitFor();
   assert.deepEqual(await phone.locator('.mobile-main-nav button.active').evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label'))), ['Chats']);
   assert.equal(await phone.locator('.mobile-connection-logo').evaluate(dot => getComputedStyle(dot).animationDuration), '3.6s');
@@ -410,6 +421,15 @@ try {
   await expect(phone.getByText('Read test file', { exact: true })).toBeVisible();
   await recentActivity.locator('summary').click();
   await expect(phone.getByText('Read test file', { exact: true })).toBeHidden();
+  const workingAgents = phone.locator('.background-work');
+  await expect(workingAgents.locator('summary')).toContainText('1 agent and 1 command working');
+  await expect(phone.getByText('Bash · Run the tests')).toBeHidden();
+  await workingAgents.locator('summary').click();
+  await expect(phone.getByText('Bash · Run the tests')).toBeVisible();
+  await expect(workingAgents).toContainText('general-purpose · running 5 min');
+  await expect(workingAgents.locator('li.command')).toContainText('Run the Playwright suite');
+  await expect(workingAgents.locator('li.command')).toContainText('PowerShell · started by Bot Coder: task 8');
+  await workingAgents.locator('summary').click();
   await phone.locator('.mobile-activity-status.working').waitFor();
   assert.equal(await phone.locator('.mobile-worker-hands').evaluate(node => getComputedStyle(node).animationName), 'mobile-worker-type');
   const modeLayout = await phone.locator('.mobile-chat-tools').evaluate(node => {
@@ -539,7 +559,7 @@ try {
   await mobileContext.setOffline(true); await phone.getByText('Offline · draft saved', { exact: true }).waitFor();
   await mobileContext.setOffline(false); await phone.getByRole('status', { name: 'Connected to your computer', exact: true }).waitFor();
   assert.equal(await input.inputValue(), 'Keep this draft while I switch chats.');
-  await phone.getByRole('button', { name: 'Terminal', exact: true }).click(); await phone.locator('.mobile-terminal .xterm-screen').waitFor();
+  await phone.getByRole('button', { name: 'Terminal', exact: true }).click(); await phone.locator('.mobile-terminal-reader pre').waitFor();
   // Simulate a silent application socket while the transport still looks open.
   await phone.bringToFront();
   const silentClients = [...service.mobile.clients];
@@ -567,17 +587,29 @@ try {
   assert.deepEqual(writes.slice(beforeKeys), ['\x1b[D', '\x1b[A', '\x1b[B', '\x1b[C'].map(data => ({ id: ids[1], data })));
   for (const width of [320, 390]) {
     await phone.setViewportSize({ width, height: 844 });
+    await expect.poll(() => phone.locator('.mobile-terminal-reader').evaluate(node => node.scrollWidth - node.clientWidth), { message: `Wrapped terminal needs no horizontal scrolling at ${width}px` }).toBeLessThanOrEqual(1);
     const keyLayout = await phone.locator('.mobile-terminal-keys').evaluate(node => ({ client: node.clientWidth, scroll: node.scrollWidth, keys: [...node.querySelectorAll('button')].map(button => { const r = button.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, width: r.width, height: r.height }; }) }));
     assert.ok(keyLayout.scroll <= keyLayout.client + 1);
     assert.equal(new Set(keyLayout.keys.map(r => r.top)).size, 1, 'Terminal controls occupy one row');
-    const fitted = await phone.locator('.mobile-terminal-viewport').evaluate(node => ({ width: node.clientWidth, scroll: node.scrollWidth }));
-    assert.ok(fitted.scroll <= fitted.width + 1, `Fitted terminal needs no horizontal scrolling at ${width}px`);
+    const wrapped = await phone.locator('.mobile-terminal-reader').evaluate(node => ({ width: node.clientWidth, scroll: node.scrollWidth, text: node.textContent }));
+    assert.ok(wrapped.text.trim(), 'Wrapped terminal shows the terminal text');
+    assert.match(wrapped.text, /│ A long reply line that the desktop terminal draws at its full width and the phone wraps\.$/, 'Box padding and its right border are removed');
+    assert.ok(!wrapped.text.includes('─'.repeat(7)), 'Long rules are shortened');
+    assert.ok(wrapped.scroll <= wrapped.width + 1, `Wrapped terminal needs no horizontal scrolling at ${width}px`);
     assert.ok(keyLayout.keys.every(r => r.left >= 0 && r.right <= width && r.width >= 30 && r.height >= 44));
   }
   await phone.screenshot({ path: path.join(repo, 'phone-terminal.png') });
+  await phone.getByRole('button', { name: 'Fit terminal to screen' }).click(); await phone.locator('.mobile-terminal .xterm-screen').waitFor();
+  const fitted = await phone.locator('.mobile-terminal-viewport').evaluate(node => ({ width: node.clientWidth, scroll: node.scrollWidth }));
+  assert.ok(fitted.scroll <= fitted.width + 1, 'Fitted terminal needs no horizontal scrolling');
   await phone.getByRole('button', { name: 'Show terminal at actual size' }).click();
   assert.equal(await phone.locator('.mobile-terminal-surface').evaluate(node => getComputedStyle(node).transform), 'matrix(1, 0, 0, 1, 0, 0)');
   await phone.getByRole('button', { name: 'Fit terminal to screen' }).click();
+  for (const width of [320, 390]) {
+    await phone.setViewportSize({ width, height: 844 });
+    // Fit is applied by ResizeObserver, after the viewport change resolves.
+    await expect.poll(() => phone.locator('.mobile-terminal-viewport').evaluate(node => node.scrollWidth - node.clientWidth), { message: `Fitted terminal needs no horizontal scrolling at ${width}px` }).toBeLessThanOrEqual(1);
+  }
   assert.deepEqual(ids.map(id => ({ cols: service.sessions.get(id).cols, rows: service.sessions.get(id).rows })), dimensions);
   await phone.getByRole('button', { name: 'Conversation', exact: true }).click();
   await phone.locator('input[type=file]').setInputFiles({ name: 'phone.png', mimeType: 'image/png', buffer: png });
@@ -587,6 +619,27 @@ try {
   await phone.getByRole('button', { name: 'Back to chats' }).click(); await phone.getByRole('button', { name: 'Results', exact: true }).click();
   await phone.getByRole('button', { name: /A useful report/ }).click();
   const frame = phone.frameLocator('iframe'); await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
+  // Returning from Chats remounts the header menu above an already composited
+  // iframe. A visible menu must receive both clicks and taps, and stay on screen.
+  for (const width of [320, 390, 768]) {
+    await phone.setViewportSize({ width, height: 844 });
+    for (let round = 0; round < 4; round++) {
+      await phone.getByRole('button', { name: 'Chats', exact: true }).click();
+      await phone.getByRole('button', { name: 'Results', exact: true }).click();
+      await phone.getByLabel('Select report page', { exact: true }).click();
+      const menuBox = await phone.locator('.mobile-page-menu').boundingBox();
+      assert.ok(menuBox && menuBox.x >= 0 && menuBox.x + menuBox.width <= width, `Report menu stays in bounds at ${width}px`);
+      await phone.getByRole('button', { name: 'Plan', exact: true }).click();
+      await phone.getByRole('heading', { name: 'Mobile plan' }).waitFor();
+      await phone.getByLabel('Select report page', { exact: true }).tap();
+      await phone.getByRole('button', { name: 'Report', exact: true }).tap();
+      await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
+    }
+  }
+  await phone.setViewportSize({ width: 390, height: 844 });
+  await phone.getByLabel('Select report page', { exact: true }).click();
+  await phone.screenshot({ path: path.join(repo, 'phone-report-menu.png') });
+  await phone.getByLabel('Select report page', { exact: true }).click();
   await frame.getByAltText('Report image', { exact: true }).click();
   await frame.getByRole('dialog', { name: 'Image preview' }).waitFor();
   const downloadEvent = phone.waitForEvent('download'); await frame.getByRole('link', { name: 'Download', exact: true }).click();
@@ -662,6 +715,33 @@ try {
   await phone.getByRole('button', { name: 'Report', exact: true }).click();
   await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
 
+  // Pull to refresh reloads the report only from the top, and keeps its page.
+  const pullDown = (locator, distance) => locator.evaluate((node, distance) => {
+    // Desktop WebKit exposes Touch but does not allow constructing it. The
+    // handlers consume touch coordinates, so use the same event data in both engines.
+    const dispatch = (type, y) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'touches', { value: y == null ? [] : [{ identifier: 1, target: node, clientX: 120, clientY: y }] });
+      node.dispatchEvent(event);
+    };
+    dispatch('touchstart', 100);
+    for (let y = 110; y <= 100 + distance; y += 10) dispatch('touchmove', y);
+    dispatch('touchend');
+  }, distance);
+  const reportIdentity = () => frame.locator('body').evaluate(() => window.testReportIdentity).catch(() => 'loading');
+  await expect.poll(() => frame.locator('body').evaluate(() => window.scrollY)).toBe(500);
+  const beforePull = await frame.locator('body').evaluate(() => (window.testReportIdentity = Math.random()));
+  await pullDown(frame.locator('body'), 200);
+  await frame.locator('body').evaluate(() => window.scrollTo(0, 0));
+  await pullDown(frame.locator('body'), 40);
+  await phone.waitForTimeout(300);
+  assert.equal(await reportIdentity(), beforePull, 'A pull below the top or a short pull keeps the report');
+  await pullDown(frame.locator('body'), 200);
+  await expect.poll(reportIdentity).toBeUndefined();
+  await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
+  assert.equal(await frame.locator('body').evaluate(() => location.hash), '#chapter-two');
+  await expect(phone.locator('.mobile-pull-refresh')).toHaveCount(0);
+
   await phone.getByLabel('Select report page', { exact: true }).click();
   await phone.getByRole('button', { name: 'Plan', exact: true }).click(); await phone.getByRole('heading', { name: 'Mobile plan' }).waitFor();
   await phone.locator('.mobile-report-markdown').evaluate(node => { node.scrollTop = 350; node.dispatchEvent(new Event('scroll')); });
@@ -690,6 +770,21 @@ try {
   await phone.getByLabel('Select report page', { exact: true }).click();
   await phone.getByRole('button', { name: 'Close report', exact: true }).click();
   await phone.getByRole('heading', { name: 'Workspace', exact: true }).waitFor();
+  const listRefresh = phone.waitForRequest(request => request.url().endsWith('/mobile/api/reports'));
+  await pullDown(phone.locator('.mobile-results-list'), 200);
+  await listRefresh;
+  await expect(phone.locator('.mobile-pull-refresh')).toHaveCount(0);
+  // Back steps up one screen at a time: report, Workspace list, then the chat list.
+  await phone.getByRole('button', { name: /A useful report/ }).click(); await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
+  await phone.keyboard.press('Escape'); await phone.getByRole('heading', { name: 'Workspace', exact: true }).waitFor();
+  // A back request that reaches the focused report frame steps back the same way.
+  await phone.getByRole('button', { name: /A useful report/ }).click(); await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
+  await frame.locator('body').press('Escape'); await phone.getByRole('heading', { name: 'Workspace', exact: true }).waitFor();
+  await phone.waitForTimeout(300); assert.equal(await phone.getByRole('heading', { name: 'Workspace', exact: true }).isVisible(), true, 'One back request steps back once');
+  await phone.keyboard.press('Escape'); await phone.getByRole('heading', { name: 'Chats', exact: true }).waitFor();
+  await phone.getByRole('button', { name: 'Chats', exact: true }).click(); await input.waitFor();
+  await phone.keyboard.press('Escape'); await phone.getByRole('heading', { name: 'Chats', exact: true }).waitFor();
+  assert.equal(await phone.getByRole('button', { name: 'Back to chats' }).count(), 0);
   await phone.getByRole('button', { name: 'Chats', exact: true }).click();
   await input.fill('There is no selected Workspace now.');
   const clearedBefore = writes.length;
@@ -747,6 +842,17 @@ try {
   if (navigationCancellations.length) console.log(`Expected WebKit read cancellations during reload: ${navigationCancellations.length}`);
   assert.deepEqual(errors, []);
   console.log(JSON.stringify({ ok: true, fixture: repo, checks: ['Workspace context follows card/tab/page and section', 'navigation-only references; no report content or grant URLs', 'context frozen across lost reply, page change and reload', 'automatic context excluded from display and read aloud', 'cleared selection, slash commands and pre-update pending drafts', 'QR + desktop approval', 'independent views and PTY sizes', 'microphone permission / record / stop / cancel', 'dictation never auto-sends', 'saved recording recovery after reload and chat switch', 'lost transcription reply reuses provider result', 'lost reply / retry once', 'drafts per chat', 'offline recovery', 'image attachment', 'sandboxed report + image download', 'Markdown preview', 'long-link chat cards at 320/360/393/430/768px', '360/390/768px report layout', 'four terminal arrows and touch targets', 'close confirmation / desktop tab sync / History resume / draft retention', 'device revocation'] }));
+} catch (error) {
+  if (diagnosticPhone) {
+    const state = await diagnosticPhone.evaluate(() => ({
+      navigation: localStorage.getItem('mrmak.mobile.navigation'), workspace: localStorage.getItem('mrmak.mobile.workspace'),
+      report: document.querySelector('.mobile-results')?.textContent?.slice(0, 800),
+      headings: [...document.querySelectorAll('h1,h2')].map(node => node.textContent),
+    })).catch(() => null);
+    console.error(JSON.stringify({ mobileFailure: state, reportResponses }));
+    await diagnosticPhone.screenshot({ path: path.join(repo, 'failure.png') }).catch(() => {});
+  }
+  throw error;
 } finally {
   await browser?.close(); for (const session of service.sessions.items.values()) session.process = null;
   if (qrSource) { qrSource.closeAllConnections(); await new Promise(resolve => qrSource.close(resolve)); }

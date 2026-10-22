@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.5.2 - 2026-10-18
+
+- Group chat tabs with named, coloured headers. Drag or collapse a group, manage it from a tab's right-click menu, and find groups in History. Deleting a group keeps its chats. Pinned tabs retain their separate order.
+- Add an optional Conversation view for Claude Code and Codex, with Markdown, images, attachments, dictation, local file previews, read aloud and command completion. Terminal remains available for native CLI controls. Double-click or press F2 to rename a tab.
+- Answer CLI menus in Conversation with one-use approvals bound to the current process and full visible prompt. Changed commands, repeated submissions and changes during menu navigation are rejected.
+- Edit sent Claude messages through its native rewind. Full message labels must match exactly; ambiguous shortened labels require choosing in the terminal.
+- Clear sent command drafts before switching to Terminal, so returning to Conversation cannot restore a command that was already delivered.
+- List recent projects in New chat, pin favourite folders and filter History by project. Paired phones can select listed folders. Optional fresh-chat suggestions save a handoff and continue with the same agent and permission settings.
+- Read Codex 0.163 completed-item transcripts and follow native rewinds or `/new`. Use `--no-daemon` when supported so each terminal stays linked to its conversation. Show the active model and compact CLI/background-agent events.
+- Mobile Terminal defaults to wrapping text, with Fit and Actual modes available. Add Workspace pull-to-refresh and Android Chrome/Edge back navigation. Preserve report positions without replaying a stale restore on fragment navigation.
+- Improve macOS keyboard layouts, Option/Meta settings, clipboard, Retina drag/drop, downloads, Finder/Trash operations, recall shortcuts, CLI paths and process cleanup. Validate bundled Node and ad-hoc app signatures. Developer ID signing and notarization are not included.
+- Improve macOS setup documentation and local voice installation. Preserve accented Whisper transcripts on Windows.
+- Reset alternate-screen and mouse-capture modes before restarting a CLI; let Claude exit gracefully before the bounded hard-stop fallback.
+- Accept quoted Windows installation paths when updating.
+- Update five official GitHub Actions at verified commit pins. Keep release dependency jobs read-only, without persisted checkout credentials or automatic npm caching.
+
 ## 0.5.1 - 2026-10-14
 
 - Add Antigravity CLI chats with Google sign-in, reasoning effort, per-chat native history recovery and MCP inventory. Install `agy` separately, then choose it in New chat. Model access remains controlled by Google.
