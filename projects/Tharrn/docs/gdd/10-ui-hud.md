@@ -51,8 +51,9 @@
   data.
 - The look (D-31, 2026-10-19, superseding D-25's MSS look): The Division 2's menus and HUD with ARK's layout for the
   survival screens; the style guide and mock-ups are in [ui-design.md](../ui-design.md) and `docs/ui/`. Before that:
-  the Multiplayer Shooter System's weapon selector (its borders, text styles, colours and font; D-25);
-  Easy Game UI's global styling is set to match.
+  the Multiplayer Shooter System's weapon selector (its borders, text styles, colours and font; D-25).
+  D-36 (2026-10-19): the look approved; Easy Game UI underneath, restyled in it (Exodus orange, Barlow, square
+  corners); the owner's T emblem is the logo.
 - Prototype UI: the hotbar, weapon panel, crosshair and hit markers, the inventory screen, main and pause menus and
   options (P4, built 2026-10-16: the HUD and inventory screen are Tharrn's C++ widgets in MSS's look, the menus Easy
   Game UI's); the vitals cluster (health, stamina, hunger, hydration, temperature; neural stability's bar comes with

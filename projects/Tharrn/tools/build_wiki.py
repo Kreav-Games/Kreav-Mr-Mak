@@ -293,12 +293,13 @@ def combat(weapons):
     """Combat and arsenal: the Weapons and Tools chat's workshop (docs/weapons.md: the pack taken apart, the model
     contract, the AI and tools, the arsenal, progress, pictures), then the combat rules of GDD 02."""
     md = open(os.path.join(HERE, "..", "docs", "weapons.md"), encoding="utf-8").read()
-    progress = md_rows(md_section(md, "7. Steps"))
+    progress = [[r[0], r[1], r[3]] for r in md_rows(md_section(md, "7. Steps"))]   # Step, What, (Done when), State
     pictures = md_pictures(md_section(md, "9. Pictures"))
     pack = md_rows(md_section(md, "1. What the shooter pack has"))
-    arsenal = md_rows(md_section(md, "5. The arsenal and the look"))
+    tiers, arsenal = md_tables(md_section(md, "5. The arsenal and the look"))[:2]
     tools = md_rows(md_section(md, "6. Tools"))
     ai = md_rows(md_section(md, "4. Which AI and tools"))
+    w4 = md_tables(md_section(md, "12. W4 prepared"))[0]   # Piece, Where, What it does
     rows = []
     for w in weapons:
         thrown = w["hit_type"] == "thrown"  # a hand grenade: no fire rate, and its "magazine" is how many you carry
@@ -311,11 +312,44 @@ def combat(weapons):
 pack's weapons taken apart, what Tharrn's own weapons, tools and attachments have to be, which AI and tools make them,
 and the steps, with pictures as each lands. The full plan is the design record's <code>docs/weapons.md</code>.</p>
 
+""" + owner_block(
+        "**W3 is done** (2026-10-19): the SMG A1 rebuilds from its spec with no hand steps, six parts on the pack's rifle "
+        "skeleton with sockets, an FBX per part and the check passing. **Next, W4, prepared and waiting on the owner's go:** the import tool, the "
+        "Blueprint hookup and the C++ that puts a model's parts on the weapon are written (2026-10-20, section 12 of the "
+        "page), unrun; the C++ compiled clean on 2026-10-20; the run (the background import, the Blueprint build, the MSS test, "
+        "pictures) takes the next editor slot after the owner's tests, on the owner's go. The commit of this chat's files "
+        "(the page, the W3 and W4 tools, the SMG A1's built files) waits on the owner's go too.",
+        ["OQ-34", "OQ-35", "OQ-36", "OQ-37", "OQ-38"], ["D-22", "D-23", "D-24", "D-32", "D-35", "D-37", "D-38", "D-39", "D-40", "D-42"]) + """
+<h2>Tests for the owner</h2>
+<p>Sent to the Report tab on 2026-10-20 for the owner's test round; the questions above are what they decide.</p>
+<ol>
+<li><strong>The weapons as they are</strong> (the pack's models on Tharrn's shots): open <code>Content/Tharrn/Maps/L_TestRange</code>,
+Play (Listen Server with 2 players shows both machines; 1 is enough for the feel). The sign at the range lists the controls:
+hotbar 1 the SMG A1, 2 the Sidearm PS-01, 3 the Grenade Launcher GL-01, 4 the Frag Grenade; left mouse fires, right mouse
+aims, R reloads, the mouse wheel steps through the hotbar. Shoot the range's targets with each. About 5 minutes.</li>
+<li><strong>The launcher and the grenades:</strong> with 3, fire at the ground 10 to 30 m away (an arc at 50 m/s, explodes where
+it lands, full damage within 1 m, none past 5 m, 4 rounds then a 3 s reload). With 4: hold right mouse to aim, hold left
+mouse to pull the pin, let go to throw (15 m/s, 3 s fuse, the same blast); three are carried, a fourth 4 does nothing.
+Watch a blast against a wall (walls shield). About 3 minutes.</li>
+<li><strong>The sight on each weapon:</strong> hold right mouse with 1, 2 and 3 and judge where the eye sits. About 1 minute.</li>
+</ol>
+<p>Not in the editor yet: Tharrn's own SMG A1 (W3, the pictures below). It reaches the game with W4's run, then test 1
+again with the new model.</p>
+
 <h2>Pictures</h2>
 <div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
 
 <h2>Steps</h2>
 """ + progress_table(progress) + """
+
+<h2>W4: what runs on the owner's go</h2>
+<p>""" + DESIGN + """ Prepared 2026-10-20 off the editor, unrun; the C++ compiled clean the same afternoon in the Building
+chat's editor build. The run, in order: the background import with its log; the Blueprint build in the open editor; the MSS test with two machines (draw, fire, reload, aim,
+wheel, launcher, grenades); pictures of the SMG A1 in the hand and through its sight. W4 is done when the import has no
+warnings and the test passes. The run also has to tell: whether Unreal makes the six sockets from the FBX (else they are
+placed from the rig's report, approximately), whether the skeleton's retargeting can be set from Python (else the
+magazine is watched for a jump on reload), the LOD counts, and from the pictures whether the normal map's flip is right.</p>
+""" + table(["Piece", "Where", "What it does"], [[md_inline(c) for c in r[:3]] for r in w4]) + """
 
 <h2>The shooter pack's weapons, taken apart</h2>
 <p>""" + BUILT + """ Measured in the editor on 2026-10-19. Each gun is modular: one skeletal mesh per part on one weapon
@@ -334,20 +368,27 @@ rarity and tiers tint a gun without new textures. Proposal, in <code>docs/weapon
 
 <h2>Which AI and tools</h2>
 """ + table(["Job", "Tool", "Connected now?", "Cost"], [[md_inline(c) for c in r[:4]] for r in ai]) + """
-<p class="wiki-note">Nothing new is needed to start: the one-weapon trial (W2) runs on Higgsfield's free credits, the
-owner's Lychee Studio project and Blender. Making the whole arsenal needs a paid plan, chosen after the trial (OQ-22).
-Generated meshes are the high-poly source; the game mesh is made from them in Blender, which is what keeps the parts
-and attachments working.</p>
+<p class="wiki-note">Decided after the one-weapon trial (W2): Higgsfield Plus is the generation account (D-35) and
+Tripo P2 at 50,000 faces the main route, with Tripo H3.1 for first looks (D-40). Generated meshes are the high-poly
+source; the game mesh is made from them in Blender by the W3 tool, which is what keeps the parts and attachments
+working.</p>
 
-<h2>The arsenal to make</h2>
-<p>""" + OPEN + """ The look (OQ-20, proposal): colony-made, printed at the convoy's fabricators, clean sci-fi beside the
-bundle's outposts with the interface's orange as the accent, in the same tiers as building: Salvage, Colony, Fortified,
-Alien. The order: first the guns in the Prototype's hands, so the placeholders go.</p>
-""" + table(["ID", "Weapon", "Class skeleton", "Wave", "Note"], [[md_inline(c) for c in r[:5]] for r in arsenal]) + """
+<h2>The arsenal: tiers, mods and the story</h2>
+<p>""" + tag("design", "Decided, D-38") + """ The owner's direction (D-37): players start with weak, low-end weapons, mods make them better, the
+advanced tiers are better, and every weapon's look comes from the story. Decided as proposed (D-38): one tier per loot
+tier, each made by someone in the story, with the attachments as the steps between tiers. Initiative electronics go dark for
+the pulse's few seconds; Remnant and Choir crystal does not.</p>
+""" + table(["Tier", "Maker in the story", "Look", "How you get it", "Stats and slots"], [[md_inline(c) for c in r[:5]] for r in tiers]) + """
+<p>One base model a weapon, at the Issue tier; the other tiers are part swaps and material layers on it, the way the
+building tiers work on the same shapes. First the Prototype's guns at Issue plus Wreck, so the placeholders go and the
+game starts weak; then the mods, the rifle and the shotgun; then the higher tiers with the story's acts.</p>
+""" + table(["ID", "Weapon", "Story home", "Tiers", "Wave", "Note"], [[md_inline(c) for c in r[:6]] for r in arsenal]) + """
 
 <h2>Tools</h2>
-<p>""" + OPEN + """ The hand tools of the survival loop (OQ-21, proposal): a tool is a weapon row with a <code>melee</code>
-hit type, a short swing the server checks like a shot, so harvesting only listens for the hit.</p>
+<p>""" + tag("design", "Decided, D-39") + """ The hand tools of the survival loop (D-39): a tool is a weapon row with a <code>melee</code>
+hit type, a short swing the server checks like a shot, so harvesting only listens for the hit. The build tool never
+swings: drawing it starts build mode and putting it away ends it (agreed with the Building chat 2026-10-20; until it is
+on the hotbar in W8, B starts build mode from the Building chat's own mapping).</p>
 """ + table(["Tool", "Use", "Logic lives in", "Model from this chat"], [[md_inline(c) for c in r[:4]] for r in tools]) + """
 
 <h2>How a shot works online</h2>
@@ -436,7 +477,24 @@ def building_assets():
 remade into individual parts that players snap together however they like, in tiers of building, and its machines
 made into work stations, built together to AAA quality. Pictures of progress and design ideas land here first; the
 full plan is the design record's <code>docs/building.md</code>.</p>
-
+""" + owner_block(
+        "**The owner approved the gallery pictures** (2026-10-20), after the corner test passed (D-41: no opening from "
+        "any angle; each corner's post in the same frame as its wall, for a watching player too). **The build tool and the "
+        "door work in the game** (2026-10-20; the first two pictures below): B starts building; a ghost of the piece "
+        "shows where it goes, green, or red with the reason; left mouse places, holding right mouse removes (not a piece "
+        "others rest on), R turns a wall, the wheel picks the piece; E opens and shuts a door for everyone. Checked with "
+        "four machines: a player built a room with a door from the ghost's aim, was kept in by the shut door and walked "
+        "out of the open one, and every machine agreed. The build menu and hints are the UI chat's; the build tool on the "
+        "hotbar the weapons chat's. **The owner's test** (2026-10-21): four foundations, then the pieces were hard to find with the wheel (nothing on "
+        "screen names them yet), so the pieces get a radial menu from the UI chat, taken from MST Pro's, and MST Pro's "
+        "building functions may be brought in (D-44). MST Pro's building system is read: its hammer (remove with a "
+        "refund, repair, upgrade), costs, door locks, base claims, health bars, pillars under raised foundations, stairs, "
+        "ramps and triangles are worth taking, but it lets the player's own game decide what is built, so Tharrn "
+        "rebuilds them in its server-checked C++ (the proposed order is in building.md). **Waiting for the owner:** the yes to commit the build tool with "
+        "the doorway fix; OQ-32 and OQ-39. **Next:** stairs with "
+        "a floor hatch, and steps up to a doorway (a foundation's floor is 90 cm above the ground, so for now players "
+        "jump and climb in); a half wall, a ramp; triangles once OQ-32 is answered.",
+        ["OQ-32", "OQ-39"], ["D-30", "D-33", "D-41", "D-44"]) + """
 <h2>Progress</h2>
 <div class="shots">""" + shots(progress_pics) + """</div>
 
@@ -517,8 +575,8 @@ def progression_and_story(dungeon):
     md = open(os.path.join(HERE, "..", "docs", "story.md"), encoding="utf-8").read()
     sec = lambda title: md_body(md_section(md, title))
     cards = lambda title: md_body(md_section(md, title), cards=True)
-    steps = [[r[0], r[1], r[2]] for r in md_rows(md_section(md, "14. Steps"))]
-    pictures = md_pictures(md_section(md, "15. Pictures"))
+    steps = [[r[0], r[1], r[2]] for r in md_rows(md_section(md, "15. Steps"))]
+    pictures = md_pictures(md_section(md, "16. Pictures"))
     acts = md_rows(md_section(md, "6. The main story"))  # Act | Levels | Where | Chapters | Ends when
     rooms = " → ".join(r["type"].replace("_", " ") for r in dungeon.get("rooms", []))
 
@@ -559,6 +617,12 @@ the factions, the quests, levels and talents, the dungeons, the raids and the en
 owner's review; names are placeholders. The full page is the design record's <code>docs/story.md</code>. Spoilers
 throughout.</p>
 
+""" + owner_block(
+    "The quest and XP code is written and compiles as the game target (V1 in tasks.md: levels, XP, the quest book on the player state, "
+    "quest points, the HUD's tracker, the journal on J); it loads once the editor is closed and rebuilt, then the data import, the "
+    "tests and `quest_test.py` (Wreck played through on the test range) run, then the owner play-tests Wreck and the journal. "
+    "After that: the quest places on the main map with the Map chat, and the starting kit with the origins (P8).",
+    ["OQ-25", "OQ-26", "OQ-27", "OQ-28"], ["D-37", "D-28"]) + """
 <h2>The story in one page</h2>
 """ + sec("1. The story in one page") + """
 
@@ -628,8 +692,11 @@ caverns zone recommends level 15.</p></div>
 <h2>Raids and the endgame</h2>
 """ + cards("12. Raids and the endgame") + """
 
+<h2>Tiers: how each age looks and feels</h2>
+""" + cards("13. Tiers: how each age of the game looks and feels") + """
+
 <h2>For the owner</h2>
-""" + sec("13. Open questions for the owner") + """
+""" + sec("14. Open questions for the owner") + """
 
 <h2>Steps</h2>
 """ + progress_table(steps) + """
@@ -703,8 +770,26 @@ def gui_ui_menus(presets):
     body = """
 <p>""" + tag("open", "Doing") + """ This tab is the interface's workshop: the HUD, the menus, the survival screens and
 the loading screen, designed and built to AAA quality, with pictures as each step lands. The direction is the owner's
-(D-31): <strong>The Division 2's menus and HUD, with ARK's layout for the survival parts</strong>. Mock-ups are drawn
-over real captures from the game, with the game's real items and values.</p>
+(D-31): <strong>The Division 2's menus and HUD, with ARK's layout for the survival parts</strong>, approved as drafted
+(D-36), with the owner's T emblem as the logo. Mock-ups are drawn over real captures from the game, with the game's
+real items and values; the parts are now built in the engine (step U3).</p>
+""" + owner_block(
+        "**The main menu, in the engine (U4):** it plays in the game over its live scene (the pictures above). Tested "
+        "with the mouse (2026-10-20): Settings opens Easy Game UI's options and Back returns; Quit leaves. Deploy is now "
+        "wired exactly like Easy Game UI's own New Game; the test clicks never reached it because a floating Message Log "
+        "window lay over it, so the owner's click is its first real test (close that window first). Since the owner's "
+        "test (2026-10-20) the game shows this menu: Play in L_TharrnMainMenu (to go back to Easy Game UI's: "
+        "/Game/Tharrn/UI/DA_TharrnUIConfig, Main Menu Widget = WBP_EasyMainMenu). For the owner, later (\"i looked at a "
+        "few things, ill decide later\"): is the main menu right (OQ-31)? Does the planet read as Tharrn, and the moons? "
+        "Are the entries right (Deploy, New character, Multiplayer, Settings, Credits, Quit)? The title screen next, "
+        "the T emblem large over the planet? Built 2026-10-21: one lit entry at a time "
+        "(the pointer moves the focus, so Deploy no longer stays lit beside another). **The build tool's HUD (D-44, "
+        "U5):** in the game since 2026-10-21 (the pictures above), checked in a play session: hold Q for a radial piece menu (categories inside, "
+        "their pieces outside, point with the mouse, let go to choose), the piece in hand and the build keys bottom "
+        "right, why a piece cannot go under the crosshair, the new piece's name when the wheel changes it, and E at a "
+        "door. Next: Easy Game UI's \"press any key\" stage restyled as the title screen (the owner's emblem), then the "
+        "loading screen. Nothing is committed until the owner calls the main menu right.",
+        ["OQ-31"], ["D-21", "D-31", "D-36", "D-42", "D-44"]) + """
 
 <h2>Latest pictures</h2>
 <div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
@@ -759,7 +844,7 @@ in the game is its own research step (OQ-03).</p>
 """ + table(["", ""], preset_rows, "kv")
     return page("GUI, UI, Menus", "GUI, UI, Menus",
                 "Designing and building Tharrn's interface to AAA quality: the HUD, the menus, the survival screens, the loading screen.",
-                body, "Sources: the design record's docs/ui-design.md and docs/ui/ (style guide, mock-ups); D-21, D-25, D-28, D-31; "
+                body, "Sources: the design record's docs/ui-design.md and docs/ui/ (style guide, mock-ups); D-21, D-25, D-28, D-31, D-36; "
                 "GDD 0.1 modules 01 and 10; the preset from <code>Data/MetaHumanPresets.json</code>.")
 
 
@@ -777,6 +862,57 @@ def md_section(md, title):
     start = md.index("## " + title)
     end = md.find("\n## ", start + 3)
     return md[start:end if end > 0 else len(md)]
+
+
+def decision_rows(ids):
+    """Rows of the decision log (docs/decisions.md) for the given IDs, D-nn or OQ-nn, as lists of cells with their
+    Markdown inline marks: a decision row is [id, decision, date, notes], an open question [id, question,
+    recommendation]. Resolved questions (struck through) are left out."""
+    md = open(os.path.join(HERE, "..", "docs", "decisions.md"), encoding="utf-8").read()
+    found = {}
+    for line in md.splitlines():
+        if not line.startswith("| "):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells[0].startswith("~~"):
+            continue
+        if cells[0] in ids:
+            found[cells[0]] = cells
+    return [found[i] for i in ids if i in found]
+
+
+def decided_short(cells):
+    """A decision row's headline: its first bold sentence."""
+    m = re.search(r"\*\*(.+?)\*\*", cells[1])
+    return m.group(1) if m else cells[1]
+
+
+def owner_block(next_text, open_ids, decided_ids):
+    """What a chat's tab shows first: the chat's next step, the open questions the owner decides (with the
+    recommendation each carries), and the decisions already taken for the tab. All read from the decision log."""
+    qs = decision_rows(open_ids)
+    ds = decision_rows(decided_ids)
+    return """
+<h2>Next, and what the owner decides</h2>
+<p>""" + tag("open", "Next") + """ """ + md_inline(next_text) + """</p>
+""" + (("""<p>""" + OPEN + """ The questions this chat waits on. Each carries a recommendation; "as proposed" is an answer.</p>
+""" + table(["ID", "The question", "Recommendation"], [["<code>%s</code>" % E(r[0]), md_inline(r[1]), md_inline(r[2])] for r in qs])) if qs else
+         """<p>""" + BUILT + """ Nothing waits on the owner for this tab right now.</p>""") + """
+<h3>Decided for this tab</h3>
+""" + table(["ID", "Decision", "Date"], [["<code>%s</code>" % E(r[0]), md_inline(decided_short(r)), E(r[2])] for r in ds]) + """
+"""
+
+
+def md_tables(block):
+    """Every Markdown table in a section, each as its body rows (lists of cells)."""
+    tables, cur = [], []
+    for l in block.splitlines() + [""]:
+        if l.startswith("|"):
+            cur.append(l)
+        elif cur:
+            tables.append([[c.strip() for c in x.strip("|").split("|")] for x in cur[2:]])
+            cur = []
+    return tables
 
 
 def md_rows(block):
@@ -850,7 +986,7 @@ STATE_TAG = {"Done": BUILT, "Doing": tag("open", "Doing"), "Next": DESIGN, "Late
 
 
 def progress_table(progress):
-    return table(["Step", "What", "State"], [[E(r[0]), md_inline(r[1]), STATE_TAG.get(r[2].split()[0], "") + " " + md_inline(" ".join(r[2].split()[1:]))]
+    return table(["Step", "What", "State"], [[E(r[0]), md_inline(r[1]), STATE_TAG.get(r[2].split()[0].rstrip(":"), "") + " " + md_inline(" ".join(r[2].split()[1:]))]
                                            for r in progress])
 
 
@@ -978,7 +1114,8 @@ around, a landscape at 1 m everywhere with Nanite, regions that blend into each 
 open ground for the hoverbike and buggy, and the arctic in the north-west. This tab is the Map chat's: the plan, how it
 is built, the pictures, the questions for the owner and the to-do list. The full plan is the design record's
 <code>docs/map-design.md</code>.</p>
-
+""" + owner_block(md_paragraphs(sec("13. Next")).replace("<p>", "").replace("</p>", " ").strip(),
+                  ["OQ-40", "OQ-23", "OQ-24", "OQ-29", "OQ-33"], ["D-34", "D-43", "D-28", "D-19"]) + """
 <h2>Pictures</h2>
 <div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
 
@@ -1045,6 +1182,20 @@ zone becomes part of a region (OQ-24). Drawn to scale from the zone data, y incr
                 "zones and starts from the game's <code>Data/Zones.csv</code> and <code>Data/StartLocations.csv</code>.")
 
 
+def report():
+    """The Report tab: the Master chat's day planner for the owner, read from docs/report.md section by section (its
+    "## " sections in order; paragraphs, bullets and tables as the record writes them)."""
+    md = open(os.path.join(HERE, "..", "docs", "report.md"), encoding="utf-8").read()
+    body = ""
+    for m in re.finditer(r"(?m)^## (.+)$", md):
+        title = m.group(1).strip()
+        body += "<h2>%s</h2>%s" % (md_inline(title), md_body(md_section(md, title)))
+    return page("Report", "Report",
+                "The Master chat's day planner: what is running, what is next, what the owner decides, and what got done.",
+                body, "Source: the design record's docs/report.md, kept by the Master chat, the hub every chat reports to; "
+                "the working agreement in <code>projects/Tharrn/README.md</code>.")
+
+
 def development():
     modules = [
         ["P1", "Foundation: data tables from the data files, automated tests, the multiplayer test harness, a grey test range",
@@ -1087,7 +1238,9 @@ def development():
         ["D-27", "The main map is an island: the 15 zones, 2.56 km each, with sea all around"],
         ["D-28", "A new player picks where to start: one or two starting locations in each region, by difficulty"],
         ["D-30", "Players build bases from the Sci-Fi bundle's pieces, remade into individual parts that snap together, in tiers of building"],
+        ["D-31", "The interface follows The Division 2's menus and HUD, with ARK's layout for the survival parts"],
         ["D-33", "Building tiers: Wooden Fiber, Salvaged Mineral, Enhanced Alloy, Biotech; the bundle's 4.5 m storey; the Hyper template only a reference"],
+        ["D-36", "The interface's look approved; Easy Game UI underneath, restyled; the owner's T emblem is the logo"],
     ]
     questions = [
         ["OQ-01", "Consoles", "PC first; decide once the prototype is fun"],
@@ -1342,6 +1495,7 @@ def main():
 
     pages = [  # (tab name, file, html)
         ("Overview", "index.html", overview()),
+        ("Report", "report.html", report()),
         ("World and map", "world.html", world_map(zones, starts)),
         ("Bestiary", "bestiary.html", bestiary(creatures)),
         ("Combat and arsenal", "combat.html", combat(weapons)),

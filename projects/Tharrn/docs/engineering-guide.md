@@ -32,18 +32,18 @@ Read the [README](../README.md) first; the design is in [gdd/](gdd/00-overview.m
 | `Source/Tharrn/Survival/` | P5: `UTharrnVitalsLibrary` (GDD 03's formulas and the tuning from `DT_Vitals`), `UTharrnVitalsComponent` (hunger, hydration, temperature on the server; the rules' answers on every machine; test command `th.Vitals`, `th.VitalsRate`), `UTharrnCraftingComponent` (the queue the server runs; `th.Craft`), `ATharrnClimateVolume` (an area's air temperature). Stamina itself lives in `UTharrnCharacterMovementComponent` (predicted, gotcha 85) |
 | `Source/Tharrn/UI/` | D-25 (P4): the widgets' logic in C++, their look in Widget Blueprints (`Tools/UI/build_ui.py`): `UTharrnItemSlotWidget` (one slot, drag and drop), `UTharrnHotbarWidget`, `UTharrnInventoryScreen`, `UTharrnGameHudWidget` (hotbar, the vitals cluster, weight, pick-up prompt, hit markers), `UTharrnCraftingPanel` with its recipe and queue rows (P5), `UTharrnDeathScreen` (P5); `ATharrnPlayerController` puts them on screen (the HUD class is Easy Game UI's) |
 | `Source/Tharrn/Tests/` | Automation tests `Tharrn.Data.*`, `Tharrn.Net.*`, `Tharrn.Player.*`, `Tharrn.Combat.*`, `Tharrn.Inventory.*`, `Tharrn.Vitals.*`, `Tharrn.Crafting.*` |
-| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation; Tharrn's own MCP toolsets `TharrnEditor.TharrnBlueprintNotesToolset` (comment boxes: add, list, remove; node comments; variable and Blueprint descriptions) and `TharrnEditor.TharrnPlaySessionToolset` (play session worlds, late-joining client, console commands in a play world, a picture of one world's game view), `TharrnEditor.TharrnAnimToolset` (AnimGraph nodes, linked anim graphs in and out, skeleton sockets, IK retargeters, batch retargeting) and `TharrnEditor.TharrnBlueprintSetupToolset` (where Blueprint components attach, Blueprint interfaces, property values as Unreal text), `TharrnEditor.TharrnWorldBuildToolset` (new levels, landscapes from height and paint files, saving Tharrn's levels without asking, an actor's editor buttons such as the Sci-Fi bundle's PCG Generate, PCG progress, unsaved packages in pack folders and forgetting them), registered by `UTharrnToolsetsSubsystem`; tests `Tharrn.Editor.*` (editor only) |
+| `Source/TharrnEditor/` | `UTharrnWorldBuildLibrary`: Landscape from raw heights, edit-layer merge, ribbon and stone-block meshes, blocking PCG generation; Tharrn's own MCP toolsets `TharrnEditor.TharrnBlueprintNotesToolset` (comment boxes: add, list, remove; node comments; variable and Blueprint descriptions) and `TharrnEditor.TharrnPlaySessionToolset` (play session worlds, late-joining client, console commands in a play world, a picture of one world's game view), `TharrnEditor.TharrnAnimToolset` (AnimGraph nodes, linked anim graphs in and out, skeleton sockets, IK retargeters, batch retargeting) and `TharrnEditor.TharrnBlueprintSetupToolset` (where Blueprint components attach, Blueprint interfaces, property values as Unreal text), `TharrnEditor.TharrnWorldBuildToolset` (new levels, landscapes from height and paint files with an HLOD layer, exporting a landscape to files, Nanite on a landscape and its build, deleting a landscape, copying another level's World Partition settings, saving Tharrn's levels without asking, an actor's editor buttons such as the Sci-Fi bundle's PCG Generate, PCG progress, loading and unloading regions, splines, unsaved packages in pack folders and forgetting them), registered by `UTharrnToolsetsSubsystem`; tests `Tharrn.Editor.*` (editor only) |
 | `Data/` | Game data source: CSV and JSON (its README) |
 | `Tools/Mcp/` | `tharrn_mcp.py`: the small MCP client every script below uses; `tharrn_blueprints.py`: Blueprint helpers the build scripts share |
 | `Tools/Data/` | `import_data_tables.py`: CSV to data tables, read back and compared |
 | `Tools/TestRange/` | `build_test_range.py`: `BP_NetProbe`, `BP_TargetDummy`, map `L_TestRange` (targets, net probe, 8 player starts in 4 lanes, a mantle and vault course of the sample's traversable blocks, an item table (P4, P5: resources, rations, water), a cold and a hot area (P5), a sign with the controls) |
-| `Tools/Weapons/` | `setup_mss.py` (MSS on the UEFN skeleton: sockets, retargeter, retargeted animations, pose data, the player's animation Blueprint with MSS's upper-body layer, the throw montage, MSS's collision channels; output in `/Game/MSS_Tharrn`, outside Git, remade by the script), `build_mss_weapons.py` (`BP_TharrnWeapon_SMG`, `_Pistol`, `_Heavy`, `BP_TharrnGrenadeRound`, `BP_TharrnHandGrenade`), `build_mss_player.py` (MSS on `BP_TharrnPlayer`, the wheel's `IMC_TharrnCombat`, the camera manager on the controller). Order after staging MSS or the sample: setup, weapons, player ([mss.md](mss.md)). (`build_weapons.py` and its shape-built test weapons were removed with D-24.) |
+| `Tools/Weapons/` | `setup_mss.py` (MSS on the UEFN skeleton: sockets, retargeter, retargeted animations, pose data, the player's animation Blueprint with MSS's upper-body layer, the throw montage, MSS's collision channels; output in `/Game/MSS_Tharrn`, outside Git, remade by the script), `build_mss_weapons.py` (`BP_TharrnWeapon_SMG`, `_Pistol`, `_Heavy`, `BP_TharrnGrenadeRound`, `BP_TharrnHandGrenade`), `build_mss_player.py` (MSS on `BP_TharrnPlayer`, the wheel's `IMC_TharrnCombat`, the camera manager on the controller). Order after staging MSS or the sample: setup, weapons, player ([mss.md](mss.md)), then `import_weapon.py` for each of Tharrn's models (it also sets the pack skeleton's retargeting). `export_mss_weapons.py` (the pack's weapon skeletal meshes to FBX for the Blender rig; background editor), `Blender/weapon_build.py` and `weapon_check.py` (W3: a generated model into parts on the pack's class skeleton with sockets and LODs, headless Blender 4.1, from `Blender/specs/<id>.json`; [weapons.md](weapons.md)), `import_weapon.py` (W4: the parts, textures and material into `/Game/Art/Weapons/<id>/`; background editor; then `build_mss_weapons.py` puts them on the weapon's Blueprint through the look component's `Parts`). (`build_weapons.py` and its shape-built test weapons were removed with D-24.) |
 | `Tools/Player/` | `build_player.py`: `BP_TharrnPlayer` from the Game Animation Sample's Character Movement character, `BP_TharrnPlayerController`, `BP_TharrnGameMode`, the project's default game mode |
 | `Tools/Packs/` | `stage_packs.py`, `packs.csv` (Game Animation Sample, Sci-Fi Complete Bundle, Multiplayer Shooter System, Easy Game UI; guides: [scifi-bundle.md](scifi-bundle.md), [mss.md](mss.md), [easy-game-ui.md](easy-game-ui.md)) |
 | `Tools/Checks/` | `verify.py` (steps 1–4 below in one run), `check_editor_only_plugins.ps1`, `measure_budget.ps1` / `.py`, `run_tests.py`, `net_test.py`, `mss_test.py`, `inventory_test.py` (D-25: the inventory with a listen and a dedicated server), `survival_test.py` (P5: vitals, food and water, cold, crafting, running out of stamina, the bag; listen and dedicated server), `nature_test.py` (P6: players run through the bundle's generated nature on `L_CoastTest` with no corrections; listen and dedicated server) |
 | `Tools/UI/` | `build_ui.py` (D-25): icons, the Widget Blueprints in MSS's look, `BP_TharrnHUD`, Easy Game UI's settings copies and its selector, `BP_TharrnGameInstance`, the main menu level, the project's start level |
 | `Content/Tharrn/` | `Data/` (DT_Weapons, DT_Creatures, DT_Zones), `Dev/` (BP_NetProbe, BP_TargetDummy), `Maps/L_TestRange`, `Characters/Player/BP_TharrnPlayer`, `Core/` (BP_TharrnGameMode, BP_TharrnPlayerController, BP_TharrnGameInstance, BP_TharrnMenuGameMode), `Input/` (the hotbar, wheel, pick-up, inventory and pause actions, `IMC_TharrnCombat`), `UI/` (the Widget Blueprints, BP_TharrnHUD, Easy Game UI's settings copies, icons), `Maps/L_TharrnMainMenu`, `Weapons/` (placeholders, the heavy round, `MSS/` Tharrn's MSS weapons) |
-| `Tools/World/` | `build_coast_level.py` (a coast level from a built terrain: landscape, virtual textures, sky, ocean, the bundle's biome volume, generation, pictures; levels under `/Game/Tharrn/Scratch/` are for comparisons, outside Git); `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script); `draw_island_layout.py` (the main map's island and a biome per zone as a picture; its `island()` gives the same coast on any grid) and `island_blockout.py` (the island as a blockout level: terrain, build, pictures labelled with the zones and the start); `island_terrain.py` (the main map's terrain: each region's landforms, erosion, rivers and lakes, the paint, the 2 m export; numba kernels in `terrain_ops.py`) and `build_main_map.py` (`L_Main` from it) |
+| `Tools/World/` | `build_coast_level.py` (a coast level from a built terrain: landscape, virtual textures, sky, ocean, the bundle's biome volume, generation, pictures; levels under `/Game/Tharrn/Scratch/` are for comparisons, outside Git); `setup_bundle_biomes.py`: Tharrn's versions of the Sci-Fi bundle's run-time PCG graphs (the bushes and small boulders made around players have no collision), made into `/Game/ScifiOutpost_Tharrn/` (outside Git, remade by the script); `draw_island_layout.py` (the main map's island and a biome per zone as a picture; its `island()` gives the same coast on any grid) and `island_blockout.py` (the island as a blockout level: terrain, build, pictures labelled with the zones and the start); `island_terrain.py` (the first main map's terrain, D-27, replaced; numba kernels in `terrain_ops.py`, still used); `main_map_terrain.py` (the main map's terrain since D-34: layout, 8 m heights with the bundle's example level's relief, erosion, rivers and lakes, 1 m tiles with the blended paint and the biome volumes' data) and `build_main_map.py` (`L_Main` from it: the example level's World Partition settings and sky, the sea, the tiles with Nanite, water, biome volumes, pictures) |
 | `Tools/Terrain/` | Lidar-to-Landscape pipeline carried over, not yet re-run (its README); `test_coast.py`, the made-up coast for P6's ocean and biome tests (heights and the bundle's jungle paint layers, run with `Saved/PyTerrain`); `coast_terrain.py`, candidate coasts from USGS 1 m lidar tiles (overview maps, 2 km windows with a seabed and the paint layers) |
 | `Config/` | Budget and DLSS (`DefaultEngine.ini` `[SystemSettings]`), default tier (`DefaultGameUserSettings.ini`), cue path and Game Features rule (`DefaultGame.ini`), Game Animation Sample tags (`Tags/`) and its data-driven console variables, collision channels and console variables (`DefaultEngine.ini`, D-18) |
 | `Content/ThirdPerson`, `Characters`, `Input`, `LevelPrototyping` | Template content (tracked) |
@@ -102,8 +102,13 @@ $env:TH_RAW_ONLY="1"; & "$UE\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" $Proj -
 python D:\Tharrn\Tools\Building\make_caps.py; python D:\Tharrn\Tools\Building\make_closures.py
 # ($env:TH_EXPORT_ONLY="1" instead: a trial with the closures, written to Saved\Building\final, no asset saved)
 # The building system's network test (B4; DT_BuildPieces imported, the gallery built): a dedicated server and three
-# players as separate game processes beside the open editor (about 6 minutes, about 20 GB; stops under 6 GB free)
-python D:\Tharrn\Tools\Building\build_net_test.py
+# players as separate game processes beside the open editor (about 6 minutes, about 20 GB; stops under 6 GB free).
+# corner: the scripted corners and posts; tool: the build tool as a player uses it (the ghost's aim, E on the door,
+# walking in and out), which needs the build tool's keys and ghost material made first (a background editor)
+UnrealEditor-Cmd.exe D:/Tharrn/Tharrn.uproject -ExecutePythonScript="D:/Tharrn/Tools/Building/build_tool_assets.py" -unattended -RenderOffscreen -nosplash -nosound
+python D:\Tharrn\Tools\Building\build_net_test.py [corner|tool]
+# In a game: B build mode; th.BuildTool on|off, th.BuildPick PIECE, th.BuildLook X Y Z|off, th.BuildPlace, th.BuildTurn,
+# th.BuildUse (E on a door), th.BuildTarget (where the ghost is, and why it is red)
 
 # With the editor open (they talk to Unreal MCP); each ends with RESULT ok or RESULT failed
 python D:\Tharrn\Tools\Checks\verify.py [--quick]                 # ladder steps 1-4: game build, plugins, data, tests, network
@@ -542,7 +547,38 @@ closed: an open editor once took 96 % of the GPU.
     is crisp.
 108. With `L_Main` loaded (the 64 million point landscape, every cell) the editor uses about 35 GB of memory; check
     that no play session is running (`EditorAppToolset.IsPIERunning`) before a build changes the level: the owner may
-    be playing.
+    be playing. (Written for the first `L_Main`; the second, D-34, is built and edited a 4 km tile at a time.)
+109. The Sci-Fi bundle's biome presets thin their plants and grow their rocks with height above the biome volume's
+    `GlobalLowestPoint` (each preset's `highPoint`: jungle trees from full density to 10 % at 100 m above it, desert
+    cliff and mesa rocks up to three times larger toward 160 to 200 m). Set it per volume to the local valley floor
+    (`main_map_terrain.py`'s `volumes.json`), never to the sea floor (the coast's jungle came out bare).
+110. One sea plane (the bundle's `MI_Water` on a 1 m plane) 75 km wide blew the exposure of every editor picture to white
+    ("Cached lighting in Lumen ... is going to be clipped", exposure 14); 55 km was fine. `L_Main`'s sea is 16 planes of
+    25 km (`build_main_map.py sea`).
+111. The pack's arctic layer info assets are named `Arctic_*_LayerInfo` but their layer names (what the material and the
+    arctic presets read, and what `ExportLandscape` names its files) are `Artic_Snow`, `Artic_Shore`, `Artic_Swamp`.
+112. Landscape tiles made one at a time match at their shared edges only if everything that looks at its surroundings
+    (river channels from a distance transform, slopes, shores, the paint's softening) is worked out beyond the tile:
+    `main_map_terrain.py` works 128 m past each edge and crops (checked: 0 cm and 0 paint difference along an edge).
+113. `FToolCallExceptionHandler` (the tests' way of calling a tool as MCP does) keeps every exception it has seen; a later
+    `Call` that checks for none fails with the earlier one, and an expected message then counts twice. In a test, make
+    what the test needs before the first expected raise.
+114. Memory: the editor importing a 4 km tile at 1 m (16.5 million points, then its Nanite meshes) went from 6 to 48 GB
+    on the 64 GB PC (2026-10-20): 2 GB left, the 8.4 GB page file 95 % full. Claude Code then stops the background
+    shell that drives it (its memory-pressure stop); the editor carries on and finishes the tile unsaved. Import
+    2 km quarters instead (2033 vertices, 8 x 8 components): about 15 GB for a minute. A level reload after each piece
+    does not give back all of it (6 GB fresh, 25 GB after one big tile). `BuildLandscapeNanite` builds only what is
+    out of date (the editor log's "Build Nanite: 16 landscape proxies built" for a quarter); its return value counts
+    every loaded proxy with Nanite meshes (96 then), not the ones it built. Three terrain processes beside the editor also
+    ran the PC out of memory; two at a time are fine.
+
+115. The engine's `OverlapOnlyPawn` collision profile overlaps pawns and ignores the camera but **blocks every other channel**: a shot's Visibility trace fired from inside such a sphere (a quest point's reach) stopped at 0 cm (2026-10-20). For a trigger that nothing else should see, set the responses one by one: all Ignore, Pawn Overlap.
+116. A dedicated server assigns a player's id (and spawns the body) after the player state's `BeginPlay`: anything that needs `GetPlayerId()` or `GetPawn()` (the first quest, a log line with the player's number) waits in Tick for both.
+117. `AActor::GetLevel()` exists: a `UFUNCTION GetLevel` on an actor subclass fails the header tool (\"cannot have a UFUNCTION() declaration above it\"). The player state's level is `GetPlayerLevel`.
+118. A test script that waits for a log line must search the lines since a mark taken just before its own command. A look-back window (\"the last 2000 lines\") matches an earlier run's lines in the same editor session; `quest_test.py` once passed its stages against the previous run and switched the fire test off before the weapon was drawn.
+119. `th.Press` takes an input action's object path (`/Game/Tharrn/Input/IA_Journal.IA_Journal`), not its name.
+120. The data import's read-back check: a `FText` with an apostrophe comes back escaped (`Initiative\'s`) and an empty `FName` column reads back as `None`; `import_data_tables.py` compares both right now. Edits to that file go through a script file, not a heredoc (gotcha 22: the backslash in `\'` was eaten).
+121. The editor-only test commands of a module go in a file of their own (`TharrnQuestCommands.cpp`), so Live Coding patches of the classes they test never recompile a static console command (gotcha 79). A new static command in a new file still needs the full editor build; the Master chat's rounds take about 3 minutes (the editor build itself 25 to 35 s).
 122. A game process started with a server's address runs its command-line commands (`-ExecCmds`) in its start-up world,
     and joining the server replaces that world: commands that wait for the player (a camera, a script) die with it. The
     building's test commands keep themselves and start again in every game world that begins play
@@ -552,6 +588,41 @@ closed: an open editor once took 96 % of the GPU.
     log), never by a hash of names.
 124. A mesh written by Geometry Script without collision has none: the gallery's ground let the players fall through it
     until it got a box (the network test's builder was refused everything as out of reach, 40 m further every second).
+125. A `TSoftObjectPtr` does not keep its asset loaded: after `LoadSynchronous()`, keep the result in a `UPROPERTY`
+    (`TObjectPtr`), or the next garbage collection (about once a minute in a game) unloads it and `Get()` returns null.
+    The building system's piece table did this (2026-10-20): a short test passed, a longer one lost the table mid-game
+    (the server refused a piece as unknown and stopped drawing changes).
+126. A mesh's render bounds take in parts that are hidden or out of the way (a wall's base slopes 1.3 m into the room
+    under the floor): for "is something in the way" checks, use its collision boxes (`GetBodySetup()->AggGeom`).
+127. A component made at runtime that players stand on needs the same name on every machine and `SetNetAddressable()`.
+    The server's movement corrections name it as the player's base; a name the player's machine cannot resolve makes
+    it ignore them ("ClientAdjustPosition ... could not resolve the new relative movement base actor, ignoring server
+    correction") and the two machines drift apart while the player stands on it (the building's floors, 2026-10-20).
+128. A floating editor window (the Message Log) lying over the Play viewport takes the Slate inspector's scripted clicks
+    on the game's UI beneath it, even after the main window is brought to the front: the click activates that window
+    and the game never sees it. Close floating windows before click tests (the main menu's Deploy, 2026-10-20).
+129. CommonUI turns a selected button's clicks off unless `bInteractableWhenSelected` is set: a menu that opens with
+    one entry selected ignores that entry's mouse clicks and Enter. Tharrn's row and tab buttons set it
+    (`Tools/UI/build_style.py`).
+130. Easy Game UI's `F_LevelLoadOperationInfo` is (SlotToLoad, Level, Absolute, Options), and `Level` takes the level's
+    name (`GetLevelNameFromReference`). A name put in `SlotToLoad` makes its loader look for a save of that name and
+    stop; it logs nothing unless the save lookup itself fails.
+131. A World Partition level remembers, per user, the regions loaded in the editor (`EditorPerProjectUserSettings.ini`,
+    `PerWorldEditorSettings`, `LoadedEditorRegions`), and loads them again at every opening, from a script too. A box
+    drawn by hand over `L_Main` to look at its dressed tile made every reopen in the landscape run load two tiles and
+    their dressing (144 Nanite pieces, about 30 s and several GB a reopen, 2026-10-20). `build_main_map.py` unloads them
+    after every opening of `L_Main` (`UnloadEditorRegions`). Scripts that reopen a big World Partition level should do
+    the same. The other side of it: actors in regions not loaded cannot be found, so a step that "removes the old ones
+    first" places everything twice on a second run. `build_main_map.py` keeps what it has done in files instead
+    (`water.done`, `dressed.txt`) and looks for a floating set only after loading its area.
+132. PCG in the Sci-Fi bundle (2026-10-21): the floating island sets (`BP_PCG_Jungle_Floating`) have no Generate button
+    of their own (`GetEditorButtons` lists none) and their component generates on load, which saves nothing: placed by a
+    script, each saved actor was 5.5 KB where the example level's are 150 to 270 KB. `GeneratePCG` asks a component on
+    demand. The bundle's river Blueprints (`BP_JungleRiver`) make PCG partition actors along every river: 126 rivers
+    made about 12,900 of them, saved with the water (13,307 packages in one save). Generating the biome volumes for
+    hours, the editor crashed once (2026-10-21 14:58, after 101 volumes in that editor) on an assertion inside the PCG
+    plugin on a worker thread (`Index < GetMaxIndex()`, SparseArray.h): an engine fault, with 49 GB free. Only the
+    volume in progress was lost; `dressed.txt` let the builder go on from the next one after the editor was reopened.
 
 ## 8. Working as two agents
 

@@ -163,9 +163,12 @@ server subsystem; decay as a slow server tick. Added here (proposal):
 - A piece is data: `Data/BuildPieces.csv` lists each piece's meshes per tier, size, snap points, cost and health (D-07).
 - Placed pieces are drawn as instanced meshes, one set per piece type and tier around each base: the bundle's own way
   of drawing many pieces cheaply.
-- The build tool is a hotbar item (D-25); its menu lists the pieces you can build and what they cost.
-- The Hyper survival template's building system (UE 5.5, Blueprints) is a reference for the piece list and how
-  building feels, not code to bring in (D-33).
+- The build tool is a hotbar item (D-25); its menu lists the pieces you can build and what they cost: a radial menu,
+  the UI chat's (D-44).
+- The Hyper survival template's building system (MST Pro; UE 5.8 now, Blueprints) was a reference for the piece list
+  and how building feels (D-33); since D-44 its building functions and menus may be brought in where they fit (its
+  radial menu, building controls, hammer, repair, upgrade, damage, door locks, stairs, ramps, triangles), while
+  Tharrn's system stays C++ and server-decided.
 
 ### The piece factory (B2)
 
@@ -182,7 +185,10 @@ the bundle's materials, wear colours and UVs.
   and, for windows, its glass (`_W`).
 - **Sockets** (tag `TB`): floors and foundations have `Snap_Center`, four edges and four corners; walls `Snap_Base`,
   `Snap_Top` (4.5 m up), `Snap_Left` and `Snap_Right`; the doorway a `Door` socket for the door.
-- **Collision:** simple boxes; the doorway's leave its opening free.
+- **Collision:** simple boxes; the doorway's leave its opening free: 152.5 cm wide, from a 31 cm threshold to 250 cm,
+  measured through the wall (2026-10-20; B2 had taken the door's extent about its own pivot for it, 22.5 cm off to one
+  side). The bundle's door Blueprint has its root at the doorway's Door socket and its door mesh 22.5 cm to the left
+  of it, which covers that opening.
 - **Remodel:** walls are trimmed where they reached into the room above the floor (the ledge, floor strips, skirting,
   the ceiling ledge with its lights); under the floor their base stays, hidden, and reaches 60 cm down so storeys
   overlap as in the bundle. A foundation is the barrack floor, a ring of footings and a solid core 1.8 m deep in the
@@ -253,6 +259,81 @@ First pass 2026-10-20: 14 placed, 1 removed, the 3 made-up placements refused; a
 and 4 posts; on both players' machines each of the 5 corner-forming walls arrived in the same frame as its post, and the
 removed wall took its post in the same frame.
 
+### The build tool and the door (B4, built and tested 2026-10-20)
+
+The split agreed with the UI chat and the weapons chat: this chat writes build mode in C++ (no widgets); the UI chat
+makes the build menu, the HUD's build hints and the door's E prompt on its getters; the weapons chat makes the build
+tool's model and hotbar item (D-39, W8), whose drawing will start build mode.
+
+- **Build mode** (`UTharrnBuildComponent`, on the player's own machine): a ghost of the chosen piece where the player
+  aims, green where it can go and red where it cannot (the style's Good and Bad), with the reason in plain words for
+  the HUD (`ETharrnBuildBlock`: no support, taken, out of reach, in the way, needs a doorway, ground too steep, and for
+  removing, other pieces rest on it). Left mouse places, right mouse held 0.6 s removes the piece looked at (shown in
+  red while held), R turns a wall round, the mouse wheel steps through the pieces, Q asks for the build menu. Until
+  the build tool is on the hotbar, B starts and stops it; starting puts away the weapon in the hands, drawing one ends
+  it. Keys in `/Game/Tharrn/Building/Input` (`Tools/Building/build_tool_assets.py`), above the combat keys while
+  building, so the weapon does not fire, aim or reload.
+- **Snapping** (`FTharrnBuildGrid::AimKey`): a foundation takes the cell under the spot looked at, on open ground a
+  new building square to the view, its floor 90 cm above the ground; a floor or roof takes the cell where the line of
+  sight crosses a storey's floor level (the next one up when looking up, an overhang when looking down from upstairs);
+  a wall or door the edge nearest the spot looked at, the top of a wall counting as the storey above. The tool snaps to
+  the building with a piece within 4.5 m of that spot.
+- **The server's checks**, as before, and two new ones: nobody (and no other building) may stand where a piece goes,
+  and a piece cannot be taken away while others rest on it (a wall under a floor, a foundation under walls or joining
+  two parts of the building).
+- **The door** is a piece of its own (`DOOR`, the bundle's pressure door: its meshes as they are) that goes in a
+  doorway, hung at the doorway's Door socket. Every machine draws it as moving parts (the leaf turns on its hinge,
+  its lever turns with it) and swings it when the server opens or shuts it; a player who joins later sees it as it is.
+  E opens or shuts the door looked at (after an item to pick up). Its leaf blocks when shut. Still to read in the
+  editor: how far the bundle's door turns and its lever's turn (`BP_PressureDoor1`'s door data; 90 degrees assumed).
+- **Walking in:** a foundation's floor stands 90 cm above the ground and the doorway's threshold 31 cm above that, so
+  a player climbs in with the sample's mantle (jump). Entrance steps come with the stairs (next): the bundle has the
+  barrack's own entrance stairs (`SM_Entrance_Stairs1`), and for stairs between storeys a modular kit (`Structure/
+  Stairs`: flights, side rails for the start, middle and end, supports).
+- **Checks:** `Tharrn.Building.*` adds Doors, Removing, Reasons and Aim (9 tests in all); the network test's second scenario
+  (`build_net_test.py tool`) builds with the tool only: a room round the player with a doorway and a door, kept in by
+  the shut door, out through the open one, the door taken out, two refusals; every machine must agree.
+- **Tested 2026-10-20** (the restart round after the map chat's window): the 9 tests pass; the tool scenario passes
+  (6 pieces placed from the ghost's aim, the door opened and shut with E for everyone, the player kept in by the shut
+  door and out through the open one, the door taken out with the remove key, the 2 made-up requests refused; all four
+  machines end with the same 5 pieces and 4 posts) and the corner scenario still does. Its first runs found three bugs,
+  fixed: the piece table held by a soft pointer only, so a garbage collection mid-game lost it (the server then refused
+  pieces as unknown and stopped drawing changes; this morning's core had it too); the in-the-way check measured a wall
+  by its drawn bounds, which take in its base under the floor, so a player in the room blocked its walls (now the
+  collision boxes); and a player standing on a building ignored the server's movement corrections, because the floor's
+  instance sets were made at runtime without a name the player's machine could resolve (now named after their mesh and
+  network-addressable; engineering guide gotchas 125 to 127).
+
+### MST Pro's building system (D-44): what to take
+
+Read from its files on 2026-10-21 (Hyper's MST Pro, UE 5.8, in the Epic download cache; nothing brought in yet).
+Each piece is an actor that snaps to named boxes on the piece below (no grid). The character's building component
+traces from the camera and shows a ghost. A **hammer** gives a radial menu of Destroy (refunding each material by
+chance), Upgrade, Cancel upgrade and Rotate, and repairs while held. A placed piece is a **construction site** until
+players bring its materials, and an upgrade works the same way. **Tiers** are rows chained Thatch, Wood, Stone, with
+250, 500 and 1,000 points of health. Pieces take damage and break apart (Chaos) by tier, and what rests on a broken
+piece is damaged in turn. Raised foundations get **pillars down to the ground**. Doors take a **lock with a code**,
+and a **cabinet** claims a 20 m circle for the players it authorizes. It also has furniture and crafting stations
+to place, palisades along a curve, and health bars on nearby pieces while the hammer is held. Its pieces include
+spiral and corner stairs, ramps, railings, sloped walls and roofs, and triangle foundations and ceilings, which turn
+in 120 degree steps (equilateral, as OQ-32 proposes).
+
+**The catch:** MST Pro lets the player's own game decide. The server spawns a piece where the player's game says it
+can go; the overlap, snap, slope and claim checks run only there; and a lock's code is checked inside the player's
+own menu screen. A cheater could build anywhere and open any lock. So Tharrn takes its functions and its data, and
+rebuilds them in its own C++ where the server checks everything (D-04). Its menus are the model for the UI chat's,
+whose widgets are its own (D-08: store-pack content stays out of the repository).
+
+**Proposed order:**
+1. The hammer's actions in the radial menu: remove with a refund, repair, and upgrade to the next tier (with B5's
+   tier looks).
+2. Costs (B7): either pay when placing, or MST Pro's construction site (place a frame, then bring the materials).
+   The owner's choice, when B7 comes.
+3. Door locks with codes, and a base claim (the comms mast of section 6), both checked by the server.
+4. Health bars near the hammer, and damage and break-up by tier (B7).
+5. Pillars under a raised foundation down to the ground, so foundations stand on slopes (OQ-39).
+6. More pieces: stairs, a ramp, railings, sloped walls and roofs, and triangles (OQ-32).
+
 ## 8. Working beside the map chat
 
 Both chats use one editor, and an editor has one open level. So this chat only reads the open editor (sizes, pictures)
@@ -273,8 +354,8 @@ starts during another chat's editor build or restart. The bundle's own folders a
 | B0 | The bundle's pieces measured and pictured; the remodel, the AI and tools, the tiers and the work stations proposed (this page) | The owner has read it | Done 2026-10-19 |
 | B1 | The owner's choices: the tiers, the storey height, the Hyper template | Decisions logged | Done 2026-10-19 (D-33) |
 | B2 | Piece factory: `Data/BuildPieces.csv` and `Tools/Building/build_pieces.py` (Geometry Script in a background editor) make every piece under `/Game/Tharrn/Building` from the bundle's meshes | Every piece rebuilds from the CSV with no problems; a test checks sizes and snap points | Done 2026-10-19: six pieces, RESULT ok (game repo `c509229`) |
-| B3 | A gallery level with pictures from the game; the open points of the piece factory (section 7); the rest of the Enhanced Alloy set (the bundle's look): triangle foundation and floor, half wall, wall frame, door, stairs, ramp | The owner approves the pictures | Doing: the gallery built and photographed from the game; the openings it showed closed (corners, floor edges, the line between storeys); the corner post added (game repo `42bc60a`); every piece closed at its ends and seams, 49 pictures from the game round every junction (2026-10-20) |
-| B4 | The building system in C++: build tool, ghost preview, snapping, checks, placing, removing and upgrading on the server; corner posts added and removed where two walls meet at a right angle (D-41); instanced drawing | Tests; the network test with 2 clients and a late joiner; made-up placements refused | Doing: the core done and checked 2026-10-20 (section 7): 5 tests pass; the network test passes (a builder, a watcher, a late joiner, 50 ms latency and 1 % loss); next the build tool and ghost preview, removing and upgrading with what rests on a piece, collision in play |
+| B3 | A gallery level with pictures from the game; the open points of the piece factory (section 7); the rest of the Enhanced Alloy set (the bundle's look): triangle foundation and floor, half wall, wall frame, door, stairs, ramp | The owner approves the pictures | Doing: the gallery built and photographed from the game; the openings it showed closed (corners, floor edges, the line between storeys); the corner post added (game repo `42bc60a`); every piece closed at its ends and seams, 49 pictures from the game round every junction (2026-10-20); the owner approved the pictures (2026-10-20: "The pictures looked good"). Next: the door together with the build tool (B4), since a door has to open and close for everyone and needs the player's keys as building does; then stairs (with a floor hatch over them), a half wall, a ramp, and triangles once OQ-32 is answered |
+| B4 | The building system in C++: build tool, ghost preview, snapping, checks, placing, removing and upgrading on the server; corner posts added and removed where two walls meet at a right angle (D-41); instanced drawing | Tests; the network test with 2 clients and a late joiner; made-up placements refused | Doing: the core done and checked 2026-10-20 (section 7); the build tool, the ghost, removing with what rests on a piece, and the door done and checked the same day: 9 tests pass, both network scenarios pass (section 7). Next: upgrading a piece to the next tier, with B5's looks |
 | B5 | Tier looks: the Wooden Fiber pieces; colour, dirt and damage presets and new detail for Salvaged Mineral and Biotech (Higgsfield or Blender) | Pictures of each tier; the owner's yes | Later |
 | B6 | Work stations and base machines from the bundle (section 6), replicated | Each works for two clients | Later |
 | B7 | Base rules (GDD 03): power grid, decay, claims, damage, saving the base | Tests; the network test | Later |
@@ -287,6 +368,8 @@ first in each list).
 
 ### Progress
 
+- ![The build tool in the game (2026-10-20, the network test): the ghost of the chosen piece where the player aims, green where it can go (a new building's first foundation on open ground, a wall on the foundation's edge, the door in its doorway) and red where it cannot (a foundation not touching the building)](pictures/building/tool_ghost.jpg)
+- ![The door (2026-10-20): E swings it open for everyone; the building player's screen from inside the room, and the same room on the watching player's screen](pictures/building/tool_door.jpg)
 - ![The owner's test from a second player's screen (2026-10-20): another player builds; the watching player's game draws the first wall alone, then, in the very frame the second wall arrives, the corner post with it](pictures/building/net_watch_corner.jpg)
 - ![Every frame a wall arrived on the watching player's screen during the network test: each corner's post in the same frame as the wall that forms the corner (yellow); a straight joint and the T get none](pictures/building/net_watch_frames.jpg)
 - ![The owner's test, from the game (2026-10-20): an outside corner from nine angles, near and far, low and high, along each wall and into the corner; no opening](pictures/building/gallery_v2_corner_angles.jpg)

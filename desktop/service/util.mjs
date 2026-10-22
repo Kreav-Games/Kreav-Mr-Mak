@@ -17,7 +17,13 @@ export async function saveJson(file, value) {
   const temp = `${file}.${randomBytes(5).toString('hex')}.tmp`;
   try {
     await writeFile(temp, JSON.stringify(value, null, 2) + '\n', { mode: 0o600 });
-    await rename(temp, file);
+    // Windows briefly locks fresh files (antivirus, indexers, watchers). Retry before giving up.
+    for (let attempt = 0; ; attempt++) {
+      try { await rename(temp, file); break } catch (error) {
+        if (attempt >= 6 || !['EPERM', 'EACCES', 'EBUSY'].includes(error.code)) throw error;
+        await sleep(25 * 2 ** attempt);
+      }
+    }
   } finally {
     await unlink(temp).catch(() => {});
   }

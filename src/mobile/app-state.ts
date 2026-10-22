@@ -37,8 +37,10 @@ const workspaceListeners = new Set<() => void>()
 export function mobileWorkspaceSelection() { return workspaceSelection }
 export function useMobileWorkspace() { return useSyncExternalStore(listener => { workspaceListeners.add(listener); return () => { workspaceListeners.delete(listener) } }, () => workspaceSelection) }
 export function selectMobileWorkspace(id: string | null, step?: number) { const lastStep = id ? read(`mrmak.mobile.report-step.${id}`) : null; step = step ?? (typeof lastStep === 'number' && Number.isInteger(lastStep) && lastStep >= 0 ? lastStep : 0); if (id) save(`mrmak.mobile.report-step.${id}`, step); workspaceSelection = { id, step }; save(workspaceKey, workspaceSelection); workspaceListeners.forEach(listener => listener()) }
-export function reportPosition(id: string, step: number): ReportPosition {
-  const value = read(`mrmak.mobile.report.${id}.${step}`) as Partial<ReportPosition> | null
+// A saved page and position belong to the tab's own document, named after the grant in its URL. Tab numbers move when a tab is added, so they cannot be the key.
+export function reportEntry(url: string) { try { return /^\/mobile\/view\/[^/]+\/(.+)$/.exec(new URL(url, location.origin).pathname)?.[1] || '' } catch { return '' } }
+export function reportPosition(id: string, entry: string): ReportPosition {
+  const value = entry ? read(`mrmak.mobile.report.${id}.${entry}`) as Partial<ReportPosition> | null : null
   return validReportPosition(value) || { top: 0, left: 0 }
 }
 export function validReportPosition(value: unknown): ReportPosition | null {
@@ -50,4 +52,4 @@ export function validReportPosition(value: unknown): ReportPosition | null {
   const scrollers = Array.isArray(state.scrollers) ? state.scrollers.slice(0, 12).filter(item => item && typeof item.selector === 'string' && item.selector.length <= 500 && [item.top,item.left].every(n => typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 1e7)) : undefined
   return { path: state.path, hash: state.hash, top: state.top, left: state.left, ...(scrollers ? { scrollers } : {}) }
 }
-export function saveReportPosition(id: string, step: number, value: ReportPosition) { const valid = validReportPosition(value); if (valid) save(`mrmak.mobile.report.${id}.${step}`, valid) }
+export function saveReportPosition(id: string, entry: string, value: ReportPosition) { const valid = validReportPosition(value); if (valid && entry) save(`mrmak.mobile.report.${id}.${entry}`, valid) }

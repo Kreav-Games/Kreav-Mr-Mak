@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tharrn title screen mock-up</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&display=swap">
+<style>
+  /* Title screen (draft 2, from the owner's concept, docs/ui/concepts/owner-title-concept.png). Kept: the owner's T
+     emblem, the orange crack, the dark space, the two planets. Rebuilt for Tharrn: the backdrop is Tharrn itself from
+     orbit (the carrier Lantern's view, story.md), its night side with the great island's rock glowing along the same
+     kind of crack as the T (the Lattice and its signal); the wordmark is redrawn crisp (wide metal letters, an orange
+     edge); SURVIVAL in the interface's own type. In the game the scene is live (Unreal's SkyAtmosphere from orbit), the
+     crack pulses with the signal, and the camera drifts. */
+  .bg { position: absolute; inset: 0; background: url(backdrops/orbit_title.jpg) center / cover; }
+  .halo { position: absolute; left: 50%; top: 300px; width: 1100px; height: 760px; transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(255,106,19,.20), rgba(255,106,19,.06) 55%, transparent 75%); }
+
+  .lockup { position: absolute; left: 0; right: 0; top: 64px; display: flex; flex-direction: column; align-items: center; }
+  .emblem { height: 420px; filter: drop-shadow(0 0 22px rgba(255,106,19,.30)) drop-shadow(0 12px 30px rgba(0,0,0,.7)); }
+  .word { margin-top: 26px; width: 980px; height: 132px; overflow: visible; }
+  .tag { display: flex; align-items: center; gap: 22px; margin-top: 8px; }
+  .tag i { display: block; width: 120px; height: 2px; background: linear-gradient(90deg, transparent, var(--exodus)); }
+  .tag i:last-child { background: linear-gradient(90deg, var(--exodus), transparent); }
+  .tag span { font: 600 26px/1 var(--font-head); letter-spacing: .62em; margin-right: -.62em; text-transform: uppercase;
+    color: var(--exodus-hi); text-shadow: 0 0 14px rgba(255,106,19,.45); }
+
+  .press { position: absolute; left: 0; right: 0; bottom: 118px; display: flex; justify-content: center; }
+  .press .prompt { gap: 14px; padding: 12px 22px 12px 14px; }
+  .press .main { font-size: 18px; letter-spacing: .24em; }
+
+  .foot { position: absolute; left: 64px; right: 64px; bottom: 44px; display: flex; align-items: flex-end; justify-content: space-between;
+    font: 600 13px/1.4 var(--font-head); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+  .foot .ver { font: 500 13px/1 var(--font-mono); letter-spacing: 0; text-transform: none; }
+  .foot b { color: var(--ink-2); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="bg"></div><div class="halo"></div>
+  <div class="lockup">
+    <img class="emblem" src="art/tharrn-emblem.png" alt="">
+    <svg class="word" viewBox="0 0 980 132" aria-label="THARRN">
+      <defs>
+        <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#eef1f3"/><stop offset=".44" stop-color="#a8b0b7"/><stop offset=".52" stop-color="#5b636b"/>
+          <stop offset=".78" stop-color="#8d969d"/><stop offset="1" stop-color="#cdd3d8"/>
+        </linearGradient>
+        <filter id="edge" x="-10%" y="-30%" width="120%" height="160%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="b"/>
+          <feFlood flood-color="#ff6a13" flood-opacity=".55"/><feComposite in2="b" operator="in" result="g"/>
+          <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <text x="490" y="104" text-anchor="middle" font-family="Michroma" font-size="104" letter-spacing="22"
+        fill="url(#metal)" stroke="#ff6a13" stroke-width="1.6" paint-order="stroke" filter="url(#edge)">THARRN</text>
+    </svg>
+    <div class="tag"><i></i><span>Survival</span><i></i></div>
+  </div>
+
+  <div class="press">
+    <div class="prompt"><div class="main">Press any key</div></div>
+  </div>
+
+  <div class="foot">
+    <div>Exodus Initiative · <b>Convoy Lantern</b> · in orbit, not answering</div>
+    <div class="ver">Prototype 0.6 · 2026-10-19</div>
+  </div>
+</div>
+<script src="icons.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 import { expect } from '@playwright/test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { cp, copyFile, mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { cp, copyFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
@@ -17,13 +17,13 @@ const repo = await mkdtemp(path.join(root, '.cache/mobile-ui-'));
 await mkdir(path.join(repo, 'workspace/report'), { recursive: true });
 await mkdir(path.join(repo, 'workspace/_shared'), { recursive: true });
 await cp(path.join(root, 'dist'), path.join(repo, 'ui'), { recursive: true });
-for (const name of ['mak-nose.svg', 'mak-nose-chats.svg', 'mak-mobile-192.png', 'mak-mobile-512.png']) await copyFile(path.join(root, 'public/assets', name), path.join(repo, 'ui/assets', name));
+for (const name of ['wolf.png', 'mak-mobile-192.png', 'mak-mobile-512.png']) await copyFile(path.join(root, 'public/assets', name), path.join(repo, 'ui/assets', name));
 for (const name of ['report.css', 'report.js']) await copyFile(path.join(root, 'workspace/_shared', name), path.join(repo, 'workspace/_shared', name));
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQ42mP8/x8AAwMCAO+jvWQAAAAASUVORK5CYII='.replace('EQ42', 'EQVR42'), 'base64');
 await writeFile(path.join(repo, 'shared-picture.png'), png);
 // Use a supplied SVG as a visible report image; the PNG is only an upload fixture.
-await copyFile(path.join(root, 'public/assets/mak-nose.svg'), path.join(repo, 'workspace/report/nose.svg'));
-await writeFile(path.join(repo, 'workspace/report/index.html'), '<!doctype html><html lang="en" data-mak-report="document"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../_shared/report.css"><script defer src="../_shared/report.js"></script></head><body><main class="container"><h1>Report ready</h1><p>A readable result on your phone.</p><img src="nose.svg" alt="Report image" width="160"><p><a target="_blank" rel="noreferrer" href="https://example.com/source">Source link</a></p><div id="nested-scroll" style="height:100px;overflow:auto"><div style="height:600px">Nested content</div></div><div id="delayed-content" style="height:0">Long report content</div><script>window.addEventListener("load", () => setTimeout(() => document.getElementById("delayed-content").style.height = "2200px", 300))</script></main></body></html>');
+await copyFile(path.join(root, 'public/assets/wolf.png'), path.join(repo, 'workspace/report/nose.png'));
+await writeFile(path.join(repo, 'workspace/report/index.html'), '<!doctype html><html lang="en" data-mak-report="document"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../_shared/report.css"><script defer src="../_shared/report.js"></script></head><body><main class="container"><h1>Report ready</h1><p>A readable result on your phone.</p><img src="nose.png" alt="Report image" width="160"><p><a target="_blank" rel="noreferrer" href="https://example.com/source">Source link</a></p><div id="nested-scroll" style="height:100px;overflow:auto"><div style="height:600px">Nested content</div></div><div id="delayed-content" style="height:0">Long report content</div><script>window.addEventListener("load", () => setTimeout(() => document.getElementById("delayed-content").style.height = "2200px", 300))</script></main></body></html>');
 await writeFile(path.join(repo, 'workspace/report/plan.md'), '# Mobile plan\n\n**Keep the useful parts in view.**\n\n- Read results\n- Send a follow-up\n' + Array.from({ length: 60 }, (_, index) => `\nParagraph ${index + 1}: Read and continue reviewing this report.\n`).join(''));
 await writeFile(path.join(repo, 'workspace/workspace.json'), JSON.stringify({ entities: [{ id: 'mobile-report', title: 'A useful report', folder: 'report', category: 'dev', created: '2026-10-06', steps: [{ name: 'Report', path: 'index.html' }, { name: 'Plan', path: 'plan.md' }] }] }));
 const transport = { probe: async () => ({ ready: true, installed: true }), enable: async origin => ({ origin }), disable: async () => {} };
@@ -598,7 +598,7 @@ try {
   assert.equal(await phone.locator('.mobile-header h1').innerText(), 'A useful report');
   await expect.poll(() => frame.locator('#delayed-content').evaluate(node => node.offsetHeight)).toBe(2200);
   const htmlIdentity = await frame.locator('body').evaluate(() => { window.testReportIdentity = Math.random(); location.hash = '#chapter-two'; window.scrollTo(0,500); document.getElementById('nested-scroll').scrollTop = 180; return window.testReportIdentity; });
-  const reportKey = 'mrmak.mobile.report.mobile-report.0';
+  const reportKey = 'mrmak.mobile.report.mobile-report.workspace/report/index.html';
   await expect.poll(() => phone.evaluate(key => JSON.parse(localStorage.getItem(key) || '{}').top, reportKey)).toBe(500);
   await phone.getByRole('button', { name: 'Chats', exact: true }).click();
   await expect(stableDraft).toBeVisible();
@@ -677,6 +677,12 @@ try {
   for (const width of [360, 390, 768]) {
     await phone.setViewportSize({ width, height: 844 });
     assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `No page overflow at ${width}px`);
+    // The page menu opens below the header and stays on screen, whatever the title's width.
+    await phone.getByLabel('Select report page', { exact: true }).click();
+    const menuBox = await phone.locator('.mobile-page-menu').boundingBox(), headerBox = await phone.locator('.mobile-header').boundingBox();
+    assert.ok(menuBox.x >= 0 && menuBox.x + menuBox.width <= width && menuBox.y >= headerBox.y + headerBox.height, `The page menu is fully visible at ${width}px: ${JSON.stringify(menuBox)}`);
+    await phone.keyboard.press('Escape');
+    await expect(phone.locator('.mobile-page-menu')).toBeHidden();
   }
   await phone.getByLabel('Select report page', { exact: true }).click();
   await phone.getByRole('button', { name: 'Close report', exact: true }).click();
@@ -686,6 +692,29 @@ try {
   await phone.getByRole('button', { name: 'Report', exact: true }).click();
   await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
   await phone.getByRole('button', { name: 'Results', exact: true }).click();
+  await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
+
+  // A tab added in front moves every tab number. Saved pages belong to each tab's own document, so the moved tab still opens its own page and the new tab opens fresh.
+  await expect.poll(() => frame.locator('#delayed-content').evaluate(node => node.offsetHeight)).toBe(2200);
+  await frame.locator('body').evaluate(() => { location.hash = '#chapter-two'; window.scrollTo(0, 500); });
+  await expect.poll(() => phone.evaluate(key => JSON.parse(localStorage.getItem(key) || '{}').top, reportKey)).toBe(500);
+  const registryFile = path.join(repo, 'workspace/workspace.json'), registryBefore = await readFile(registryFile, 'utf8');
+  await writeFile(path.join(repo, 'workspace/report/intro.html'), '<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><main><h1>Intro ready</h1><p>A new first tab.</p></main></body></html>');
+  await writeFile(registryFile, JSON.stringify({ entities: [{ id: 'mobile-report', title: 'A useful report', folder: 'report', category: 'dev', created: '2026-10-06', steps: [{ name: 'Intro', path: 'intro.html' }, { name: 'Report', path: 'index.html' }, { name: 'Plan', path: 'plan.md' }] }] }));
+  await reloadPhone();
+  await phone.getByLabel('Select report page', { exact: true }).click();
+  await phone.getByRole('button', { name: 'Intro', exact: true }).click();
+  await frame.getByRole('heading', { name: 'Intro ready' }).waitFor();
+  assert.equal(await frame.locator('body').evaluate(() => location.pathname.endsWith('/workspace/report/intro.html') && !location.hash), true, 'The new first tab opens its own page, not the page saved under its number');
+  await phone.getByLabel('Select report page', { exact: true }).click();
+  await phone.getByRole('button', { name: 'Report', exact: true }).click();
+  await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
+  await expect.poll(() => frame.locator('body').evaluate(() => window.scrollY)).toBe(500);
+  assert.equal(await frame.locator('body').evaluate(() => location.hash), '#chapter-two', 'The moved tab keeps its own saved section and position');
+  await writeFile(registryFile, registryBefore);
+  await reloadPhone();
+  await phone.getByLabel('Select report page', { exact: true }).click();
+  await phone.getByRole('button', { name: 'Report', exact: true }).click();
   await frame.getByRole('heading', { name: 'Report ready' }).waitFor();
   await phone.getByLabel('Select report page', { exact: true }).click();
   await phone.getByRole('button', { name: 'Close report', exact: true }).click();

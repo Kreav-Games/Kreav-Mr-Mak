@@ -150,9 +150,9 @@ into the game's data files (`Items.csv`, `Recipes.csv`).
 | Step | What | State |
 |---|---|---|
 | M1 | Plan; the example level measured and exported; the size settled with the owner | Done 2026-10-19 (this page) |
-| M2 | Terrain tool v3 (`main_map_terrain.py`): layout, macro, tiles | Doing: the layout done |
-| M3 | `L_Main` v2: the level, the 1 m landscape tiles, the sea, rivers and lakes | Next |
-| M4 | Dressing with the bundle's biome presets; floating islands; HLODs | Later |
+| M2 | Terrain tool v3 (`main_map_terrain.py`): layout, macro, tiles | Done 2026-10-20: 68 tiles at 1 m (heights -94 to 649 m), every shared edge exact, 0 components over the layer limit, 790 biome volumes with their presets and lowest points |
+| M3 | `L_Main` v2: the level, the 1 m landscape tiles, the sea, rivers and lakes | Done 2026-10-21: all 68 tiles in by 00:05 (0_0, 3_7 and 4_7 whole; the other 65 as 260 quarters of 2 km, D-43), Nanite on, about 3 hours unattended, each quarter about a minute with about 20 GB of memory left free; the rivers and lakes at 00:07 (126 river and stream splines with 20 falls, 257 lakes and pools; the bundle's river Blueprints also make about 12,900 empty PCG partition actors along them). The level made 2026-10-19 (the example's World Partition settings and sky, the clock, the sea as 16 planes, the virtual textures) |
+| M4 | Dressing with the bundle's biome presets; floating islands; HLODs | Doing: 126 of 790 biome volumes by 2026-10-21 15:51 (the arctic north-west and the west coast's jungle), about 7.5 minutes each (5 to 11), one editor crash in the PCG plugin on the way (14:58; only the volume in hand lost). The 8 floating island sets are placed but empty: the bundle's floating graph gets no input in this level (to look at) |
 | M5 | Harvesting | Later |
 | M6 | Places (crash sites, ruins, the dungeon mouth, zones and starts laid out again) | Later |
 | M7 | Look: per-region fog and light, sound beds | Later |
@@ -164,19 +164,24 @@ into the game's data files (`Items.csv`, `Recipes.csv`).
 |---|---|---|
 | Q1 (OQ-23) | On foot the 45 km take about 2.5 hours, not the hour asked for (running is 5 m/s; an hour would need 12.7 m/s). Keep it, or make running faster, or add fast travel? | Keep running as it is; travel on foot is for exploring, vehicles for crossing; fast travel between discovered outposts later |
 | Q2 (OQ-24) | The 15 zones of D-27 were 2.56 km squares. On the new map each would be about 50 km². Keep 15 big zones, or more zones? | Keep the 15 zones and their levels, redrawn to follow the regions (a zone is a region's part); propose a picture before changing the data |
-| Q3 | The vehicles' speeds: tune them so the crossing is 35 minutes on the corridors? | Measure the hoverbike and buggy on the corridors once the map is built, then set their top speeds |
+| Q3 (OQ-29) | The vehicles' speeds: tune them so the crossing is 35 minutes on the corridors? | Measure the hoverbike and buggy on the corridors once the map is built, then set their top speeds |
+| Q4 (OQ-33) | The first dressed tile (3_7): the amount of trees, grass and rocks, and the jungle–savanna edges. Right as they are? | Keep them for the rest of the island |
+| Q5 (OQ-40) | The biome volumes take about 7.5 minutes each (744 left: about 4 days of the editor). Let them run, with gaps for the other chats? | Yes, with gaps through the Master chat; meanwhile I look for the cause (the editor uses one core of 24). The owner, 2026-10-21: run until 16:00 today |
 
 ## 11. To do
 
 - [x] Measure the example level; export its terrain (1 m heights, 10 paint layers)
 - [x] Editor tools: landscape export, Nanite with skirts, Nanite build, landscape delete, World Partition settings copy, HLOD layer on new landscapes; their tests
 - [x] Terrain tool v3: layout
-- [ ] Terrain tool v3: macro heights, erosion, water
-- [ ] Terrain tool v3: the 1 m tiles and their paint
-- [ ] Scrap the old `L_Main`; build the new level, then the tiles, one at a time
-- [ ] Rivers and lakes
-- [ ] Dress one region first (pictures for the owner), then the rest
-- [ ] Floating islands over the lagoon
+- [x] Terrain tool v3: macro heights, erosion, water (rivers as smooth meandering curves)
+- [x] Terrain tool v3: the 1 m tiles and their paint (68 tiles, edges exact)
+- [x] Scrap the old `L_Main` (the level, its HLOD layers and 4,455 actor files)
+- [x] Build the new level
+- [x] The tiles: all 68 in (2026-10-21; 65 of them as 260 quarters)
+- [x] Rivers and lakes (2026-10-21)
+- [x] Dress one tile first (16 biome volumes, about 2 minutes each; pictures above)
+- [ ] Dress the rest (about 900 volumes: a day of the editor, unattended)
+- [ ] Floating islands over the lagoon: placed 2026-10-21; their graph makes nothing here yet (a Blueprint step in `PCG_Jungle_Floating` gets no input), to compare with the example level's own sets. Lead (read from the graph file): it finds its places with "Get Volume Data" and "Get Actor Data" (actors chosen by class or tag across the world) and "Find Locations and Exclude Excluders" (the `PCG_S_Excluder` subgraph, which reads splines). The example level probably has the actors or volumes it looks for, and L_Main doesn't
 - [ ] HLODs; the budget measured with the editor closed
 - [ ] Zones and starting locations laid out again (Q2), the zone data and tests
 - [ ] Harvesting (M5)
@@ -184,7 +189,35 @@ into the game's data files (`Items.csv`, `Recipes.csv`).
 
 ## 12. Pictures
 
+- ![The whole island's paint at 1 m (all 68 tiles, 8 m a pixel): jungle in the south, the red savanna plains, the desert east, the karst's towers west, tundra and lakes into the snowy north-west, the grey plateau and badlands, the lagoon's green rim](pictures/p6/main2/island_paint.jpg)
+- ![The first tile dressed (2026-10-19), from 170 m up: the jungle's green trees giving way to the red savanna in patches, the desert's canyons on the horizon. The blue lines are the biome volumes' editor-only bounds](pictures/p6/main2/dressed_air.jpg)
+- ![On the ground in the jungle: grass, ferns, rocks and trees from the bundle's jungle preset](pictures/p6/main2/dressed_jungle.jpg)
+- ![The red savanna of the plains (the desert grass preset): grass, palms, rock pillars](pictures/p6/main2/dressed_savanna.jpg)
+- ![The savanna near the desert: sandstone ledges from the presets' rock layers](pictures/p6/main2/dressed_savanna_rocks.jpg)
+- ![The whole 4 km tile dressed, from the south over the sea: jungle, savanna, the desert's canyons](pictures/p6/main2/dressed_tile.jpg)
+- ![The same ground before the dressing: the landscape's own red grass, a dry river bed, the desert's peaks](pictures/p6/main2/tile_3_7_bare.jpg)
+- ![The heights at 8 m, shaded and coloured by region: rivers blue, the desert's dry beds brown, lakes (2026-10-19)](pictures/p6/main2/macro.jpg)
+- ![Driving slopes: green under 10°, yellow 10 to 20°, orange 20 to 30°, red steeper; the corridors and plains open](pictures/p6/main2/drive.jpg)
+- ![One tile at 1 m (4 km, where jungle, plains and desert meet): the paint over the relief, the patches interleaving at the borders](pictures/p6/main2/tile_3_7_paint.jpg)
+- ![A kilometre of that tile at 1 m: the example level's gullies and ridges, a dry river bed curving through](pictures/p6/main2/tile_3_7_relief_1m.jpg)
 - ![The layout: the regions, the driving corridors (darker), the fjords and the lagoon. Grid lines every 5 km](pictures/p6/main2/layout.jpg)
 - ![The bundle's example level from above in the editor: its landscape, biome volumes, mountain backdrop](pictures/p6/main2/example_top.jpg)
 - ![The example level at the ground: red desert, grey rock spires, floating islands](pictures/p6/main2/example_low.jpg)
 - ![The example level's paint over its relief: large patches of one layer each, hard-edged](pictures/p6/main2/example_paint.jpg)
+
+## 13. Next
+
+The landscape and the water are in (2026-10-21); 135 of the 790 biome volumes are generated (the arctic north-west
+and the west coast). The other 655 need about 3.4 days of the editor at about 7.5 minutes each, in windows
+the owner gives (OQ-40): `build_main_map.py dress` carries on from `Saved/Terrain/main/dressed.txt`. **Stopped
+2026-10-22 at 135, waiting for the owner's "go":** the owner's window ("run untill 50% of weekly limit used") ran 9
+volumes, then Claude Code's memory reaper ended the run (the editor had grown to 46 GB). The builder now frees memory
+below 24 GB free instead of 14 (`MIN_FREE_GB`); starting Claude Code with `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1`
+would leave memory to the builder's own guard. Then: the
+floating islands (placed, still empty: their graph is to be compared with the example level's own sets), the pictures
+for this page, the HLODs and the budget. The zones and starting locations are laid out again once the owner answers
+OQ-24.
+
+**Lending the editor:** create `D:\Tharrn\Saved\Terrain\main\PAUSE`; the builder finishes the quarter or volume in hand, saves `L_Main` and waits until the file is gone (it reconnects if the editor was restarted).
+
+**To resume (Map chat, game repo):** with the Master chat's go, `Saved/PyTerrain/Scripts/python -u Tools/World/build_main_map.py dress` carries on with the volumes (`all` also works: the water step skips itself once `Saved/Terrain/main/water.done` exists). Each step skips what is done: the quarters (cut from each tile's files into `tiles/<c>_<r>/q<x><y>/`; whole tiles and quarters already in the level are skipped), then `water`, `floating`, `dress` (every volume in `Saved/Terrain/main/volumes.json`; tile 3_7's 16 are done) and `pictures`. Each quarter's log line gives the lowest free memory during its import; the guard waits for 14 GB free before each one.

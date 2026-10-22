@@ -158,12 +158,12 @@ level.
 |---|---|---|
 | 1 | 100 | 0 |
 | 10 | 277 | 1,476 |
-| 20 | 862 | 6,353 |
-| 30 | 2,675 | 21,458 |
-| 40 | 8,308 | 68,391 |
-| 50 | 25,804 | 214,142 |
-| 59 | 71,601 | 596,000 |
-| 60 | cap | 667,600 |
+| 20 | 861 | 6,343 |
+| 30 | 2,675 | 21,456 |
+| 40 | 8,308 | 68,399 |
+| 50 | 25,804 | 214,197 |
+| 59 | 71,556 | 595,464 |
+| 60 | cap | 667,020 |
 
 **Sources of XP (proposal).** Every reward below is at level 1 and is multiplied by `1.12^(content level − 1)`, the
 creature's, quest's or zone's level, so a level 20 kill is worth 8.6 times a level 1 kill and a level 40 kill 83 times.
@@ -340,7 +340,51 @@ share of the zone's rare nodes; control resets weekly, and the season's winner n
 world event, a dungeon at a new difficulty, cosmetic rewards. An expansion opens a gate to a new region, a map
 extension reached by the gate or by a long-range vehicle (GDD 01 §1.6), and the story goes with it.
 
-## 13. Open questions for the owner
+## 13. Tiers: how each age of the game looks and feels
+
+The owner, 2026-10-19: the story's progression dictates to the other chats, weapons and building among them, how
+their work looks and feels at each tier, and they model and build to it (the Weapons and Tools chat's D-37: "The look
+and style of the weapon is based on the story"). The rule: **every tier is a maker in the story**, and a maker has one
+material language, one palette, one condition and one sound, whatever the chat: a gun, a wall, a hub, a creature's
+den or a screen made by the same hands looks like the same hands made it. The five loot tiers of GDD 04 are the five
+makers below; the Free Camps' scavenged look is a branch of the second age, not a tier of its own.
+
+| Maker, age | Act, levels, loot tier | Weapons (D-32) | Building (D-33) | Materials and colours | Condition, motion and sound | At a pulse |
+|---|---|---|---|---|---|---|
+| **The Wreck.** Lantern's landers, what the crash left | Act I, levels 1 to 5, Common | Wreck tier | 1 Wooden Fiber (timber and fibre lashed to lander plating) | Initiative issue scorched: off-white polymer burned to grey and char, bare alloy where the paint went, tape, wire, hide and woven fibre; the orange stripe left as a trace | Improvised and asymmetric, nothing fits, heavy wear; it rattles and creaks; screens flicker | Falls silent for the pulse's seconds |
+| **The Outpost.** The Initiative's fabricator printing the convoy's pattern clean | Act II, levels 5 to 12, Uncommon | Issue tier | 3 Enhanced Alloy (the bundle's colony prefab) | The clean print: matte off-white polymer, dark alloy receivers and frames, the Exodus orange stripe, stencilled serials, square panel lines | Factory-new and squared: the one neat age; precise clicks and servo whines; the HUD at its cleanest | Falls silent |
+| **The Flats** (a branch of the second age). The Free Camps' scavenged, traded work | Act II, levels 6 to 12, Uncommon to Rare | SG-01 and the scavenger pieces: pipe, plate and tape | 2 Salvaged Mineral (cast stone, bolted plates, rust) | Rust and cast stone, mismatched plates, rope, hazard paint by hand, tarps; whatever the wrecks and the rock gave | Heavy, loud and rough, patched over patches; clanks and scrapes | Falls silent |
+| **The Contract.** The Consortium's security contractors: corporate, machined, cold | Acts III and IV, levels 12 to 22, Rare | Contract tier | A dressing on Enhanced Alloy for the Consortium's places (the Contested Ruins dig, the fortresses): hazard trim, serial plates | Gunmetal and matte black, machined edges, yellow-and-black hazard trim, serial plates, no decoration | Precise and heavy, everything bolted square; thuds and hydraulic hisses; lights steady and white | Falls silent |
+| **The Remnant.** Meridian's survivors, twelve years adapting Initiative gear with Lattice crystal | Acts III and IV, levels 12 to 28, Advanced | Remnant tier | A dressing on Enhanced Alloy for the Research Hub: station brass, conduits, crystal grafts; later a player upgrade | A weathered Issue base with station brass and copper conduits bolted on, crystal capacitors and panels in the Lattice's light; bone and leather where the polymer gave out | Lived-in and hand-made, every piece different; it hums and ticks; the crystal flickers at a pulse but holds | Works through it |
+| **The Choir.** Grown from the Lattice's own crystal | Act V and the endgame, levels 28 to 60, Alien | Choir tier | 4 Biotech (grown panels with glowing seams) | Dark crystal and alloy with no visible mechanism; seams of the Lattice's light; nothing cut, everything grown | Seamless, slow, certain; it sings the Choir's tones, the light breathes | Works through it, and brightens |
+
+**One light for the Lattice.** Everything crystal (the fields, the Choir's ruins and doors, Remnant grafts, Choir
+weapons and Biotech walls, the nodes under the players' skin) glows the same colour, the interface's Neural token, so
+a glow means the Lattice anywhere in the game. Initiative orange means the convoy and the Initiative; the Consortium
+gets hazard yellow; the Free Camps hand-painted white marks.
+
+**The pulse touches every tier.** Initiative, Flats and Contract technology falls silent for the pulse's few seconds
+(sights, lights, turrets, generators, the HUD flickers); Remnant and Choir technology does not. It is one rule for
+weapons, building, the world and the interface, so the higher tiers matter beyond numbers.
+
+**What each chat takes from this:**
+
+- *Weapons and Tools:* the five tiers above are the weapon tiers (weapons.md §5), the Flats branch is the shotgun's
+  and the scavenger tools' look; the starting kit is the Wreck tier (OQ-28, agreed: the origin's weapon with one
+  magazine, the sidearm, a bandage, the tools; the launcher comes with the Soldier's cache and the Flats' trade).
+- *Building:* the four tiers of D-33 are the Wreck, the Flats, the Outpost and the Choir; the Contract and the Remnant
+  are dressings on Enhanced Alloy for their hubs now and player upgrades later; a base's age should read from across
+  a field.
+- *The map:* each region's built places follow their maker: the Outpost and the first camps are the Wreck becoming
+  the Outpost; the Flats are the Flats; the Contested Ruins dig and the fortresses are the Contract; the Research Hub is
+  the Remnant; the Choir's ruins, doors and gates and the lagoon's islands are the Choir; the crystal fields show the
+  Lattice's light more the further north.
+- *The interface:* the loot tiers' colours are the makers'; the HUD flickers at a pulse until the Remnant's implant
+  steadies it (the Keeper's Ear keystone); the loading screen's tips and the journal use the makers' names.
+- *Creatures (P7):* the Wardens are the Choir's make; the apex fauna are the island's; nothing on the island wears
+  the Initiative's orange but the survivors.
+
+## 14. Open questions for the owner
 
 - **OQ-25:** The story bible's big choices: the Lattice and the Choir, the two convoys, the four factions and the
   keeper's choice (sections 1 to 6). Adopt as the working story, with any names and twists the owner wants changed.
@@ -349,19 +393,23 @@ extension reached by the gate or by a long-range vehicle (GDD 01 §1.6), and the
 - **OQ-27:** Raids: eight players, 60 to 90 minutes, four bosses, a weekly lockout, three difficulties (section 12);
   the first raid under the lagoon, the second on the carrier.
 
-## 14. Steps
+## 15. Steps
 
 | Step | What | State |
 |---|---|---|
 | Q1 | The story bible and the progression design, draft 1 (this page); the wiki's Progression and Story tab | Doing: draft 1, 2026-10-19, for the owner's review (OQ-25 to OQ-27) |
-| Q2 | Progression in the build: XP and level on the player state (C++, the server owns them, saved to the profile), XP from kills and quests, the level on the HUD; `Data/Talents.csv` and the talent screen with the interface chat | Next: the vertical slice |
-| Q3 | Quests in the build: `Data/Quests.csv` and `Data/Lore.csv`, the server's quest subsystem, the journal (with the interface chat); Act I's *Beacon* and the Remnant's questline first | Next: the vertical slice |
-| Q4 | The origins' intro quests in the tutorial (with P9's play-through) | Later |
+| Q2 | Progression in the build: XP and level on the player state (C++, the server owns them; saving to a profile later), XP from kills, quests, discovery and first crafts, the level and XP on the HUD; `Data/Talents.csv` and the talent screen come with the trees | Done 2026-10-20: built and checked (tasks.md, V1); the owner's play-test next |
+| Q3 | Quests in the build: `Data/Quests.csv`, `Data/QuestStages.csv` and `Data/Lore.csv`, the server's quest book on the player state, quest points in the world, the HUD's tracker and the journal (J, from the interface's parts); Act I's three chapters and the Remnant's questline in the data, Wreck playable on the test range | Done 2026-10-20: built and checked; the owner's play-test next |
+| Q4 | The origins' intro quests in the tutorial (with P9's play-through); the starting kit at the Wreck tier (OQ-28) | Later |
 | Q5 | The Ruins of the First Signal built from deliverable 6, with the Apex Titan (P7's creatures) | Later: the vertical slice's dungeon |
 | Q6 | Faction boards, reputation and vendors; the Remnant Research Hub as the first faction hub | Later: the alpha |
 | Q7 | Lore in the world: the journal's entries, the landers' black boxes, the Choir's panels, the Remnant's logs | Later: the alpha |
 | Q8 | World events, the Heart of the Lattice raid, faction wars and territory | Later: the beta |
 
-## 15. Pictures
+## 16. Pictures
 
+- ![The HUD on the test range at the start (2026-10-20): level 1 with the XP bar top left and the quest the player follows, Wreck, with its first stage; the quest points' orange reach spheres and labels stand in for the places the main map will have](pictures/story/hud_start.png)
+- ![At the shelter site on Wreck's last stage: the E prompt offers the stage ("Mark the shelter site"), the tracker shows the stage](pictures/story/hud_shelter_prompt.png)
+- ![Wreck complete: the notice, level 2 with the bar reset, the next chapter (Outpost) tracked on its own](pictures/story/hud_quest_complete.png)
+- ![The journal on J, built from the interface's parts: level and XP, the quests with their stage (Wreck done, Outpost active), the factions' standing, the lore found (The Fall)](pictures/story/journal.png)
 - ![The main map's layout (the Map chat's, 2026-10-19), where the story goes: Act I on the south-west coast and the delta, Act II in the forest, the plains and the desert's edge, Act III on the plateau and in the karst, Act IV in the tundra, the badlands and the arctic, Act V in the lagoon and the floating islands. The regions get harder toward the north](pictures/p6/main2/layout.jpg)

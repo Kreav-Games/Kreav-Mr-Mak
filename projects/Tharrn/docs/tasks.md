@@ -37,8 +37,51 @@ parts in tiers of building, and its machines made into work stations. Plan, step
 generator, bench). B0 to B2 done 2026-10-19 (D-33: the tiers, the 4.5 m storey; the piece factory and its first six pieces); B3 under way:
 the gallery level is built and photographed from the game, and every piece is closed at its ends and seams (the owner's
 test, D-41: no opening from any angle). B4's core is in (the server places pieces; every machine adds corner posts in the
-frame their corner forms; tests and a network test with a builder, a watcher and a late joiner). Next: the rest of the
-Enhanced Alloy set, then the build tool and ghost preview.
+frame their corner forms; tests and a network test with a builder, a watcher and a late joiner); the build tool and
+the door work (2026-10-20: the ghost, placing, removing, E on doors, checked with four machines). Next: stairs with a
+floor hatch and entrance steps, a half wall, a ramp, triangles (OQ-32), then upgrading.
+
+## Story track (the Story chat): quests and XP for the vertical slice (V1, started 2026-10-19)
+
+The owner: "start on quests and XP for the vertical slice". The design: [story.md](story.md) §7 (quests) and §8 (levels
+and XP; OQ-26); the data: `Data/Progression.csv`, `Quests.csv`, `QuestStages.csv`, `Lore.csv`. Built server-authoritative
+on the player state so progress survives the body (D-04); the test range gets stand-in quest points so Act I's first
+chapter plays there before the main map has its places.
+
+| # | Step | Done when | State |
+|---|---|---|---|
+| V1.1 | Data: the four CSVs and their row types (`FTharrnQuestRow`, `FTharrnQuestStageRow`, `FTharrnLoreRow`; Progression on `FTharrnTuningRow`); Act I's three chapters, the four origins' intro quests, Twelve Landers and the Remnant's three quests; nine lore entries | Imported with 0 problems; `Tharrn.Quest.Data` passes | Done 2026-10-20 |
+| V1.2 | Levels and XP (C++): `FTharrnProgressionTuning` and `UTharrnProgressionLibrary` (the curve, totals, the level for an XP total, rewards scaled by content level, kill and quest XP, the zone's level at a place); `ATharrnPlayerState` with level (to everyone), XP, talent points, reputation, discovered zones and lore (to the owner); XP from kills (`ReportKill` on the test targets), quests, a zone's discovery and a recipe's first craft | `Tharrn.Progression.*` pass; the network test sees the XP and the level on both machines | Done 2026-10-20 |
+| V1.3 | Quests (C++): the rules with no world in them (`TharrnQuest`: accept, apply an event, poll the counted objectives, rewards), the book on the player state (accept, abandon, events, rewards, the auto chapters), `ATharrnQuestPoint` (reach by overlap, E to use, deliveries), the kill and craft hooks, `th.Quest` | `Tharrn.Quest.*` pass; `quest_test.py` plays Wreck through on the test range as listen and dedicated server, with the refusals | Done 2026-10-20 |
+| V1.4 | The interface: the HUD's level, XP bar and quest tracker top left and notices top centre (MSS's look, in `build_ui.py`, for the interface chat's U5 to restyle); the journal on J (`UTharrnJournalScreen`, WBP_TharrnJournal from the interface's parts, `build_quest_ui.py`); E at a quest point in the pick-up prompt | Pictures | Done 2026-10-20 (pictures on the wiki's tab) |
+| V1.5 | The test range's quest points (`build_quest_points.py`): the ridge, the shelter site, the Outpost and its board, the beacon, the black box, the outcrop, two landers, the firing line | Placed and saved | Done 2026-10-20 |
+| V1.6 | Checks: the editor build (through the Master chat's rounds), data import, tests, `quest_test.py`, the whole ladder | `verify.py` passes | Done 2026-10-20: plugin check PASS, data 0 problems, 144 of 144 tests, `quest_test.py` passes as listen and dedicated server; `net_test.py` passes as listen and dedicated server on a fresh editor (0 corrections, 0 shot disagreements; the 28 to 30 corrections seen on the long session were gotcha 47's drift) |
+| V1.7 | Owner play-test: Wreck on the test range, the journal, the level (steps below) | The owner's yes | Next |
+| V1.8 | With the other chats: the quest places on `L_Main` (the Map chat), the starting kit by the story (OQ-28, with P8's origins), the HUD and journal restyled (the interface chat's U5 and U8), creatures reporting kills by size (P7) | — | Later |
+
+Not in V1: talents (the trees' data and screen), faction boards and vendors, daily and timed quests, saving progress to
+a profile, the pulse itself (a lore entry until the world event exists).
+
+**Found and fixed on the way (2026-10-20):** `GetLevel` is `AActor`'s (the player state's is `GetPlayerLevel`); a dedicated
+server assigns the player's id after the player state's BeginPlay (the first chapter is given in Tick once the id and the body
+exist); the engine's `OverlapOnlyPawn` profile blocks every channel but Pawn, so shots fired from inside a quest point stopped
+at 0 cm (the sphere's responses are now set one by one); the shot's wall trace ignores the shooter's attached actors; a test's
+wait for a log line must search from a mark taken before its own command; `th.Press` takes the action's object path. The
+editor-only test command `th.Quest` lives in its own file so Live Coding patches of the player state stay safe (gotcha 79).
+
+**Play-test (V1, about 10 minutes).**
+1. Open the test range, press Play (Listen Server with 2 players shows it online). Top left: level 1, the XP bar and the quest
+   *Wreck* with its first stage. The orange wire spheres with labels are the places Act I's quests name, standing in for the
+   main map's.
+2. Walk back behind the starts to "The ridge above the wreck" (about 8 m): a notice, and the tracker moves to the next stage.
+3. Pick up 2 organic fibre from the item table (on the right): the stage completes as soon as you carry them.
+4. Craft a bandage (Tab, the crafting panel): the stage completes; +10 XP for the first craft of a recipe.
+5. Shoot two targets down: +5 XP each; the stage completes.
+6. Walk to "A site for shelter" (right of the starts, about 14 m) and press E: "Quest complete: Wreck", +150 XP, level 2,
+   a bandage as the reward, then "New quest: Outpost" tracked on its own.
+7. Press J: the journal, with Wreck done, Outpost active, the factions' standing and the lore entry "The Fall".
+8. Walk to "The Coastal Outpost" (ahead and right) and press E at "The Initiative's board": Outpost completes, Beacon follows.
+9. Say how the HUD's tracker, the journal and the XP numbers feel (proposals, OQ-26).
 
 ## P1 Foundation: what was built and checked
 

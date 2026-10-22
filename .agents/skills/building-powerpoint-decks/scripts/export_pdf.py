@@ -1,0 +1,88 @@
+"""PDF export via ExportAsFixedFormat: speaker handout (slide + notes per page), audience
+handout (N-up), or plain slides.
+
+    uvx --with pywin32 python export_pdf.py --file deck.pptx --mode notes
+    uvx --with pywin32 python export_pdf.py --file deck.pptx --mode handout --slides-per-page 6
+
+pywin32 trap (runtime-confirmed 2026-10-07): calling ExportAsFixedFormat positionally lets pywin32
+fill the optional PrintRange argument itself, and PowerPoint rejects it with "TypeError: The Python
+instance can not be converted to a COM object". Pass a real PrintRange object from
+PrintOptions.Ranges and name every argument. If that still fails, slides mode falls back to
+SaveCopyAs(path, 32) (ppSaveAsPDF); notes and handout modes have no such fallback.
+"""
+import argparse
+import os
+import sys
+
+from _ppt import kPpt, kPptSession
+from kShared import ToolReportableException, kRun, kS, kToolException
+
+HANDOUT = {1: 10, 2: 2, 3: 3, 4: 8, 6: 4, 9: 9}  # slides/page -> ppPrintOutputType
+PP_FIXED_FORMAT_PDF, PP_INTENT_PRINT, PP_PRINT_ALL, PP_SAVE_AS_PDF = 2, 2, 1, 32
+
+
+class kPdfExporter:
+    """One PDF export of one deck."""
+
+    @staticmethod
+    def Export(Path, Out, Mode, OutputType):
+        """Write the PDF; returns how it was written ("ExportAsFixedFormat" or the fallback note)."""
+        if kS.ErrorMode:
+            return ""
+        try:
+            Method = ""
+            with kPptSession(Path) as Pres:
+                if Pres is None:
+                    return ""
+                try:
+                    Ranges = Pres.PrintOptions.Ranges
+                    Ranges.ClearAll()
+                    PrintRange = Ranges.Add(1, Pres.Slides.Count)
+                    Pres.ExportAsFixedFormat(
+                        Path=Out, FixedFormatType=PP_FIXED_FORMAT_PDF, Intent=PP_INTENT_PRINT,
+                        FrameSlides=0, HandoutOrder=1, OutputType=OutputType, PrintHiddenSlides=0,
+                        PrintRange=PrintRange, RangeType=PP_PRINT_ALL)
+                    Method = "ExportAsFixedFormat"
+                except Exception as Failure:  # ERROR-SUPPRESSED-JUSTIFIED: the pywin32 PrintRange trap - slides mode is corrected by SaveCopyAs, other modes are reported
+                    if Mode != "slides":
+                        raise ToolReportableException(f"ExportAsFixedFormat failed for {Mode} mode: {Failure}")
+                    Pres.SaveCopyAs(Out, PP_SAVE_AS_PDF)
+                    Method = f"SaveCopyAs fallback (ExportAsFixedFormat failed: {Failure})"
+            return Method
+        except kToolException:
+            raise
+        except Exception as e:
+            kS.GlobalErrorHandler(e, f"kPdfExporter.Export(file={Path}, mode={Mode})")
+            return ""
+
+
+class kExportPdfApp:
+    """Command line."""
+
+    def Run(self):
+        if kS.ErrorMode:
+            return 1
+        try:
+            Parser = argparse.ArgumentParser()
+            Parser.add_argument("--file", required=True)
+            Parser.add_argument("--mode", choices=["slides", "notes", "handout"], default="notes")
+            Parser.add_argument("--slides-per-page", type=int, default=6, choices=sorted(HANDOUT))
+            Parser.add_argument("--out")
+            Args = Parser.parse_args()
+            OutputType = {"slides": 1, "notes": 5}.get(Args.mode) or HANDOUT[Args.slides_per_page]
+            Out = kPpt.Norm(Args.out or f"{os.path.splitext(Args.file)[0]}.{Args.mode}.pdf")
+            Method = kPdfExporter.Export(Args.file, Out, Args.mode, OutputType)
+            if kS.ErrorMode:
+                return 1
+            print(Out)
+            print(f"method: {Method}", file=sys.stderr)
+            return 0
+        except kToolException:
+            raise
+        except Exception as e:
+            kS.GlobalErrorHandler(e, "kExportPdfApp.Run")
+            return 1
+
+
+if __name__ == "__main__":
+    kRun.Main(kExportPdfApp)

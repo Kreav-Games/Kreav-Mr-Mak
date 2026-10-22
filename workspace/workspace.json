@@ -7,12 +7,16 @@
       "type": "group",
       "category": "project",
       "created": "2026-10-15",
-      "updated": "2026-10-19",
+      "updated": "2026-10-22",
       "folder": "2026-10-15_tharrn-wiki",
       "steps": [
         {
           "name": "Overview",
           "path": "index.html"
+        },
+        {
+          "name": "Report",
+          "path": "report.html"
         },
         {
           "name": "World and map",

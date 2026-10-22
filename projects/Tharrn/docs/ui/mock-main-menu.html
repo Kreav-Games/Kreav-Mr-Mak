@@ -4,21 +4,23 @@
 <meta charset="utf-8">
 <title>Tharrn main menu mock-up</title>
 <link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&display=swap">
 <style>
-  /* Main menu mock-up (draft 1), The Division 2's way: the world behind (in the game a live 3D scene, slowly moving),
-     a vertical list at the left, the selected entry explained, little else. */
-  .bg { position: absolute; inset: -20px; background: url(backdrops/menu_lagoon.jpg) center / cover;
-    filter: brightness(.55) saturate(.8) contrast(1.1) hue-rotate(-8deg); }
+  /* Main menu mock-up (draft 2, with the owner's title concept), The Division 2's way: the scene behind (in the game
+     live: Tharrn from orbit, the title screen's scene with the camera moved, the island's crack glowing), a vertical
+     list at the left, the selected entry explained, little else. The logo is the owner's T emblem with the wordmark. */
+  .bg { position: absolute; inset: 0; background: url(backdrops/orbit_menu.jpg) center / cover; }
   .grade { position: absolute; inset: 0;
-    background: linear-gradient(90deg, rgba(4,6,9,.92) 0%, rgba(4,6,9,.72) 30%, rgba(4,6,9,.12) 62%, rgba(4,6,9,.35) 100%),
-                linear-gradient(0deg, rgba(4,6,9,.75), transparent 35%),
-                radial-gradient(70% 60% at 75% 40%, rgba(255,106,19,.10), transparent 70%); }
-  .frame { position: absolute; inset: 64px 96px 56px; }
+    background: linear-gradient(90deg, rgba(4,6,9,.78) 0%, rgba(4,6,9,.45) 30%, rgba(4,6,9,0) 55%),
+                linear-gradient(0deg, rgba(4,6,9,.55), transparent 30%); }
+  .frame { position: absolute; inset: 56px 96px 56px; }
 
-  .logo { display: flex; align-items: flex-end; gap: 18px; }
-  .logo .word { font: 700 112px/.8 var(--font-head); letter-spacing: .16em; }
-  .logo .slash { width: 10px; height: 92px; background: var(--exodus); transform: skewX(-18deg); margin-bottom: 2px; }
-  .tagline { margin-top: 20px; font: 600 16px/1 var(--font-head); letter-spacing: .32em; text-transform: uppercase; color: var(--ink-2); }
+  .logo { display: flex; align-items: center; gap: 22px; }
+  .logo img { height: 132px; filter: drop-shadow(0 0 14px rgba(255,106,19,.3)) drop-shadow(0 8px 18px rgba(0,0,0,.7)); }
+  .logo svg { width: 470px; height: 64px; overflow: visible; }
+  .tagline { display: flex; align-items: center; gap: 14px; margin: 4px 0 0 2px; font: 600 15px/1 var(--font-head); letter-spacing: .5em;
+    text-transform: uppercase; color: var(--exodus-hi); }
+  .tagline i { display: block; width: 46px; height: 2px; background: var(--exodus); }
 
   .menu { position: absolute; left: 0; bottom: 120px; width: 520px; }
   .menu .row { min-height: 64px; padding-left: 28px; border-bottom: none; }
@@ -47,8 +49,22 @@
 <div class="screen">
   <div class="bg"></div><div class="grade"></div>
   <div class="frame">
-    <div class="logo"><span class="slash"></span><span class="word">THARRN</span></div>
-    <div class="tagline">Exodus Initiative · Survival</div>
+    <div class="logo">
+      <img src="art/tharrn-emblem.png" alt="">
+      <div>
+        <svg viewBox="0 0 470 64" aria-label="THARRN">
+          <defs>
+            <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#eef1f3"/><stop offset=".44" stop-color="#a8b0b7"/><stop offset=".52" stop-color="#5b636b"/>
+              <stop offset=".78" stop-color="#8d969d"/><stop offset="1" stop-color="#cdd3d8"/>
+            </linearGradient>
+          </defs>
+          <text x="0" y="54" font-family="Michroma" font-size="52" letter-spacing="11" fill="url(#metal)" stroke="#ff6a13"
+            stroke-width="1" paint-order="stroke">THARRN</text>
+        </svg>
+        <div class="tagline"><i></i>Survival</div>
+      </div>
+    </div>
 
     <div class="menu">
       <div class="row on"><div><div class="main">Continue</div><div class="sub">Rook · LV 7 · Coastal Outpost</div></div></div>

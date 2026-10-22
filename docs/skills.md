@@ -1,6 +1,6 @@
 # Project skills
 
-Twenty skills live in this project. `.agents/skills` is the maintained source
+Twenty-four skills live in this project. `.agents/skills` is the maintained source
 for Codex; `.claude/skills` contains complete, identical copies for Claude Code,
 including scripts and references. Both Skills sections open the full instructions.
 These are local project files, not global installations.
@@ -18,7 +18,9 @@ maintained source. `npm run test:template` checks that the two copies agree.
 | --- | --- |
 | [3d-production-routing](../.agents/skills/3d-production-routing/SKILL.md) | Choose a practical workflow for 3D concepts, generated meshes, material maps, procedural Three.js reconstruction and game animation. |
 | [blender-game-animation](../.agents/skills/blender-game-animation/SKILL.md) | Rig and animate supplied characters in Blender, revise motion from references, and deliver editable sources plus a verified game export. |
+| [building-powerpoint-decks](../.agents/skills/building-powerpoint-decks/SKILL.md) | Build, edit, audit and present PowerPoint decks through python-pptx on any OS, or by driving desktop PowerPoint over COM on Windows. Third-party (MIT, trimmed; see its `UPSTREAM.md`). |
 | [character-sheet-pipeline](../.agents/skills/character-sheet-pipeline/SKILL.md) | Prepare strict-front character sheets, isolated parts and optional multiview references for 3D modeling from an approved image. |
+| [excel-recalc](../.agents/skills/excel-recalc/SKILL.md) | Recalculate an .xlsx or .xlsm with the installed Microsoft Excel and report formula errors. Windows replacement for the official xlsx skill's LibreOffice-based `recalc.py`. |
 | [fal-ai-generation](../.agents/skills/fal-ai-generation/SKILL.md) | Generate and edit images, create video, audio, 3D assets or material maps through fal.ai MCP or the Python queue client. Use for fal model discovery, reference uploads, generation, recovery and local delivery. |
 | [feature-handoff](../.agents/skills/feature-handoff/SKILL.md) | Prepare a precise handoff for an agent or developer implementing a feature, continuing a task or reviewing a finished change. |
 | [game-animation-integration](../.agents/skills/game-animation-integration/SKILL.md) | Bring approved animation into a game, including clip mapping, turn exits, locomotion phase and gameplay event timing. |
@@ -33,8 +35,10 @@ maintained source. `npm run test:template` checks that the two copies agree.
 | [materials-to-game](../.agents/skills/materials-to-game/SKILL.md) | Create or apply material maps and bake a textured high-poly mesh onto a game mesh, with channel, UV and export checks. |
 | [motion-reference-workflow](../.agents/skills/motion-reference-workflow/SKILL.md) | Prepare and select character motion references, or transfer approved motion to a human reference for a later mocap workflow. |
 | [plan](../.agents/skills/plan/SKILL.md) | Turn a broad project request into a small actionable plan with concrete deliverables, dependencies and acceptance checks. |
+| [powerpoint-thumbnails](../.agents/skills/powerpoint-thumbnails/SKILL.md) | Render labeled thumbnail grids of a deck's slides with the installed Microsoft PowerPoint, labeled with each slide's file name and layout. Windows replacement for the official pptx skill's `thumbnail.py`. |
 | [video-watch](../.agents/skills/video-watch/SKILL.md) | Inspect a local or publicly accessible video through sampled scene frames, timestamps and a visual report, especially for motion and 3D reference analysis. |
 | [voice-dictation-setup](../.agents/skills/voice-dictation-setup/SKILL.md) | Help configure optional local Whisper dictation into terminals and other apps, with language, hotkey and CPU or GPU checks. |
+| [word-accept-changes](../.agents/skills/word-accept-changes/SKILL.md) | Accept every tracked change in a .docx with the installed Microsoft Word and write a clean copy. Windows replacement for the official docx skill's `accept_changes.py`. |
 | [workspace-authoring](../.agents/skills/workspace-authoring/SKILL.md) | Create or maintain Workspace cards, report tabs and Markdown deliverables with consistent styling, working media previews and clear project organization. |
 
 ## Game production in 0.4.14

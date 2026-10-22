@@ -52,6 +52,8 @@ between 8443 and 8446. It preserves existing routes and never enables Funnel.
   and inserts its path with the message. Other file types and a full remote
   file manager are not part of this version.
 - **Results:** read active Workspace cards and their HTML or Markdown tabs.
+  The menu button beside the card's title opens the list of tabs below the
+  header; it also returns to all workspaces.
   HTML previews are isolated and can read only their own report folder and
   the shared report styling. Desktop-only API calls, external embedded frames
   and reports outside the repository are not available in this viewer.
@@ -247,7 +249,9 @@ latest reply or reading history. Chats returns to the selected chat after
 Workspace; Back to chats opens the list. Missing chats return to the list without
 selecting a different agent. Drafts remain per-chat, and desktop selection stays
 independent. Disconnect clears the saved mobile navigation state. Workspace independently remembers its selected card, each card's report tab,
-and reading position. Switching sections keeps both views mounted. HTML readers
+and reading position. The reading position belongs to the tab's own page, so
+adding or reordering a card's tabs never opens another tab's page. Switching
+sections keeps both views mounted. HTML readers
 restore their saved route, window and nested scroll positions after reopening
 through an origin-checked, scroll-only sandbox message bridge. Terminal mode
 also remembers its scrollback line and fit setting. Use All workspaces to return

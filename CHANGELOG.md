@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Open the phone's report page menu below the header, fully on screen. It was anchored to the menu button and ran off the left edge, hiding the start of every tab name.
+- Keep a phone report tab's saved page with the tab's own document instead of its number. Adding or reordering tabs made a tab reopen the page last read under its old number, such as the Combat tab showing the Building page.
+
 ## 0.5.1 - 2026-10-14
 
 - Add Antigravity CLI chats with Google sign-in, reasoning effort, per-chat native history recovery and MCP inventory. Install `agy` separately, then choose it in New chat. Model access remains controlled by Google.
