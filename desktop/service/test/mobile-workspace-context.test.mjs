@@ -12,7 +12,7 @@ beforeEach(() => { saved.clear(); selectMobileWorkspace(null); rememberMobileRep
 test('older services identify the entry page without claiming a stale inner page or anchor', () => {
   rememberMobileReports([{ id: 'card', title: 'Review', steps: [{ index: 0, name: 'Results' }] }]);
   selectMobileWorkspace('card');
-  saveReportPosition('card', 0, { path: 'workspace/review/old.html', hash: '#old', top: 400, left: 0 });
+  saveReportPosition('card', 'workspace/review/index.html', { path: 'workspace/review/old.html', hash: '#old', top: 400, left: 0 });
   rememberMobileReport('card', 0, { url: '/mobile/view/private-grant/workspace/review/index.html' });
   const text = messageWithWorkspaceContext('An ordinary question.', 'claude');
   assert.deepEqual(metadata(text).workspace, { id: 'card', tabIndex: 0, title: 'Review', tab: 'Results', reportEntryPage: 'workspace/review/index.html' });
@@ -24,7 +24,7 @@ test('tracked pages attach the route and anchor; another tab does not inherit th
   rememberMobileReports([{ id: 'card', title: 'Review', steps: [{ index: 0, name: 'Results' }, { index: 1, name: 'Plan' }] }]);
   selectMobileWorkspace('card');
   rememberMobileReport('card', 0, { url: '/mobile/view/private-grant/workspace/review/index.html', statePersistence: true });
-  saveReportPosition('card', 0, { path: 'workspace/review/chapter.html', hash: '#timing', top: 400, left: 0 });
+  saveReportPosition('card', 'workspace/review/index.html', { path: 'workspace/review/chapter.html', hash: '#timing', top: 400, left: 0 });
   const current = metadata(messageWithWorkspaceContext('How does this work?', 'codex')).workspace;
   assert.equal(current.currentViewerPage, 'workspace/review/chapter.html'); assert.equal(current.sectionAnchor, '#timing');
   selectMobileWorkspace('card', 1);
