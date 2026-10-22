@@ -266,6 +266,17 @@ test('Tailscale setup preserves other routes and refuses a public Funnel route',
   await assert.rejects(transport.enable('http://127.0.0.1:12346', saved), /publicly shared/);
 });
 
+test('a Tailscale Serve failure gives advice for this operating system only', async () => {
+  const transport = new TailscaleTransport();
+  transport.probe = async () => ({ ready: true, hostname: 'pc.example.ts.net' });
+  transport.config = async () => ({});
+  transport.command = async () => { throw new Error('serve failed'); };
+  const error = await transport.enable('http://127.0.0.1:12345').catch(value => value);
+  assert.match(error.message, /Enable HTTPS for this device/);
+  assert.equal(/Windows/.test(error.message), process.platform === 'win32');
+  assert.equal(/Tailscale app is running/.test(error.message), process.platform === 'darwin');
+});
+
 
 test('conversation images require pairing and grants belong to the requesting phone and chat', async t => {
   const { gateway, request, pair, repo, id, session } = await fixture(t);
@@ -305,4 +316,24 @@ test('fixed voice generation requires a paired same-origin session and revokes w
   assert.equal(calls.length, 1); assert.equal(calls[0].voice, 'bf_emma');
   await gateway.revoke(device.pending.id);
   assert.equal((await request(route, { voice: 'am_michael', text: 'hello' }, device.cookie)).status, 401);
+});
+
+test('a phone starts chats only in a listed project folder', async t => {
+  const { inventory } = await import('../agents.mjs');
+  const agent = inventory().find(item => item.id !== 'shell' && item.available);
+  if (!agent) { t.skip('No agent CLI is installed on this machine.'); return; }
+  const { gateway, request, pair, repo, session } = await fixture(t), device = await pair();
+  const prior = { CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR, CODEX_HOME: process.env.CODEX_HOME }, home = await mkdtemp(path.join(os.tmpdir(), 'mrmak-cli-home-'));
+  process.env.CLAUDE_CONFIG_DIR = home; process.env.CODEX_HOME = home;
+  t.after(() => { for (const [name, value] of Object.entries(prior)) if (value === undefined) delete process.env[name]; else process.env[name] = value; });
+  const project = path.join(repo, 'Game'); await mkdir(project);
+  session.cwd = project;
+  const created = []; gateway.sessions.create = async options => { created.push(options.cwd); return session; };
+  const projects = (await request('/projects', undefined, device.cookie)).data;
+  assert.deepEqual(projects.map(item => item.path), [repo, project]);
+  assert.equal((await request('/sessions', { agent: agent.id, name: 'Game chat', cwd: project }, device.cookie)).status, 201);
+  assert.equal((await request('/sessions', { agent: agent.id, name: 'Default chat' }, device.cookie)).status, 201);
+  const outside = await request('/sessions', { agent: agent.id, name: 'Elsewhere', cwd: os.tmpdir() }, device.cookie);
+  assert.equal(outside.status, 400); assert.match(outside.data.error, /project from the list/);
+  assert.deepEqual(created, [project, repo]);
 });

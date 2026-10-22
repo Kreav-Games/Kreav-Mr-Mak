@@ -8,9 +8,9 @@ import { Icon } from './Icons'
 import type { AgentId } from './types'
 import { decorateTerminal, focusTheme, originalTheme, type TerminalAppearance } from './terminalAppearance'
 import { fileManager, isMac, modKey, modLabel } from './platform'
-import { terminalClipboardGate } from './terminalClipboard'
+import { deferredClipboardWrite, terminalClipboardGate, terminalCopyWindow, type PendingCopy } from './terminalClipboard'
 
-export default function TerminalPane({ id, agent, fontSize, appearance, onAttachmentStatus }: { id: string; agent: AgentId; fontSize: number; appearance: TerminalAppearance; onAttachmentStatus: (id: string, text: string) => void }) {
+export default function TerminalPane({ id, agent, fontSize, appearance, optionMeta, onAttachmentStatus }: { id: string; agent: AgentId; fontSize: number; appearance: TerminalAppearance; optionMeta: boolean; onAttachmentStatus: (id: string, text: string) => void }) {
   const host = useRef<HTMLDivElement>(null)
   const area = useRef<HTMLDivElement>(null)
   const terminalRef = useRef<Terminal | null>(null)
@@ -79,11 +79,19 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
         if (url.protocol === 'https:' || url.protocol === 'http:') window.open(url.href, '_blank', 'noopener,noreferrer')
       } catch { /* Invalid terminal text is not a web link. */ }
     }
+    // Automatic focus leaves a text field the person is typing in elsewhere, such as a tab rename.
+    const focusIdle = () => {
+      const active = document.activeElement as HTMLElement | null
+      if (active && !host.current?.contains(active) && (active.matches('input, textarea, select') || active.isContentEditable)) return
+      terminal.focus()
+    }
     const terminal = new Terminal({
       fontFamily: '"Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace', fontSize: 13, lineHeight: 1.18,
       cursorBlink: true, cursorStyle: 'bar', scrollback: 3000, allowTransparency: false, allowProposedApi: true,
       theme: originalTheme,
-      macOptionIsMeta: true,
+      // macOS: Option types the layout's characters (@, {, | on many non-US layouts),
+      // as in Terminal.app. Settings can turn it into Meta; see the effect below.
+      macOptionIsMeta: false,
       // xterm forces a selection over terminal mouse tracking with Shift elsewhere, Option+click on macOS.
       macOptionClickForcesSelection: true,
       linkHandler: { activate: openLink },
@@ -94,15 +102,27 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
     let ready = false
     let queued: { sequence: number; data: string }[] = []
     const clipboardGate = terminalClipboardGate(), element = host.current
+    // macOS only: the clipboard write must start inside the gesture (see deferredClipboardWrite).
+    let pendingCopy: PendingCopy | null = null, pendingTimer = 0
+    const dropCopy = () => { clearTimeout(pendingTimer); pendingCopy?.cancel(); pendingCopy = null }
+    const arm = (event: Event, deferred = true) => {
+      clipboardGate.arm(event.isTrusted)
+      if (!isMac || !event.isTrusted) return
+      dropCopy()
+      if (!deferred) return
+      pendingCopy = deferredClipboardWrite(navigator.clipboard, reportError)
+      pendingTimer = window.setTimeout(dropCopy, terminalCopyWindow)
+    }
     let pointer: { x: number; y: number } | null = null
     const selectionStart = (event: PointerEvent) => { pointer = event.isTrusted && event.button === 0 ? { x: event.clientX, y: event.clientY } : null }
     const selectionEnd = (event: PointerEvent) => {
-      if (pointer && Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) > 3) clipboardGate.arm(event.isTrusted)
+      if (pointer && Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) > 3) arm(event)
       pointer = null
     }
-    const copyGesture = (event: KeyboardEvent) => { if (modKey(event) && event.key.toLowerCase() === 'c') clipboardGate.arm(event.isTrusted) }
-    const multipleClick = (event: MouseEvent) => { if (event.detail >= 2) clipboardGate.arm(event.isTrusted) }
-    const cancelCopy = () => { pointer = null; clipboardGate.clear() }
+    // Cmd+C with a selection already writes it synchronously below; do not race it.
+    const copyGesture = (event: KeyboardEvent) => { if (modKey(event) && event.key.toLowerCase() === 'c') arm(event, !terminal.hasSelection()) }
+    const multipleClick = (event: MouseEvent) => { if (event.detail >= 2) arm(event) }
+    const cancelCopy = () => { pointer = null; clipboardGate.clear(); dropCopy() }
     element.addEventListener('pointerdown', selectionStart, true)
     element.addEventListener('pointerup', selectionEnd, true)
     element.addEventListener('keydown', copyGesture, true)
@@ -111,7 +131,8 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
     document.addEventListener('visibilitychange', cancelCopy)
     const clipboard = terminal.parser.registerOscHandler(52, data => {
       const text = clipboardGate.read(data, ready, document.visibilityState === 'visible' && document.hasFocus() && element.contains(document.activeElement))
-      if (text !== null) navigator.clipboard.writeText(text).catch(reportError)
+      if (text !== null && pendingCopy) { pendingCopy.fill(text); pendingCopy = null; clearTimeout(pendingTimer) }
+      else if (text !== null) navigator.clipboard.writeText(text).catch(reportError)
       return true
     })
     const resize = () => {
@@ -131,7 +152,7 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
         terminal.write(event.data || '', () => {
           ready = true
           for (const chunk of queued) if (chunk.sequence > sequence) { terminal.write(chunk.data); sequence = chunk.sequence }
-          queued = []; resize(); terminal.focus()
+          queued = []; resize(); focusIdle()
         })
       }
       if (event.type === 'output' && event.id === id) {
@@ -185,10 +206,10 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
     element.addEventListener('paste', paste, true)
     const observer = new ResizeObserver(resize); observer.observe(host.current)
     subscribe()
-    const focus = () => terminal.focus()
+    const focus = () => focusIdle()
     window.addEventListener('focus', focus)
     return () => {
-      off(); input.dispose(); clipboard.dispose(); observer.disconnect()
+      off(); input.dispose(); clipboard.dispose(); dropCopy(); observer.disconnect()
       element.removeEventListener('pointerdown', selectionStart, true); element.removeEventListener('pointerup', selectionEnd, true); element.removeEventListener('keydown', copyGesture, true)
       element.removeEventListener('click', multipleClick, true)
       window.removeEventListener('blur', cancelCopy); document.removeEventListener('visibilitychange', cancelCopy)
@@ -202,6 +223,9 @@ export default function TerminalPane({ id, agent, fontSize, appearance, onAttach
     terminal.options.theme = appearance === 'focus' ? focusTheme : originalTheme
     if (appearance === 'focus') return decorateTerminal(terminal, agent)
   }, [id, agent, appearance])
+  useEffect(() => {
+    if (terminalRef.current) terminalRef.current.options.macOptionIsMeta = optionMeta
+  }, [id, agent, optionMeta])
   useEffect(() => {
     if (terminalRef.current) { terminalRef.current.options.fontSize = fontSize; fitRef.current?.fit(); sendEvent({ type: 'resize', id, cols: terminalRef.current.cols, rows: terminalRef.current.rows }) }
   }, [fontSize, id])
