@@ -1,65 +1,6 @@
 {
   "entities": [
     {
-      "id": "tharrn-wiki",
-      "title": "Tharrn Wiki",
-      "description": "The game's wiki: world and zones, creatures, combat, survival, progression, PvP, characters, and where development stands.",
-      "type": "group",
-      "category": "project",
-      "created": "2026-10-15",
-      "updated": "2026-10-24",
-      "folder": "2026-10-15_tharrn-wiki",
-      "steps": [
-        {
-          "name": "Overview",
-          "path": "index.html"
-        },
-        {
-          "name": "Report",
-          "path": "report.html"
-        },
-        {
-          "name": "Design state",
-          "path": "design-state.html"
-        },
-        {
-          "name": "World and map",
-          "path": "world.html"
-        },
-        {
-          "name": "Bestiary",
-          "path": "bestiary.html"
-        },
-        {
-          "name": "Combat and arsenal",
-          "path": "combat.html"
-        },
-        {
-          "name": "Building Assets",
-          "path": "survival.html"
-        },
-        {
-          "name": "Progression and Story",
-          "path": "progression.html"
-        },
-        {
-          "name": "PvP and travel",
-          "path": "pvp.html"
-        },
-        {
-          "name": "GUI, UI, Menus",
-          "path": "characters.html"
-        },
-        {
-          "name": "Development",
-          "path": "development.html"
-        }
-      ],
-      "status": "active",
-      "pinned": true,
-      "defaultStep": 0
-    },
-    {
       "id": "my-dream-game",
       "title": "My Dream Game",
       "description": "Mr. Mak 64: a small Sky Islands adventure, with character studies, world layouts and a development board.",
