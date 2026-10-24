@@ -1,8 +1,0 @@
-﻿{
-  ""compass"":{""position"":""top_center"",""size"":""800x48""},
-  ""minimap"":{""position"":""top_right"",""size"":""240x240""},
-  ""vitals"":{""position"":""bottom_left"",""elements"":[""health"",""stamina"",""hunger"",""hydration"",""temperature"",""neural""]},
-  ""weapon"":{""position"":""bottom_center"",""size"":""420x120""},
-  ""quickwheel"":{""position"":""bottom_right"",""slots"":4},
-  ""crosshair"":{""position"":""center"",""type"":""dynamic"",""variants"":[""default"",""precision"",""suppressed""]}
-}

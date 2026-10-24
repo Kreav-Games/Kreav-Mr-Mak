@@ -1,1 +1,0 @@
-﻿Placeholder for neural icon (PNG 256x256 recommended). Create art in hud/icons/neural.png

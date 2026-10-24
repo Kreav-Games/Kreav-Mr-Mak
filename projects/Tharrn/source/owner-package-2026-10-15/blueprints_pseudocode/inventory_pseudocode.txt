@@ -1,1 +1,0 @@
-﻿Inventory System Pseudocode: DataTable Items, PlayerInventory, AddItem, RemoveItem, UI grid
