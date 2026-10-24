@@ -1,6 +1,25 @@
 {
   "entities": [
     {
+      "id": "tharrn-gdd",
+      "title": "Tharrn Wiki",
+      "description": "The Tharrn remake's game design document: overview, mechanics, levels, story, art, technical details, milestones, ideas and appendices. A read-only copy of the GDD viewer in D:\\Tharrn-GDD-New, refreshed by its build.",
+      "type": "group",
+      "category": "project",
+      "created": "2026-10-24",
+      "updated": "2026-10-24",
+      "folder": "2026-10-24_tharrn-gdd",
+      "steps": [
+        {
+          "name": "Game design document",
+          "path": "index.html"
+        }
+      ],
+      "status": "active",
+      "pinned": true,
+      "defaultStep": 0
+    },
+    {
       "id": "my-dream-game",
       "title": "My Dream Game",
       "description": "Mr. Mak 64: a small Sky Islands adventure, with character studies, world layouts and a development board.",

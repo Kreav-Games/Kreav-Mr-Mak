@@ -41,3 +41,7 @@ Thumbs.db
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+# Tharrn remake wiki card: a published copy of the GDD viewer in D:\Tharrn-GDD-New,
+# which is versioned in that repository (tools/publish_to_workspace.py refreshes it).
+workspace/2026-10-24_tharrn-gdd/
