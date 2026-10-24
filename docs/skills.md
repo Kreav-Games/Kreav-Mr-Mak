@@ -1,6 +1,6 @@
 # Project skills
 
-Twenty-four skills live in this project. `.agents/skills` is the maintained source
+Twenty-five skills live in this project. `.agents/skills` is the maintained source
 for Codex; `.claude/skills` contains complete, identical copies for Claude Code,
 including scripts and references. Both Skills sections open the full instructions.
 These are local project files, not global installations.
@@ -36,6 +36,7 @@ maintained source. `npm run test:template` checks that the two copies agree.
 | [motion-reference-workflow](../.agents/skills/motion-reference-workflow/SKILL.md) | Prepare and select character motion references, or transfer approved motion to a human reference for a later mocap workflow. |
 | [plan](../.agents/skills/plan/SKILL.md) | Turn a broad project request into a small actionable plan with concrete deliverables, dependencies and acceptance checks. |
 | [powerpoint-thumbnails](../.agents/skills/powerpoint-thumbnails/SKILL.md) | Render labeled thumbnail grids of a deck's slides with the installed Microsoft PowerPoint, labeled with each slide's file name and layout. Windows replacement for the official pptx skill's `thumbnail.py`. |
+| [reverse-engineer-anything](../.agents/skills/reverse-engineer-anything/SKILL.md) | Reverse engineer native, managed, Electron/JavaScript, packaged, firmware and browser targets through the REA MCP server. Third-party (MIT, unmodified; see its `UPSTREAM.md`). |
 | [video-watch](../.agents/skills/video-watch/SKILL.md) | Inspect a local or publicly accessible video through sampled scene frames, timestamps and a visual report, especially for motion and 3D reference analysis. |
 | [voice-dictation-setup](../.agents/skills/voice-dictation-setup/SKILL.md) | Help configure optional local Whisper dictation into terminals and other apps, with language, hotkey and CPU or GPU checks. |
 | [word-accept-changes](../.agents/skills/word-accept-changes/SKILL.md) | Accept every tracked change in a .docx with the installed Microsoft Word and write a clean copy. Windows replacement for the official docx skill's `accept_changes.py`. |
