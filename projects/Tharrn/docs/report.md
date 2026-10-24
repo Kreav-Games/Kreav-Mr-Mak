@@ -6,6 +6,85 @@ Report tab with `python projects/Tharrn/tools/build_wiki.py`. Times are the mach
 
 ## Today
 
+**The fresh start (14:40).** Your words: "we are going to remove this Tharrn Wiki, the new GDD and design are in here
+D:\Tharrn-GDD-New, weapons and building chat need to save how they did thier process on creating weapons and the building
+structures. after that everything else can be removed. then we can completely remove everything from the Tharrn project,
+we are going to start fresh for Tharrn." **The order:** (1) the Weapons and Building chats write their process into
+D:/Tharrn-GDD-New (docs/process/weapons.md and building.md with their scripts; the new workspace's rules read: no MST Pro
+or store-pack content, a devlog entry; it is not a git repo yet, so no commit until your git init); (2) the Tharrn wiki
+goes from the Mr. Mak repo (the Setup chat, as a commit you approve, so it stays in history); (3) D:/Tharrn is wiped
+(40 GB, 222 uncommitted changes; its git history goes with the folder unless it is pushed first). Each removal only on
+your explicit yes in the chat that does it. **Your decision, keep or drop:** the other chats named process tools the
+fresh start might want, in the table under Needs the owner. This tab ends with the wiki.
+
+**2026-10-24, written 14:53.** **Your direction, relayed to the Map chat (13:50):** "the entire map needs to be deleted, new map to
+follow later on, we are going to do a redesign and new design of workspace wiki ect with a better direction", and "we can
+keep the test map". The Map chat has stopped the dressing for good (OQ-40 is void) and is putting on its tab exactly what
+would go (levels, folders, sizes, what of it is in git); it deletes nothing until your explicit yes in its own chat.
+L_TestRange stays, with the Wreck quest, the building test range and the HUD play check on it. The other chats know, with
+no action of their own; the Interface chat asks to be told before its round if the redesign changes what the UI should be.
+**The engine:** Unreal 5.8.4 is installed at C:/UE_5.8 (the launcher's record 5.8.4, committed 00:55 with the Quixel Bridge and Fab plugins; the editor executable present); D:/UE_5.8 is gone. The Tharrn project's binaries were built against the old
+path, so the first build is a full recompile, under Visual Studio 2026 by your decision (the Setup chat pins it). **The
+hold stands:** no editor, commandlet or build until the Master chat's "done, carry on" (the Master chat is kreav-mr-mak-36
+now; the working agreement updated). **The main map is out (14:11):** on your "delete them all except the test map" in
+the Map chat, it moved L_Main with its external actors, all the terrain build data, the map logs and the coast test level
+to D:/Tharrn_trash_2026-10-24_main_map (79 GB, 23,039 files); the delete itself was refused as irreversible, so you empty
+that folder with one line from the World and map tab, and approve the commit there (92 tracked files show deleted, the
+four L_Main rules gone from .gitignore). L_TestRange, the main menu, the map toolset and the PCG assets stay. D-45
+resolves OQ-41. **You emptied the folder at about 14:30:** the main map is gone for good, D: has 3.4 TB free again; the
+coast test level can still come back from git. Left: your yes to the commit in the Map chat.
+
+**2026-10-22 and 23, written 2026-10-23 14:18.** **A hold on the engine (18:30):** the Epic launcher is patching Unreal from 5.8.3 to 5.8.4 (the AI setup chat
+found it while installing the AssetDump plugin) and has not finished; until it has, no chat launches the editor or any
+editor commandlet, since open files block the launcher's repair. **"Engine ready" at 18:32:** 5.8.4 is on disk, you dropped the AssetDump plugin, and the Story chat ran the one-time
+rebuild of the project against 5.8.4: "Succeeded in 121 s", no new warnings, the editor open on L_TestRange in 48 s.
+**Your building test's two bugs** (shots through windows, a flickering line down every wall joint) got a Building
+chat round: the build succeeded (windows and the door's glass now stop shots and blasts), the piece table took the
+radial's icons, 9 of 9 tests; but the wall fix must be redone: the walls were 300 cm all along, the flicker was the end
+caps standing a quarter centimetre proud, and the trial fit left a 1 cm slit at every joint. The real fix (the caps'
+margin) passed a no-save trial with a clean joint and needs one more round, which the Building chat asks for when it is
+back from its usage limit (a handoff file carries it). **Your order after the reset: "let building keep fixing. when its
+done fixing then ui chat can build out the new enhanced UI."** So the Building chat's round goes first, then the
+Interface chat's round for the new GUI (your request: The Division 2's menus and HUD with ARK's survival layout; its
+code is written and compiled clean). **A reboot is needed, your hand only:** the Building chat's second round could not build: the linker cannot
+write the game's editor library (UnrealEditor-Tharrn.dll) because the zombie editor process from the 18:47 factory run
+holds it and cannot be killed. The Building chat's own fix needed no build and its round is done: the three walls rebuilt with the caps'
+margin, every inside wall joint a clean seam in the capture (the ridged band and the slit both gone), 9 of 9 tests, the
+editor open and idle on L_TestRange; the windows' collision fix is in but not yet retested in play (on your play-test
+list). The Interface chat's UI code cannot compile until the reboot. **The reboot's stop (round 13, 2026-10-23 11:36):** you asked
+"Need me to restart the pc?"; yes: all six chats saved and stopped, the editor closed cleanly, the zombie process still
+there (it dies with the reboot). **Your steps:** reboot; then, before any editor, the launcher's Verify of Unreal 5.8
+(Library, the 5.8 tile's menu, Verify), done when the tile reads 5.8.4 with nothing queued; then open the terminals
+again and the Master chat takes the roll call and opens the Interface chat's round (a full restart with the build,
+about 12 minutes, then the HUD, the inventory, crafting and the death screen). **After the reboot (11:39):** the
+zombie process is gone, every chat is back and holding (the Master chat is kreav-mr-mak-02 now, the working agreement
+updated). **The Verify of 5.8 is still to run:** the engine's pending marker is there and the launcher's record
+still reads 5.8.3. With no editor open: the launcher, Library, the 5.8 tile's menu, Verify; done when the tile reads
+5.8.4 with nothing queued. Then the Interface chat's round opens. **Why the card says 5.8.3 while the splash says
+5.8.4 (14:18):** the files on disk are 5.8.4, but the launcher's update was closed 34 seconds after it finished, while
+it was waiting to commit its record, so the record still reads 5.8.3 and the launcher now lists 5.8.4 as an
+incomplete install. Let it finish: Library, the 5.8 tile, Update or Resume (or the tile's menu, Verify), and leave
+the launcher open and the editor closed until the tile reads 5.8.4 and Downloads is empty, the Quixel Bridge and
+Fab plugin re-installs it queues afterwards included. **Suggested order for the stop:**
+tell the Master chat the time; every chat saves and the editor closes; you reboot; with the editor still closed you run
+the launcher's Verify of Unreal 5.8 (Engine Versions, 5.8, Verify), which has waited since the afternoon; then the Master
+chat opens the Interface chat's build round. The map's run comes after those on your go. The radial build menu's end-to-end try
+goes to your next play test (hold Q while building, point, let go): the Building chat's terminal lost its editor
+connection in the restart, and the radial is covered by the Interface chat's test and pictures meanwhile. **One
+thing for you to schedule through the Master chat:** the launcher still lists the 5.8 update as pending in its own
+records; finishing it (Engine Versions, 5.8, Verify) needs the editor and every commandlet closed, so say when, and it
+goes in as a round. If the editor ever refuses to start or reports missing engine files, that Verify is the fix. **Your Setup.ps1 update restart is done:** every session was renamed again; the Master
+chat is kreav-mr-mak-44 now (the working agreement updated), a new roll call is out. Earlier today: Mr. Mak was updated to upstream 0.6.0 by the AI setup chat on your word: a work-in-progress
+commit of everything pending in the shared tree (bcc6709), the merge (2b04285) and a test fix (bd2d5cb) are on main;
+build, lint, the service suite and the phone suite pass (one upstream test fails on this machine before and after, not
+ours). **Still to come at your hand:** Setup.ps1 -Mode Update, which quits and restarts Mr. Mak and ends every chat
+terminal; the chats keep work short and saved until then. **The restart before it renamed every chat's session:** the
+Master chat is now kreav-mr-mak-fc (the working agreement updated); the roll call answered by all six in minutes: Map kreav-mr-mak-1c,
+Building -89, Interface -94, Weapons and Tools -39, Story -7c, AI setup -a5. **The map:** the Map chat reports the dressing stopped at 135 of 790 volumes, ended by Claude Code's memory
+reaper with the editor at 46 GB; its builder now frees memory below 24 GB free instead of 14, and the run restarts only
+on your go. **The editor is not running** (no editor process at 17:32); the map's next window (655 volumes, about 3.4
+days) waits on your answer to OQ-40, and the rest of your answers wait on this tab's test section.
+
 **2026-10-21, written 15:58.** Your word to the Map chat at 12:10: "You have permission to run until 4pm today." **The window closed at 15:52:** 126 of 790 volumes saved, 109 today, one engine crash at 14:58, no other failures;
 664 left, about 3.5 days of the editor at 7.5 minutes each, the next window on your word (OQ-40). **The radial build menu is in the game** (D-44), from a 20-minute round at 16:00: the build succeeded with no
 warnings, the Map chat's tests pass 27 of 27, and the Interface chat's check in play showed build mode on, the radial
@@ -72,13 +151,11 @@ this tab's test section and on each tab. The chats' own clocks ran ahead of the 
 
 | Who | Doing | Since | About |
 |---|---|---|---|
-| Building chat | A short play slot in its gallery: the radial build menu tried with the build tool; then off the editor | 15:58 | 10 min |
-| Interface chat | Off the editor: the radial build menu and build HUD in the game and checked; the title screen next; waits on OQ-31 | 15:58 | — |
-| Map chat | Stopped and saved at 15:52 (126 of 790); its tests 27 of 27 on the new build; the builder carries on in the next window, on your word (OQ-40); the floating islands' graph to look at meanwhile | 15:52 | — |
-| Interface chat | Off the editor: the radial build menu and the build HUD written in C++ (D-44), with a test and the door's E prompt; ready for the build round after 16:00; the title screen after; waits on OQ-31 | 12:34 | — |
-| Interface chat | Off the editor: the title screen next; the one-lit-entry fix written in C++ (in the tree, not built; the next build round compiles it) | 19:05 | — |
-| Building chat | Off the editor: the build-menu event for the radial (C++, small, in the tree for the next build); MST Pro's parts to take piece by piece (D-44); the commit waits on your yes | 12:30 | — |
-| Weapons, Story, AI setup chats | Off the editor; waiting on your decisions from the test session | 19:00 | — |
+| Weapons and Tools chat | Writing its weapons process into D:/Tharrn-GDD-New (docs/process/weapons.md and its scripts) | 14:51 | — |
+| Building chat | Writing its building process into D:/Tharrn-GDD-New (docs/process/building.md and its scripts) | 14:51 | — |
+| Setup chat | Holding; the removal footprint surveyed (two commits needed), its keep-or-drop list up | 14:53 | — |
+| Map, Interface, Story chats | Holding, nothing written or removed; their keep-or-drop offers below | 14:51 | — |
+| all | No editor, commandlet or build; nothing removed until the two saves are done and you say yes in the acting chat | 10-23 11:34 | — |
 
 ## Your test session
 
@@ -126,6 +203,12 @@ press Play. To see a second player's view, Play with 2 players (Net Mode: Play A
 - Keys: B, build mode on or off (it puts the weapon away). Mouse wheel: the piece, in this order: Foundation, Floor and ceiling, Roof, Wall, Doorway wall, Pressure door, Window wall; the ghost's shape shows which (no menu or on-screen hint yet, the Interface chat's part). Left mouse: place. Hold right mouse 0.6 s: remove the piece looked at. R: turn a wall round. E: open or shut a door (outside build mode too). Space at a foundation's side: climb up (foundations stand 90 cm high).
 - Try: the first foundation on open ground, 5 to 12 m ahead, then more beside it; walls round a cell (corner posts appear by themselves); a doorway wall and the door in it, E to open and shut it, walk in and out; looking up from inside for a floor, then a wall on it; removing a wall that holds a floor (refused); a red ghost: a foundation not touching, or a wall where you stand.
 - Known gaps: no build menu, hints or reasons on screen yet; no costs, upgrades, stairs or entrance steps; the door swings 90 degrees inward (the bundle's own swing not copied yet).
+
+**Also, since 2026-10-21:** the radial build menu (D-44): in build mode hold Q, point at a piece, let go; it becomes the
+piece in hand, and the build HUD bottom right names it with the keys.
+
+**Also, since 2026-10-22:** shots and grenades at a window wall and the door's glass should stop there now (the
+collision change); the wall joints should be clean seams from inside.
 
 **Test 2, the gallery, about 5 minutes.** The same level. Walk round the pre-built base and, to its north-east, the
 L-shaped house, the free-standing wall and the T. Look for any opening from any angle.
@@ -222,30 +305,31 @@ Two quick checks on the phone, no editor: reopen Mr. Mak on the phone.
 
 | What | Who asks | Where |
 |---|---|---|
-| **OQ-40, the map's dressing takes days:** the bundle's biome volumes take about 7.5 minutes each in the editor (6.5 in the arctic, 10.5 in the jungle; the dressed tile's took 2), so the 744 left need about 4 days of the editor. **Recommendation (the Map chat):** let it run, with gaps for the other chats through the Master chat (each volume is saved before the builder checks the pause file, so a gap costs only its own length); the Map chat looks for the cause of the slowness meanwhile (the editor uses one core of 24) and speeds it up if it can. The other way: stop the volumes, give the editor to the queue, and dress the map later or by region | Map chat | World and map tab |
-| **Commits:** the Building chat's work is committed (the owner's yes in its chat). The other chats' work is saved and uncommitted: the Story chat's V1, the Interface chat's menu, the Weapons chat's W3, the Map chat's tools, the AI setup chat's phone fix, the Master chat's Report tab. Say which may commit; the Master runs each as a git round, one chat at a time | all | this tab |
-| Call the main menu right or not (OQ-31), so the Interface chat can commit U3 and U4 | Interface chat | GUI, UI, Menus tab |
-| Which triangle for the triangle foundation and floor (OQ-32; equilateral proposed) | Building chat | Building Assets tab |
-| The go for W4, the SMG's import into the game and its play test | Weapons and Tools chat | Combat and arsenal tab |
-| Review the story's tier guide (story.md §13) and OQ-25 to OQ-27 | Story chat | Progression and Story tab |
-| Play-tests P2 to P5 still wait (README next actions 4 to 8) | all | Development tab |
+| **Keep or drop, one word each:** (a) Interface: the Slate UI style kit in C++, the widget-building and play-picture scripts, the build-icon maker, and a short "how the UI was made" note; (b) Story: the editor restart tool with its MCP helper (engine-independent), the quest and XP module as a reference, the old story bible; (c) Map: the terrain and level-builder pipeline with its lessons (2 km quarters, the 24 GB guard, PCG timing, the floating-island gap) as one process page. Each is copied or written into D:/Tharrn-GDD-New only on your yes in that chat | Interface, Story, Map chats | their chats |
+| **The old project's code and history:** D:/Tharrn is its own git repo with no remote and 222 uncommitted changes (the code is small: Source 1.4 MB, Data 4.3 MB; the content is the 21 GB). **Recommended, your yes:** a final commit, then a zip of Source, Data, Config and Tools, a few MB, kept beside D:/Tharrn-GDD-New before the wipe; copy the .git folder too if the history matters | Setup and Master chats | this tab |
+| **The wiki's removal will be two commits,** your yes to each in the Setup chat: first the other chats' uncommitted edits under projects/Tharrn and the wiki folder (16 edited, 12 untracked files) saved, then the delete of projects/Tharrn (241 files, 51 MB), the wiki folder (115 files, 17 MB) and the pinned card; otherwise that work never reaches history | Setup chat | its chat |
+| **Keep or drop (d) Setup's non-fiction pieces:** the engineering guide (the UE 5.8 build and test setup on this PC), the P1 record (CSV data tables, 31 automation tests, the multiplayer harness), the 19 generic survival HUD icons and the UI toolkit, the frame-budget numbers, the inventory, vitals, crafting and data-table C++, and build_wiki.py as the pattern for a wiki card made from Markdown (the new workspace's GDD viewer can be linked as a card). Nothing fiction-bound fits the new design and stays in history only | Setup chat | its chat |
+| **Then, in order, your yes in each chat:** the wiki's removal (Setup chat, a commit), the wipe of D:/Tharrn (the chat you name, or your own line) | Master chat | this tab |
 
 ## Next
 
-The queue, in order. The Map chat has the editor from 19:00 with no end time; the rest take gaps through the pause file or wait on the owner.
-
 | # | Who | What | Needs |
 |---|---|---|---|
-| 1 | Building chat | Now: the radial tried in the gallery; then its commit on your yes (B4, the door, the fixes, the radial's event, the doorway fix) |
-| 2 | Map chat | The next window: 664 volumes, about 3.5 days at 7.5 minutes each (OQ-40); the floating islands' graph | your word on the window |
-| 2a | Interface chat | The title screen (your T emblem over the planet, "press any key"), off the editor; the OQ-31 switch back if you say no | your yes to question 4 on its tab |
-| 3 | Weapons and Tools chat | W4, in order: Live Coding, a 5-minute background editor import (six FBX, three 4K textures), then the open editor for the MSS weapon build and its play test on two machines | the owner's go; a slot between the above |
-| 4 | Building chat | A git round: B4 (the build tool, the door, the three fixes) with the doorway fix, both repos, its own lines only | the owner's yes to the commit in its chat |
+| 1 | Weapons and Building chats | The process saves into D:/Tharrn-GDD-New | running |
+| 2 | you | Keep or drop for the Interface, Story and Map offers; the word on the old git history | — |
+| 3 | Setup chat | The Tharrn wiki removed from the Mr. Mak repo as a commit | the saves done; your yes in its chat |
+| 4 | you or a chat you name | D:/Tharrn wiped; the fresh project starts from D:/Tharrn-GDD-New | your yes |
 
 ## Done today
 
 | When | Who | What |
 |---|---|---|
+| 2026-10-24 14:51 | Master chat | The fresh-start direction relayed: the Weapons and Building chats writing their process into D:/Tharrn-GDD-New (its CLAUDE.md and README read, their rules passed on); the other four chats holding with keep-or-drop offers for you; the removals queued behind the saves and your yes |
+| 2026-10-24 14:30 | you | The map's trash folder emptied with the one line: the main map gone for good, D: back to 3.4 TB free; the follow-ups (the C++ line, the two tests on the coast test level, the restore command) on the World and map tab |
+| 2026-10-24 14:11 | Map chat | The main map out of the project on your "delete them all except the test map": L_Main with its external actors, all of Saved/Terrain, the map logs and L_CoastTest moved to D:/Tharrn_trash_2026-10-24_main_map (79 GB, 23,039 files), the delete itself refused as irreversible; L_TestRange, the main menu, Tools/World, the WorldBuild toolset and the PCG assets kept; .gitignore's four L_Main rules removed; D-45 resolves OQ-41 |
+| 2026-10-24 14:11 | Master chat | Two Map chat sessions found open after the restart; the one you answered kept, the other stood down |
+| 2026-10-24 13:55 | Map chat | The deletion inventory on its tab (OQ-41, map-design.md §13): L_Main, its HLOD layers, ExternalActors 61.5 GB, Saved/Terrain/main 15.2 GB, about 2 GB more, none in git; L_TestRange, L_TharrnMainMenu, L_CoastTest and the toolset kept; two follow-ups named (a C++ line naming L_Main, the planet-texture script) |
+| 2026-10-24 13:54 | Master chat | Your direction relayed to the Map chat with the roll call (all seven chats renamed again overnight: Map kreav-mr-mak-68, Interface -7e, Setup -c9, Weapons -ed, Story -71, Building -cb, the hub -36); the Map chat stops the dressing for good and lists what would go, deleting nothing without your yes in its chat; the test map kept; the engine's state read: Unreal 5.8.4 is installed at C:/UE_5.8 (the launcher's record 5.8.4, committed 00:55 with the Quixel Bridge and Fab plugins; the editor executable present) |
 | 2026-10-19 evening | Master chat | The hub set up; the rule sent to six chats; roll call answered by all six |
 | 2026-10-19 evening | Weapons and Tools chat | A two-minute background export of the shooter pack's weapon skeletons |
 | 2026-10-19 evening | Building chat | A one-minute background corner check of the pieces |
@@ -295,6 +379,25 @@ The queue, in order. The Map chat has the editor from 19:00 with no end time; th
 | 2026-10-21 15:58 | Interface chat | The radial build menu and the build HUD in the game (D-44): the round's build "Succeeded in 29 s", no warnings, the editor reopened in 22 s; the key hint, build HUD and game HUD rebuilt; the radial's test 1 of 1; checked in play (hold Q, point, let go: ROOF chosen and in hand); the build panel moved above MSS's corner hints; three pictures in D:/Tharrn/Saved/UI |
 | 2026-10-21 15:58 | Map chat | WorldBuild tests 27 of 27 on the new build |
 | 2026-10-21 15:58 | Master chat | The round closed with "done, carry on"; the Building chat's gallery slot given; the standing clearance for short background runs back until the next map window |
+| 2026-10-22 17:37 | AI setup chat | Mr. Mak updated to upstream 0.6.0 on your word: the work-in-progress commit of all pending work, the merge and a test fix on main; build, lint and both test suites pass; your Setup.ps1 update restart to follow |
+| 2026-10-22 19:50 | Weapons and Tools chat | W5 prepared off the editor: the pack's pistol and launcher skeletons read from the W3 exports in headless Blender, the four weapon tools take a part list per weapon from its spec (the SMG A1 rebuilt through the changed tool gives the same report), the specs for the Sidearm PS-01 and the Grenade Launcher GL-01 drafted, three concept pictures (3 credits); weapons.md §13 and the tab rebuilt |
+| 2026-10-22 22:32 | Building chat | The wall joints fixed: the three walls rebuilt with the end caps' margin (RESULT ok, 0 problems, every inside face exactly 300 cm), the editor reopened in 23 s, the piece table checked, 9 of 9 tests, the capture (D:/Tharrn/Saved/Captures/building_inside_v3) showing every inside joint a clean seam, the ridged 2.2 cm band and the slit gone; the factory's editor exited normally this time; the picture on the Building Assets tab |
+| 2026-10-22 22:32 | Master chat | The round closed with "done, carry on"; the reboot and the Verify to you |
+| 2026-10-23 11:36 | Master chat | Round 13, the reboot's stop: you asked "Need me to restart the pc?"; all six chats "saved, go ahead", the Building chat closed the editor cleanly, the zombie process checked still present; the go for the reboot given, the Verify of 5.8 next, then the Interface chat's round |
+| 2026-10-23 11:46 | Master chat | After the reboot (11:39): the zombie gone, no editor process; the hub is kreav-mr-mak-02 (the working agreement updated); the roll call answered by all six in minutes (Map kreav-mr-mak-e0, Building -ad, Interface -7c, Weapons -a5, Story -5f, AI setup -ef), all holding for your Verify of 5.8, which the engine folder shows still to run |
+| 2026-10-23 14:18 | Master chat | Your question, the card 5.8.3 against the splash 5.8.4, traced in the launcher's logs: the 5.8.4 update completed at 14:11:17 and the launcher was closed at 14:11:51 before it committed its record (the 5.8.4 manifest left in the engine folder's pending folder, listed as an incomplete install at the launcher's restart); the fix is to let the update finish, on this tab |
+| 2026-10-22 22:28 | Building chat | The second wall round: the editor saved and closed cleanly, but the build failed to link ("LNK1104: cannot open file UnrealEditor-Tharrn.dll", held by the zombie UnrealEditor-Cmd.exe from 18:47); the round goes on without the build, its fix being Python only; the reboot asked of you |
+| 2026-10-22 22:12 | you | After the reset: "let building keep fixing. when its done fixing then ui chat can build out the new enhanced UI" |
+| 2026-10-22 19:30 | Building chat | The round's last step by hand: the editor reopened on L_TestRange, the piece table imported with the radial's icons, 9 of 9 tests, the joins captured; the captures show a 1 cm slit at every straight joint from the trial fit, the real cause being the end caps 0.25 cm proud; the real fix (the caps' margin, no fit, an inside-face check) passed a no-save trial with 0 problems and a clean ray-traced joint, to save in one more round; its usage limit reached, a handoff file left |
+| 2026-10-22 19:19 | Building chat | The window and wall-joint fixes: the build succeeded (one line of C++, the door's glass gets collision; the pieces' collision boxes now count for shots and blasts), the factory fitted the three wall pieces to exactly 300 cm (RESULT ok); its background editor hung at exit as a zombie process (unkillable until a reboot, holds no window); the reopen and tests by hand |
+| 2026-10-22 18:39 | Interface chat | The radial menu's piece pictures: seven textures rendered from the pieces' meshes (foundation, floor, roof, wall, doorway, window wall, door) in a 5-minute gap, no play session; the Building chat fills its icon column from them |
+| 2026-10-22 18:36 | Story chat | The rebuild round: the editor target built against 5.8.4 ("Result: Succeeded in 121 s", no new warnings), the editor opened on L_TestRange in 48 s; "done, carry on" |
+| 2026-10-22 18:32 | AI setup chat | "Engine ready": 5.8.4 on disk, the plugin dropped; the launcher's own Verify of 5.8 still pending, for a round when you say |
+| 2026-10-22 18:32 | Master chat | The rebuild round: the Story chat runs the restart script, the editor target rebuilt against 5.8.4 and the editor opened |
+| 2026-10-22 18:30 | AI setup chat | A hold on the engine: the Epic launcher patching 5.8.3 to 5.8.4 (unfinished) while the AssetDump plugin installs; no editor or commandlet until "engine ready"; then a one-time rebuild of the project's modules |
+| 2026-10-22 18:30 | Master chat | After your update restart: the hub is kreav-mr-mak-44, the working agreement updated, the hold relayed and a new roll call sent |
+| 2026-10-22 17:37 | all chats | The roll call answered within minutes, nothing unsaved anywhere; the Map chat: the dressing stopped at 135 of 790 by the memory reaper (the editor at 46 GB), its builder's guard raised to 24 GB free, the run restarts only on your go |
+| 2026-10-22 17:37 | Master chat | The hub's address after the restart: kreav-mr-mak-fc, in the working agreement; the roll call sent to every chat |
 | 2026-10-21 15:52 | Map chat | Stopped and saved at the window's end: 126 of 790 volumes (109 today, one engine crash, no other failures); the editor free on L_TestRange, 21.9 GB free; 664 left, about 3.5 days |
 | 2026-10-21 15:52 | Master chat | The window closed with every chat; the build round for the radial menu opened |
 | 2026-10-21 15:05 | Map chat | Restarted and running: its own session ran the restart script this time (the editor open on L_TestRange in 102 s); the volumes resumed at 118 of 790; the 15:50 pause and the 16:00 stop stand |

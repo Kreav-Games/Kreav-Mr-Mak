@@ -222,7 +222,7 @@ socket at its emitter for the ghost preview's beam.
 | W2 | Trial on one weapon (the SMG A1): a concept sheet, then the same sheet through Tripo H3.1, Tripo P2, Meshy 7 (Higgsfield) and Lychee Studio; each result split, retopologised and baked in Blender; compared on parts, topology, texture and time | A picture of the four side by side; the owner picks the service | Done 2026-10-19: Higgsfield's three services compared (section 10); Tripo P2 at 50,000 faces chosen (D-40) |
 | W3 | The Blender tool: `Tools/Weapons/Blender/weapon_build.py` turns a high-poly into parts on the class skeleton with sockets, LODs, bakes and an FBX per part, from a small JSON spec per weapon | The SMG rebuilds from its spec with no hand steps; a check script measures triangles, sockets and bone names | Done 2026-10-19: the SMG A1 rebuilds from its spec with no hand steps and the check passes (section 11) |
 | W4 | The import tool: `Tools/Weapons/import_weapon.py` imports the FBX parts under `/Game/Art/Weapons/<id>/` (`WP_` meshes, `T_` textures, the owner's conventions), makes the material instances, LOD settings and physics assets, and the Tharrn weapon Blueprint child that uses them | Import with no warnings; the MSS test passes with the new model | Next: prepared 2026-10-20 (section 12), unrun; runs on the owner's go in the first editor slot after the Map chat's window, through the Master chat |
-| W5 | Wave 1 in the game: SMG A1, Sidearm PS-01, Grenade Launcher GL-01 and its round, Frag Grenade HG-01; the view through each sight from its `Sight` socket; pictures in the game | The owner's play-test | Later |
+| W5 | Wave 1 in the game: SMG A1, Sidearm PS-01, Grenade Launcher GL-01 and its round, Frag Grenade HG-01; the view through each sight from its `Sight` socket; pictures in the game | The owner's play-test | Prepared 2026-10-22 (section 13): the pack's pistol and launcher skeletons read, a part list per weapon in the tools, the two specs drafted, the three concepts made (3 credits); the two models' generation (74 credits) waits on the owner's go with OQ-37, the builds and imports follow W4 |
 | W6 | Attachments: `Data/Attachments.csv` (deliverable 7), part files for the eleven, the swap on the server with the stats rebuilt (D-04), scopes with their zoom, the weapon mod screen with the UI chat | Tests; the network test with two clients; made-up swaps refused | Later |
 | W7 | Wave 2 and 3: AR-01, SG-01 (pellets decided), MR-01, EB-01 with the beam fire mode in C++ | Each passes the MSS and network tests | Later |
 | W8 | Tools: hatchet, pickaxe, knife, scanner, build tool models and the `melee` hit type; the swing animation; wired to harvesting (map chat) and building (building chat) | Harvest a tree and a rock with two clients | Later |
@@ -238,6 +238,10 @@ using the editor.
 
 ## 9. Pictures
 
+- ![Wave 1's family (W5, 2026-10-22): the Issue SMG A1 from the W2 trial, its Wreck-tier concept, the Sidearm PS-01 and the Grenade Launcher GL-01, each a FLUX.2 concept from the same family reference](pictures/weapons/w5/wave1_concepts.jpg)
+- ![Sidearm PS-01 concept (W5): the colony print on a compact pistol, a reflex sight at the rear of the slide, the 12-round magazine's base plate](pictures/weapons/w5/ps01_concept_flux2.jpg)
+- ![Grenade Launcher GL-01 concept (W5): a four-round drum behind a short wide barrel, a skeleton stock and a front grip in the colony print](pictures/weapons/w5/gl01_concept_flux2.jpg)
+- ![SMG A1 Wreck-tier concept (W5): the Issue gun after the crash, burned paint, tape and wire, the stock gone and iron sights; the wear reference for the Wreck material layer and its damaged parts](pictures/weapons/w5/smg_a1_wreck_concept_flux2.jpg)
 - ![SMG A1 trial (W2): the same concept through Tripo H3.1, Tripo P2 at its default and at 50,000 faces, and Meshy 7, as generated, with each one's triangles, pieces, size and textures](pictures/weapons/trial/smg_trial_compare.jpg)
 - ![SMG A1 trial, concept to game mesh (W2, 2026-10-19): the FLUX.2 concept, Tripo H3.1's model from it, and the first game-mesh pass in Blender with the baked maps](pictures/weapons/trial/smg_trial_overview.jpg)
 - ![Tripo H3.1's model from the concept, four views: 1,483,656 triangles in one shell, 69 cm long at real size, 2K colour, normal and packed roughness-metal-occlusion textures](pictures/weapons/trial/smg_trial_tripo_views.jpg)
@@ -363,3 +367,50 @@ Unreal's FBX import makes the six sockets from the `SOCKET_` nodes on a skeletal
 from the rig's report, approximately, and warns); whether the skeleton's retargeting modes can be set from Python
 (else a warning, and the magazine's reload is watched for a jump); the LOD counts; the normal map's green flip, judged
 from the pictures. Then W5: the SMG's Wreck variant, the pistol and the launcher through the same three steps.
+
+## 13. W5 prepared (2026-10-22): the pistol, the launcher and the Wreck SMG
+
+Written while W4 waits on the owner's go (nothing of W4 changed; the SMG A1's built files are as they were). The two
+new weapons go through the SMG's three steps (the Blender build from a spec, the import, the Blueprint hookup); what
+they needed first was the pack's other two skeletons and a part list per weapon, since the pack's pistol has four parts
+and the launcher names its six differently.
+
+**The pack's three class skeletons**, read from the W3 exports by `Tools/Weapons/Blender/reference_bones.py` (new; headless
+Blender, `reference_bones.json` beside the exports, nothing of the project touched):
+
+| Class | Pack gun | Bones | Parts (the pack's Blueprint components) | Size |
+|---|---|---|---|---|
+| rifle (the SMG A1) | `SKM_LW_Rifle_Bullet_MK1` | Root, Grip, Trigger, Magazine, Barrel, Bolt, Door (7; Root is the armature node, restored as the root bone) | Body, Grip, Magazine, Muzzle, Sight, Stock | 109 × 30 × 8 cm |
+| pistol (the Sidearm PS-01) | `SKM_LW_Pistol_Bullet_MK1` | Root, Grip, Slide, Trigger, Magazine, Barrel (6) | Body, Grip, Magazine, Sight: no muzzle part and no stock | 25 × 21 × 4 cm |
+| launcher (the GL-01) | `SKM_GL_Impact_MK1` | Root, Grip, Trigger, Barrel (4; no magazine bone) | Barrel, Body, Magazine, Grip, Sight, Stock: the `Barrel` component holds the muzzle mesh and the `Magazine` one the round (`SKM_LW_GL_Impact_MK1_Grenade`) | 65 × 27 × 6 cm |
+
+**What changed in the tools.** A spec may carry `part_list` (which of the six parts the weapon has; all six by default) and
+`pack_parts` (which of the pack's components take a part where the names differ): `weapon_build.py` groups the pieces and
+warns by the list, `weapon_check.py` checks by it, `import_weapon.py` counts the imported parts by it, and
+`build_mss_weapons.py` reads both from the spec to fill the look component's `Parts` (the launcher's Muzzle part goes to
+its `Barrel` component). Its `MODELS` table names the pistol and the launcher too; until their parts are imported the
+pack's stay, as for the SMG. The SMG A1 rebuilt through the changed tool into a scratch folder gives the same report as
+before: the same six part counts, 57,895 triangles, 68 cm, the same bones and sockets, no warnings.
+
+**The two specs**, `Tools/Weapons/Blender/specs/PS01.json` and `GL01.json`, as drafts: class, length (22 cm and 62 cm),
+budgets (40,000 and 60,000 triangles), the part list, where the bones and sockets go, and first-guess part rules and
+cuts to tune on the generated models, as the SMG's were. Two guesses to watch in W5's run: the launcher's Magazine part
+(the drum) is skinned to the pack's `Barrel` bone, since its skeleton has no magazine bone and its round sits in the
+barrel; and the pistol's whole Body sits on Root, so its slide does not cycle on firing the way the pack's does on the
+`Slide` bone (a later step can weight the slide's box of the Body to that bone).
+
+**The concepts** (FLUX.2 pro at 1K, 1 credit each, with the W2 SMG concept as the family reference; the pictures in
+section 9; the job IDs kept in `D:\Tharrn\Saved\ClaudeScratch\weapons_trial\w5\jobs.json`):
+
+| Weapon | What came | Fit for the next step |
+|---|---|---|
+| Sidearm PS-01, Issue | An off-white polymer frame and grip, a dark slide with the orange stripe, a reflex sight at the rear, the 12-round magazine's base plate showing; the stencil marks are gibberish, as on the SMG | Yes: the four parts the pack's pistol has; the sight is a separate piece |
+| Grenade Launcher GL-01, Issue | A dark receiver with a four-round drum, the stripe, a skeleton stock, a pistol grip and a front grip in off-white, a holographic sight | Yes: the drum is the Magazine part; the front grip stays part of the Body |
+| SMG A1, Wreck | The gun after the crash: paint burned to alloy, yellowed and rusted polymer, the stock gone, iron sights, tape and copper wire on the grip and the magazine, salt drips; its receiver is not quite the Issue SMG's silhouette | As the wear reference only: the Wreck tier is material layers plus a damaged sight and a stock stub made in Blender on the Issue model (section 5), not a second generated gun |
+
+**What runs on the owner's go** (74 credits: Tripo P2 at 50,000 faces, detailed textures, PBR, real size, 37 a weapon, as
+decided in D-40; a weapon that comes out wrong costs one more try): (1) the two generations, their files into
+`Saved/ClaudeScratch/weapons_trial/w5/`; (2) the Blender builds from the two specs and their checks, tuning the rules and
+cuts on the models; (3) their imports, the Blueprint hookup and the MSS test in an editor slot through the Master chat,
+the same as W4 (W4 runs first); (4) pictures in the hand and through each sight; (5) the Wreck SMG's two parts and its
+material layer in Blender, after the owner's word on OQ-38. The go is asked with OQ-37 on the Combat and arsenal tab.

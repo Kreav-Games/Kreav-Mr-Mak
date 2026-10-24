@@ -1,5 +1,7 @@
 # The main map: design and build plan (P6, version 2, 2026-10-19)
 
+**Deleted on 2026-10-24 (D-45).** The owner had the main map removed for a redesign with a new direction; a new map follows later, and the test map stays. This page remains the record of version 2. What was removed, where it sits until the owner empties the trash folder, and what is kept: [§13](#13-next).
+
 The main map `L_Main` is rebuilt from the Sci-Fi bundle's example level (D-34). The first version (D-27's island of
 2.56 km zones at 2 m, built 2026-10-19 morning) is scrapped; its plan is in Git history (design record `03816b6`).
 
@@ -152,7 +154,7 @@ into the game's data files (`Items.csv`, `Recipes.csv`).
 | M1 | Plan; the example level measured and exported; the size settled with the owner | Done 2026-10-19 (this page) |
 | M2 | Terrain tool v3 (`main_map_terrain.py`): layout, macro, tiles | Done 2026-10-20: 68 tiles at 1 m (heights -94 to 649 m), every shared edge exact, 0 components over the layer limit, 790 biome volumes with their presets and lowest points |
 | M3 | `L_Main` v2: the level, the 1 m landscape tiles, the sea, rivers and lakes | Done 2026-10-21: all 68 tiles in by 00:05 (0_0, 3_7 and 4_7 whole; the other 65 as 260 quarters of 2 km, D-43), Nanite on, about 3 hours unattended, each quarter about a minute with about 20 GB of memory left free; the rivers and lakes at 00:07 (126 river and stream splines with 20 falls, 257 lakes and pools; the bundle's river Blueprints also make about 12,900 empty PCG partition actors along them). The level made 2026-10-19 (the example's World Partition settings and sky, the clock, the sea as 16 planes, the virtual textures) |
-| M4 | Dressing with the bundle's biome presets; floating islands; HLODs | Doing: 126 of 790 biome volumes by 2026-10-21 15:51 (the arctic north-west and the west coast's jungle), about 7.5 minutes each (5 to 11), one editor crash in the PCG plugin on the way (14:58; only the volume in hand lost). The 8 floating island sets are placed but empty: the bundle's floating graph gets no input in this level (to look at) |
+| M4 | Dressing with the bundle's biome presets; floating islands; HLODs | Stopped for good at 135 of 790 on 2026-10-24, the map deleted (D-45); was 126 of 790 biome volumes by 2026-10-21 15:51 (the arctic north-west and the west coast's jungle), about 7.5 minutes each (5 to 11), one editor crash in the PCG plugin on the way (14:58; only the volume in hand lost). The 8 floating island sets are placed but empty: the bundle's floating graph gets no input in this level (to look at) |
 | M5 | Harvesting | Later |
 | M6 | Places (crash sites, ruins, the dungeon mouth, zones and starts laid out again) | Later |
 | M7 | Look: per-region fog and light, sound beds | Later |
@@ -207,17 +209,44 @@ into the game's data files (`Items.csv`, `Recipes.csv`).
 
 ## 13. Next
 
-The landscape and the water are in (2026-10-21); 135 of the 790 biome volumes are generated (the arctic north-west
-and the west coast). The other 655 need about 3.4 days of the editor at about 7.5 minutes each, in windows
-the owner gives (OQ-40): `build_main_map.py dress` carries on from `Saved/Terrain/main/dressed.txt`. **Stopped
-2026-10-22 at 135, waiting for the owner's "go":** the owner's window ("run untill 50% of weekly limit used") ran 9
-volumes, then Claude Code's memory reaper ended the run (the editor had grown to 46 GB). The builder now frees memory
-below 24 GB free instead of 14 (`MIN_FREE_GB`); starting Claude Code with `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1`
-would leave memory to the builder's own guard. Then: the
-floating islands (placed, still empty: their graph is to be compared with the example level's own sets), the pictures
-for this page, the HLODs and the budget. The zones and starting locations are laid out again once the owner answers
-OQ-24.
+**The main map was deleted on 2026-10-24 (D-45).** The owner's word, to the Master chat: "the entire map needs to be
+deleted, new map to follow later on, we are going to do a redesign and new design of workspace wiki ect with a better
+direction", "we can keep the test map"; to the Map chat, on the list below: "delete them all except the test map". The
+dressing stopped for good at 135 of 790 volumes (OQ-40 void).
 
-**Lending the editor:** create `D:\Tharrn\Saved\Terrain\main\PAUSE`; the builder finishes the quarter or volume in hand, saves `L_Main` and waits until the file is gone (it reconnects if the editor was restarted).
+Claude Code's permission check refused the delete itself (an irreversible loss of 79 GB), so with the editor closed the
+Map chat **moved** everything out of the project into `D:\Tharrn_trash_2026-10-24_main_map`, 79 GB in 23,039 files,
+with the folder structure kept; **the owner emptied that folder at 14:37 the same day, so the 79 GB are gone for good.** Tharrn no longer has the map: `Content/Tharrn/Maps` holds `L_TestRange` and
+`L_TharrnMainMenu` only, and `.gitignore` lost its four `L_Main` rules.
 
-**To resume (Map chat, game repo):** with the Master chat's go, `Saved/PyTerrain/Scripts/python -u Tools/World/build_main_map.py dress` carries on with the volumes (`all` also works: the water step skips itself once `Saved/Terrain/main/water.done` exists). Each step skips what is done: the quarters (cut from each tile's files into `tiles/<c>_<r>/q<x><y>/`; whole tiles and quarters already in the level are skipped), then `water`, `floating`, `dress` (every volume in `Saved/Terrain/main/volumes.json`; tile 3_7's 16 are done) and `pictures`. Each quarter's log line gives the lowest free memory during its import; the guard waits for 14 GB free before each one.
+| Deleted | Size | In Git |
+|---|---|---|
+| `Content/Tharrn/Maps/L_Main.umap`, `L_Main_HLODLayer_Instanced`, `L_Main_HLODLayer_Merged` | 18 KB | no |
+| `Content/__ExternalActors__/Tharrn/Maps/L_Main/` (68 tiles, 260 quarters, water, 135 dressed volumes with their PCG output, floating sets) | 62 GB, 20,773 files | no |
+| `Saved/Terrain/` whole: `main` (15 GB: tiles and quarters, `volumes.json`, `dressed.txt`), `tiles`, `island`, `island_blockout`, `example`, `coast_test`, the `cand_*` lidar candidates, the overview pictures | 18 GB | no |
+| `L_CoastTest` (the level, its HLOD layers, 86 external actors, the external objects) | 71 MB | yes: 92 files show as deleted |
+| `Saved/ClaudeScratch/map_*.log` | 98 KB | no |
+
+**Done, 1: the trash folder is emptied** (owner, 2026-10-24 14:37, `! rm -rf /d/Tharrn_trash_2026-10-24_main_map`).
+`L_CoastTest` is the only part that can still come back, from Git.
+
+**Needs the owner, 2: the commit in `D:\Tharrn`** that records `L_CoastTest`'s removal and the `.gitignore` change (92
+tracked files deleted, nothing committed yet). `L_CoastTest` went on "them all"; the other Map session had recommended
+keeping it, because `Tools/Checks/nature_test.py` and a WorldBuild toolset test (`TharrnWorldBuildToolsetSpec.cpp:414`)
+open it. If it should stay: `git checkout -- Content/Tharrn/Maps/L_CoastTest* Content/__ExternalActors__/Tharrn/Maps/L_CoastTest Content/__ExternalObjects__/Tharrn/Maps/L_CoastTest`,
+and `Saved/Terrain/coast_test` comes back from the trash folder (or `Tools/Terrain/test_coast.py` makes it again).
+
+**Kept:** `L_TestRange`, `L_TharrnMainMenu`, the `Tools/World` scripts (`main_map_terrain.py`, `build_main_map.py` and
+the rest), the WorldBuild toolset and `/Game/ScifiOutpost_Tharrn/PCG` (the biome blueprints and the runtime graph made
+for the bundle's presets). The Sci-Fi bundle's own example level is untouched. `TharrnProgressionLibrary.cpp:142` still
+names `L_Main` until the new map comes; `Tools/UI/make_planet_textures.py` cannot run again (the planet textures it made
+stay).
+
+**Follow-ups for the next build round** (so nothing surprises it): `TharrnProgressionLibrary.cpp:142` still names
+`L_Main`; the WorldBuild toolset test that calls `CopyWorldPartitionSettingsIn` on `/Game/Tharrn/Maps/L_CoastTest`
+(`TharrnWorldBuildToolsetSpec.cpp:414`) now fails, and `Tools/Checks/nature_test.py` opens that level: either restore
+`L_CoastTest` from Git (the one checkout above) or point both at `L_TestRange` or the new map. The owner confirmed the
+four parts in the other Map session as well ("Delete all four").
+
+**Next for this page:** nothing until the owner's redesign gives the new map's direction. §1 to §12 stay as the record of
+version 2 (D-34); the new map gets a plan of its own.

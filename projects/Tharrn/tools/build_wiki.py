@@ -143,7 +143,7 @@ you fight, sixty levels of RPG progression with dungeons and quests, and player-
 choose to go.</p>
 
 <div class="stats">
-<div><strong>714 km²</strong><small>main map, an island 46 km long</small></div>
+<div><strong>Redesign</strong><small>main map deleted 2026-10-24; a new one follows</small></div>
 <div><strong>6</strong><small>biomes, from coast to floating islands</small></div>
 <div><strong>60</strong><small>levels, 3 talent trees</small></div>
 <div><strong>6</strong><small>creatures designed so far</small></div>
@@ -300,6 +300,7 @@ def combat(weapons):
     tools = md_rows(md_section(md, "6. Tools"))
     ai = md_rows(md_section(md, "4. Which AI and tools"))
     w4 = md_tables(md_section(md, "12. W4 prepared"))[0]   # Piece, Where, What it does
+    w5 = md_tables(md_section(md, "13. W5 prepared"))      # the class skeletons; the concepts
     rows = []
     for w in weapons:
         thrown = w["hit_type"] == "thrown"  # a hand grenade: no fire rate, and its "magazine" is how many you carry
@@ -314,11 +315,16 @@ and the steps, with pictures as each lands. The full plan is the design record's
 
 """ + owner_block(
         "**W3 is done** (2026-10-19): the SMG A1 rebuilds from its spec with no hand steps, six parts on the pack's rifle "
-        "skeleton with sockets, an FBX per part and the check passing. **Next, W4, prepared and waiting on the owner's go:** the import tool, the "
+        "skeleton with sockets, an FBX per part and the check passing. **W4 is prepared and waits on the owner's go:** the import tool, the "
         "Blueprint hookup and the C++ that puts a model's parts on the weapon are written (2026-10-20, section 12 of the "
         "page), unrun; the C++ compiled clean on 2026-10-20; the run (the background import, the Blueprint build, the MSS test, "
-        "pictures) takes the next editor slot after the owner's tests, on the owner's go. The commit of this chat's files "
-        "(the page, the W3 and W4 tools, the SMG A1's built files) waits on the owner's go too.",
+        "pictures) takes the next editor slot on the owner's go. **W5 is prepared too (2026-10-22):** the pack's pistol and launcher "
+        "skeletons read, the tools take a part list per weapon, the pistol's and the launcher's specs drafted, and three concept "
+        "pictures made for 3 credits (the Sidearm PS-01, the Grenade Launcher GL-01 and the SMG A1's Wreck tier, in the pictures "
+        "below). **The next go:** the two models' generation on Tripo P2, 37 credits each, 74 together, asked with OQ-37; their "
+        "builds and imports then follow W4. The wiki side of this chat's files went in with the work-in-progress commit of "
+        "2026-10-22; the game repo's (the W3, W4 and W5 tools and specs, the look component's C++, the SMG A1's built files, "
+        "75 MB on LFS) still wait on the owner's go.",
         ["OQ-34", "OQ-35", "OQ-36", "OQ-37", "OQ-38"], ["D-22", "D-23", "D-24", "D-32", "D-35", "D-37", "D-38", "D-39", "D-40", "D-42"]) + """
 <h2>Tests for the owner</h2>
 <p>Sent to the Report tab on 2026-10-20 for the owner's test round; the questions above are what they decide.</p>
@@ -350,6 +356,16 @@ warnings and the test passes. The run also has to tell: whether Unreal makes the
 placed from the rig's report, approximately), whether the skeleton's retargeting can be set from Python (else the
 magazine is watched for a jump on reload), the LOD counts, and from the pictures whether the normal map's flip is right.</p>
 """ + table(["Piece", "Where", "What it does"], [[md_inline(c) for c in r[:3]] for r in w4]) + """
+
+<h2>W5: prepared, waiting on the go for the models</h2>
+<p>""" + DESIGN + """ Prepared 2026-10-22 off the editor. The pistol and the launcher go through the SMG's three steps
+(the Blender build from a spec, the import, the Blueprint hookup); first the pack's other two skeletons were read and the
+tools given a part list per weapon, since the pack's pistol has four parts and the launcher names its six differently. The
+concepts are in the pictures above. On the owner's go: the two models from Tripo P2 (37 credits each), the builds and
+checks, then the imports and the test after W4. Two guesses to watch: the launcher's drum rides the pack's Barrel bone (its
+skeleton has no magazine bone), and the pistol's slide does not cycle yet (its body sits on one bone).</p>
+""" + table(["Class", "Pack gun", "Bones", "Parts", "Size"], [[md_inline(c) for c in r[:5]] for r in w5[0]]) + """
+""" + table(["Weapon", "What came", "Fit for the next step"], [[md_inline(c) for c in r[:3]] for r in w5[1]]) + """
 
 <h2>The shooter pack's weapons, taken apart</h2>
 <p>""" + BUILT + """ Measured in the editor on 2026-10-19. Each gun is modular: one skeletal mesh per part on one weapon
@@ -490,8 +506,16 @@ full plan is the design record's <code>docs/building.md</code>.</p>
         "building functions may be brought in (D-44). MST Pro's building system is read: its hammer (remove with a "
         "refund, repair, upgrade), costs, door locks, base claims, health bars, pillars under raised foundations, stairs, "
         "ramps and triangles are worth taking, but it lets the player's own game decide what is built, so Tharrn "
-        "rebuilds them in its server-checked C++ (the proposed order is in building.md). **Waiting for the owner:** the yes to commit the build tool with "
-        "the doorway fix; OQ-32 and OQ-39. **Next:** stairs with "
+        "rebuilds them in its server-checked C++ (the proposed order is in building.md). **The owner's bug reports** (2026-10-22): shots and grenades went "
+        "through windows, because shots trace the drawn mesh, where a window is a hole; now every trace uses the pieces' "
+        "collision boxes (the walls rebuilt with it, the other pieces at their next rebuild; not yet retested in play). "
+        "A ragged, flickering line down every inside wall joint: the walls were first fitted to 300 cm, which opened a "
+        "see-through slit instead (the walls were 300 cm at the face all along); the cause is each wall's end cap "
+        "standing a quarter centimetre proud of the wall face, and the fix (the caps recessed behind the faces, the fit "
+        "undone, a check that a wall's face is one cell) is in: the walls rebuilt and photographed, the joint a clean "
+        "seam (the newest picture below), the Building tests 9 of 9. The 'odd graphics on the edges where you filled in' are not identified yet: a "
+        "screenshot would help. **Waiting for the owner:** that screenshot; the yes to commit the build tool with the "
+        "doorway fix and today's fixes; OQ-32 and OQ-39. **Next:** stairs with "
         "a floor hatch, and steps up to a doorway (a foundation's floor is 90 cm above the ground, so for now players "
         "jump and climb in); a half wall, a ramp; triangles once OQ-32 is answered.",
         ["OQ-32", "OQ-39"], ["D-30", "D-33", "D-41", "D-44"]) + """
@@ -787,7 +811,10 @@ real items and values; the parts are now built in the engine (step U3).</p>
         "U5):** in the game since 2026-10-21 (the pictures above), checked in a play session: hold Q for a radial piece menu (categories inside, "
         "their pieces outside, point with the mouse, let go to choose), the piece in hand and the build keys bottom "
         "right, why a piece cannot go under the crosshair, the new piece's name when the wheel changes it, and E at a "
-        "door. Next: Easy Game UI's \"press any key\" stage restyled as the title screen (the owner's emblem), then the "
+        "door. **Now (the owner, 2026-10-22: \"rebuild the GUI/UI for the game… currently its looks and feels like its made with "
+        "paint editor\"):** the HUD, the inventory in ARK's layout, crafting and the death screen rebuilt in the style, "
+        "written; its build waits for the owner's reboot (a stuck editor process holds the game's code file; the reboot "
+        "is first on the Report tab), then about 12 minutes in the editor and the pictures here. Then the title screen (the owner's emblem) and the "
         "loading screen. Nothing is committed until the owner calls the main menu right.",
         ["OQ-31"], ["D-21", "D-31", "D-36", "D-42", "D-44"]) + """
 
@@ -1108,14 +1135,16 @@ def world_map(zones, starts):
     tool = sec("6. The terrain tool and the level builder")
     harvest = sec("8. Harvesting (built into the map from the start)")
     body = """
-<p>""" + tag("open", "Doing") + """ The main map is being rebuilt from the Sci-Fi bundle's example level (D-34): an
-island <strong>45.9 km from south to north</strong> and 22.4 km wide, <strong>714 km²</strong> of land with sea all
-around, a landscape at 1 m everywhere with Nanite, regions that blend into each other instead of meeting at hard edges,
-open ground for the hoverbike and buggy, and the arctic in the north-west. This tab is the Map chat's: the plan, how it
-is built, the pictures, the questions for the owner and the to-do list. The full plan is the design record's
-<code>docs/map-design.md</code>.</p>
+<p>""" + tag("open", "Deleted") + """ <strong>The main map was deleted on 2026-10-24 (D-45).</strong> The owner is
+starting a redesign with a new direction; a new map follows later, and the test map <code>L_TestRange</code> stays.
+Until the new plan, this tab keeps the record of version 2: an island 45.9 km from south to north, 714 km² of land,
+rebuilt from the Sci-Fi bundle's example level (D-34), with its pictures, questions and to-do list. The full record is
+the design record's <code>docs/map-design.md</code>.</p>
 """ + owner_block(md_paragraphs(sec("13. Next")).replace("<p>", "").replace("</p>", " ").strip(),
-                  ["OQ-40", "OQ-23", "OQ-24", "OQ-29", "OQ-33"], ["D-34", "D-43", "D-28", "D-19"]) + """
+                  ["OQ-23", "OQ-24", "OQ-29", "OQ-33"], ["D-45", "D-34", "D-43", "D-28", "D-19"]) + """
+<h2>What was deleted, and what stays</h2>
+<p>Deleted on 2026-10-24: moved out of the project by the Map chat, then the folder emptied by the owner.</p>
+""" + md_table_html(sec("13. Next")) + """
 <h2>Pictures</h2>
 <div class="shots">""" + "".join(shot(src, md_inline(caption), wide=(i == 0)) for i, (caption, src) in enumerate(pictures)) + """</div>
 
@@ -1177,7 +1206,7 @@ zone becomes part of a region (OQ-24). Drawn to scale from the zone data, y incr
 """ + md_table_html(harvest) + md_paragraphs(harvest) + """
 """
     return page("World and map", "World and map",
-                "The main map: an island 46 km long, rebuilt from the bundle's example level, region by region.", body,
+                "The main map was deleted on 2026-10-24 for a redesign; the test map stays. The record of version 2, the 46 km island, stays here until the new map's plan.", body,
                 "Sources: the design record's docs/map-design.md (the Map chat's); decisions D-19, D-26 to D-28 and D-34; "
                 "zones and starts from the game's <code>Data/Zones.csv</code> and <code>Data/StartLocations.csv</code>.")
 
@@ -1194,6 +1223,33 @@ def report():
                 "The Master chat's day planner: what is running, what is next, what the owner decides, and what got done.",
                 body, "Source: the design record's docs/report.md, kept by the Master chat, the hub every chat reports to; "
                 "the working agreement in <code>projects/Tharrn/README.md</code>.")
+
+
+def design_state():
+    """The Design state tab: where the design stands for the owner, read from docs/design-state.md section by section,
+    with the decision log's open questions and decisions added live from docs/decisions.md at every rebuild."""
+    md = open(os.path.join(HERE, "..", "docs", "design-state.md"), encoding="utf-8").read()
+    log = open(os.path.join(HERE, "..", "docs", "decisions.md"), encoding="utf-8").read()
+    open_ids = re.findall(r"(?m)^\| (OQ-\d+) \|", log)
+    decided_ids = re.findall(r"(?m)^\| (D-\d+) \|", log)
+    resolved = len(re.findall(r"(?m)^\| ~~OQ-\d+", log))
+    body = ""
+    for m in re.finditer(r"(?m)^## (.+)$", md):
+        title = m.group(1).strip()
+        body += "<h2>%s</h2>%s" % (md_inline(title), md_body(md_section(md, title)))
+        if title.startswith("What is still open"):
+            qs = decision_rows(open_ids)
+            body += "<p>%s %d questions wait on the owner; %d more were resolved by decisions. Each open one carries the chats' recommendation; \"as proposed\" is an answer.</p>" % (OPEN, len(qs), resolved)
+            body += table(["ID", "The question", "Recommendation"],
+                          [["<code>%s</code>" % E(r[0]), md_inline(r[1]), md_inline(r[2])] for r in qs])
+        elif title.startswith("What is decided"):
+            ds = decision_rows(decided_ids)
+            body += "<p>%d decisions so far, the headline of each:</p>" % len(ds)
+            body += table(["ID", "Decision", "Date"],
+                          [["<code>%s</code>" % E(r[0]), md_inline(decided_short(r)), E(r[2])] for r in ds])
+    return page("Design state", "State of the design",
+                "What was decided, what is still open, what the story currently claims and what is built: the facts to write the game's two pages against.",
+                body, "Sources: the owner's direction document (<code>source/</code>), the decision log (docs/decisions.md, read live), the story bible (docs/story.md), GDD 0.1 (docs/gdd/), the task list (docs/tasks.md) and the game repo's Source folder; written 2026-10-23 by the Setup chat, kept in docs/design-state.md.")
 
 
 def development():
@@ -1496,6 +1552,7 @@ def main():
     pages = [  # (tab name, file, html)
         ("Overview", "index.html", overview()),
         ("Report", "report.html", report()),
+        ("Design state", "design-state.html", design_state()),
         ("World and map", "world.html", world_map(zones, starts)),
         ("Bestiary", "bestiary.html", bestiary(creatures)),
         ("Combat and arsenal", "combat.html", combat(weapons)),

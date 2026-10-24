@@ -188,7 +188,8 @@ the bundle's materials, wear colours and UVs.
 - **Collision:** simple boxes; the doorway's leave its opening free: 152.5 cm wide, from a 31 cm threshold to 250 cm,
   measured through the wall (2026-10-20; B2 had taken the door's extent about its own pivot for it, 22.5 cm off to one
   side). The bundle's door Blueprint has its root at the doorway's Door socket and its door mesh 22.5 cm to the left
-  of it, which covers that opening.
+  of it, which covers that opening. Every query traces these boxes (`CTF_USE_SIMPLE_AS_COMPLEX`, 2026-10-22):
+  shots trace complex collision, which would be the drawn mesh with its window hole (the wall joints, below).
 - **Remodel:** walls are trimmed where they reached into the room above the floor (the ledge, floor strips, skirting,
   the ceiling ledge with its lights); under the floor their base stays, hidden, and reaches 60 cm down so storeys
   overlap as in the bundle. A foundation is the barrack floor, a ring of footings and a solid core 1.8 m deep in the
@@ -207,7 +208,8 @@ the bundle's materials, wear colours and UVs.
   piece), both in the bundle's paint; and every piece's materials are two-sided copies of the bundle's
   (`/Game/Tharrn/Building/Materials`), so the inside of a panel glimpsed through a seam is drawn, never a hole. The
   data comes from the pieces as built without closures (`TH_RAW_ONLY=1`); `TH_EXPORT_ONLY=1` is a trial that saves no
-  asset.
+  asset. A cap's rim sits a quarter centimetre behind the wall's faces (`MARGIN_CM`, 2026-10-22): its traced
+  outline reached a quarter centimetre past them, a 1 cm ridge at every wall end that flickered down every joint.
 - **Checks:** each piece's size against the CSV (walls measured above their floor), every socket, and that a wall's
   base reaches under the top of the wall below.
 
@@ -304,6 +306,37 @@ tool's model and hotbar item (D-39, W8), whose drawing will start build mode.
   instance sets were made at runtime without a name the player's machine could resolve (now named after their mesh and
   network-addressable; engineering guide gotchas 125 to 127).
 
+### The wall joints (2026-10-22)
+
+The owner's reports after the radial menu: shots and grenades went through windows, and a ragged, flickering line
+ran down every wall joint seen from inside.
+
+- **Shots through windows:** `TharrnCombatSubsystem::TraceShot` traces complex collision, which is the drawn mesh
+  unless a mesh says otherwise, and a window wall's window is a hole there (its glass is a mesh of its own, drawn
+  only). Every piece now traces its collision boxes for every query (`CTF_USE_SIMPLE_AS_COMPLEX`, set by the
+  factory; the door's leaf gets its glass's collision in `DrawDoor`): a window wall's slab blocks the window, the
+  doorway's four boxes still leave its opening free. The walls have it; the foundation, floor, roof and post get it
+  at their next rebuild. Not yet retested in play.
+- **The joint line, first try (wrong):** the walls measured 301 cm (the doorway 300.5) against 300 cm cells, so they
+  were scaled along X to exactly 300 cm. The pictures afterwards showed a 1 cm see-through slit down every straight
+  joint. Measured on the raw export, every wall's inside face runs exactly from x -150 to 150 and the walls meet
+  edge to edge; the extra width is a few ribs inside the hollow that reach 0.2 to 0.6 cm past the ends, hidden in
+  the next wall. The fit had shrunk the faces to 299 cm. It is undone; `inner_face_x()` measures the face and
+  `check()` wants it one cell within a millimetre.
+- **The cause and the fix:** an end cap is a 1 cm slab in the wall's outline, and its traced outline reached a
+  quarter centimetre past the wall's faces (the section's lines are drawn half a centimetre wide), so every wall end
+  carried a 1 cm ridge standing a quarter centimetre proud of the face: two ridges and their 0.2 cm gap are the
+  2.2 cm band in the close-up, flickering where a rim lay in the face's own plane. `make_caps.py` now moves the
+  cap's two long edges in by half a centimetre at every height (`MARGIN_CM`), so the rim sits a quarter centimetre
+  behind the faces. Shrinking the whole outline instead erased the caps of the thin hollow ribs inside the wall, and
+  a free end showed their insides.
+- **Checked** (a no-save factory run, `TH_EXPORT_ONLY=1`, and a ray tracer over its export): RESULT ok, 0 problems;
+  two walls in a line show no opening and nothing see-through from nine views inside and outside, straight on and
+  grazing. At a free end a hairline about 3 mm wide looks into the ribs' insides, which are drawn two-sided (not
+  sky); in play a free end is covered by a corner post or the next wall. Rebuilt in the round of 22:27 (its build
+  skipped: a zombie editor process holds the DLL until a reboot) and photographed: the joint is a clean seam
+  (section 10's newest picture).
+
 ### MST Pro's building system (D-44): what to take
 
 Read from its files on 2026-10-21 (Hyper's MST Pro, UE 5.8, in the Epic download cache; nothing brought in yet).
@@ -368,6 +401,7 @@ first in each list).
 
 ### Progress
 
+- ![The inside wall joints before and after (2026-10-22): the walls' end caps stood a quarter centimetre proud of the wall face, a 1 cm ridge at every wall end that flickered down every joint seen from inside; with the caps recessed behind the faces the joint is a clean seam. Top row before, bottom row after: the joint close up, the north wall's joints, the roof edge (unchanged), the corner](pictures/building/wall_joint_before_after.jpg)
 - ![The build tool in the game (2026-10-20, the network test): the ghost of the chosen piece where the player aims, green where it can go (a new building's first foundation on open ground, a wall on the foundation's edge, the door in its doorway) and red where it cannot (a foundation not touching the building)](pictures/building/tool_ghost.jpg)
 - ![The door (2026-10-20): E swings it open for everyone; the building player's screen from inside the room, and the same room on the watching player's screen](pictures/building/tool_door.jpg)
 - ![The owner's test from a second player's screen (2026-10-20): another player builds; the watching player's game draws the first wall alone, then, in the very frame the second wall arrives, the corner post with it](pictures/building/net_watch_corner.jpg)
