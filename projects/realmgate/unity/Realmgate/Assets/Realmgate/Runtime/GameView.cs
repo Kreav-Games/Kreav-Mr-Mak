@@ -27,7 +27,8 @@ namespace Realmgate
 
         readonly Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
         public string SelfId;
-        public bool HideSelf; // in AR you are the character
+        public bool HideSelf; // only for walk-around play, where the phone is the character
+        public Vector3? SelfPos; // locally steered position, drawn without network lag
         public string TargetId;
         // Floor height at a position (zones can sit at different heights: deck, yard).
         public System.Func<float, float, float> FloorAt = (x, z) => 0f;
@@ -40,6 +41,13 @@ namespace Realmgate
             cam = camera;
             selection = Models.Disc(transform, 0.5f, new Color(1f, 0.83f, 0.29f, 0.7f));
             selection.SetActive(false);
+        }
+
+        public void SetCamera(Camera camera) => cam = camera;
+
+        public void SetSelfFacing(float yaw)
+        {
+            if (SelfId != null && entities.TryGetValue(SelfId, out var e)) e.facing = yaw;
         }
 
         public Vector3 PositionOf(string id) => entities.TryGetValue(id, out var e) ? e.go.transform.position : Vector3.zero;
@@ -166,7 +174,13 @@ namespace Realmgate
             foreach (var e in entities.Values)
             {
                 var t = e.go.transform;
-                t.position = Vector3.Lerp(t.position, e.target, Mathf.Min(1, dt * 10));
+                if (e.id == SelfId && SelfPos.HasValue)
+                {
+                    var sp = SelfPos.Value;
+                    e.target = new Vector3(sp.x, FloorAt(sp.x, sp.z), sp.z);
+                    t.position = e.target;
+                }
+                else t.position = Vector3.Lerp(t.position, e.target, Mathf.Min(1, dt * 10));
                 if (e.kind == "player" || e.kind == "enemy")
                     t.rotation = Quaternion.Slerp(t.rotation, Quaternion.Euler(0, e.facing * Mathf.Rad2Deg, 0), Mathf.Min(1, dt * 12));
                 if (e.kind == "player" && !e.alive) t.rotation = Quaternion.Euler(-90, t.eulerAngles.y, 0);

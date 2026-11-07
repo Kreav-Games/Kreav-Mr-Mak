@@ -109,6 +109,16 @@ public class ScanTests
     }
 
     [Fact]
+    public void WalkableMatchesFloorsDoorsAndFurniture()
+    {
+        var world = WorldBuilder.NewWorld("Home");
+        WorldBuilder.AddZone(world, RoomPlanImport.ToZone(Room(), "k", "Kitchen"));
+        Assert.True(WorldBuilder.IsWalkable(world, -1.5f, 0.5f));
+        Assert.False(WorldBuilder.IsWalkable(world, 0f, 1.5f), "the table");
+        Assert.False(WorldBuilder.IsWalkable(world, 0f, 5f), "outside");
+    }
+
+    [Fact]
     public void WorldRoundTripsAsServerJson()
     {
         var world = WorldBuilder.NewWorld("Home");

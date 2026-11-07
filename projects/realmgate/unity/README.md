@@ -8,7 +8,7 @@ The game rules and multiplayer stay on the Node server in `../game`.
 > **Status: written but never opened in Unity.** It has not been compiled in the
 > editor or run on a device. The Unity editor can't run in the development
 > container. Expect a first pass of compile fixes when you open it. These parts
-> **are** compiled and tested: the core world logic (`Assets/Realmgate/Core`, 8
+> **are** compiled and tested: the core world logic (`Assets/Realmgate/Core`, 9
 > tests with `dotnet test`) and the server side of scanned worlds (`../game`, 12
 > tests plus a WebSocket check of host and guest).
 
@@ -43,8 +43,8 @@ The game rules and multiplayer stay on the Node server in `../game`.
 | --- | --- |
 | Home | Choose a name and class. Play or edit a world, make a new world, or join a friend's room code. |
 | World | **Scan a room** or **Scan a hallway** opens Apple's RoomPlan scanner. **Scan an outdoor area** walks a deck or yard with the LiDAR mesh. **Move the rift** places the hearth where you tap. |
-| Host (AR) | The app recognises your home from the saved ARKit map. Then it opens a room on the server and you play in AR. Real walls and furniture hide monsters (LiDAR occlusion). |
-| Guest (twin) | Join with a code. The host's scanned rooms are rebuilt as a 3D level. Move with the on-screen stick (or WASD), and tap to target. |
+| Host (seated) | The app recognises your home from the saved ARKit map and opens a room on the server. You sit and steer your hero with the stick. **Live** shows the hero in your real room (real furniture hides it). **Map** shows the scanned world as a 3D level, for rooms out of sight. |
+| Guest (map) | Join with a code. The host's scanned rooms are rebuilt as a 3D level. Move with the stick (or WASD), and tap to target. |
 
 ## Code map
 

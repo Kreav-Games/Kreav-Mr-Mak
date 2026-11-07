@@ -301,7 +301,11 @@ namespace Realmgate
         PrivateState me;
         JObject defs;
         string selfId, roomCode;
-        bool twinMode;
+        // Everyone plays seated: your character is steered with the stick.
+        // The host can watch it in their real room (Live, AR) or on the map of
+        // the scanned world (Map); remote guests always use the map.
+        bool isHost, mapView, needSpawnPos;
+        float outOfViewFor;
         Camera twinCam;
         GameObject twinRoot;
         Vector3 selfPos;
@@ -325,10 +329,10 @@ namespace Realmgate
             Ui.Label(Ui.Rect(s, "Status", new Vector2(0, 0.4f), new Vector2(1, 0.6f), new Vector2(40, 0), new Vector2(-40, 0)),
                 $"Look around {w.zones.First(z => z.id == w.hearth.zone).name} until it is recognised…", 44, TextAnchor.MiddleCenter);
             yield return WaitRelocalized();
-            twinMode = false;
+            isHost = true;
             yield return Connect(new JObject
             {
-                ["t"] = "hello", ["name"] = playerName, ["cls"] = cls, ["mode"] = "ar", ["create"] = true, ["room"] = "",
+                ["t"] = "hello", ["name"] = playerName, ["cls"] = cls, ["mode"] = "avatar", ["create"] = true, ["room"] = "",
                 ["defs"] = true, ["world"] = JObject.FromObject(w), ["save"] = SavedCharacter(),
             });
         }
@@ -336,10 +340,10 @@ namespace Realmgate
         IEnumerator Guest(string code)
         {
             if (code.Length != 4) { Message("Room code", "Ask your friend for their 4-letter room code.", ShowHome); yield break; }
-            twinMode = true;
+            isHost = false;
             yield return Connect(new JObject
             {
-                ["t"] = "hello", ["name"] = playerName, ["cls"] = cls, ["mode"] = "twin", ["room"] = code, ["defs"] = true, ["save"] = SavedCharacter(),
+                ["t"] = "hello", ["name"] = playerName, ["cls"] = cls, ["mode"] = "avatar", ["room"] = code, ["defs"] = true, ["save"] = SavedCharacter(),
             });
         }
 
@@ -384,36 +388,38 @@ namespace Realmgate
             view = root.AddComponent<GameView>();
             view.SelfId = selfId;
             view.Defs = defs;
-            view.HideSelf = !twinMode;
+            view.HideSelf = false; // you always see your character
             view.FloorAt = (x, z) =>
             {
                 var id = world != null ? WorldBuilder.ZoneAt(world, x, z) : null;
                 return id != null ? world.zones.First(zz => zz.id == id).floorY : (world?.zones.FirstOrDefault()?.floorY ?? 0f);
             };
-            Camera cam;
-            if (twinMode)
-            {
-                rig?.SetSessionRunning(false);
-                twinRoot = world != null ? TwinBuilder.Build(world, false) : null;
-                var camGo = new GameObject("Twin Camera") { tag = "MainCamera" };
-                twinCam = camGo.AddComponent<Camera>();
-                twinCam.clearFlags = CameraClearFlags.SolidColor;
-                twinCam.backgroundColor = new Color(0.11f, 0.09f, 0.15f);
-                var light = new GameObject("Sun").AddComponent<Light>();
-                light.type = LightType.Directional;
-                light.transform.rotation = Quaternion.Euler(50, 30, 0);
-                cam = twinCam;
-                if (world?.hearth != null) selfPos = new Vector3(world.hearth.x, 0, world.hearth.z + 1);
-            }
-            else
-            {
-                cam = rig.Camera;
-                var light = new GameObject("Sun").AddComponent<Light>();
-                light.type = LightType.Directional;
-                light.transform.rotation = Quaternion.Euler(50, 30, 0);
-            }
-            view.Init(cam);
+            var light = new GameObject("Sun").AddComponent<Light>();
+            light.type = LightType.Directional;
+            light.transform.rotation = Quaternion.Euler(50, 30, 0);
+
+            // The map: the scanned world rebuilt as a level with a follow camera.
+            twinRoot = world != null ? TwinBuilder.Build(world, false) : new GameObject("Empty map");
+            var camGo = new GameObject("Map Camera");
+            twinCam = camGo.AddComponent<Camera>();
+            twinCam.clearFlags = CameraClearFlags.SolidColor;
+            twinCam.backgroundColor = new Color(0.11f, 0.09f, 0.15f);
+            twinCam.nearClipPlane = 0.05f;
+            needSpawnPos = true;
+            if (!isHost) rig?.SetSessionRunning(false);
+            view.Init(isHost ? rig.Camera : twinCam);
+            SetView(!isHost);
             BuildHud();
+        }
+
+        void SetView(bool map)
+        {
+            mapView = map;
+            twinRoot.SetActive(map);
+            twinCam.enabled = map;
+            if (isHost) rig.Camera.enabled = !map;
+            view.SetCamera(map ? twinCam : rig.Camera);
+            if (map && isHost) camYaw = rig.CameraYaw; // keep "forward" where the phone was pointing
         }
 
         void BuildHud()
@@ -441,7 +447,17 @@ namespace Realmgate
 
             var leave = Ui.Rect(s, "Leave", new Vector2(0.75f, 0.8f), new Vector2(1, 0.85f), new Vector2(0, 0), new Vector2(-30, 0));
             Ui.Button(leave, "Leave", Leave, 80);
-            if (twinMode) stick = Stick.Create(s);
+            stick = Stick.Create(s);
+            if (isHost)
+            {
+                var toggle = Ui.Rect(s, "View", new Vector2(0.75f, 0.74f), new Vector2(1, 0.79f), new Vector2(0, 0), new Vector2(-30, 0));
+                Button b = null;
+                b = Ui.Button(toggle, "Map", () =>
+                {
+                    SetView(!mapView);
+                    b.GetComponentInChildren<Text>().text = mapView ? "Live" : "Map";
+                }, 80);
+            }
             Toast(roomCode != null ? $"Room {roomCode} — share this code" : "");
         }
 
@@ -476,10 +492,15 @@ namespace Realmgate
                     }
                     view.Apply(snap);
                     foreach (var ev in snap.events ?? Array.Empty<JObject>()) OnEvent(ev);
-                    if (twinMode)
                     {
+                        // Trust local steering, but take the server's position when they
+                        // disagree (spawn, respawn, blocked by furniture, rooted).
                         var self = snap.players.FirstOrDefault(p => p.id == selfId);
-                        if (self != null && (new Vector2(self.x - selfPos.x, self.z - selfPos.z).magnitude > 0.75f || !self.alive)) selfPos = new Vector3(self.x, 0, self.z);
+                        if (self != null && (needSpawnPos || new Vector2(self.x - selfPos.x, self.z - selfPos.z).magnitude > 0.75f || !self.alive))
+                        {
+                            selfPos = new Vector3(self.x, 0, self.z);
+                            needSpawnPos = false;
+                        }
                     }
                     break;
                 case "save":
@@ -524,45 +545,56 @@ namespace Realmgate
 
         void UpdateMovement()
         {
+            if (needSpawnPos) return;
             bool moved = false;
-            if (!twinMode)
+            var self = snap.players.FirstOrDefault(pp => pp.id == selfId);
+            bool rooted = self == null || !self.alive || (self.buffs != null && self.buffs.Contains("root"));
+            var v = stick ? stick.Value : Vector2.zero;
+            var kb = Keyboard.current;
+            if (kb != null)
             {
-                var p = rig.CameraPosition;
-                selfPos = new Vector3(p.x, 0, p.z);
-                facing = rig.CameraYaw;
-                moved = true;
+                if (kb.wKey.isPressed) v.y += 1;
+                if (kb.sKey.isPressed) v.y -= 1;
+                if (kb.aKey.isPressed) v.x -= 1;
+                if (kb.dKey.isPressed) v.x += 1;
+                v = Vector2.ClampMagnitude(v, 1);
             }
-            else
+            // Stick "up" is away from the viewer: the phone's direction in Live
+            // view, the follow camera's in Map view.
+            float yaw = mapView ? camYaw : rig.CameraYaw;
+            if (!rooted && v.sqrMagnitude > 0.01f)
             {
-                var self = snap.players.FirstOrDefault(pp => pp.id == selfId);
-                bool rooted = self == null || !self.alive || (self.buffs != null && self.buffs.Contains("root"));
-                var v = stick ? stick.Value : Vector2.zero;
-                var kb = Keyboard.current;
-                if (kb != null)
-                {
-                    if (kb.wKey.isPressed) v.y += 1;
-                    if (kb.sKey.isPressed) v.y -= 1;
-                    if (kb.aKey.isPressed) v.x -= 1;
-                    if (kb.dKey.isPressed) v.x += 1;
-                    v = Vector2.ClampMagnitude(v, 1);
-                }
-                if (!rooted && v.sqrMagnitude > 0.01f)
-                {
-                    var fwd = new Vector3(Mathf.Sin(camYaw), 0, Mathf.Cos(camYaw));
-                    var right = new Vector3(fwd.z, 0, -fwd.x);
-                    var dir = fwd * v.y + right * v.x;
-                    selfPos += dir * 1.6f * Time.deltaTime;
-                    facing = Mathf.Atan2(dir.x, dir.z);
-                    moved = true;
-                    camYaw = Mathf.LerpAngle(camYaw * Mathf.Rad2Deg, facing * Mathf.Rad2Deg, Time.deltaTime * 1.5f) * Mathf.Deg2Rad;
-                }
-                // third-person camera
-                float floor = view.FloorAt(selfPos.x, selfPos.z);
+                var fwd = new Vector3(Mathf.Sin(yaw), 0, Mathf.Cos(yaw));
+                var right = new Vector3(fwd.z, 0, -fwd.x);
+                var dir = fwd * v.y + right * v.x;
+                var step = dir * 1.6f * Time.deltaTime;
+                // Slide along walls and furniture like the server does.
+                if (world == null || WorldBuilder.IsWalkable(world, selfPos.x + step.x, selfPos.z + step.z) || !WorldBuilder.IsWalkable(world, selfPos.x, selfPos.z)) selfPos += step;
+                else if (WorldBuilder.IsWalkable(world, selfPos.x + step.x, selfPos.z)) selfPos.x += step.x;
+                else if (WorldBuilder.IsWalkable(world, selfPos.x, selfPos.z + step.z)) selfPos.z += step.z;
+                facing = Mathf.Atan2(dir.x, dir.z);
+                moved = true;
+                if (mapView) camYaw = Mathf.LerpAngle(camYaw * Mathf.Rad2Deg, facing * Mathf.Rad2Deg, Time.deltaTime * 1.5f) * Mathf.Deg2Rad;
+            }
+            float floor = view.FloorAt(selfPos.x, selfPos.z);
+            if (mapView)
+            {
                 var target = new Vector3(selfPos.x, floor + 1.0f, selfPos.z);
                 var back = new Vector3(-Mathf.Sin(camYaw), 0, -Mathf.Cos(camYaw));
                 twinCam.transform.position = target + back * 4.5f + Vector3.up * 3.2f;
                 twinCam.transform.LookAt(target);
             }
+            else
+            {
+                // Seated in Live view: nudge the player when the hero runs out of sight
+                // (into the hallway or the yard) instead of asking them to follow it.
+                var vp = rig.Camera.WorldToViewportPoint(new Vector3(selfPos.x, floor + 0.8f, selfPos.z));
+                bool visible = vp.z > 0 && vp.x > 0 && vp.x < 1 && vp.y > 0 && vp.y < 1;
+                outOfViewFor = visible ? 0 : outOfViewFor + Time.deltaTime;
+                if (outOfViewFor > 2f) { Toast("Your hero is out of sight. Turn the phone, or tap Map.", 2.5f); outOfViewFor = -3f; }
+            }
+            view.SelfPos = selfPos;
+            if (moved) view.SetSelfFacing(facing);
             if (moved && Time.time - lastMoveSent > 0.066f)
             {
                 lastMoveSent = Time.time;
@@ -576,7 +608,7 @@ namespace Realmgate
             if (p == null || !p.press.wasPressedThisFrame) return;
             var pos = p.position.ReadValue();
             if (OverUi(pos)) return;
-            var cam = twinMode ? twinCam : rig.Camera;
+            var cam = mapView ? twinCam : rig.Camera;
             var hit = view.Pick(cam.ScreenPointToRay(pos));
             if (hit == null) return;
             var (id, kind) = hit.Value;

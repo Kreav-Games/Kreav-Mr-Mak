@@ -40,14 +40,18 @@ test('enemies spawn on scanned floor, never in furniture, and reach a player aro
   assert.ok(Math.hypot(imp.x - p.x, imp.z - p.z) < 1.6, 'imp reached the player');
 });
 
-test('remote guests in the twin cannot walk through the sofa; AR hosts are never blocked', () => {
+test('seated avatars (host or guest) cannot walk through the sofa; walking bodies are never blocked', () => {
   const sim = new Sim({ rng: seeded(5), world: HOME });
   const g = sim.join('guest', { name: 'Guest', cls: 'mage', mode: 'twin' });
-  const h = sim.join('host', { name: 'Host', cls: 'cleric', mode: 'ar' });
+  const h = sim.join('host', { name: 'Host', cls: 'cleric', mode: 'body' });
+  const a = sim.join('seated', { name: 'Seated', cls: 'ranger' });
+  a.x = 0; a.z = -0.6; a.lastMoveAt = 0.9;
   g.x = 0; g.z = -0.6; h.x = 0; h.z = -0.6;
   sim.time = 1; g.lastMoveAt = 0.9; h.lastMoveAt = 0.9;
   sim.handle('guest', { t: 'move', x: 0, z: -0.8 });
   sim.handle('host', { t: 'move', x: 0, z: -0.8 });
+  sim.handle('seated', { t: 'move', x: 0, z: -0.8 });
+  assert.equal(a.z, -0.6, 'seated host avatar is blocked too');
   assert.equal(g.z, -0.6);
   assert.equal(h.z, -0.8);
 });

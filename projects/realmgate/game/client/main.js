@@ -70,7 +70,7 @@ async function start(mode) {
   localStorage.setItem('realmgate.name', name);
   localStorage.setItem('realmgate.cls', lobby.cls);
   $('#lobbyError').textContent = '';
-  const hello = { name, cls: lobby.cls, save: loadSave(lobby.cls), arena: lobby.arena };
+  const hello = { name, cls: lobby.cls, save: loadSave(lobby.cls), arena: lobby.arena, mode: mode === 'ar' ? 'body' : 'avatar' };
   let transport;
   if (lobby.party === 'solo') transport = new LocalTransport({ arena: lobby.arena });
   else {

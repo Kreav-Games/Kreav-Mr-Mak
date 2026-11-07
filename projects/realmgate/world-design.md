@@ -23,6 +23,25 @@ willing to walk. Other players can join a host's world.
   others can visit. Visiting friends' worlds gives new layouts, higher tiers and
   their world bosses. A world levels up as its owner and visitors clear it.
 
+## Scan once, then play seated
+
+Decision (owner, 2026-11-07). Walking happens only while **scanning**. That's a
+calm, one-time setup with no monsters, done at a walking pace. After that the
+scan is the map, and the player **sits** (on the sofa, say) and steers a
+character around it with the stick. No one runs through the house looking at a
+phone, so stairs, pools and furniture are never a danger during a fight.
+
+- **Live view (AR):** the host sees their hero running around the real room at full
+  size, hidden behind the real sofa (LiDAR occlusion). If the hero runs out of
+  sight (into the hallway or the yard), the game suggests turning the phone or
+  switching to Map.
+- **Map view:** the scanned world rebuilt as a 3D level with a follow camera. It
+  covers rooms you can't see from your seat. Remote guests always use it.
+- Characters collide with scanned walls and furniture. Doorways are the only way
+  between zones.
+- Walk-around play (the phone is your body) stays as an opt-in mode in the web
+  prototype. The server keeps its safety rules for that mode only.
+
 ## How others join
 
 | Mode | Guest is | Guest sees |

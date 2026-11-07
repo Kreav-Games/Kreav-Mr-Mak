@@ -73,7 +73,9 @@ export class Sim {
       equipment: save?.equipment || starterEquipment(cls),
       bag: (save?.bag || [makeConsumable('hpPotion'), makeConsumable('hpPotion')]).slice(0, BAG_SIZE),
       quests: save?.quests || {}, // id -> { state: 'active'|'done'|'complete', progress: [] }
-      ...this.homePoint(), facing: Math.PI, mode: hello.mode === 'twin' ? 'twin' : 'ar',
+      ...this.homePoint(), facing: Math.PI, // 'avatar': a character steered with the stick while the player sits (the default).
+      // 'body': the phone's position is the character (walk-around AR, opt-in).
+      mode: hello.mode === 'body' || hello.mode === 'ar' ? 'body' : 'avatar',
       target: null, cds: {}, buffs: [], alive: true, respawnAt: 0, lastCombat: -99, gcd: 0,
       privateVersion: 1, sentVersion: 0,
     };
@@ -155,9 +157,9 @@ export class Sim {
       p.facing = Math.atan2(msg.dx, msg.dz);
     } else return;
     if (this.map) {
-      // Remote guests walk the digital twin, so walls and furniture stop them.
-      // An AR player's body is the truth: scans are imperfect, never block it.
-      if (p.mode === 'twin' && !this.map.walkable(nx, nz) && this.map.walkable(p.x, p.z)) {
+      // Avatars collide with scanned walls and furniture. A walking player's
+      // body is the truth: scans are imperfect, so never block it.
+      if (p.mode === 'avatar' && !this.map.walkable(nx, nz) && this.map.walkable(p.x, p.z)) {
         if (this.map.walkable(nx, p.z)) nz = p.z;
         else if (this.map.walkable(p.x, nz)) nx = p.x;
         else return;
@@ -673,8 +675,9 @@ export class Sim {
         const tx = def.ranged ? target.x : e.x + Math.sin(e.facing) * (def.range * 0.6);
         const tz = def.ranged ? target.z : e.z + Math.cos(e.facing) * (def.range * 0.6);
         const r = def.aoe;
-        // Safety: never ask anyone to dodge on stairs, by the bath or the stove.
-        if (this.map && (this.map.isHazard(tx, tz) || this.map.isHazard(target.x, target.z))) { e.attackAt = this.time + 0.5; continue; }
+        // Safety for walking players: never ask a real body to dodge on stairs,
+        // by the bath or the stove. Seated players' avatars have no such limit.
+        if (this.map && target.mode === 'body' && (this.map.isHazard(tx, tz) || this.map.isHazard(target.x, target.z))) { e.attackAt = this.time + 0.5; continue; }
         e.windup = { x: tx, z: tz, r, at: this.time + def.windup, dur: def.windup };
         this.emit({ type: 'telegraph', id: e.id, x: tx, z: tz, r, dur: def.windup });
       }
@@ -722,7 +725,7 @@ export class Sim {
         if (this.time >= p.respawnAt) {
           p.alive = true;
           p.hp = Math.round(p.maxHp * 0.5);
-          if (p.mode === 'twin' || !this.map) Object.assign(p, this.homePoint());
+          if (p.mode === 'avatar' || !this.map) Object.assign(p, this.homePoint());
           this.emit({ type: 'respawn', id: p.id });
         }
         continue;

@@ -74,3 +74,6 @@ same server.
   join by code and play in a digital twin of the host's home. The server now
   takes a scanned world per room. Enemies path around furniture, guests collide
   with it, and nothing attacks on stairs.
+- **2026-11-07 — Scan once, then play seated:** walking is only for scanning. In
+  play, everyone steers a character with the stick from their seat. The host
+  watches in Live (AR) or Map view. See [world-design.md](world-design.md).

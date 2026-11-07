@@ -109,6 +109,7 @@ namespace Realmgate
         {
             Session.enabled = on;
             Camera.gameObject.SetActive(on);
+            Camera.enabled = on;
         }
 
         public Vector3 CameraPosition => Camera.transform.position;

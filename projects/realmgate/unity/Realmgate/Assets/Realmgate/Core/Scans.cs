@@ -224,6 +224,25 @@ namespace Realmgate.Core
             world.hearth = new Hearth { x = x, z = z, zone = zone.id };
         }
 
+        // Same rule as the server's navigation grid (game/shared/world.js): on a
+        // zone floor or in a doorway, and not inside furniture (plus 0.15 m).
+        public static bool IsWalkable(World world, float x, float z, float pad = 0.15f)
+        {
+            var p = new V2(x, z);
+            bool onFloor = world.zones.Any(zz => Geometry.Contains(zz.floor.Select(V2.From).ToList(), p))
+                || world.links.Any(l => (new V2(l.x, l.z) - p).Length <= Math.Max(0.45f, l.w / 2f));
+            if (!onFloor) return false;
+            foreach (var zone in world.zones)
+                foreach (var o in zone.objects)
+                {
+                    float c = MathF.Cos(o.yaw), s = MathF.Sin(o.yaw);
+                    float dx = x - o.x, dz = z - o.z;
+                    float lx = dx * c - dz * s, lz = dx * s + dz * c;
+                    if (MathF.Abs(lx) <= o.w / 2f + pad && MathF.Abs(lz) <= o.d / 2f + pad) return false;
+                }
+            return true;
+        }
+
         public static string ZoneAt(World world, float x, float z) =>
             world.zones.FirstOrDefault(zz => Geometry.Contains(zz.floor.Select(V2.From).ToList(), new V2(x, z)))?.id;
     }
