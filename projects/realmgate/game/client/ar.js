@@ -111,6 +111,7 @@ export class ARController {
     const root = this.world.root;
     root.position.copy(pos);
     root.rotation.set(0, yaw, 0);
+    this.floorSamples = [];
     root.scale.setScalar(this.scale);
     root.visible = true;
     this.placed = true;
@@ -133,22 +134,53 @@ export class ARController {
 
   // Called every XR frame.
   update(frame) {
-    if (!frame || (this.placed && !this.keepReticle) || !this.hitSource) return;
+    if (!frame || !this.hitSource) return;
     const ref = this.renderer.xr.getReferenceSpace();
     const hits = frame.getHitTestResults(this.hitSource);
     if (hits.length) {
       const pose = hits[0].getPose(ref);
       this.reticle.visible = true;
-      this.reticle.matrix.fromArray(pose.transform.matrix);
-      // RingGeometry is in the XY plane; the hit pose's Y axis is the floor normal.
-      this.reticle.matrix.multiply(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+      // Keep the ring level with gravity: a hit's own orientation can be
+      // tilted on half-measured or uneven floors. Only its position is used.
+      const t = pose.transform.position;
+      this.reticle.matrix.makeRotationX(-Math.PI / 2).setPosition(t.x, t.y, t.z);
+      if (this.placed) this.sampleFloor(t.y);
     } else this.reticle.visible = false;
+    // after placement the ring is only shown while scanning
+    if (this.placed && !this.keepReticle) this.reticle.visible = false;
     this.scanHits.length = 0;
     for (const src of this.scanSources) {
       const h = frame.getHitTestResults(src)[0];
       const pose = h?.getPose(ref);
-      if (pose) this.scanHits.push(new THREE.Vector3(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z));
+      if (pose) {
+        this.scanHits.push(new THREE.Vector3(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z));
+        this.sampleFloor(pose.transform.position.y);
+      }
     }
+    this.levelFloor();
+  }
+
+  // ARCore refines its floor height as you move; the first tap can be several
+  // centimetres off. Keep the game floor on the median of recent floor hits
+  // near the current level, so it never floats above or sinks below the real
+  // floor (which reads as a tilt while you move).
+  sampleFloor(y) {
+    const root = this.world.root;
+    if (Math.abs(y - root.position.y) > 0.25) return; // a table top or a different storey
+    this.floorSamples ??= [];
+    this.floorSamples.push(y);
+    if (this.floorSamples.length > 240) this.floorSamples.shift();
+  }
+
+  levelFloor() {
+    const s = this.floorSamples;
+    if (!this.placed || !s || s.length < 20) return;
+    const now = performance.now();
+    if (now - (this.leveledAt || 0) < 300) return;
+    this.leveledAt = now;
+    const median = [...s].sort((a, b) => a - b)[s.length >> 1];
+    const root = this.world.root;
+    root.position.y += (median - root.position.y) * 0.3; // ease, so nothing jumps
   }
 
   // Floor polygons from WebXR plane detection, in world space (empty if unsupported).
