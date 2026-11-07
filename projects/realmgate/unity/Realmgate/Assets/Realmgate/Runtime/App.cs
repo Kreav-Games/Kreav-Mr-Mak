@@ -1,7 +1,8 @@
 // Realmgate app flow, built entirely from code at startup:
 //   Home    -> pick name/class, open a world, make a new world, or join a friend
-//   World   -> scan rooms (RoomPlan), halls, or outdoor areas (LiDAR mesh); set the rift
-//   Host    -> recognise the home (ARWorldMap), open a room on the server, play in AR
+//   World   -> any phone: paint the floor of each area (rift frame, two taps line it up)
+//              LiDAR iPhone/iPad: RoomPlan rooms + ARWorldMap (map frame)
+//   Host    -> line the world up with the room, confirm sharing, open a room, play seated
 //   Guest   -> join by code and play inside the host's digital twin with a stick
 using System;
 using System.Collections;
@@ -108,10 +109,18 @@ namespace Realmgate
             Ui.Button(col, "+ New world", () =>
             {
                 var w = WorldBuilder.NewWorld($"{playerName}'s Home");
+                w.frame = WorldFrame.Rift;
                 WorldStore.Save(w);
                 ShowWorld(w);
             });
-            if (!RoomPlanBridge.Supported) Ui.Paragraph(col, "Room scanning needs an iPhone or iPad with LiDAR (iOS 17+). You can still join friends.", 32);
+            if (RoomPlanBridge.Supported)
+                Ui.Button(col, "+ New world with LiDAR room scans", () =>
+                {
+                    var w = WorldBuilder.NewWorld($"{playerName}'s Home");
+                    w.frame = WorldFrame.Map;
+                    WorldStore.Save(w);
+                    ShowWorld(w);
+                }, 100);
 
             Ui.Heading(col, "Join a friend", 48, 80);
             var code = Ui.Input(col, "Room code (4 letters)", "");
@@ -144,13 +153,21 @@ namespace Realmgate
                 string hearth = w.hearth?.zone == z.id ? " · rift" : "";
                 Ui.Paragraph(col, $"• {z.name} — {Themes.DisplayName(z.theme)} ({z.kind}, {z.objects.Count} objects, {links} doorway{(links == 1 ? "" : "s")}){hearth}", 34);
             }
-            if (RoomPlanBridge.Supported)
+            if (w.frame == WorldFrame.Map)
             {
-                Ui.Button(col, "Scan a room", () => ScanRoom(ZoneKind.Room));
-                Ui.Button(col, "Scan a hallway", () => ScanRoom(ZoneKind.Hall));
+                if (RoomPlanBridge.Supported)
+                {
+                    Ui.Button(col, "Scan a room", () => ScanRoom(ZoneKind.Room));
+                    Ui.Button(col, "Scan a hallway", () => ScanRoom(ZoneKind.Hall));
+                }
+                Ui.Button(col, "Scan an outdoor area (deck, yard)", () => StartCoroutine(ScanArea()));
+                if (w.zones.Any()) Ui.Button(col, "Move the rift", () => StartCoroutine(PlaceHearth()));
             }
-            Ui.Button(col, "Scan an outdoor area (deck, yard)", () => StartCoroutine(ScanArea()));
-            if (w.zones.Any()) Ui.Button(col, "Move the rift", () => StartCoroutine(PlaceHearth()));
+            else
+            {
+                Ui.Paragraph(col, "Scanning: tap the rift spot and the spot it faces (remember both: you tap them again each time you play), then walk slowly and sweep the floor. Leave the floor under furniture unpainted.", 32);
+                Ui.Button(col, "Scan areas", () => StartCoroutine(PaintScan()));
+            }
             if (w.zones.Any()) Ui.Button(col, "Delete last zone", () =>
             {
                 w.zones.RemoveAt(w.zones.Count - 1);
@@ -278,6 +295,141 @@ namespace Realmgate
             ShowWorld(world);
         }
 
+        // ------------------------------------------------- floor-paint scan ---
+
+        Transform worldRoot;
+
+        Transform NewWorldRoot()
+        {
+            if (worldRoot) Destroy(worldRoot.gameObject);
+            worldRoot = new GameObject("World Root").transform;
+            return worldRoot;
+        }
+
+        // Two taps on the floor: the rift spot, then the spot it faces. Pins the
+        // world root there with an AR anchor. `done(true)` when placed.
+        IEnumerator AlignRift(Text status, float scale, Action<bool> done, Func<bool> cancelled)
+        {
+            rig.BeginAligning();
+            Vector3? first = null;
+            GameObject marker = null;
+            status.text = "Point the phone at the floor until the ring is blue, then tap the rift spot you chose (for example a rug corner).";
+            while (!cancelled())
+            {
+                yield return null;
+                bool ok = rig.UpdateRing(out var p, out bool onFloor);
+                if (!rig.Tracking) { status.text = "Finding your room… move the phone slowly over the floor."; continue; }
+                var ptr = Pointer.current;
+                if (ptr == null || !ptr.press.wasPressedThisFrame || OverUi(ptr.position.ReadValue())) continue;
+                if (!ok) continue;
+                if (!onFloor) { status.text = "That is the top of furniture (red ring). Aim the ring at the floor."; continue; }
+                if (first == null)
+                {
+                    first = p;
+                    marker = Models.Disc(null, 0.06f, Ui.Gold);
+                    marker.transform.position = p + Vector3.up * 0.006f;
+                    status.text = "Now tap the spot the rift faces (the TV, a doorway…), the same one each time.";
+                    continue;
+                }
+                if (Vector3.Distance(first.Value, p) < 0.3f) continue; // too close to tell a direction
+                rig.AnchorWorld(worldRoot, first.Value, p, scale);
+                if (marker) Destroy(marker);
+                rig.EndAligning();
+                done(true);
+                yield break;
+            }
+            if (marker) Destroy(marker);
+            rig.EndAligning();
+            done(false);
+        }
+
+        IEnumerator PaintScan()
+        {
+            EnsureRig();
+            rig.SetSessionRunning(true);
+            NewWorldRoot();
+            var s = NewScreen(false);
+            var status = Ui.Label(Ui.Rect(s, "Status", new Vector2(0, 0.78f), new Vector2(1, 0.95f), new Vector2(40, 0), new Vector2(-40, 0)), "", 38, TextAnchor.MiddleCenter);
+            bool cancel = false, next = false, finish = false;
+            string kind = ZoneKind.Room;
+            var buttons = Ui.Rect(s, "Buttons", new Vector2(0, 0), new Vector2(1, 0.2f), new Vector2(40, 40), new Vector2(-40, 0));
+            var grid = buttons.gameObject.AddComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(480, 120); grid.spacing = new Vector2(20, 20); grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount; grid.constraintCount = 2;
+            Button kindButton = null;
+            kindButton = Ui.Button(buttons, "Type: Room", () =>
+            {
+                kind = kind == ZoneKind.Room ? ZoneKind.Hall : kind == ZoneKind.Hall ? ZoneKind.Outdoor : ZoneKind.Room;
+                kindButton.GetComponentInChildren<Text>().text = $"Type: {KindName(kind)}";
+            });
+            Ui.Button(buttons, "Next area", () => next = true);
+            Ui.Button(buttons, "Finish", () => finish = true, 120, new Color(0.45f, 0.32f, 0.08f));
+            Ui.Button(buttons, "Cancel", () => cancel = true);
+            FloorButtons(s);
+
+            bool placed = false;
+            yield return AlignRift(status, 1f, ok => placed = ok, () => cancel);
+            if (!placed) { rig.SetSessionRunning(false); ShowWorld(world); yield break; }
+
+            var painter = FloorPaintScanner.Create(rig, worldRoot);
+            var areas = new List<Zone>();
+            while (!cancel)
+            {
+                yield return null;
+                if (!rig.Tracking) status.text = "Lost track of the room. Move slowly over the lit floor until the squares come back.";
+                else if (Time.time - painter.LastFloorAt > 3) status.text = "Floor not found. Point the phone down about a metre ahead, move slowly, and add light.";
+                else status.text = $"Area {world.zones.Count + areas.Count + 1} ({KindName(kind)}): {painter.AreaM2:0.0} m² painted. Sweep the floor; skip under furniture.";
+                if (next || finish)
+                {
+                    next = false;
+                    if (painter.Cells.Count >= 6)
+                    {
+                        int n = world.zones.Count + areas.Count + 1;
+                        areas.Add(FloorScan.ZoneFromCells(painter.Cells, $"z{n}-{DateTime.UtcNow.Ticks % 100000}", AreaName(kind, n), kind));
+                        painter.NewArea();
+                    }
+                    if (finish) break;
+                }
+            }
+            if (!cancel)
+            {
+                foreach (var a in areas) WorldBuilder.AddZone(world, a);
+                if (WorldBuilder.ZoneAt(world, 0, 0) != null) WorldBuilder.SetHearth(world, 0, 0); // the rift spot
+                WorldStore.Save(world);
+            }
+            Destroy(worldRoot.gameObject);
+            rig.SetSessionRunning(false);
+            ShowWorld(world);
+        }
+
+        static string KindName(string kind) => kind == ZoneKind.Hall ? "Hallway" : kind == ZoneKind.Outdoor ? "Outdoors" : "Room";
+
+        string AreaName(string kind, int n)
+        {
+            if (kind == ZoneKind.Room && world.zones.Count == 0 && n == 1) return "Living room";
+            int same = world.zones.Count(z => z.kind == kind) + 1;
+            return same > 1 ? $"{KindName(kind)} {same}" : KindName(kind);
+        }
+
+        // Floor ▲ / ▼: correct the game floor if the phone misreads its height.
+        void FloorButtons(RectTransform s)
+        {
+            var box = Ui.Rect(s, "Floor", new Vector2(0.78f, 0.42f), new Vector2(1, 0.62f), new Vector2(0, 0), new Vector2(-24, 0));
+            var v = box.gameObject.AddComponent<VerticalLayoutGroup>();
+            v.spacing = 10; v.childControlHeight = true; v.childControlWidth = true;
+            Text label = null;
+            void Nudge(float d)
+            {
+                rig.FloorOffset += d;
+                if (worldRoot && worldRoot.parent != null) worldRoot.localPosition = new Vector3(0, rig.FloorOffset, 0);
+                label.text = $"{rig.FloorOffset * 100:+0;-0;0} cm";
+            }
+            Ui.Button(box, "Floor ▲", () => Nudge(0.02f), 90);
+            var holder = Ui.Rect(box, "Value", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            holder.gameObject.AddComponent<LayoutElement>().preferredHeight = 50;
+            label = Ui.Label(holder, $"{rig.FloorOffset * 100:+0;-0;0} cm", 30, TextAnchor.MiddleCenter);
+            Ui.Button(box, "Floor ▼", () => Nudge(-0.02f), 90);
+        }
+
         void EnsureRig()
         {
             if (rig == null) rig = ArRig.Create();
@@ -319,21 +471,48 @@ namespace Realmgate
         IEnumerator Host(World w)
         {
             world = w;
-            if (!w.zones.Any() || !WorldStore.HasMap(w)) { Message("Scan first", "This world has no scanned rooms yet.", () => ShowWorld(w)); yield break; }
+            if (!w.zones.Any()) { Message("Scan first", "This world has no scanned areas yet.", () => ShowWorld(w)); yield break; }
             EnsureRig();
             rig.SetSessionRunning(true);
-            string err = null;
-            yield return rig.LoadWorldMap(WorldStore.MapPath(w), e => err = e);
-            if (err != null) { Message("Could not load your world", err, ShowHome); yield break; }
+            NewWorldRoot();
             var s = NewScreen(false);
-            Ui.Label(Ui.Rect(s, "Status", new Vector2(0, 0.4f), new Vector2(1, 0.6f), new Vector2(40, 0), new Vector2(-40, 0)),
-                $"Look around {w.zones.First(z => z.id == w.hearth.zone).name} until it is recognised…", 44, TextAnchor.MiddleCenter);
-            yield return WaitRelocalized();
+            var status = Ui.Label(Ui.Rect(s, "Status", new Vector2(0, 0.75f), new Vector2(1, 0.95f), new Vector2(40, 0), new Vector2(-40, 0)), "", 40, TextAnchor.MiddleCenter);
+            bool cancel = false;
+            var back = Ui.Rect(s, "Cancel", new Vector2(0.25f, 0.03f), new Vector2(0.75f, 0.1f), Vector2.zero, Vector2.zero);
+            Ui.Button(back, "Cancel", () => cancel = true);
+            if (w.frame == WorldFrame.Map)
+            {
+                if (!WorldStore.HasMap(w)) { Message("Scan first", "This world has no saved room map yet.", () => ShowWorld(w)); yield break; }
+                string err = null;
+                yield return rig.LoadWorldMap(WorldStore.MapPath(w), e => err = e);
+                if (err != null) { Message("Could not load your world", err, ShowHome); yield break; }
+                status.text = $"Sit down and look around {w.zones.First(z => z.id == w.hearth.zone).name} until it is recognised…";
+                yield return WaitRelocalized();
+                rig.AnchorAtOrigin(worldRoot, FloorScan.HeroScale);
+            }
+            else
+            {
+                bool placed = false;
+                status.text = "";
+                yield return AlignRift(status, FloorScan.HeroScale, ok => placed = ok, () => cancel);
+                if (!placed) { rig.SetSessionRunning(false); ShowHome(); yield break; }
+            }
+
+            // Hosting shares the layout with players you let in: ask every time.
+            bool? consent = null;
+            var c = ScrollColumn(NewScreen());
+            Ui.Heading(c, "Host your home?", 64);
+            Ui.Paragraph(c, "Players you let in will see the layout of your scanned rooms (shapes only, never camera images). It is not saved on the server, and sharing stops when you stop hosting. Each player knocks first and you choose who gets in.");
+            Ui.Button(c, "Host my home", () => consent = true, 120, new Color(0.45f, 0.32f, 0.08f));
+            Ui.Button(c, "Cancel", () => consent = false);
+            while (consent == null) yield return null;
+            if (consent == false) { rig.SetSessionRunning(false); ShowHome(); yield break; }
+
             isHost = true;
             yield return Connect(new JObject
             {
                 ["t"] = "hello", ["name"] = playerName, ["cls"] = cls, ["mode"] = "avatar", ["create"] = true, ["room"] = "",
-                ["defs"] = true, ["world"] = JObject.FromObject(w), ["save"] = SavedCharacter(),
+                ["defs"] = true, ["shareConsent"] = true, ["world"] = JObject.FromObject(FloorScan.ForPlay(w)), ["save"] = SavedCharacter(),
             });
         }
 
@@ -341,6 +520,7 @@ namespace Realmgate
         {
             if (code.Length != 4) { Message("Room code", "Ask your friend for their 4-letter room code.", ShowHome); yield break; }
             isHost = false;
+            NewWorldRoot();
             yield return Connect(new JObject
             {
                 ["t"] = "hello", ["name"] = playerName, ["cls"] = cls, ["mode"] = "avatar", ["room"] = code, ["defs"] = true, ["save"] = SavedCharacter(),
@@ -369,6 +549,13 @@ namespace Realmgate
                 while (net.TryReceive(out var m))
                 {
                     if ((string)m["t"] == "welcome") { welcome = m; break; }
+                    if ((string)m["t"] == "waiting")
+                    {
+                        timeout = Time.time + 95; // the host decides
+                        var col = ScrollColumn(NewScreen());
+                        Ui.Heading(col, "Knocking…", 64);
+                        Ui.Paragraph(col, "Waiting for the host to let you in. You will see the layout of their home: it is theirs, so please don't record or share it.");
+                    }
                     if ((string)m["t"] == "error" || (string)m["t"] == "closed") { Message("Couldn't join", (string)m["text"] ?? "The server closed the connection.", ShowHome); yield break; }
                 }
                 yield return null;
@@ -385,6 +572,7 @@ namespace Realmgate
         void StartGame()
         {
             var root = new GameObject("Game");
+            root.transform.SetParent(worldRoot, false);
             view = root.AddComponent<GameView>();
             view.SelfId = selfId;
             view.Defs = defs;
@@ -400,6 +588,7 @@ namespace Realmgate
 
             // The map: the scanned world rebuilt as a level with a follow camera.
             twinRoot = world != null ? TwinBuilder.Build(world, false) : new GameObject("Empty map");
+            twinRoot.transform.SetParent(worldRoot, false);
             var camGo = new GameObject("Map Camera");
             twinCam = camGo.AddComponent<Camera>();
             twinCam.clearFlags = CameraClearFlags.SolidColor;
@@ -415,11 +604,15 @@ namespace Realmgate
         void SetView(bool map)
         {
             mapView = map;
+            // Map: the world at full game size around the origin. Live: pinned to
+            // the room and shrunk to action-figure size.
+            if (map) { worldRoot.SetParent(null, false); worldRoot.localPosition = Vector3.zero; worldRoot.localRotation = Quaternion.identity; worldRoot.localScale = Vector3.one; }
+            else rig.Attach(worldRoot, FloorScan.HeroScale);
             twinRoot.SetActive(map);
             twinCam.enabled = map;
             if (isHost) rig.Camera.enabled = !map;
             view.SetCamera(map ? twinCam : rig.Camera);
-            if (map && isHost) camYaw = rig.CameraYaw; // keep "forward" where the phone was pointing
+            if (map && isHost) camYaw = PhoneYaw(); // keep "forward" where the phone was pointing
         }
 
         void BuildHud()
@@ -450,6 +643,7 @@ namespace Realmgate
             stick = Stick.Create(s);
             if (isHost)
             {
+                FloorButtons(s);
                 var toggle = Ui.Rect(s, "View", new Vector2(0.75f, 0.74f), new Vector2(1, 0.79f), new Vector2(0, 0), new Vector2(-30, 0));
                 Button b = null;
                 b = Ui.Button(toggle, "Map", () =>
@@ -474,6 +668,17 @@ namespace Realmgate
             while (net.TryReceive(out var m)) OnMessage(m);
             if (hudToast != null && Time.time > toastUntil) hudToast.text = "";
             if (snap == null) return;
+            if (isHost && !mapView)
+            {
+                // Never draw the world stuck to the screen while the phone has lost the room.
+                bool tracking = rig.Tracking;
+                if (worldRoot.gameObject.activeSelf != tracking)
+                {
+                    worldRoot.gameObject.SetActive(tracking);
+                    if (!tracking) Toast("Lost track of the room. Move the phone slowly over the lit floor.", 3);
+                }
+            }
+            else if (!worldRoot.gameObject.activeSelf) worldRoot.gameObject.SetActive(true);
             UpdateMovement();
             HandleTap();
             UpdateHud();
@@ -507,9 +712,23 @@ namespace Realmgate
                     if (m["save"] != null && m["save"].Type != JTokenType.Null) WorldStore.SaveCharacter(cls, m["save"].ToString(Formatting.None));
                     break;
                 case "closed":
-                    Message("Disconnected", net.Error ?? "The connection to the world was lost.", Leave);
+                    Message("Disconnected", (string)m["text"] ?? net.Error ?? "The connection to the world was lost.", Leave);
+                    break;
+                case "knock":
+                    ShowKnock((string)m["id"], (string)m["name"], (string)m["cls"]);
                     break;
             }
+        }
+
+        // Someone with your code wants in. Nothing is shared until you allow it.
+        void ShowKnock(string id, string name, string who)
+        {
+            var box = Ui.Rect(screen, "Knock", new Vector2(0.05f, 0.4f), new Vector2(0.95f, 0.62f), Vector2.zero, Vector2.zero);
+            Ui.Box(box, Ui.Panel);
+            var col = Ui.Column(box, "Col", 12);
+            Ui.Paragraph(col, $"{name} ({who}) wants to join your home. They will see your rooms' layout while you host.", 34);
+            Ui.Button(col, "Let them in", () => { net.Send(new { t = "admit", id, allow = true }); Destroy(box.gameObject); }, 100, new Color(0.45f, 0.32f, 0.08f));
+            Ui.Button(col, "No", () => { net.Send(new { t = "admit", id, allow = false }); Destroy(box.gameObject); }, 90);
         }
 
         void SaveCharacter()
@@ -561,7 +780,7 @@ namespace Realmgate
             }
             // Stick "up" is away from the viewer: the phone's direction in Live
             // view, the follow camera's in Map view.
-            float yaw = mapView ? camYaw : rig.CameraYaw;
+            float yaw = mapView ? camYaw : PhoneYaw();
             if (!rooted && v.sqrMagnitude > 0.01f)
             {
                 var fwd = new Vector3(Mathf.Sin(yaw), 0, Mathf.Cos(yaw));
@@ -588,7 +807,7 @@ namespace Realmgate
             {
                 // Seated in Live view: nudge the player when the hero runs out of sight
                 // (into the hallway or the yard) instead of asking them to follow it.
-                var vp = rig.Camera.WorldToViewportPoint(new Vector3(selfPos.x, floor + 0.8f, selfPos.z));
+                var vp = rig.Camera.WorldToViewportPoint(worldRoot.TransformPoint(new Vector3(selfPos.x, floor + 0.8f, selfPos.z)));
                 bool visible = vp.z > 0 && vp.x > 0 && vp.x < 1 && vp.y > 0 && vp.y < 1;
                 outOfViewFor = visible ? 0 : outOfViewFor + Time.deltaTime;
                 if (outOfViewFor > 2f) { Toast("Your hero is out of sight. Turn the phone, or tap Map.", 2.5f); outOfViewFor = -3f; }
@@ -600,6 +819,13 @@ namespace Realmgate
                 lastMoveSent = Time.time;
                 net.Send(new { t = "move", x = selfPos.x, z = selfPos.z, facing });
             }
+        }
+
+        // Which way the phone points, in the world root's frame (game coordinates).
+        float PhoneYaw()
+        {
+            var f = worldRoot.InverseTransformDirection(rig.Camera.transform.forward);
+            return Mathf.Atan2(f.x, f.z);
         }
 
         void HandleTap()
@@ -726,6 +952,7 @@ namespace Realmgate
             if (twinRoot) Destroy(twinRoot);
             if (twinCam) Destroy(twinCam.gameObject);
             foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None)) Destroy(l.gameObject);
+            if (worldRoot) Destroy(worldRoot.gameObject);
             rig?.SetSessionRunning(false);
             view = null; snap = null; me = null; stick = null;
             ShowHome();

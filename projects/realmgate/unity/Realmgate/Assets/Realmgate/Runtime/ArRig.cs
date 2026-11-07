@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Realmgate.Core;
+// FloorScan constants are shared with the scanner.
 using Unity.Collections;
 using Unity.XR.CoreUtils;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace Realmgate
         public ARMeshManager Meshes { get; private set; }
         public AROcclusionManager Occlusion { get; private set; }
         public ARRaycastManager Raycasts { get; private set; }
+        public ARAnchorManager Anchors { get; private set; }
 
         public static ArRig Create()
         {
@@ -77,6 +79,7 @@ namespace Realmgate
             Origin.RequestedTrackingOriginMode = XROrigin.TrackingOriginMode.Device;
 
             Raycasts = originGo.AddComponent<ARRaycastManager>();
+            Anchors = originGo.AddComponent<ARAnchorManager>();
             Planes = originGo.AddComponent<ARPlaneManager>();
             Planes.requestedDetectionMode = PlaneDetectionMode.Horizontal;
             Planes.planePrefab = null; // planes are only measured, never drawn
@@ -107,6 +110,7 @@ namespace Realmgate
 
         public void SetSessionRunning(bool on)
         {
+            if (!on) EndAligning();
             Session.enabled = on;
             Camera.gameObject.SetActive(on);
             Camera.enabled = on;
@@ -212,6 +216,112 @@ namespace Realmgate
         }
 
         static float Area(ARPlane p) => p.size.x * p.size.y;
+
+        // ------------------------------------------------- floor and anchors ---
+        // Works on ARCore (Android) and ARKit (iPhone). The floor is the lowest
+        // horizontal plane the phone has found; hits on table and TV-stand tops
+        // are higher and are refused (the ring turns red).
+
+        GameObject ring;
+        Renderer ringRenderer;
+        GameObject anchorGo;
+        readonly List<ARRaycastHit> hitBuffer = new List<ARRaycastHit>();
+
+        public bool Tracking => ARSession.state == ARSessionState.SessionTracking;
+
+        public float? FloorY
+        {
+            get
+            {
+                float? best = null;
+                foreach (var p in Planes.trackables)
+                {
+                    if (p.alignment != PlaneAlignment.HorizontalUp || Area(p) < 0.2f) continue;
+                    float y = p.transform.position.y;
+                    if (best == null || y < best) best = y;
+                }
+                return best;
+            }
+        }
+
+        // Lowest hit under a screen point, and whether it is on the floor.
+        public bool Hit(Vector2 screen, out Vector3 point, out bool onFloor)
+        {
+            point = default; onFloor = false;
+            hitBuffer.Clear();
+            if (!Raycasts.Raycast(screen, hitBuffer, TrackableType.PlaneWithinPolygon | TrackableType.PlaneEstimated | TrackableType.FeaturePoint)) return false;
+            point = hitBuffer[0].pose.position;
+            foreach (var h in hitBuffer) if (h.pose.position.y < point.y) point = h.pose.position;
+            var floor = FloorY;
+            onFloor = floor == null ? true : Mathf.Abs(point.y - floor.Value) < FloorScan.FloorTolerance;
+            if (floor != null && onFloor) point.y = floor.Value; // sit exactly on the plane
+            return true;
+        }
+
+        // Show a ring under the screen centre while the player lines things up.
+        public void BeginAligning()
+        {
+            Planes.enabled = true;
+            if (ring == null)
+            {
+                ring = new GameObject("Floor Ring");
+                var disc = Models.Disc(ring.transform, 0.12f, Color.white);
+                ringRenderer = disc.GetComponent<Renderer>();
+            }
+            ring.SetActive(true);
+        }
+
+        public void EndAligning() { if (ring) ring.SetActive(false); }
+
+        // Updates the ring; returns the centre floor hit when there is one.
+        public bool UpdateRing(out Vector3 point, out bool onFloor)
+        {
+            bool ok = Hit(new Vector2(Screen.width / 2f, Screen.height / 2f), out point, out onFloor);
+            if (ring)
+            {
+                ring.SetActive(ok && Tracking);
+                ring.transform.position = point + Vector3.up * 0.005f;
+                ringRenderer.sharedMaterial = Mats.Transparent(onFloor ? new Color(0.5f, 0.97f, 1f, 0.8f) : new Color(1f, 0.35f, 0.3f, 0.8f));
+            }
+            return ok;
+        }
+
+        // Pin `worldRoot` to the room: an AR anchor at the rift spot, turned so
+        // +z points at the second tap. ARCore/ARKit keep the anchor on the real
+        // spot as their map improves, so nothing slides with the phone.
+        public void AnchorWorld(Transform worldRoot, Vector3 riftSpot, Vector3 facingSpot, float scale)
+        {
+            if (anchorGo) Destroy(anchorGo);
+            var dir = facingSpot - riftSpot;
+            float yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+            anchorGo = new GameObject("Rift Anchor");
+            anchorGo.transform.SetPositionAndRotation(riftSpot, Quaternion.Euler(0, yaw, 0));
+            anchorGo.AddComponent<ARAnchor>();
+            Attach(worldRoot, scale);
+        }
+
+        // For worlds in an ARKit map frame: the world origin is the session origin.
+        public void AnchorAtOrigin(Transform worldRoot, float scale)
+        {
+            if (anchorGo) Destroy(anchorGo);
+            anchorGo = new GameObject("Map Origin");
+            Attach(worldRoot, scale);
+        }
+
+        public void Attach(Transform worldRoot, float scale)
+        {
+            worldRoot.SetParent(anchorGo.transform, false);
+            worldRoot.localPosition = new Vector3(0, FloorOffset, 0);
+            worldRoot.localRotation = Quaternion.identity;
+            worldRoot.localScale = Vector3.one * scale;
+        }
+
+        // Player correction when the phone misreads the floor height (Floor ▲/▼).
+        public float FloorOffset
+        {
+            get => PlayerPrefs.GetFloat("realmgate.floorOffset", 0f);
+            set { PlayerPrefs.SetFloat("realmgate.floorOffset", Mathf.Clamp(value, -1f, 1f)); PlayerPrefs.Save(); }
+        }
 
         // Floor hit under a screen point (used to place the hearth).
         public bool FloorHit(Vector2 screen, out Vector3 point)

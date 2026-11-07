@@ -1,4 +1,5 @@
-// Renders server snapshots: players, enemies, NPCs, pickups, loot, attack
+// Renders server snapshots in game coordinates, local to this object's
+// transform (the world root: anchored and scaled down in AR, identity on the map): players, enemies, NPCs, pickups, loot, attack
 // telegraphs and nameplates, with smoothing between snapshots. Taps are
 // resolved to entities here.
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace Realmgate
             if (SelfId != null && entities.TryGetValue(SelfId, out var e)) e.facing = yaw;
         }
 
-        public Vector3 PositionOf(string id) => entities.TryGetValue(id, out var e) ? e.go.transform.position : Vector3.zero;
+        public Vector3 PositionOf(string id) => entities.TryGetValue(id, out var e) ? e.go.transform.localPosition : Vector3.zero;
 
         public void Apply(Snapshot s)
         {
@@ -101,7 +102,7 @@ namespace Realmgate
             {
                 var go = build();
                 go.transform.SetParent(transform, false);
-                go.transform.position = new Vector3(x, FloorAt(x, z), z);
+                go.transform.localPosition = new Vector3(x, FloorAt(x, z), z);
                 // One generous collider per entity for tapping on a phone.
                 var col = go.AddComponent<CapsuleCollider>();
                 col.center = new Vector3(0, 0.8f / Mathf.Max(0.01f, go.transform.localScale.y), 0);
@@ -163,7 +164,7 @@ namespace Realmgate
                 Models.Disc(e.tele.transform, w.r, new Color(1f, 0.15f, 0.1f, 0.25f));
                 e.teleFill = Models.Disc(e.tele.transform, w.r, new Color(1f, 0.2f, 0.1f, 0.45f)).transform;
             }
-            e.tele.transform.position = new Vector3(w.x, FloorAt(w.x, w.z), w.z);
+            e.tele.transform.localPosition = new Vector3(w.x, FloorAt(w.x, w.z), w.z);
             e.teleLeft = w.left;
             e.teleDur = Mathf.Max(0.1f, w.dur);
         }
@@ -178,16 +179,16 @@ namespace Realmgate
                 {
                     var sp = SelfPos.Value;
                     e.target = new Vector3(sp.x, FloorAt(sp.x, sp.z), sp.z);
-                    t.position = e.target;
+                    t.localPosition = e.target;
                 }
-                else t.position = Vector3.Lerp(t.position, e.target, Mathf.Min(1, dt * 10));
+                else t.localPosition = Vector3.Lerp(t.localPosition, e.target, Mathf.Min(1, dt * 10));
                 if (e.kind == "player" || e.kind == "enemy")
-                    t.rotation = Quaternion.Slerp(t.rotation, Quaternion.Euler(0, e.facing * Mathf.Rad2Deg, 0), Mathf.Min(1, dt * 12));
-                if (e.kind == "player" && !e.alive) t.rotation = Quaternion.Euler(-90, t.eulerAngles.y, 0);
+                    t.localRotation = Quaternion.Slerp(t.localRotation, Quaternion.Euler(0, e.facing * Mathf.Rad2Deg, 0), Mathf.Min(1, dt * 12));
+                if (e.kind == "player" && !e.alive) t.localRotation = Quaternion.Euler(-90, t.localEulerAngles.y, 0);
                 if (e.dyingFor >= 0)
                 {
                     e.dyingFor += dt;
-                    t.position = new Vector3(t.position.x, e.target.y - Mathf.Min(1.5f, e.dyingFor * 0.4f), t.position.z);
+                    t.localPosition = new Vector3(t.localPosition.x, e.target.y - Mathf.Min(1.5f, e.dyingFor * 0.4f), t.localPosition.z);
                 }
                 if (e.tele)
                 {
@@ -198,7 +199,7 @@ namespace Realmgate
                 if (e.plate)
                 {
                     float h = e.kind == "enemy" ? 1.6f * t.localScale.y + 0.25f : e.kind == "npc" ? 1.9f : 1.95f;
-                    e.plate.position = t.position + Vector3.up * h;
+                    e.plate.localPosition = t.localPosition + Vector3.up * h;
                     if (cam) e.plate.rotation = Quaternion.LookRotation(e.plate.position - cam.transform.position);
                     e.plate.gameObject.SetActive(e.go.activeSelf);
                 }
@@ -206,7 +207,7 @@ namespace Realmgate
             if (TargetId != null && entities.TryGetValue(TargetId, out var tgt))
             {
                 selection.SetActive(true);
-                selection.transform.position = new Vector3(tgt.go.transform.position.x, tgt.target.y + 0.012f, tgt.go.transform.position.z);
+                selection.transform.localPosition = new Vector3(tgt.go.transform.localPosition.x, tgt.target.y + 0.012f, tgt.go.transform.localPosition.z);
                 var c = tgt.kind == "enemy" ? new Color(1f, 0.3f, 0.25f, 0.6f) : new Color(0.3f, 1f, 0.45f, 0.6f);
                 selection.GetComponent<Renderer>().sharedMaterial = Mats.Transparent(c);
             }

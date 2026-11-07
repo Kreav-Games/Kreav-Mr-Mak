@@ -1,5 +1,6 @@
 // Realmgate > Set Up Project: creates the shared materials, the boot scene and
-// the iOS player settings, and turns on ARKit in XR Plug-in Management.
+// the Android and iOS player settings, and turns on ARCore and ARKit in XR
+// Plug-in Management.
 // Run once after opening the project, and again after upgrading Unity.
 using System.IO;
 using UnityEditor;
@@ -24,7 +25,7 @@ namespace Realmgate.EditorTools
             Player();
             Xr();
             AssetDatabase.SaveAssets();
-            Debug.Log("Realmgate: project set up. Switch the build target to iOS and build (File > Build Profiles).");
+            Debug.Log("Realmgate: project set up. Switch the build target to Android (or iOS) and build (File > Build Profiles).");
         }
 
         static void Materials()
@@ -62,12 +63,21 @@ namespace Realmgate.EditorTools
             PlayerSettings.productName = "Realmgate";
             PlayerSettings.companyName = "Kreav Games";
             PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.iOS, "com.kreavgames.realmgate");
+            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android, "com.kreavgames.realmgate");
             PlayerSettings.iOS.targetOSVersionString = "17.0"; // RoomPlan with a custom ARSession
             PlayerSettings.iOS.cameraUsageDescription = "Realmgate uses the camera to scan your rooms and show the realm in them.";
             PlayerSettings.iOS.requiresPersistentWiFi = false;
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
+            // Android: ARCore needs Android 7.0 (API 24)+, 64-bit ARM, and OpenGL ES 3
+            // (the most widely supported graphics API for ARCore in Unity).
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+            PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3 });
+            PlayerSettings.Android.forceInternetPermission = true; // the game server
             // ws:// to a dev server on the LAN; use wss:// in production.
             PlayerSettings.insecureHttpOption = InsecureHttpOption.AlwaysAllowed;
         }
@@ -79,13 +89,19 @@ namespace Realmgate.EditorTools
                 Debug.LogWarning("Realmgate: open Project Settings > XR Plug-in Management once, then run Realmgate > Set Up Project again to enable ARKit.");
                 return;
             }
-            var general = perTarget.SettingsForBuildTarget(BuildTargetGroup.iOS);
+            Assign(perTarget, BuildTargetGroup.iOS, "UnityEngine.XR.ARKit.ARKitLoader", "iOS", "ARKit");
+            Assign(perTarget, BuildTargetGroup.Android, "UnityEngine.XR.ARCore.ARCoreLoader", "Android", "Google ARCore");
+        }
+
+        static void Assign(XRGeneralSettingsPerBuildTarget perTarget, BuildTargetGroup group, string loader, string tab, string name)
+        {
+            var general = perTarget.SettingsForBuildTarget(group);
             if (general == null || general.Manager == null)
             {
-                Debug.LogWarning("Realmgate: in Project Settings > XR Plug-in Management, open the iOS tab and tick ARKit.");
+                Debug.LogWarning($"Realmgate: in Project Settings > XR Plug-in Management, open the {tab} tab and tick {name}.");
                 return;
             }
-            XRPackageMetadataStore.AssignLoader(general.Manager, "UnityEngine.XR.ARKit.ARKitLoader", BuildTargetGroup.iOS);
+            XRPackageMetadataStore.AssignLoader(general.Manager, loader, group);
             general.InitManagerOnStart = true;
         }
     }

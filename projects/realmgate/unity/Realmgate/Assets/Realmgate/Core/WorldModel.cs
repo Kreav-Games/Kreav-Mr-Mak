@@ -13,6 +13,10 @@ namespace Realmgate.Core
         public int v = 1;
         public string id;
         public string name;
+        // "rift": coordinates relative to the rift spot and the spot it faces
+        // (floor-paint scans, any phone; lined up again with two taps).
+        // "map": coordinates of a saved ARKit world map (LiDAR RoomPlan scans).
+        public string frame = WorldFrame.Rift;
         public Hearth hearth;
         public List<Zone> zones = new List<Zone>();
         public List<Link> links = new List<Link>();
@@ -38,6 +42,12 @@ namespace Realmgate.Core
         public List<Wall> walls = new List<Wall>();
         public List<Opening> openings = new List<Opening>();
         public List<WorldObject> objects = new List<WorldObject>();
+    }
+
+    public static class WorldFrame
+    {
+        public const string Rift = "rift";
+        public const string Map = "map";
     }
 
     public static class ZoneKind

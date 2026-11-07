@@ -141,3 +141,48 @@ public class ScanTests
         Assert.Equal(1f, zone.objects[0].z, 3);
     }
 }
+
+public class FloorScanTests
+{
+    static HashSet<(int, int)> Paint(float x0, float x1, float z0, float z1, Func<float, float, bool> skip = null)
+    {
+        var cells = new HashSet<(int, int)>();
+        for (float x = x0 + FloorScan.Cell / 2; x < x1; x += FloorScan.Cell)
+            for (float z = z0 + FloorScan.Cell / 2; z < z1; z += FloorScan.Cell)
+                if (skip == null || !skip(x, z)) cells.Add(FloorScan.Key(x, z));
+        return cells;
+    }
+
+    [Fact]
+    public void UnpaintedSofaBecomesAnObstacleAndAreasLink()
+    {
+        var room = FloorScan.ZoneFromCells(Paint(-2, 2, -1.6f, 1.4f, (x, z) => x > -1 && x < 1 && z > -1.4f && z < -0.6f), "living", "Living room", ZoneKind.Room);
+        var hall = FloorScan.ZoneFromCells(Paint(2, 5, -0.4f, 0.4f), "hall", "Hallway", ZoneKind.Hall);
+        var world = WorldBuilder.NewWorld("Home");
+        WorldBuilder.AddZone(world, room);
+        WorldBuilder.AddZone(world, hall);
+        Assert.Single(world.links);
+        Assert.False(WorldBuilder.IsWalkable(world, 0, -1f), "sofa");
+        Assert.True(WorldBuilder.IsWalkable(world, 0, 0.5f));
+        Assert.True(WorldBuilder.IsWalkable(world, 3.5f, 0));
+        Assert.Equal(Themes.Gloam, hall.theme);
+    }
+
+    [Fact]
+    public void ForPlayScalesEverythingAndKeepsObstaclesInPlace()
+    {
+        var world = WorldBuilder.NewWorld("Home");
+        WorldBuilder.AddZone(world, FloorScan.ZoneFromCells(Paint(-2, 2, -1.6f, 1.4f, (x, z) => x > -1 && x < 1 && z > -1.4f && z < -0.6f), "living", "Living room", ZoneKind.Room));
+        var play = FloorScan.ForPlay(world);
+        Assert.False(WorldBuilder.IsWalkable(play, 0, -1f / FloorScan.HeroScale));
+        Assert.True(WorldBuilder.IsWalkable(play, 1.9f / FloorScan.HeroScale, 0));
+        Assert.Equal(world.zones[0].objects.Count, play.zones[0].objects.Count);
+        Assert.Equal(WorldFrame.Rift, play.frame);
+    }
+
+    [Fact]
+    public void TooLittlePaintIsRefused()
+    {
+        Assert.Throws<InvalidOperationException>(() => FloorScan.ZoneFromCells(new List<(int, int)> { (0, 0) }, "x", "x", ZoneKind.Room));
+    }
+}
