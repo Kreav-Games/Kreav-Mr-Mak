@@ -1,0 +1,9 @@
+{
+  "name": "Realmgate.Core",
+  "rootNamespace": "Realmgate.Core",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "noEngineReferences": true
+}

@@ -59,8 +59,18 @@ Content is data-driven: new quests, enemies and abilities are mostly entries in
 - iPhone Safari has no WebXR AR, so iPhones get Preview only (see the questions below).
 - The models are placeholder primitives, the sound is synthesized beeps, and there is no music.
 
+## Native app
+
+The Unity iOS client for scanned worlds is in [unity/](unity/README.md). The web
+client in `game/` stays as the quick preview and test bed. Both talk to the
+same server.
+
 ## Design decisions
 
 - **2026-11-07 — Scanned worlds, "Your world, your way":** players scan their rooms,
   hallways and yards, and these become their world. Others can join it. See
   [world-design.md](world-design.md).
+- **2026-11-07 — Native Unity app first, LiDAR devices first, remote guests:** guests
+  join by code and play in a digital twin of the host's home. The server now
+  takes a scanned world per room. Enemies path around furniture, guests collide
+  with it, and nothing attacks on stairs.

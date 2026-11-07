@@ -14,6 +14,7 @@ import {
   abilityDamage, computeStats, enemyLevelScale, makeConsumable, makeItem, questById, rarityById, rollRarity,
   starterEquipment, xpForLevel,
 } from './data.js';
+import { WorldMap } from './world.js';
 
 const dist = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -23,9 +24,11 @@ const RESPAWN_TIME = 6;
 const COMBAT_TIMEOUT = 5;
 
 export class Sim {
-  constructor({ arenaRadius = ARENA_RADIUS, rng = Math.random } = {}) {
+  constructor({ arenaRadius = ARENA_RADIUS, rng = Math.random, world = null } = {}) {
     this.rng = rng;
     this.arenaRadius = arenaRadius;
+    // A scanned world replaces the round arena: zones, furniture and doorways.
+    this.map = world ? new WorldMap(world) : null;
     this.time = 0;
     this.players = new Map();
     this.enemies = new Map();
@@ -38,6 +41,22 @@ export class Sim {
       { id: 'keeper', name: 'Ysolde, Keeper of the Threshold', kind: 'questgiver', x: 0, z: 0 },
       { id: 'vendor', name: 'Bram the Pedlar', kind: 'vendor', x: 0.9, z: 0.5 },
     ];
+    if (this.map) {
+      const h = this.map.hearth;
+      const keeper = this.map.snap(h.x, h.z);
+      const vendor = this.map.snap(h.x + 0.9, h.z + 0.5);
+      Object.assign(this.npcs[0], keeper);
+      Object.assign(this.npcs[1], vendor);
+    }
+  }
+
+  // Where players appear and respawn.
+  homePoint() {
+    if (this.map) {
+      const h = this.map.hearth;
+      return this.map.snap(h.x + 0.3 * (this.rng() - 0.5), h.z + 1.0);
+    }
+    return { x: 0.6 * (this.rng() - 0.5), z: 1.2 };
   }
 
   nextId(prefix) { return `${prefix}${++this.seq}`; }
@@ -54,7 +73,7 @@ export class Sim {
       equipment: save?.equipment || starterEquipment(cls),
       bag: (save?.bag || [makeConsumable('hpPotion'), makeConsumable('hpPotion')]).slice(0, BAG_SIZE),
       quests: save?.quests || {}, // id -> { state: 'active'|'done'|'complete', progress: [] }
-      x: 0.6 * (this.rng() - 0.5), z: 1.2, facing: Math.PI,
+      ...this.homePoint(), facing: Math.PI, mode: hello.mode === 'twin' ? 'twin' : 'ar',
       target: null, cds: {}, buffs: [], alive: true, respawnAt: 0, lastCombat: -99, gcd: 0,
       privateVersion: 1, sentVersion: 0,
     };
@@ -135,9 +154,19 @@ export class Sim {
       nx = p.x + msg.dx * k * step; nz = p.z + msg.dz * k * step;
       p.facing = Math.atan2(msg.dx, msg.dz);
     } else return;
-    const r = Math.hypot(nx, nz);
-    const lim = this.arenaRadius + 1.5; // players may stand a little past the edge
-    if (r > lim) { nx = (nx / r) * lim; nz = (nz / r) * lim; }
+    if (this.map) {
+      // Remote guests walk the digital twin, so walls and furniture stop them.
+      // An AR player's body is the truth: scans are imperfect, never block it.
+      if (p.mode === 'twin' && !this.map.walkable(nx, nz) && this.map.walkable(p.x, p.z)) {
+        if (this.map.walkable(nx, p.z)) nz = p.z;
+        else if (this.map.walkable(p.x, nz)) nx = p.x;
+        else return;
+      }
+    } else {
+      const r = Math.hypot(nx, nz);
+      const lim = this.arenaRadius + 1.5; // players may stand a little past the edge
+      if (r > lim) { nx = (nx / r) * lim; nz = (nz / r) * lim; }
+    }
     p.x = nx; p.z = nz; p.lastMoveAt = this.time;
     this.autoPickup(p);
   }
@@ -496,7 +525,8 @@ export class Sim {
     return { want, pick, level };
   }
 
-  spawnPoint(minFromPlayers = 1.6) {
+  spawnPoint(minFromPlayers = 1.6, opts = {}) {
+    if (this.map) return this.worldSpawnPoint(minFromPlayers, opts);
     for (let tries = 0; tries < 20; tries++) {
       const a = this.rng() * Math.PI * 2;
       const r = this.arenaRadius * (0.45 + this.rng() * 0.55);
@@ -509,9 +539,27 @@ export class Sim {
     return { x: Math.cos(a) * this.arenaRadius, z: Math.sin(a) * this.arenaRadius };
   }
 
+  // Spawn in the zones where players are and the zones next to them, so the
+  // fight comes to the party instead of filling an empty bedroom.
+  worldSpawnPoint(minFromPlayers, { nearFurniture = false } = {}) {
+    const m = this.map;
+    const active = new Set();
+    for (const p of this.players.values()) {
+      const z = m.zoneAt(p.x, p.z);
+      if (!z) continue;
+      active.add(z.id);
+      for (const l of m.links) { if (l.a === z.id) active.add(l.b); if (l.b === z.id) active.add(l.a); }
+    }
+    const zones = active.size ? m.zones.filter((z) => active.has(z.id)) : null;
+    const avoid = [...this.players.values()];
+    return m.randomPoint(this.rng, { zones, avoid, minDist: minFromPlayers, nearFurniture })
+      || m.snap(m.hearth.x, m.hearth.z);
+  }
+
   spawnEnemy(type, level, at) {
     const def = ENEMIES[type];
     const pt = at || this.spawnPoint();
+    if (this.map && !at) level += this.map.zoneLevel(this.map.zoneAt(pt.x, pt.z));
     const id = this.nextId('e');
     const partySize = Math.max(1, this.players.size);
     const hpMul = enemyLevelScale(level) * (def.elite || def.boss ? 1 + (partySize - 1) * 0.7 : 1);
@@ -547,7 +595,7 @@ export class Sim {
     for (const k of this.pickups.values()) have[k.type] = (have[k.type] || 0) + 1;
     for (const [type, n] of Object.entries(pick)) {
       if ((have[type] || 0) < n) {
-        const pt = this.spawnPoint(1.0);
+        const pt = this.spawnPoint(1.0, { nearFurniture: true });
         const id = this.nextId('k');
         this.pickups.set(id, { id, type, name: PICKUPS[type].name, x: pt.x, z: pt.z });
       }
@@ -614,14 +662,19 @@ export class Sim {
         const slow = e.buffs.find((b) => b.id === 'slow');
         const sp = def.speed * (slow ? slow.mul : 1) * dt;
         const step = Math.min(sp, d - reach * 0.8);
-        e.x += ((target.x - e.x) / d) * step;
-        e.z += ((target.z - e.z) / d) * step;
+        if (this.map) this.walkToward(e, target, step);
+        else {
+          e.x += ((target.x - e.x) / d) * step;
+          e.z += ((target.z - e.z) / d) * step;
+        }
       }
       if (d <= reach && this.time >= e.attackAt) {
         // Telegraph: melee lands on the enemy's front, ranged on the player.
         const tx = def.ranged ? target.x : e.x + Math.sin(e.facing) * (def.range * 0.6);
         const tz = def.ranged ? target.z : e.z + Math.cos(e.facing) * (def.range * 0.6);
-        const r = def.aoe * (def.boss ? 1 : 1);
+        const r = def.aoe;
+        // Safety: never ask anyone to dodge on stairs, by the bath or the stove.
+        if (this.map && (this.map.isHazard(tx, tz) || this.map.isHazard(target.x, target.z))) { e.attackAt = this.time + 0.5; continue; }
         e.windup = { x: tx, z: tz, r, at: this.time + def.windup, dur: def.windup };
         this.emit({ type: 'telegraph', id: e.id, x: tx, z: tz, r, dur: def.windup });
       }
@@ -632,11 +685,35 @@ export class Sim {
         const min = e.radius + o.radius;
         if (dd > 0.001 && dd < min) {
           const push = (min - dd) * 0.5;
-          e.x += ((e.x - o.x) / dd) * push;
-          e.z += ((e.z - o.z) / dd) * push;
+          const nx = e.x + ((e.x - o.x) / dd) * push;
+          const nz = e.z + ((e.z - o.z) / dd) * push;
+          if (!this.map || this.map.walkable(nx, nz)) { e.x = nx; e.z = nz; }
         }
       }
     }
+  }
+
+  // Move an enemy toward a target around furniture: straight when the line is
+  // clear, otherwise along an A* path that is refreshed twice a second.
+  walkToward(e, target, step) {
+    const m = this.map;
+    let goal = target;
+    if (!m.clearLine(e, target)) {
+      if (!e.path || this.time >= e.pathAt || e.pathFor !== target.id) {
+        e.path = m.path(e, target) || [];
+        e.pathAt = this.time + 0.5;
+        e.pathFor = target.id;
+      }
+      while (e.path.length && Math.hypot(e.path[0].x - e.x, e.path[0].z - e.z) < 0.12) e.path.shift();
+      if (e.path.length) goal = e.path[0];
+    } else e.path = null;
+    const d = Math.hypot(goal.x - e.x, goal.z - e.z);
+    if (d < 1e-4) return;
+    const k = Math.min(step, d) / d;
+    const nx = e.x + (goal.x - e.x) * k;
+    const nz = e.z + (goal.z - e.z) * k;
+    if (m.walkable(nx, nz) || !m.walkable(e.x, e.z)) { e.x = nx; e.z = nz; }
+    if (goal !== target) e.facing = Math.atan2(goal.x - e.x, goal.z - e.z);
   }
 
   updatePlayers(dt) {
@@ -645,7 +722,7 @@ export class Sim {
         if (this.time >= p.respawnAt) {
           p.alive = true;
           p.hp = Math.round(p.maxHp * 0.5);
-          p.x = 0; p.z = 1;
+          if (p.mode === 'twin' || !this.map) Object.assign(p, this.homePoint());
           this.emit({ type: 'respawn', id: p.id });
         }
         continue;

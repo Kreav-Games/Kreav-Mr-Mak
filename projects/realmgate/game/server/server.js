@@ -8,11 +8,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
 import { Sim } from '../shared/sim.js';
-import { TICK_RATE } from '../shared/data.js';
+import { ABILITIES, CLASSES, ENEMIES, QUESTS, TICK_RATE, VENDOR } from '../shared/data.js';
+import { sanitizeWorld } from '../shared/world.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'dist');
 const PORT = Number(process.env.PORT || 8787);
 const MAX_PER_ROOM = 6;
+// Game definitions for native clients, so they don't duplicate data.js.
+const DEFS = { classes: CLASSES, abilities: ABILITIES, enemies: ENEMIES, quests: QUESTS, vendor: VENDOR };
 const SNAPSHOT_EVERY = 2; // ticks: 10 snapshots per second
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
@@ -43,16 +46,17 @@ function makeCode() {
   return c;
 }
 
-function getRoom(code, create, arenaRadius) {
+function getRoom(code, create, arenaRadius, world) {
   if (code && rooms.has(code)) return rooms.get(code);
   if (!create) return null;
   const r = Math.min(6, Math.max(1, Number(arenaRadius) || 3));
-  const room = { code: code || makeCode(), sim: new Sim({ arenaRadius: r }), clients: new Map(), tick: 0 };
+  // A host who scanned their home brings it as the room's world.
+  const room = { code: code || makeCode(), sim: new Sim({ arenaRadius: r, world: sanitizeWorld(world) }), clients: new Map(), tick: 0 };
   rooms.set(room.code, room);
   return room;
 }
 
-const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 64 * 1024 });
+const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 2 * 1024 * 1024 });
 
 wss.on('connection', (ws) => {
   const id = `p${++clientSeq}`;
@@ -63,12 +67,12 @@ wss.on('connection', (ws) => {
     if (msg.t === 'hello') {
       if (room) return;
       const code = String(msg.room || '').toUpperCase().slice(0, 4);
-      room = getRoom(code || null, !code || msg.create, msg.arena);
+      room = getRoom(code || null, !code || msg.create, msg.arena, msg.world);
       if (!room) { ws.send(JSON.stringify({ t: 'error', text: `Room ${code} not found` })); return; }
       if (room.clients.size >= MAX_PER_ROOM) { ws.send(JSON.stringify({ t: 'error', text: 'Room is full' })); room = null; return; }
       room.clients.set(id, ws);
       room.sim.join(id, msg);
-      ws.send(JSON.stringify({ t: 'welcome', id, room: room.code }));
+      ws.send(JSON.stringify({ t: 'welcome', id, room: room.code, world: room.sim.map ? room.sim.map.describe() : null, defs: msg.defs ? DEFS : undefined }));
       return;
     }
     if (!room) return;

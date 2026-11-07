@@ -1,0 +1,20 @@
+{
+  "name": "Realmgate.Runtime",
+  "rootNamespace": "Realmgate",
+  "references": [
+    "Realmgate.Core",
+    "Unity.XR.ARFoundation",
+    "Unity.XR.ARSubsystems",
+    "Unity.XR.ARKit",
+    "Unity.XR.CoreUtils",
+    "Unity.InputSystem",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": ["Newtonsoft.Json.dll"],
+  "autoReferenced": true,
+  "noEngineReferences": false
+}

@@ -79,7 +79,7 @@ client would render and send the same messages.
    - The world is saved on the device and realigned by placing the rift on a
      remembered spot.
    - This proves multi-room play cheaply.
-2. **Native client.** Room meshes, persistent relocalization, occlusion and
+2. **Native client** *(started: `unity/`)*. Room meshes, persistent relocalization, occlusion and
    navmesh from the scan, plus zone themes from room and object types.
 3. **Hosted worlds.** World storage, invites, co-located joining with shared maps,
    and remote twin mode.

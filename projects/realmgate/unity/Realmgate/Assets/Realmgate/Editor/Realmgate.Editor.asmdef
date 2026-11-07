@@ -1,0 +1,14 @@
+{
+  "name": "Realmgate.Editor",
+  "rootNamespace": "Realmgate.EditorTools",
+  "references": [
+    "Realmgate.Runtime",
+    "Unity.XR.Management",
+    "Unity.XR.Management.Editor",
+    "Unity.XR.ARKit"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "noEngineReferences": false
+}

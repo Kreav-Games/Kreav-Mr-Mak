@@ -1,0 +1,13 @@
+# Unity
+Realmgate/[Ll]ibrary/
+Realmgate/[Tt]emp/
+Realmgate/[Oo]bj/
+Realmgate/[Bb]uild/
+Realmgate/[Bb]uilds/
+Realmgate/[Ll]ogs/
+Realmgate/[Uu]ser[Ss]ettings/
+Realmgate/*.csproj
+Realmgate/*.sln
+# dotnet tests
+CoreTests/bin/
+CoreTests/obj/
