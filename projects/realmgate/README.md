@@ -28,6 +28,13 @@ To play with friends, one player picks **Create room** and shares the 4-letter c
 The others pick **Join room**, or open `…/?room=CODE`. In one physical room,
 everyone places the rift on the same spot, facing the same way.
 
+### Play on your phone (hosted)
+
+**https://kreav-games.github.io/Kreav-Mr-Mak/** is solo play, home scanning and seated
+AR in Chrome on Android. It is served from the `gh-pages` branch, which holds the
+output of `NO_SSL=1 npx vite build --mode pages` in `game/`. Republish by pushing a
+new build to that branch. Multiplayer needs the game server, which is not hosted yet.
+
 ### Your home on an Android phone (works today, no engine needed)
 
 1. On your PC (with Node.js 20 or later), run `npm install` and then `npm run dev` in
