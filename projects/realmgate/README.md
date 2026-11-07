@@ -59,6 +59,8 @@ Content is data-driven: new quests, enemies and abilities are mostly entries in
 - iPhone Safari has no WebXR AR, so iPhones get Preview only (see the questions below).
 - The models are placeholder primitives, the sound is synthesized beeps, and there is no music.
 
-## Design questions for the owner
+## Design decisions
 
-See the conversation for the current list. Answers are recorded here as decisions.
+- **2026-11-07 — Scanned worlds, "Your world, your way":** players scan their rooms,
+  hallways and yards, and these become their world. Others can join it. See
+  [world-design.md](world-design.md).
