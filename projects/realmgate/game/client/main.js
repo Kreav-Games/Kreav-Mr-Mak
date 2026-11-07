@@ -48,7 +48,12 @@ function initLobby() {
   };
   tabs('#partyMode', (b) => { lobby.party = b.dataset.mode; $('#roomCode').classList.toggle('hidden', lobby.party !== 'join'); });
   tabs('#arenaSize', (b) => { lobby.arena = Number(b.dataset.r); });
+  // Static hosting (GitHub Pages) has no game server: solo only, unless ?server= is given.
   const params = new URLSearchParams(location.search);
+  if (location.hostname.endsWith('github.io') && !params.get('server')) {
+    for (const b of $('#partyMode').querySelectorAll('[data-mode="create"], [data-mode="join"]')) b.disabled = true;
+    $('#partyMode').insertAdjacentHTML('afterend', '<p class="note">Multiplayer needs the game server, which isn\'t online yet. Solo works fully here.</p>');
+  }
   if (params.get('room')) {
     lobby.party = 'join';
     $('#roomCode').value = params.get('room').toUpperCase();
