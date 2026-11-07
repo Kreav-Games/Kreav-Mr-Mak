@@ -68,13 +68,23 @@ export class Scanner {
     document.querySelector('#lobby').classList.add('hidden');
 
     this.ar = new ARController(this.renderer, this.scene, this.world, document.querySelector('#overlay'));
+    this.ar.onNotFloor = () => this.flash('That is the top of furniture. Aim the ring at the floor: it turns blue when it is on the floor.');
     this.ar.onFirstTap = () => { this.status('Now tap the spot the rift faces — for example the TV or a doorway.'); sfx('loot'); };
     this.ar.onPlaced = () => { this.placedAt = performance.now(); this.status(null); sfx('portal'); };
     this.ar.onEnd = () => this.exit();
     await this.ar.start({ placement: 'twoTap', keepReticle: true, scanning: true });
-    this.status('Tap a spot on the floor you will remember (a rug corner, a table leg). That is where the rift opens.');
+    this.status('Aim the ring at the floor (it turns blue on the floor, red on furniture) and tap a spot you will remember, like a rug corner. That is where the rift opens.');
     this.renderer.setAnimationLoop((t, frame) => this.frame(frame));
     this.refreshKind();
+  }
+
+  flash(text) {
+    const el = this.ui.querySelector('.scan-status');
+    const before = el.innerHTML;
+    el.innerHTML = text;
+    el.classList.add('warn');
+    clearTimeout(this.flashT);
+    this.flashT = setTimeout(() => { el.classList.remove('warn'); el.innerHTML = before; this.render(); }, 2500);
   }
 
   status(text) {

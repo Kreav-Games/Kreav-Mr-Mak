@@ -92,3 +92,27 @@ export function buildWorld(zones, name = 'My home') {
     links: linkZones(zones),
   };
 }
+
+// Heroes are action-figure sized in your real room: a scan in real metres is
+// played in "game metres" scaled up by 1 / HERO_SCALE, and AR shows the game
+// world scaled down by HERO_SCALE. A 5 x 4 m living room becomes a 12.5 x 10 m
+// battlefield and a 1.7 m hero stands about 68 cm tall on your rug.
+export const HERO_SCALE = 0.4;
+
+export function scaleWorld(w, f) {
+  const p2 = ([x, z]) => [x * f, z * f];
+  return {
+    ...w,
+    hearth: w.hearth && { ...w.hearth, x: w.hearth.x * f, z: w.hearth.z * f },
+    zones: w.zones.map((z) => ({
+      ...z,
+      floorY: (z.floorY || 0) * f,
+      floor: z.floor.map(p2),
+      walls: (z.walls || []).map((k) => ({ ...k, a: p2(k.a), b: p2(k.b), h: k.h * f, t: k.t * f })),
+      openings: (z.openings || []).map((o) => ({ ...o, x: o.x * f, y: o.y * f, z: o.z * f, w: o.w * f, h: o.h * f })),
+      objects: (z.objects || []).map((o) => ({ ...o, x: o.x * f, y: o.y * f, z: o.z * f, w: o.w * f, h: o.h * f, d: o.d * f })),
+      cells: undefined,
+    })),
+    links: (w.links || []).map((l) => ({ ...l, x: l.x * f, z: l.z * f, w: l.w * f })),
+  };
+}

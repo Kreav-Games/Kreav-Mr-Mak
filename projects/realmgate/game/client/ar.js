@@ -51,7 +51,8 @@ export class ARController {
     // once instead of only the spot under the screen centre.
     this.scanSources = [];
     this.scanHits = [];
-    if (scanning && typeof XRRay !== 'undefined') {
+    this.floorYs = [];
+    if ((scanning || placement === 'twoTap') && typeof XRRay !== 'undefined') {
       for (const dx of [-0.45, -0.22, 0, 0.22, 0.45]) {
         for (const dy of [-0.15, -0.4, -0.7]) {
           try {
@@ -74,6 +75,7 @@ export class ARController {
   select(controller) {
     if (!this.placed) {
       if (!this.reticle.visible) return;
+      if (!this.onFloor) { this.onNotFloor?.(); return; }
       if (this.placement === 'twoTap') {
         const p = new THREE.Vector3().setFromMatrixPosition(this.reticle.matrix);
         if (!this.firstTap) {
@@ -136,28 +138,52 @@ export class ARController {
   update(frame) {
     if (!frame || !this.hitSource) return;
     const ref = this.renderer.xr.getReferenceSpace();
-    const hits = frame.getHitTestResults(this.hitSource);
-    if (hits.length) {
-      const pose = hits[0].getPose(ref);
-      this.reticle.visible = true;
-      // Keep the ring level with gravity: a hit's own orientation can be
-      // tilted on half-measured or uneven floors. Only its position is used.
-      const t = pose.transform.position;
-      this.reticle.matrix.makeRotationX(-Math.PI / 2).setPosition(t.x, t.y, t.z);
+    // Every ray's lowest hit feeds the floor estimate: the floor is the lowest
+    // large flat surface the phone sees, never a table or TV-stand top.
+    const lowest = (src) => {
+      let best = null;
+      for (const h of frame.getHitTestResults(src)) {
+        const t = h.getPose(ref)?.transform.position;
+        if (t && (!best || t.y < best.y)) best = t;
+      }
+      return best;
+    };
+    this.scanHits.length = 0;
+    for (const src of this.scanSources) {
+      const t = lowest(src);
+      if (!t) continue;
+      this.noteFloorY(t.y);
+      this.scanHits.push(new THREE.Vector3(t.x, t.y, t.z));
       if (this.placed) this.sampleFloor(t.y);
+    }
+    const t = lowest(this.hitSource);
+    if (t) {
+      this.noteFloorY(t.y);
+      const floor = this.floorEstimate();
+      this.onFloor = floor === null || Math.abs(t.y - floor) < 0.12;
+      this.reticle.visible = true;
+      // Keep the ring level with gravity; only the hit's position is used.
+      this.reticle.matrix.makeRotationX(-Math.PI / 2).setPosition(t.x, t.y, t.z);
+      this.reticle.material.color.set(this.onFloor ? '#7ef9ff' : '#ff5a4a');
+      this.reticleInner.material.color.set(this.onFloor ? '#7ef9ff' : '#ff5a4a');
+      if (this.placed && this.onFloor) this.sampleFloor(t.y);
     } else this.reticle.visible = false;
     // after placement the ring is only shown while scanning
     if (this.placed && !this.keepReticle) this.reticle.visible = false;
-    this.scanHits.length = 0;
-    for (const src of this.scanSources) {
-      const h = frame.getHitTestResults(src)[0];
-      const pose = h?.getPose(ref);
-      if (pose) {
-        this.scanHits.push(new THREE.Vector3(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z));
-        this.sampleFloor(pose.transform.position.y);
-      }
-    }
     this.levelFloor();
+  }
+
+  noteFloorY(y) {
+    this.floorYs.push(y);
+    if (this.floorYs.length > 400) this.floorYs.shift();
+  }
+
+  // Low percentile of recent hit heights: robust to the odd stray hit below the floor.
+  floorEstimate() {
+    const ys = this.floorYs;
+    if (ys.length < 15) return null;
+    const sorted = [...ys].sort((a, b) => a - b);
+    return sorted[Math.floor(sorted.length * 0.15)];
   }
 
   // ARCore refines its floor height as you move; the first tap can be several

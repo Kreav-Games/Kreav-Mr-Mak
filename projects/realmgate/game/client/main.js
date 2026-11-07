@@ -9,6 +9,7 @@ import { Hud } from './hud.js';
 import { ARController, arSupported } from './ar.js';
 import { sfx } from './sfx.js';
 import { Scanner, loadHome } from './scan.js';
+import { HERO_SCALE, scaleWorld } from '../shared/floorscan.js';
 import { WorldMap } from '../shared/world.js';
 
 const $ = (s) => document.querySelector(s);
@@ -88,7 +89,9 @@ function renderHome() {
 }
 
 async function start(mode) {
-  const homeWorld = lobby.useHome && lobby.party !== 'join' ? loadHome() : null;
+  const saved = lobby.useHome && lobby.party !== 'join' ? loadHome() : null;
+  // The scan is in real metres; the game plays it in hero-sized metres.
+  const homeWorld = saved ? scaleWorld(saved, 1 / HERO_SCALE) : null;
   if (mode === 'ar' && homeWorld) mode = 'home';
   const name = $('#name').value.trim() || 'Adventurer';
   localStorage.setItem('realmgate.name', name);
@@ -191,7 +194,9 @@ class Game {
       this.ar.onPlaced = () => { $('#placeHint').classList.add('hidden'); sfx('portal'); };
       this.ar.onFirstTap = () => { $('#placeHint').textContent = 'Now tap the spot the rift faces, the same one you chose when scanning.'; };
       this.ar.onEnd = () => this.leave();
-      await this.ar.start({ scale: this.mode === 'table' ? TABLE_SCALE : 1, placement: this.mode === 'home' ? 'twoTap' : 'auto' });
+      const scale = this.mode === 'table' ? TABLE_SCALE : this.mode === 'home' ? HERO_SCALE : 1;
+      await this.ar.start({ scale, placement: this.mode === 'home' ? 'twoTap' : 'auto' });
+      this.ar.onNotFloor = () => this.hud.toast('That is the top of furniture. Aim the ring at the floor (blue = floor).', true);
       if (this.mode === 'home') $('#placeHint').textContent = 'Sit somewhere comfy. Tap the rift spot you chose when scanning.';
       $('#placeHint').classList.remove('hidden');
       this.world.hideSelf = this.mode === 'ar';

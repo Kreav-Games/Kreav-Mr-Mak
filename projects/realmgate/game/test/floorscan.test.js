@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CELL, cellKey, zoneFromCells, buildWorld } from '../shared/floorscan.js';
+import { CELL, HERO_SCALE, cellKey, zoneFromCells, buildWorld, scaleWorld } from '../shared/floorscan.js';
 import { WorldMap, sanitizeWorld } from '../shared/world.js';
 import { Sim } from '../shared/sim.js';
 
@@ -32,4 +32,13 @@ test('a world from a scan runs in the simulation with seated avatars', () => {
   assert.equal(p.mode, 'avatar');
   assert.ok(sim.map.walkable(p.x, p.z));
   assert.throws(() => zoneFromCells(new Set(['0,0']), { id: 'x', name: 'x' }));
+});
+
+test('hero scale: the scanned room plays 2.5x larger and keeps furniture in place', () => {
+  const room = zoneFromCells(paint(-2, 2, -1.6, 1.4, (x, z) => x > -1 && x < 1 && z > -1.4 && z < -0.6), { id: 'living', name: 'Living room' });
+  const big = scaleWorld(buildWorld([room]), 1 / HERO_SCALE);
+  const m = new WorldMap(sanitizeWorld(big));
+  assert.equal(m.walkable(0, -1 / HERO_SCALE), false, 'sofa, scaled');
+  assert.equal(m.walkable(0, 0.5 / HERO_SCALE), true);
+  assert.equal(m.walkable(1.9 / HERO_SCALE, 0), true, 'room edge, scaled');
 });
