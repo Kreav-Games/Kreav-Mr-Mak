@@ -1,6 +1,7 @@
 // HTML HUD: unit frames, action bar, radar, quest tracker, panels (quests,
 // character and bags, vendor, menu), nameplates and floating combat text.
 
+import { sfx } from './sfx.js';
 import {
   ABILITIES, BAG_SIZE, CLASSES, ENEMIES, RESOURCES, SLOTS, SLOT_NAMES, STAT_NAMES, VENDOR, itemScore, questById, rarityById,
 } from '../shared/data.js';
@@ -195,6 +196,23 @@ export class Hud {
     b.classList.remove('hidden');
     clearTimeout(this.bannerT);
     this.bannerT = setTimeout(() => b.classList.add('hidden'), 3500);
+  }
+
+  // A player asks to join your home. Nothing about your layout is sent until you allow it.
+  knock(k) {
+    const el = document.createElement('div');
+    el.className = 'knock';
+    el.innerHTML = `<b>${esc(k.name)}</b> (${esc(CLASSES[k.cls]?.name || 'Adventurer')}) wants to join your home.<br><small>They will see your rooms' layout while you host.</small>
+      <div class="acts"><button data-allow="1" class="primary">Let them in</button><button data-allow="0" class="secondary">No</button></div>`;
+    el.addEventListener('beforexrselect', (e) => e.preventDefault());
+    el.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-allow]');
+      if (!b) return;
+      this.game.send({ t: 'admit', id: k.id, allow: b.dataset.allow === '1' });
+      el.remove();
+    });
+    $('#hud').appendChild(el);
+    sfx('warn');
   }
 
   // ------------------------------------------------------------- panels ---

@@ -91,6 +91,13 @@ async function start(mode) {
   $('#lobbyError').textContent = '';
   const hello = { name, cls: lobby.cls, save: loadSave(lobby.cls), arena: lobby.arena, mode: mode === 'ar' ? 'body' : 'avatar' };
   let transport;
+  if (homeWorld && lobby.party === 'create') {
+    // Private by default: hosting shares the layout only with players you let in.
+    const ok = confirm('Host your home?\n\nPlayers you let in will see the layout of your scanned rooms (shapes only, no camera images). '
+      + 'It is not saved on the server, and sharing stops when you stop hosting. You approve each player before they join.');
+    if (!ok) return;
+    hello.shareConsent = true;
+  }
   if (homeWorld) hello.world = homeWorld;
   if (lobby.party === 'solo') transport = new LocalTransport({ arena: lobby.arena, world: homeWorld });
   else {
@@ -99,6 +106,10 @@ async function start(mode) {
     hello.create = lobby.party === 'create';
     if (lobby.party === 'join' && hello.room.length !== 4) { $('#lobbyError').textContent = 'Enter the 4-letter room code.'; return; }
   }
+  transport.onWaiting = () => {
+    $('#lobbyError').textContent = '';
+    $('#arNote').textContent = 'Waiting for the host to let you in… You will see the layout of their home: it is theirs, so please do not record or share it.';
+  };
   const game = new Game({ mode, name, cls: lobby.cls, transport });
   try {
     await game.start(hello);
@@ -153,7 +164,8 @@ class Game {
 
     this.transport.onSnapshot = (s) => this.onSnapshot(s);
     this.transport.onSave = (save) => this.storeSave(save);
-    this.transport.onClose = () => { this.hud?.banner('Disconnected from the server'); };
+    this.transport.onClose = (text) => { this.hud?.banner(text || 'Disconnected from the server'); };
+    this.transport.onKnock = (k) => this.hud?.knock(k);
     const welcome = await this.transport.connect(hello);
     this.selfId = welcome.id;
     this.roomCode = welcome.room;

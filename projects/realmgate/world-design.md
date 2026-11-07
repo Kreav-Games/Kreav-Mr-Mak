@@ -57,6 +57,20 @@ and LiDAR is an upgrade:
   the rift spot and the spot it faces. Playing in AR later means sitting down
   and tapping the same two spots. Map view needs no alignment at all.
 
+## Privacy: maps are private, sharing is by consent
+
+Decision (owner, 2026-11-07):
+
+- A scanned home stays on the owner's device. The server never writes it to disk.
+- **Hosting is consent.** Before a room opens with your home, you confirm that
+  players you let in will see its layout (shapes only, never camera images).
+- **Joining is by code, then approval.** A player with the code only knocks. The
+  host sees their name and class and taps **Let them in** or **No**. The layout
+  is sent only after that.
+- Sharing stops the moment the host leaves: the room closes for everyone.
+- Guests are told the layout belongs to the host and asked not to record or
+  share it.
+
 ## How others join
 
 | Mode | Guest is | Guest sees |

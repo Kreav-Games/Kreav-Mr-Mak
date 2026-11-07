@@ -140,3 +140,6 @@ input { width: 100%; font: inherit; padding: 10px 12px; border-radius: 8px; bord
 #scanUi .scan-status { position: absolute; top: calc(12px + var(--safe-t)); left: 12px; right: 12px; background: rgba(0, 0, 0, 0.6); padding: 12px; border-radius: 10px; pointer-events: none; }
 #scanUi .scan-buttons { position: absolute; bottom: calc(16px + var(--safe-b)); left: 12px; right: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; pointer-events: auto; }
 #scanUi button { padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; border: 0; }
+#hud > .knock { position: absolute; left: 12px; right: 12px; top: 38%; background: rgba(20, 16, 30, 0.96); border: 2px solid var(--gold); border-radius: 12px; padding: 14px; z-index: 6; }
+.knock .acts { display: flex; gap: 8px; margin-top: 10px; }
+.knock button { flex: 1; padding: 12px; border-radius: 8px; border: 0; font-weight: bold; }

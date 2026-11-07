@@ -38,13 +38,16 @@ export class WsTransport {
       let welcomed = false;
       ws.onopen = () => ws.send(JSON.stringify({ t: 'hello', ...hello }));
       ws.onerror = () => { if (!welcomed) reject(new Error('Could not reach the game server')); };
-      ws.onclose = () => { if (welcomed) this.onClose?.(); };
+      ws.onclose = () => { if (welcomed) this.onClose?.(this.closedText); };
       ws.onmessage = (ev) => {
         const msg = JSON.parse(ev.data);
         if (msg.t === 'welcome') { welcomed = true; this.id = msg.id; resolve(msg); }
         else if (msg.t === 'error' && !welcomed) reject(new Error(msg.text));
         else if (msg.t === 'snap') this.onSnapshot?.(msg.s);
         else if (msg.t === 'save') this.onSave?.(msg.save);
+        else if (msg.t === 'waiting') this.onWaiting?.();
+        else if (msg.t === 'knock') this.onKnock?.(msg);
+        else if (msg.t === 'closed') this.closedText = msg.text;
       };
     });
   }

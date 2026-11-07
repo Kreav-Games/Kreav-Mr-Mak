@@ -50,10 +50,31 @@ function getRoom(code, create, arenaRadius, world) {
   if (code && rooms.has(code)) return rooms.get(code);
   if (!create) return null;
   const r = Math.min(6, Math.max(1, Number(arenaRadius) || 3));
-  // A host who scanned their home brings it as the room's world.
-  const room = { code: code || makeCode(), sim: new Sim({ arenaRadius: r, world: sanitizeWorld(world) }), clients: new Map(), tick: 0 };
+  // A host who scanned their home brings it as the room's world. It lives only
+  // in memory for as long as the host is connected; it is never written to disk.
+  const room = {
+    code: code || makeCode(), sim: new Sim({ arenaRadius: r, world: sanitizeWorld(world) }),
+    clients: new Map(), pending: new Map(), hostId: null, tick: 0,
+  };
   rooms.set(room.code, room);
   return room;
+}
+
+const send = (ws, msg) => { if (ws.readyState === 1) ws.send(JSON.stringify(msg)); };
+
+function admit(room, id, ws, msg) {
+  room.clients.set(id, ws);
+  room.sim.join(id, msg);
+  send(ws, { t: 'welcome', id, room: room.code, host: room.hostId === id, world: room.sim.map ? room.sim.map.describe() : null, defs: msg.defs ? DEFS : undefined });
+}
+
+// Close a room for everyone: its home layout stops being shared at once.
+function closeRoom(room, text) {
+  for (const ws of [...room.clients.values(), ...[...room.pending.values()].map((p) => p.ws)]) {
+    send(ws, { t: 'closed', text });
+    ws.close();
+  }
+  rooms.delete(room.code);
 }
 
 const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 2 * 1024 * 1024 });
@@ -67,23 +88,48 @@ wss.on('connection', (ws) => {
     if (msg.t === 'hello') {
       if (room) return;
       const code = String(msg.room || '').toUpperCase().slice(0, 4);
+      if (msg.world && !msg.shareConsent) { send(ws, { t: 'error', text: 'Hosting a home needs your consent to share its layout.' }); return; }
       room = getRoom(code || null, !code || msg.create, msg.arena, msg.world);
-      if (!room) { ws.send(JSON.stringify({ t: 'error', text: `Room ${code} not found` })); return; }
-      if (room.clients.size >= MAX_PER_ROOM) { ws.send(JSON.stringify({ t: 'error', text: 'Room is full' })); room = null; return; }
-      room.clients.set(id, ws);
-      room.sim.join(id, msg);
-      ws.send(JSON.stringify({ t: 'welcome', id, room: room.code, world: room.sim.map ? room.sim.map.describe() : null, defs: msg.defs ? DEFS : undefined }));
+      if (!room) { send(ws, { t: 'error', text: `Room ${code} not found` }); return; }
+      if (room.clients.size + room.pending.size >= MAX_PER_ROOM) { send(ws, { t: 'error', text: 'Room is full' }); room = null; return; }
+      if (!room.hostId) { room.hostId = id; admit(room, id, ws, msg); return; }
+      if (room.sim.map) {
+        // A private home: the host lets each player in before the layout is sent.
+        room.pending.set(id, { ws, msg });
+        send(ws, { t: 'waiting' });
+        send(room.clients.get(room.hostId), { t: 'knock', id, name: String(msg.name || 'Adventurer').slice(0, 18), cls: msg.cls });
+        setTimeout(() => {
+          if (!room?.pending.has(id)) return;
+          room.pending.delete(id);
+          send(ws, { t: 'error', text: 'The host did not answer.' });
+          ws.close();
+        }, 90_000);
+        return;
+      }
+      admit(room, id, ws, msg);
       return;
     }
-    if (!room) return;
-    if (msg.t === 'save') { ws.send(JSON.stringify({ t: 'save', save: room.sim.saveOf(id) })); return; }
+    if (!room || !room.clients.has(id)) return;
+    if (msg.t === 'admit') {
+      if (id !== room.hostId) return;
+      const p = room.pending.get(String(msg.id));
+      if (!p) return;
+      room.pending.delete(String(msg.id));
+      if (msg.allow) admit(room, String(msg.id), p.ws, p.msg);
+      else { send(p.ws, { t: 'error', text: 'The host said no this time.' }); p.ws.close(); }
+      return;
+    }
+    if (msg.t === 'save') { send(ws, { t: 'save', save: room.sim.saveOf(id) }); return; }
     room.sim.handle(id, msg);
   });
   ws.on('close', () => {
     if (!room) return;
+    room.pending.delete(id);
+    if (!room.clients.has(id)) return;
     room.clients.delete(id);
     room.sim.leave(id);
-    if (!room.clients.size) rooms.delete(room.code);
+    if (id === room.hostId && room.sim.map) closeRoom(room, 'The host closed their world.');
+    else if (!room.clients.size) rooms.delete(room.code);
   });
 });
 
