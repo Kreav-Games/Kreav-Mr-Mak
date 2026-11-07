@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#14111c" />
+  <title>Realmgate AR</title>
+  <script type="module" crossorigin src="./assets/index-UUZABVwp.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DMDtDBL3.css">
+</head>
+<body>
+  <canvas id="view"></canvas>
+
+  <!-- Everything below is the WebXR DOM overlay in AR -->
+  <div id="overlay">
+    <section id="lobby" class="screen">
+      <div class="lobby-card">
+        <h1>Realmgate <span>AR</span></h1>
+        <p class="tag">A rift has opened on your floor. Step through with your friends.</p>
+        <label class="field">Name <input id="name" maxlength="18" placeholder="Adventurer" /></label>
+        <div class="field">Class</div>
+        <div id="classes" class="classes"></div>
+        <div class="field">Party</div>
+        <div class="row tabs" id="partyMode">
+          <button data-mode="solo" class="on">Solo</button>
+          <button data-mode="create">Create room</button>
+          <button data-mode="join">Join room</button>
+        </div>
+        <input id="roomCode" class="hidden" maxlength="4" placeholder="Room code (e.g. K7QD)" />
+        <div class="field">Your home</div>
+        <p id="homeInfo" class="note"></p>
+        <label id="useHomeRow" class="check"><input type="checkbox" id="useHome" /> Play in my scanned home</label>
+        <button id="scanHome" class="secondary wide">Scan my home (AR)</button>
+        <div id="arenaRow">
+        <div class="field">Play area</div>
+        <div class="row tabs" id="arenaSize">
+          <button data-r="1.8">Small 1.8 m</button>
+          <button data-r="3" class="on">Room 3 m</button>
+          <button data-r="4.5">Large 4.5 m</button>
+        </div>
+        </div>
+        <div class="row start">
+          <button id="startAR" class="primary">Play in AR</button>
+          <button id="startTable" class="secondary">AR tabletop</button>
+          <button id="startPreview" class="secondary">Preview (no AR)</button>
+        </div>
+        <p id="arNote" class="note"></p>
+        <p id="lobbyError" class="error"></p>
+      </div>
+    </section>
+
+    <section id="hud" class="hidden">
+      <div id="placeHint" class="hint hidden">Move your phone slowly to find the floor, then tap to open the rift.</div>
+      <div id="playerFrame" class="unitframe"></div>
+      <div id="targetFrame" class="unitframe target hidden"></div>
+      <div id="partyFrames"></div>
+      <canvas id="radar" width="200" height="200"></canvas>
+      <div id="tracker"></div>
+      <div id="floaters"></div>
+      <div id="banner" class="hidden"></div>
+      <div id="toasts"></div>
+      <div id="deathNote" class="hidden">You have fallen. The Keeper will pull you back…</div>
+      <div id="topButtons">
+        <button data-panel="character" title="Character (C)">🎒</button>
+        <button data-panel="quests" title="Quest log (L)">📜</button>
+        <button data-panel="menu" title="Menu">☰</button>
+      </div>
+      <div id="joystick" class="hidden"><div class="knob"></div></div>
+      <div id="bottom">
+        <div id="actionBar"></div>
+        <div id="xpBar"><div class="fill"></div><span></span></div>
+      </div>
+      <div id="panel" class="hidden"><div class="panel-inner"></div></div>
+      <div id="tooltip" class="hidden"></div>
+    </section>
+  </div>
+</body>
+</html>
