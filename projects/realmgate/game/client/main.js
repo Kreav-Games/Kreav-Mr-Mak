@@ -197,6 +197,16 @@ class Game {
       const scale = this.mode === 'table' ? TABLE_SCALE : this.mode === 'home' ? HERO_SCALE : 1;
       await this.ar.start({ scale, placement: this.mode === 'home' ? 'twoTap' : 'auto' });
       this.ar.onNotFloor = () => this.hud.toast('That is the top of furniture. Aim the ring at the floor (blue = floor).', true);
+      // Floor ▲/▼: lower the game floor onto the real one if the phone misreads it.
+      const nudge = document.createElement('div');
+      nudge.className = 'floor-nudge';
+      nudge.innerHTML = '<button data-d="0.02">Floor ▲</button><span></span><button data-d="-0.02">Floor ▼</button>';
+      const label = nudge.querySelector('span');
+      const show = (off) => { label.textContent = `${off >= 0 ? '+' : ''}${Math.round(off * 100)} cm`; };
+      show(this.ar.floorOffset);
+      nudge.addEventListener('beforexrselect', (e) => e.preventDefault());
+      nudge.addEventListener('click', (e) => { const b = e.target.closest('[data-d]'); if (b) show(this.ar.nudgeFloor(Number(b.dataset.d))); });
+      $('#hud').appendChild(nudge);
       if (this.mode === 'home') $('#placeHint').textContent = 'Sit somewhere comfy. Tap the rift spot you chose when scanning.';
       $('#placeHint').classList.remove('hidden');
       this.world.hideSelf = this.mode === 'ar';

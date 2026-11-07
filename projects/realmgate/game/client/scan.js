@@ -61,7 +61,8 @@ export class Scanner {
         <button data-a="next" class="secondary">Next area</button>
         <button data-a="finish" class="primary">Finish</button>
         <button data-a="cancel" class="secondary">Cancel</button>
-      </div>`;
+      </div>
+      <div class="floor-nudge"><button data-a="up">Floor ▲</button><span></span><button data-a="down">Floor ▼</button></div>`;
     document.querySelector('#overlay').appendChild(this.ui);
     this.ui.addEventListener('beforexrselect', (e) => e.preventDefault());
     this.ui.addEventListener('click', (e) => this.onButton(e.target.closest('[data-a]')?.dataset.a));
@@ -76,6 +77,8 @@ export class Scanner {
     this.status('Aim the ring at the floor (it turns blue on the floor, red on furniture) and tap a spot you will remember, like a rug corner. That is where the rift opens.');
     this.renderer.setAnimationLoop((t, frame) => this.frame(frame));
     this.refreshKind();
+    const off = this.ar.floorOffset;
+    this.ui.querySelector('.floor-nudge span').textContent = `${off >= 0 ? '+' : ''}${Math.round(off * 100)} cm`;
   }
 
   flash(text) {
@@ -96,7 +99,7 @@ export class Scanner {
     const area = (this.cells.size * CELL * CELL).toFixed(1);
     const label = KINDS.find((k) => k[0] === this.kind)[1];
     this.ui.querySelector('.scan-status').innerHTML = this.statusText
-      || `<b>Area ${this.zones.length + 1}: ${label}</b> — ${area} m² painted<br><small>Walk slowly and sweep the floor. Skip the area under furniture. Mind steps and stairs while scanning.</small>`;
+      || `<b>Area ${this.zones.length + 1}: ${label}</b> — ${area} m² painted<br><small>Walk slowly and sweep the floor. Skip the area under furniture. If the squares float above the rug, tap Floor ▼ until they sit on it. Mind steps and stairs.</small>`;
     this.ui.querySelector('[data-a="kind"]').textContent = `Type: ${label}`;
   }
 
@@ -113,10 +116,11 @@ export class Scanner {
       const pts = [];
       const r = this.ar.reticleInArena();
       if (r) pts.push(r);
-      for (const h of this.ar.scanHits) pts.push(root.worldToLocal(h.clone()));
+      // Judge floor hits against the measured floor, not the drawn one, so the
+      // player's Floor ▲/▼ correction never stops the painting.
+      for (const h of this.ar.scanHits) if (this.ar.isFloorHit(h, FLOOR_TOLERANCE)) pts.push(root.worldToLocal(h.clone()));
       let painted = 0;
       for (const p of pts) {
-        if (Math.abs(p.y) > FLOOR_TOLERANCE) continue; // sofa seat, table top
         // a 30 cm brush per hit
         for (const [dx, dz] of BRUSH) painted += this.paintCell(p.x + dx, p.z + dz);
         this.lastFloorAt = now;
@@ -125,9 +129,9 @@ export class Scanner {
       if (now - (this.planesAt || 0) > 500) {
         this.planesAt = now;
         for (const poly of this.ar.floorPolygons(xrFrame)) {
+          const y = poly.reduce((a, v) => a + v.y, 0) / poly.length;
+          if (!this.ar.isFloorHit({ y }, FLOOR_TOLERANCE)) continue;
           const local = poly.map((v) => root.worldToLocal(v.clone()));
-          const y = local.reduce((a, v) => a + v.y, 0) / local.length;
-          if (Math.abs(y) > FLOOR_TOLERANCE) continue;
           painted += this.fillPolygon(local.map((v) => [v.x, v.z]));
           this.lastFloorAt = now;
         }
@@ -194,6 +198,10 @@ export class Scanner {
       localStorage.setItem(HOME_KEY, JSON.stringify(world));
       this.exit();
     } else if (a === 'cancel') this.exit();
+    else if (a === 'up' || a === 'down') {
+      const off = this.ar.nudgeFloor(a === 'up' ? 0.02 : -0.02);
+      this.ui.querySelector('.floor-nudge span').textContent = `${off >= 0 ? '+' : ''}${Math.round(off * 100)} cm`;
+    }
   }
 
   exit() {

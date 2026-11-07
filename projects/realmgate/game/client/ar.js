@@ -46,7 +46,13 @@ export class ARController {
     this.renderer.xr.setReferenceSpaceType('local-floor');
     await this.renderer.xr.setSession(session);
     const viewer = await session.requestReferenceSpace('viewer');
-    this.hitSource = await session.requestHitTestSource({ space: viewer });
+    // Feature points (the rug's pattern) as well as planes: many more floor
+    // readings when ARCore has not recognised the floor as a plane yet.
+    const source = async (opts) => {
+      try { return await session.requestHitTestSource({ ...opts, entityTypes: ['plane', 'point'] }); }
+      catch { return session.requestHitTestSource(opts); }
+    };
+    this.hitSource = await source({ space: viewer });
     // While scanning, a fan of extra rays measures a wide strip of floor at
     // once instead of only the spot under the screen centre.
     this.scanSources = [];
@@ -57,7 +63,7 @@ export class ARController {
         for (const dy of [-0.15, -0.4, -0.7]) {
           try {
             const ray = new XRRay({ x: 0, y: 0, z: 0, w: 1 }, { x: dx, y: dy, z: -1, w: 0 });
-            this.scanSources.push(await session.requestHitTestSource({ space: viewer, offsetRay: ray }));
+            this.scanSources.push(await source({ space: viewer, offsetRay: ray }));
           } catch { /* offset rays unsupported: centre ray only */ }
         }
       }
@@ -112,8 +118,10 @@ export class ARController {
   placeAt(pos, yaw) {
     const root = this.world.root;
     root.position.copy(pos);
+    root.position.y += this.floorOffset;
     root.rotation.set(0, yaw, 0);
     this.floorSamples = [];
+    this._floorOffset = undefined;
     root.scale.setScalar(this.scale);
     root.visible = true;
     this.placed = true;
@@ -122,11 +130,16 @@ export class ARController {
   }
 
   // The reticle's floor hit in arena space, or null (used to paint while scanning).
+  // The centre ray's floor hit in arena space (y = 0 on the game floor), or
+  // null when it isn't on the floor. Used to paint while scanning.
   reticleInArena() {
-    if (!this.reticle.visible || !this.placed) return null;
+    if (!this.reticle.visible || !this.placed || !this.onFloor) return null;
     const p = new THREE.Vector3().setFromMatrixPosition(this.reticle.matrix);
     return this.world.root.worldToLocal(p);
   }
+
+  // Is a world-space hit on the floor (not a sofa seat or table top)?
+  isFloorHit(v, tolerance = 0.12) { return Math.abs(v.y - this.measuredFloor()) < tolerance; }
 
   replace() {
     this.placed = false;
@@ -163,7 +176,8 @@ export class ARController {
       this.onFloor = floor === null || Math.abs(t.y - floor) < 0.12;
       this.reticle.visible = true;
       // Keep the ring level with gravity; only the hit's position is used.
-      this.reticle.matrix.makeRotationX(-Math.PI / 2).setPosition(t.x, t.y, t.z);
+      const ry = this.placed ? this.world.root.position.y : t.y + this.floorOffset;
+      this.reticle.matrix.makeRotationX(-Math.PI / 2).setPosition(t.x, ry, t.z);
       this.reticle.material.color.set(this.onFloor ? '#7ef9ff' : '#ff5a4a');
       this.reticleInner.material.color.set(this.onFloor ? '#7ef9ff' : '#ff5a4a');
       if (this.placed && this.onFloor) this.sampleFloor(t.y);
@@ -191,8 +205,7 @@ export class ARController {
   // near the current level, so it never floats above or sinks below the real
   // floor (which reads as a tilt while you move).
   sampleFloor(y) {
-    const root = this.world.root;
-    if (Math.abs(y - root.position.y) > 0.25) return; // a table top or a different storey
+    if (Math.abs(y - this.measuredFloor()) > 0.25) return; // a table top or a different storey
     this.floorSamples ??= [];
     this.floorSamples.push(y);
     if (this.floorSamples.length > 240) this.floorSamples.shift();
@@ -204,9 +217,33 @@ export class ARController {
     const now = performance.now();
     if (now - (this.leveledAt || 0) < 300) return;
     this.leveledAt = now;
-    const median = [...s].sort((a, b) => a - b)[s.length >> 1];
     const root = this.world.root;
-    root.position.y += (median - root.position.y) * 0.3; // ease, so nothing jumps
+    const target = this.measuredFloor() + this.floorOffset;
+    root.position.y += (target - root.position.y) * 0.3; // ease, so nothing jumps
+  }
+
+  // The floor height the phone has measured (median of recent floor hits),
+  // before the player's own correction.
+  measuredFloor() {
+    const s = this.floorSamples;
+    if (s && s.length >= 20) return [...s].sort((a, b) => a - b)[s.length >> 1];
+    return this.world.root.position.y - this.floorOffset;
+  }
+
+  // Player correction when the phone's floor reading is off ("Floor ▼").
+  // Remembered per device: a phone's error tends to repeat.
+  get floorOffset() {
+    if (this._floorOffset === undefined) {
+      try { this._floorOffset = Number(localStorage.getItem('realmgate.floorOffset')) || 0; } catch { this._floorOffset = 0; }
+    }
+    return this._floorOffset;
+  }
+
+  nudgeFloor(dy) {
+    this._floorOffset = Math.max(-1, Math.min(1, this.floorOffset + dy));
+    try { localStorage.setItem('realmgate.floorOffset', String(this._floorOffset)); } catch { /* optional */ }
+    if (this.placed) this.world.root.position.y += dy;
+    return this._floorOffset;
   }
 
   // Floor polygons from WebXR plane detection, in world space (empty if unsupported).
