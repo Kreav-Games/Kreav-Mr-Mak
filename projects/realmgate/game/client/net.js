@@ -5,9 +5,10 @@
 
 import { Sim } from '../shared/sim.js';
 import { TICK_RATE } from '../shared/data.js';
+import { sanitizeWorld } from '../shared/world.js';
 
 export class LocalTransport {
-  constructor({ arena }) { this.sim = new Sim({ arenaRadius: arena }); this.id = 'solo'; }
+  constructor({ arena, world = null }) { this.sim = new Sim({ arenaRadius: arena, world: sanitizeWorld(world) }); this.id = 'solo'; }
 
   connect(hello) {
     this.sim.join(this.id, hello);
@@ -19,7 +20,7 @@ export class LocalTransport {
       this.onSnapshot?.(this.sim.snapshot(this.id, events));
       if (tick % (TICK_RATE * 5) === 0) this.onSave?.(this.sim.saveOf(this.id));
     }, 1000 / TICK_RATE);
-    return Promise.resolve({ id: this.id, room: null });
+    return Promise.resolve({ id: this.id, room: null, world: this.sim.map ? this.sim.map.describe() : null });
   }
 
   send(msg) { this.sim.handle(this.id, msg); }

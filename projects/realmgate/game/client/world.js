@@ -304,6 +304,42 @@ export class World {
     return best;
   }
 
+  // A scanned home replaces the round arena. With twin: true its floors and
+  // obstacles are drawn (map view, friends' homes, tabletop). Without, the
+  // real room is the scenery.
+  setWorld(w, { twin }) {
+    this.root.remove(this.arenaRing);
+    this.arenaR = -1;
+    this.setArena = () => {};
+    const h = w.hearth || { x: 0, z: 0 };
+    this.portal.position.set(h.x, 0, h.z - 0.9);
+    if (!twin) return;
+    const tints = { hearth: '#8a6a4a', barracks: '#5a4a6b', forge: '#7a4a2a', grotto: '#2f5a6b', feasthall: '#6b5a2f', gloam: '#3a3550', wilds: '#3f6b2f' };
+    for (const z of w.zones) {
+      const shape = new THREE.Shape(z.floor.map(([x, zz]) => new THREE.Vector2(x, -zz)));
+      const floor = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2), mat(tints[z.theme] || tints.hearth, { roughness: 0.95 }));
+      floor.position.y = (z.floorY || 0) + 0.002;
+      floor.receiveShadow = true;
+      this.root.add(floor);
+      for (const o of z.objects || []) {
+        const box = new THREE.Mesh(new THREE.BoxGeometry(o.w, o.h, o.d), mat(o.cat === 'stairs' ? '#a05050' : '#5b4c40'));
+        box.position.set(o.x, (z.floorY || 0) + o.h / 2, o.z);
+        box.rotation.y = o.yaw || 0;
+        box.castShadow = box.receiveShadow = true;
+        this.root.add(box);
+      }
+      for (const wl of z.walls || []) {
+        const [ax, az] = wl.a; const [bx, bz] = wl.b;
+        const len = Math.hypot(bx - ax, bz - az);
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(len, wl.h, 0.08), mat('#d8d0c0'));
+        wall.position.set((ax + bx) / 2, (z.floorY || 0) + wl.h / 2, (az + bz) / 2);
+        wall.rotation.y = -Math.atan2(bz - az, bx - ax);
+        this.root.add(wall);
+      }
+    }
+    this.shadowFloor.visible = false;
+  }
+
   addPreviewFloor() {
     const floor = new THREE.Mesh(new THREE.CircleGeometry(12, 48), mat('#8a6a4a', { roughness: 0.95 }));
     floor.rotation.x = -Math.PI / 2;

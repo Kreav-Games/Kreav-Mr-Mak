@@ -28,8 +28,14 @@ export class ARController {
     this.onSelect = null; // (raycaster) => void after placement
   }
 
-  async start({ scale = 1 } = {}) {
+  // placement 'auto': one tap opens the arena facing you.
+  // placement 'twoTap': tap the rift spot, then the spot it faces. Tapping the
+  // same two real spots next time lines a saved scan up with the room again.
+  async start({ scale = 1, placement = 'auto', keepReticle = false } = {}) {
     this.scale = scale;
+    this.placement = placement;
+    this.keepReticle = keepReticle;
+    this.firstTap = null;
     const session = await navigator.xr.requestSession('immersive-ar', {
       requiredFeatures: ['hit-test', 'local-floor'],
       optionalFeatures: ['dom-overlay', 'anchors', 'light-estimation'],
@@ -53,6 +59,21 @@ export class ARController {
   select(controller) {
     if (!this.placed) {
       if (!this.reticle.visible) return;
+      if (this.placement === 'twoTap') {
+        const p = new THREE.Vector3().setFromMatrixPosition(this.reticle.matrix);
+        if (!this.firstTap) {
+          this.firstTap = p;
+          this.firstMarker = floorRing(0.08, 0.14, '#ffd34a', 1);
+          this.firstMarker.position.copy(p).setY(p.y + 0.01);
+          this.scene.add(this.firstMarker);
+          this.onFirstTap?.();
+          return;
+        }
+        if (p.distanceTo(this.firstTap) < 0.3) return; // too close to tell a direction
+        this.placeAt(this.firstTap, Math.atan2(p.x - this.firstTap.x, p.z - this.firstTap.z));
+        this.scene.remove(this.firstMarker);
+        return;
+      }
       this.place();
       return;
     }
@@ -68,24 +89,36 @@ export class ARController {
   place() {
     const pos = new THREE.Vector3().setFromMatrixPosition(this.reticle.matrix);
     const cam = this.renderer.xr.getCamera().getWorldPosition(new THREE.Vector3());
+    this.placeAt(pos, Math.atan2(cam.x - pos.x, cam.z - pos.z));
+  }
+
+  placeAt(pos, yaw) {
     const root = this.world.root;
     root.position.copy(pos);
-    root.rotation.set(0, Math.atan2(cam.x - pos.x, cam.z - pos.z), 0);
+    root.rotation.set(0, yaw, 0);
     root.scale.setScalar(this.scale);
     root.visible = true;
     this.placed = true;
-    this.reticle.visible = false;
+    this.reticle.visible = this.keepReticle && this.reticle.visible;
     this.onPlaced?.();
+  }
+
+  // The reticle's floor hit in arena space, or null (used to paint while scanning).
+  reticleInArena() {
+    if (!this.reticle.visible || !this.placed) return null;
+    const p = new THREE.Vector3().setFromMatrixPosition(this.reticle.matrix);
+    return this.world.root.worldToLocal(p);
   }
 
   replace() {
     this.placed = false;
+    this.firstTap = null;
     this.world.root.visible = false;
   }
 
   // Called every XR frame.
   update(frame) {
-    if (!frame || this.placed || !this.hitSource) return;
+    if (!frame || (this.placed && !this.keepReticle) || !this.hitSource) return;
     const ref = this.renderer.xr.getReferenceSpace();
     const hits = frame.getHitTestResults(this.hitSource);
     if (hits.length) {

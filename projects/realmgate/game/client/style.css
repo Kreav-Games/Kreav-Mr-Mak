@@ -131,3 +131,12 @@ input { width: 100%; font: inherit; padding: 10px 12px; border-radius: 8px; bord
   #tracker { width: 150px; }
   .ab { width: 52px; height: 52px; font-size: 22px; }
 }
+
+/* ------------------------------------------------------------ scanning --- */
+.check { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.check input { width: auto; margin: 0; }
+.wide { width: 100%; padding: 12px; border-radius: 10px; margin-top: 4px; }
+#scanUi { position: absolute; inset: 0; pointer-events: none; }
+#scanUi .scan-status { position: absolute; top: calc(12px + var(--safe-t)); left: 12px; right: 12px; background: rgba(0, 0, 0, 0.6); padding: 12px; border-radius: 10px; pointer-events: none; }
+#scanUi .scan-buttons { position: absolute; bottom: calc(16px + var(--safe-b)); left: 12px; right: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; pointer-events: auto; }
+#scanUi button { padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; border: 0; }

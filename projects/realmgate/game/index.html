@@ -26,11 +26,17 @@
           <button data-mode="join">Join room</button>
         </div>
         <input id="roomCode" class="hidden" maxlength="4" placeholder="Room code (e.g. K7QD)" />
+        <div class="field">Your home</div>
+        <p id="homeInfo" class="note"></p>
+        <label id="useHomeRow" class="check"><input type="checkbox" id="useHome" /> Play in my scanned home</label>
+        <button id="scanHome" class="secondary wide">Scan my home (AR)</button>
+        <div id="arenaRow">
         <div class="field">Play area</div>
         <div class="row tabs" id="arenaSize">
           <button data-r="1.8">Small 1.8 m</button>
           <button data-r="3" class="on">Room 3 m</button>
           <button data-r="4.5">Large 4.5 m</button>
+        </div>
         </div>
         <div class="row start">
           <button id="startAR" class="primary">Play in AR</button>

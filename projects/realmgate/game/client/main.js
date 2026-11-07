@@ -8,6 +8,8 @@ import { World } from './world.js';
 import { Hud } from './hud.js';
 import { ARController, arSupported } from './ar.js';
 import { sfx } from './sfx.js';
+import { Scanner, loadHome } from './scan.js';
+import { WorldMap } from '../shared/world.js';
 
 const $ = (s) => document.querySelector(s);
 const SAVE_KEY = (cls) => `realmgate.char.${cls}`;
@@ -16,7 +18,7 @@ const TABLE_SCALE = 0.15;
 
 // ---------------------------------------------------------------- lobby ---
 
-const lobby = { cls: localStorage.getItem('realmgate.cls') || 'warrior', party: 'solo', arena: 3 };
+const lobby = { cls: localStorage.getItem('realmgate.cls') || 'warrior', party: 'solo', arena: 3, useHome: !!loadHome() };
 
 function renderClasses() {
   $('#classes').innerHTML = Object.values(CLASSES).map((c) => {
@@ -60,19 +62,37 @@ function initLobby() {
       $('#arNote').textContent = 'AR needs Chrome on an ARCore Android phone over HTTPS. iPhone Safari does not offer WebXR AR yet; use Preview here.';
     } else $('#arNote').textContent = 'AR ready. Clear some floor space and keep your surroundings in view while you play.';
   });
+  renderHome();
+  $('#scanHome').onclick = () => new Scanner().start().catch((e) => { $('#lobbyError').textContent = e.message; });
+  $('#useHome').onchange = (e) => { lobby.useHome = e.target.checked; renderHome(); };
   $('#startAR').onclick = () => start('ar');
   $('#startTable').onclick = () => start('table');
   $('#startPreview').onclick = () => start('preview');
 }
 
+function renderHome() {
+  const home = loadHome();
+  const zones = home?.zones || [];
+  $('#homeInfo').textContent = home
+    ? `Saved: ${zones.map((z) => z.name).join(', ')} (${home.links.length} doorway${home.links.length === 1 ? '' : 's'}).`
+    : 'No home scanned yet. Scanning takes a few minutes of slow walking; after that you play seated.';
+  $('#useHomeRow').classList.toggle('hidden', !home);
+  $('#useHome').checked = lobby.useHome && !!home;
+  $('#arenaRow').classList.toggle('hidden', lobby.useHome && !!home);
+  $('#startAR').textContent = lobby.useHome && home ? 'Play seated in my home (AR)' : 'Play in AR (walk around)';
+}
+
 async function start(mode) {
+  const homeWorld = lobby.useHome && lobby.party !== 'join' ? loadHome() : null;
+  if (mode === 'ar' && homeWorld) mode = 'home';
   const name = $('#name').value.trim() || 'Adventurer';
   localStorage.setItem('realmgate.name', name);
   localStorage.setItem('realmgate.cls', lobby.cls);
   $('#lobbyError').textContent = '';
   const hello = { name, cls: lobby.cls, save: loadSave(lobby.cls), arena: lobby.arena, mode: mode === 'ar' ? 'body' : 'avatar' };
   let transport;
-  if (lobby.party === 'solo') transport = new LocalTransport({ arena: lobby.arena });
+  if (homeWorld) hello.world = homeWorld;
+  if (lobby.party === 'solo') transport = new LocalTransport({ arena: lobby.arena, world: homeWorld });
   else {
     transport = new WsTransport({ url: serverUrl() });
     hello.room = lobby.party === 'join' ? $('#roomCode').value.trim().toUpperCase() : '';
@@ -138,25 +158,31 @@ class Game {
     this.selfId = welcome.id;
     this.roomCode = welcome.room;
     this.world.selfId = this.selfId;
+    // A scanned home (yours, or the host's when you join a room).
+    this.worldData = welcome.world || null;
+    this.walk = this.worldData ? new WorldMap(this.worldData) : null;
 
     $('#lobby').classList.add('hidden');
     $('#hud').classList.remove('hidden');
     this.hud = new Hud(this);
     this.bindInput();
 
-    if (this.mode === 'ar' || this.mode === 'table') {
+    if (this.worldData) this.world.setWorld(this.worldData, { twin: this.mode !== 'home' });
+    if (this.mode === 'ar' || this.mode === 'table' || this.mode === 'home') {
       this.ar = new ARController(this.renderer, this.scene, this.world, $('#overlay'));
       this.ar.onSelect = (rc) => this.pick(rc);
       this.ar.onPlaced = () => { $('#placeHint').classList.add('hidden'); sfx('portal'); };
+      this.ar.onFirstTap = () => { $('#placeHint').textContent = 'Now tap the spot the rift faces, the same one you chose when scanning.'; };
       this.ar.onEnd = () => this.leave();
-      await this.ar.start({ scale: this.mode === 'table' ? TABLE_SCALE : 1 });
+      await this.ar.start({ scale: this.mode === 'table' ? TABLE_SCALE : 1, placement: this.mode === 'home' ? 'twoTap' : 'auto' });
+      if (this.mode === 'home') $('#placeHint').textContent = 'Sit somewhere comfy. Tap the rift spot you chose when scanning.';
       $('#placeHint').classList.remove('hidden');
       this.world.hideSelf = this.mode === 'ar';
       if (this.mode === 'ar') this.world.selfRing.visible = true;
     } else {
       this.scene.background = new THREE.Color('#1c1826');
       this.scene.fog = new THREE.Fog('#1c1826', 9, 22);
-      this.world.addPreviewFloor();
+      if (!this.worldData) this.world.addPreviewFloor();
     }
     $('#joystick').classList.toggle('hidden', this.mode === 'ar');
     if (this.roomCode) this.hud.banner(`Room ${this.roomCode} — share this code`);
@@ -439,20 +465,29 @@ class Game {
     } else {
       const s = this.stickVector();
       const rooted = this.self.buffs.includes('root') || !this.self.alive;
-      const yaw = this.mode === 'table' ? this.ar.playerPosition().facing : this.camYaw;
-      if (this.mode === 'table') this.facing = yaw;
+      const viaPhone = this.mode === 'table' || this.mode === 'home';
+      const yaw = viaPhone ? this.ar.playerPosition().facing : this.camYaw;
       if (!rooted && Math.hypot(s.x, s.y) > 0.1) {
         // forward = (sin yaw, cos yaw); right = (-cos yaw, sin yaw)
         const fx = Math.sin(yaw); const fz = Math.cos(yaw);
         const dx = -s.y * fx + s.x * -fz;
         const dz = -s.y * fz + s.x * fx;
         const speed = 1.6;
-        this.selfPos.x += dx * speed * dt;
-        this.selfPos.z += dz * speed * dt;
-        const lim = (this.snap?.arena || 3) + 1.5;
-        const r = Math.hypot(this.selfPos.x, this.selfPos.z);
-        if (r > lim) this.selfPos.multiplyScalar(lim / r);
-        if (this.mode === 'preview') this.facing = Math.atan2(dx, dz);
+        const sx = dx * speed * dt; const sz = dz * speed * dt;
+        const p = this.selfPos;
+        if (this.walk) {
+          // slide along scanned walls and furniture, like the server
+          const ok = (x, z) => this.walk.walkable(x, z);
+          if (ok(p.x + sx, p.z + sz) || !ok(p.x, p.z)) { p.x += sx; p.z += sz; }
+          else if (ok(p.x + sx, p.z)) p.x += sx;
+          else if (ok(p.x, p.z + sz)) p.z += sz;
+        } else {
+          p.x += sx; p.z += sz;
+          const lim = (this.snap?.arena || 3) + 1.5;
+          const r = Math.hypot(p.x, p.z);
+          if (r > lim) p.multiplyScalar(lim / r);
+        }
+        this.facing = Math.atan2(dx, dz);
         moved = true;
       }
       if (this.mode === 'preview' && !moved && this.self) this.facing = this.self.f;

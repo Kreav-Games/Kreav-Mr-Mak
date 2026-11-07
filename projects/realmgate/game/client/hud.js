@@ -297,9 +297,9 @@ export class Hud {
     const g = this.game;
     return `<h2>Menu</h2>
       ${g.roomCode ? `<p>Room code: <b style="font-size:22px;color:var(--gold);letter-spacing:3px">${g.roomCode}</b><br><span class="note">Friends join with this code. In the same room, place the rift on the same spot facing the same way.</span></p>` : '<p class="note">Solo game. Create a room from the lobby to play with friends.</p>'}
-      ${g.mode === 'ar' || g.mode === 'table' ? '<button class="btn" data-act="replace">Move the rift</button>' : ''}
+      ${g.mode === 'ar' || g.mode === 'table' || g.mode === 'home' ? `<button class="btn" data-act="replace">${g.mode === 'home' ? 'Line up with my room again' : 'Move the rift'}</button>` : ''}
       <button class="btn" data-act="leave">Leave to lobby</button>
-      <h3>Controls</h3><p class="note">${g.mode === 'ar' ? 'Walk around your room to move. Tap enemies to target them, tap the Keeper for quests. Step out of red circles!' : 'Move with the stick or WASD. Tap/click to target. 1–4 abilities, Tab next target, Q potion, C character, L quests.'}</p>`;
+      <h3>Controls</h3><p class="note">${g.mode === 'home' ? 'Stay seated. Steer your hero with the stick; up on the stick is the way your phone points. Tap enemies to target them and the Keeper for quests.' : g.mode === 'ar' ? 'Walk around your room to move. Tap enemies to target them, tap the Keeper for quests. Step out of red circles!' : 'Move with the stick or WASD. Tap/click to target. 1–4 abilities, Tab next target, Q potion, C character, L quests.'}</p>`;
   }
 
   onPanelClick(e) {

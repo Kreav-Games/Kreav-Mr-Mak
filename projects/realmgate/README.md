@@ -28,6 +28,22 @@ To play with friends, one player picks **Create room** and shares the 4-letter c
 The others pick **Join room**, or open `…/?room=CODE`. In one physical room,
 everyone places the rift on the same spot, facing the same way.
 
+### Your home on an Android phone (works today, no engine needed)
+
+1. On your PC (with Node.js 20 or later), run `npm install` and then `npm run dev` in
+   `projects/realmgate/game`. Note the `Network:` address it prints.
+2. Put the phone on the same Wi-Fi. In Chrome, open
+   `https://<that-address>:5173` and accept the certificate warning.
+3. **Scan my home (AR):**
+   - Tap a floor spot you will remember (the rift), then the spot it faces.
+   - Walk slowly and sweep the floor. Leave the area under furniture unpainted.
+   - Tap **Next area** for the hallway or the deck, then **Finish**.
+4. Tick **Play in my scanned home**, then tap **Play seated in my home (AR)**. Sit
+   down, tap the same two spots, and steer your hero with the stick.
+
+**Preview** shows the same home as a 3D map on any device. Friends who join your
+room code see your home as the map.
+
 ## What the prototype contains (v0.1)
 
 | Area | Implemented |

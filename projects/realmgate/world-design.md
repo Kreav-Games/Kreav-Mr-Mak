@@ -42,6 +42,21 @@ phone, so stairs, pools and furniture are never a danger during a fight.
 - Walk-around play (the phone is your body) stays as an opt-in mode in the web
   prototype. The server keeps its safety rules for that mode only.
 
+## Android and iPhone
+
+Decision (owner, 2026-11-07): it must work on Android and iPhone. The owner
+plays on Android. Scanning therefore has a baseline that every AR phone can do,
+and LiDAR is an upgrade:
+
+- **Floor-paint scan (all phones):** floor hit-tests paint 20 cm cells. A zone's
+  floor is the outline of the painted cells. Unpainted gaps inside it (under the
+  sofa) become obstacles. Areas join where they touch (`game/shared/floorscan.js`).
+- **LiDAR upgrade (iPhone/iPad Pro):** RoomPlan walls, doors and furniture
+  categories (`unity/`).
+- **Lining up again without a cloud service:** the scan's frame is set by two taps,
+  the rift spot and the spot it faces. Playing in AR later means sitting down
+  and tapping the same two spots. Map view needs no alignment at all.
+
 ## How others join
 
 | Mode | Guest is | Guest sees |
