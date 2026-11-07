@@ -23,12 +23,14 @@ server in `../game`.
 
 ## Android build from a Windows PC
 
-1. Install **Unity Hub**. Then install **Unity 6 LTS** with **Android Build Support**,
+1. Install **Unity Hub**. Then install **Unity 6.6** (the version the packages are set for) with **Android Build Support**,
    including the OpenJDK and Android SDK & NDK tools it offers.
 2. Pull this branch. In Unity Hub, choose **Add → Add project from disk** and pick
    `projects/realmgate/unity/Realmgate`. Packages resolve from
-   `Packages/manifest.json` (AR Foundation, ARCore, ARKit, Input System and
-   Newtonsoft JSON). If the Input System asks to enable its backend, choose **Yes**.
+   `Packages/manifest.json`, pinned to the Unity 6.6 releases: AR Foundation, ARCore
+   and ARKit 6.6.2, Input System 1.19.0, XR Plug-in Management 4.5.4, and
+   Newtonsoft JSON. If Package Manager offers a newer patch (for example AR
+   Foundation 6.7.x), take it. If the Input System asks to enable its backend, choose **Yes**.
 3. Open **Project Settings → XR Plug-in Management** once, then run
    **Realmgate → Set Up Project**. It does the following:
    - sets Android 7.0+, 64-bit ARM, IL2CPP and OpenGL ES 3;
