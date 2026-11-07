@@ -8,7 +8,7 @@
 // alignment taps: origin at the rift, +z toward the second tap.
 
 export const CELL = 0.2;
-export const FLOOR_TOLERANCE = 0.08; // a hit within 8 cm of the floor height counts as floor
+export const FLOOR_TOLERANCE = 0.12; // a hit within 12 cm of the rift spot's height counts as floor
 
 export const cellKey = (x, z) => `${Math.floor(x / CELL)},${Math.floor(z / CELL)}`;
 const parse = (k) => k.split(',').map(Number);

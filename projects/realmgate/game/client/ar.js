@@ -31,14 +31,15 @@ export class ARController {
   // placement 'auto': one tap opens the arena facing you.
   // placement 'twoTap': tap the rift spot, then the spot it faces. Tapping the
   // same two real spots next time lines a saved scan up with the room again.
-  async start({ scale = 1, placement = 'auto', keepReticle = false } = {}) {
+  async start({ scale = 1, placement = 'auto', keepReticle = false, scanning = false } = {}) {
     this.scale = scale;
     this.placement = placement;
     this.keepReticle = keepReticle;
     this.firstTap = null;
     const session = await navigator.xr.requestSession('immersive-ar', {
       requiredFeatures: ['hit-test', 'local-floor'],
-      optionalFeatures: ['dom-overlay', 'anchors', 'light-estimation'],
+      // plane-detection lets the scanner fill whole floor areas ARCore has found
+      optionalFeatures: ['dom-overlay', 'anchors', 'light-estimation', ...(scanning ? ['plane-detection'] : [])],
       domOverlay: { root: this.overlay },
     });
     this.session = session;
@@ -46,6 +47,20 @@ export class ARController {
     await this.renderer.xr.setSession(session);
     const viewer = await session.requestReferenceSpace('viewer');
     this.hitSource = await session.requestHitTestSource({ space: viewer });
+    // While scanning, a fan of extra rays measures a wide strip of floor at
+    // once instead of only the spot under the screen centre.
+    this.scanSources = [];
+    this.scanHits = [];
+    if (scanning && typeof XRRay !== 'undefined') {
+      for (const dx of [-0.45, -0.22, 0, 0.22, 0.45]) {
+        for (const dy of [-0.15, -0.4, -0.7]) {
+          try {
+            const ray = new XRRay({ x: 0, y: 0, z: 0, w: 1 }, { x: dx, y: dy, z: -1, w: 0 });
+            this.scanSources.push(await session.requestHitTestSource({ space: viewer, offsetRay: ray }));
+          } catch { /* offset rays unsupported: centre ray only */ }
+        }
+      }
+    }
     this.world.root.visible = false;
 
     const controller = this.renderer.xr.getController(0);
@@ -128,6 +143,28 @@ export class ARController {
       // RingGeometry is in the XY plane; the hit pose's Y axis is the floor normal.
       this.reticle.matrix.multiply(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
     } else this.reticle.visible = false;
+    this.scanHits.length = 0;
+    for (const src of this.scanSources) {
+      const h = frame.getHitTestResults(src)[0];
+      const pose = h?.getPose(ref);
+      if (pose) this.scanHits.push(new THREE.Vector3(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z));
+    }
+  }
+
+  // Floor polygons from WebXR plane detection, in world space (empty if unsupported).
+  floorPolygons(frame) {
+    const out = [];
+    const planes = frame?.detectedPlanes;
+    if (!planes) return out;
+    const ref = this.renderer.xr.getReferenceSpace();
+    for (const plane of planes) {
+      if (plane.orientation !== 'horizontal' || !plane.polygon?.length) continue;
+      const pose = frame.getPose(plane.planeSpace, ref);
+      if (!pose) continue;
+      const m = new THREE.Matrix4().fromArray(pose.transform.matrix);
+      out.push(plane.polygon.map((p) => new THREE.Vector3(p.x, p.y, p.z).applyMatrix4(m)));
+    }
+    return out;
   }
 
   // The player's position in arena metres: the phone projected onto the floor.
