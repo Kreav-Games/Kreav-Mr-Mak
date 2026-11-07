@@ -73,6 +73,7 @@ export class Scanner {
     this.ar.onFirstTap = () => { this.status('Now tap the spot the rift faces — for example the TV or a doorway.'); sfx('loot'); };
     this.ar.onPlaced = () => { this.placedAt = performance.now(); this.status(null); sfx('portal'); };
     this.ar.onEnd = () => this.exit();
+    this.ar.onTracking = (ok) => { if (!ok && this.ar.placed) this.flash('Lost track of the room. Move slowly over the lit rug or furniture until the squares come back.'); };
     await this.ar.start({ placement: 'twoTap', keepReticle: true, scanning: true });
     this.status('Aim the ring at the floor (it turns blue on the floor, red on furniture) and tap a spot you will remember, like a rug corner. That is where the rift opens.');
     this.renderer.setAnimationLoop((t, frame) => this.frame(frame));

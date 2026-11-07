@@ -125,6 +125,12 @@ export class ARController {
     root.scale.setScalar(this.scale);
     root.visible = true;
     this.placed = true;
+    // Pin the world to the room with a WebXR anchor (created on the next XR
+    // frame). ARCore keeps an anchor fixed to the real spot as it refines its
+    // map, so the rift and characters stay put while you move the phone.
+    this.anchor?.delete?.();
+    this.anchor = null;
+    this.pendingAnchor = pos.clone();
     this.reticle.visible = this.keepReticle && this.reticle.visible;
     this.onPlaced?.();
   }
@@ -142,6 +148,8 @@ export class ARController {
   isFloorHit(v, tolerance = 0.12) { return Math.abs(v.y - this.measuredFloor()) < tolerance; }
 
   replace() {
+    this.anchor?.delete?.();
+    this.anchor = null;
     this.placed = false;
     this.firstTap = null;
     this.world.root.visible = false;
@@ -151,6 +159,31 @@ export class ARController {
   update(frame) {
     if (!frame || !this.hitSource) return;
     const ref = this.renderer.xr.getReferenceSpace();
+
+    // Tracking: with no real position (only the phone's rotation), anything we
+    // draw would stick to the screen. Hide the world and tell the player.
+    const viewer = frame.getViewerPose(ref);
+    const tracking = !!viewer && !viewer.emulatedPosition;
+    if (tracking !== this.tracking) {
+      this.tracking = tracking;
+      this.onTracking?.(tracking);
+    }
+    this.world.root.visible = this.placed && tracking;
+
+    if (this.pendingAnchor && frame.createAnchor && tracking) {
+      const p = this.pendingAnchor;
+      this.pendingAnchor = null;
+      frame.createAnchor(new XRRigidTransform({ x: p.x, y: p.y, z: p.z, w: 1 }), ref)
+        .then((a) => { this.anchor = a; })
+        .catch(() => { /* anchors unsupported: the world stays where it was placed */ });
+    }
+    if (this.anchor && frame.trackedAnchors?.has(this.anchor)) {
+      const pose = frame.getPose(this.anchor.anchorSpace, ref);
+      if (pose) {
+        const t = pose.transform.position;
+        this.world.root.position.set(t.x, t.y + this.floorOffset, t.z);
+      }
+    }
     // Every ray's lowest hit feeds the floor estimate: the floor is the lowest
     // large flat surface the phone sees, never a table or TV-stand top.
     const lowest = (src) => {
@@ -217,9 +250,8 @@ export class ARController {
     const now = performance.now();
     if (now - (this.leveledAt || 0) < 300) return;
     this.leveledAt = now;
-    const root = this.world.root;
-    const target = this.measuredFloor() + this.floorOffset;
-    root.position.y += (target - root.position.y) * 0.3; // ease, so nothing jumps
+    // The world's height now comes from its anchor; moving it here made it
+    // slide. The measured floor is still used to tell floor hits from furniture.
   }
 
   // The floor height the phone has measured (median of recent floor hits),
@@ -242,7 +274,7 @@ export class ARController {
   nudgeFloor(dy) {
     this._floorOffset = Math.max(-1, Math.min(1, this.floorOffset + dy));
     try { localStorage.setItem('realmgate.floorOffset', String(this._floorOffset)); } catch { /* optional */ }
-    if (this.placed) this.world.root.position.y += dy;
+    if (this.placed && !this.anchor) this.world.root.position.y += dy;
     return this._floorOffset;
   }
 

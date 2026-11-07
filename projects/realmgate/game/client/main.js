@@ -194,6 +194,9 @@ class Game {
       this.ar.onPlaced = () => { $('#placeHint').classList.add('hidden'); sfx('portal'); };
       this.ar.onFirstTap = () => { $('#placeHint').textContent = 'Now tap the spot the rift faces, the same one you chose when scanning.'; };
       this.ar.onEnd = () => this.leave();
+      this.ar.onTracking = (ok) => {
+        $('#trackLost').classList.toggle('hidden', ok || !this.ar.placed);
+      };
       const scale = this.mode === 'table' ? TABLE_SCALE : this.mode === 'home' ? HERO_SCALE : 1;
       await this.ar.start({ scale, placement: this.mode === 'home' ? 'twoTap' : 'auto' });
       this.ar.onNotFloor = () => this.hud.toast('That is the top of furniture. Aim the ring at the floor (blue = floor).', true);

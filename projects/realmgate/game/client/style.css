@@ -48,7 +48,7 @@ input { width: 100%; font: inherit; padding: 10px 12px; border-radius: 8px; bord
 /* -------------------------------------------------------------- hud --- */
 #hud { position: absolute; inset: 0; pointer-events: none; }
 #hud > * { pointer-events: auto; }
-#hud > #floaters, #hud > #banner, #hud > #toasts, #hud > #placeHint, #hud > #deathNote, #hud > #tracker { pointer-events: none; }
+#hud > #floaters, #hud > #banner, #hud > #toasts, #hud > #placeHint, #hud > #deathNote, #hud > #tracker, #hud > #trackLost { pointer-events: none; }
 .unitframe { position: absolute; top: calc(8px + var(--safe-t)); left: 8px; width: 210px; background: var(--panel); border: 1px solid var(--edge); border-radius: 10px; padding: 6px 8px; font-size: 13px; }
 .unitframe.target { left: 226px; }
 .unitframe .name { display: flex; justify-content: space-between; font-weight: bold; white-space: nowrap; overflow: hidden; }
