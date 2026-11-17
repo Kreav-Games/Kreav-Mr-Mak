@@ -92,8 +92,25 @@ The Help button opens a quick guide without creating a new chat.
 
 ## Optional voice
 
-Copy `.env.example` to `.env` and add your own `OPENAI_API_KEY` to enable the
-OpenAI Live connection. Never commit that file. Sign in to Codex for the
+### Free Talk mode (default)
+
+Press the Mak button and speak. Mr. Mak listens hands-free, transcribes with
+free local Whisper, asks the coordinator, and answers aloud with a free local
+voice (Lewis, a British man, by default). Tap the button while it speaks to
+interrupt, and tap again while it listens to stop. Run both local voice setups
+once (`dictation` and `read-aloud`, see
+[local voice setup](mobile-access.md#local-voice-setup-on-the-computer)) and
+choose **Local Whisper** as the speech-to-text provider.
+
+When Claude Code is installed and signed in, the coordinator runs on your Claude
+subscription; otherwise it uses Codex. Set `MRMAK_COORDINATOR_AGENT=codex` or
+`claude` in `.env` to choose. Facts you ask it to remember are kept in
+`context/memory.md`, which stays out of Git.
+
+### OpenAI Live voice
+
+To use OpenAI's paid realtime voice instead, set `voiceEngine` to `live` in
+settings, copy `.env.example` to `.env` and add your own `OPENAI_API_KEY`. Never commit that file. Sign in to Codex for the
 coordinator. Its model follows your account configuration; an optional
 `MRMAK_COORDINATOR_MODEL` overrides it. Model access depends on your account.
 

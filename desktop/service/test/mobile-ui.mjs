@@ -364,8 +364,8 @@ try {
   assert.equal(await phone.locator('.mobile-messages select').count(), 0, 'Voice selection stays in settings');
   await phone.getByRole('button', { name: 'Phone settings' }).click();
   const readingVoice = phone.getByRole('combobox', { name: 'English reading voice' });
-  await expect(readingVoice.locator('option')).toHaveCount(2);
-  assert.deepEqual(await readingVoice.locator('option').evaluateAll(options => options.map(option => option.value)), ['am_michael', 'bf_emma']);
+  await expect(readingVoice.locator('option')).toHaveCount(3);
+  assert.deepEqual(await readingVoice.locator('option').evaluateAll(options => options.map(option => option.value)), ['am_michael', 'bf_emma', 'bm_lewis']);
   await readingVoice.selectOption('bf_emma');
   assert.equal(await phone.evaluate(() => localStorage.getItem('mrmak.mobile.read-aloud.voice')), 'bf_emma');
   await phone.getByRole('button', { name: 'Phone settings' }).click();

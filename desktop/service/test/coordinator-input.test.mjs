@@ -11,6 +11,8 @@ async function fixture() {
   const repo = await mkdtemp(path.join(os.tmpdir(), 'mrmak-coordinator-test-'));
   await mkdir(path.join(repo, 'workspace'));
   await writeFile(path.join(repo, 'workspace/workspace.json'), '{"entities":[]}');
+  // These tests drive the Codex protocol; the Claude engine has its own tests.
+  await writeFile(path.join(repo, '.env'), 'MRMAK_COORDINATOR_AGENT=codex\n');
   const service = await createService({ repo, uiDir: repo, mcpOptions: { home: repo, env: {} } });
   const request = (route, data) => fetch(service.origin + '/api' + route, { method: 'POST', headers: { Authorization: `Bearer ${service.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
   return { repo, service, request };

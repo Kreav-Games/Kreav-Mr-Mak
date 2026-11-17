@@ -6,6 +6,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { parse as parseEnv } from 'dotenv';
 import { Sessions } from './sessions.mjs';
 import { Coordinator, openChatArguments } from './coordinator.mjs';
+import { ClaudeCoordinator, claudeAvailable } from './claude-coordinator.mjs';
 import { Files, serveFile } from './files.mjs';
 import { importFile, dragFiles, moveFile, recyclePath, MAX_FILE_BYTES } from './file-transfers.mjs';
 import { inventory } from './agents.mjs';
@@ -30,7 +31,7 @@ import { ConversationMedia } from './conversation-media.mjs';
 import { projectKey, recentProjects } from './recent-projects.mjs';
 import { answerPrompt, readPrompt } from './terminal-prompt.mjs';
 import { rewindToMessage } from './message-edit.mjs';
-import { LocalReadAloud } from './local-read-aloud.mjs';
+import { LocalReadAloud, readingVoices } from './local-read-aloud.mjs';
 import { Handoffs } from './handoff.mjs';
 import { chatCommands } from './chat-commands.mjs';
 
@@ -103,7 +104,9 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
     sessions.input(id, attachmentText(verified, session.agent), { coordinator, submit: false });
     return { attached: verified, submitted: false };
   };
-  const coordinator = await new Coordinator({
+  // The coordinator runs on Claude Code when it is installed, unless the user chose Codex.
+  const engine = (environment.MRMAK_COORDINATOR_AGENT?.trim() || settings.coordinatorAgent || (claudeAvailable() ? 'claude' : 'codex')) === 'claude' ? 'claude' : 'codex';
+  const coordinator = await new (engine === 'claude' ? ClaudeCoordinator : Coordinator)({
     repo, stateDir, orientation: () => library.orientation(), settings: () => settings,
     context: () => ({ repo, localDate: localDay(), selectedId, workspaceRoute, chats: sessions.active(), recentNotices: notices.slice(-5), recentRequests: [...coordinator.operations.values(), ...quick.operations.values()].sort((a, b) => a.at.localeCompare(b.at)).slice(-6).map(({ text, result, status }) => ({ text, result, status })) }),
     execute: async (name, args, operationId, requestText) => {
@@ -143,7 +146,7 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
         case 'read_context': return knowledge.read(args.path, args.offset);
         case 'list_skills': return knowledge.skills(args.query || '');
         case 'list_mcp': return mcp.list();
-        case 'get_app_settings': return { voice: settings.voiceName, style: settings.voiceStyle, model: coordinator.model || 'Codex default', effort: settings.coordinatorEffort, billing: 'Codex subscription for the coordinator; OpenAI API for voice' };
+        case 'get_app_settings': return { voice: settings.voiceName, style: settings.voiceStyle, engine, model: coordinator.model || `${engine === 'claude' ? 'Claude' : 'Codex'} default`, effort: settings.coordinatorEffort, billing: `${engine === 'claude' ? 'Claude' : 'Codex'} subscription for the coordinator; free local Whisper and Kokoro for Talk mode; OpenAI API only for Live voice` };
         case 'update_voice': {
           if (typeof args.style === 'string' && args.style.trim()) settings.voiceStyle = args.style.trim().slice(0, 1800);
           if (['cedar', 'marin'].includes(args.voice)) settings.voiceName = args.voice;
@@ -228,7 +231,7 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
         if (method === 'POST' && url.pathname === '/api/mobile/revoke') return json(response, 200, await mobile.revoke(data.id));
         if (method === 'GET' && url.pathname === '/api/bootstrap') {
           const keys = parseEnv(await readFile(path.join(repo, '.env'), 'utf8').catch(() => ''));
-          return json(response, 200, { repo, contentBase: `${files.origin}/view/${files.repoGrant}`, agents: inventory(), sessions: sessions.list(), settings, selectedId, notices, coordinator: coordinator.state, voice: { configured: !!(keys.OPENAI_API_KEY || keys.OPENAI_KEY || process.env.OPENAI_API_KEY), owner: voiceOwner }, voiceHistory, operations: [...coordinator.operations.values(), ...quick.operations.values()].sort((a, b) => a.at.localeCompare(b.at)).slice(-30) });
+          return json(response, 200, { repo, contentBase: `${files.origin}/view/${files.repoGrant}`, agents: inventory(), sessions: sessions.list(), settings, selectedId, notices, coordinator: coordinator.state, coordinatorEngine: engine, voice: { configured: !!(keys.OPENAI_API_KEY || keys.OPENAI_KEY || process.env.OPENAI_API_KEY), owner: voiceOwner }, voiceHistory, operations: [...coordinator.operations.values(), ...quick.operations.values()].sort((a, b) => a.at.localeCompare(b.at)).slice(-30) });
         }
         if (method === 'GET' && url.pathname === '/api/workspace') return json(response, 200, await registry());
         if (method === 'POST' && url.pathname === '/api/workspace/cards') return json(response, 201, await cards.create(data));
@@ -312,6 +315,9 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
           if (['full', 'compact', 'hidden'].includes(data.systemEvents)) settings.systemEvents = data.systemEvents;
           if (['dark', 'light', 'system'].includes(data.workspaceTheme)) settings.workspaceTheme = data.workspaceTheme;
           if (['medium', 'high'].includes(data.coordinatorEffort)) settings.coordinatorEffort = data.coordinatorEffort;
+          if (['talk', 'live'].includes(data.voiceEngine)) settings.voiceEngine = data.voiceEngine;
+          if (readingVoices.some(item => item.id === data.talkVoice)) settings.talkVoice = data.talkVoice;
+          if (['claude', 'codex'].includes(data.coordinatorAgent)) settings.coordinatorAgent = data.coordinatorAgent;
           if (['cedar', 'marin'].includes(data.voiceName)) settings.voiceName = data.voiceName;
           if (data.groupColors && typeof data.groupColors === 'object' && !Array.isArray(data.groupColors)) settings.groupColors = Object.fromEntries(Object.entries(data.groupColors).filter(([name, value]) => name.length <= 60 && typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)).slice(0, 200).map(([name, value]) => [name, value.toLowerCase()]));
           if (Array.isArray(data.collapsedGroups)) settings.collapsedGroups = [...new Set(data.collapsedGroups.filter(item => typeof item === 'string' && item.length <= 60))].slice(0, 200);
@@ -395,6 +401,15 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
           native({ type: 'reveal', path: file }); return json(response, 200, { requested: true });
         }
         if (method === 'POST' && url.pathname === '/api/coordinator') return json(response, 200, await askMak(data));
+        if (method === 'POST' && url.pathname === '/api/talk/speak') {
+          // Talk mode: free local speech for the coordinator's spoken replies.
+          const controller = new AbortController(), abort = () => controller.abort();
+          response.once('close', abort);
+          try {
+            const audio = await readAloud.synthesize('desktop', { voice: typeof data.voice === 'string' ? data.voice : settings.talkVoice || 'bm_lewis', text: data.text }, controller.signal);
+            response.writeHead(200, { 'Content-Type': 'audio/wav', 'Content-Length': audio.length, 'Cache-Control': 'no-store' }); response.end(audio); return;
+          } finally { response.off('close', abort); }
+        }
         if (method === 'POST' && url.pathname === '/api/coordinator/prepare') { await coordinator.start(); return json(response, 200, { ready: true, model: coordinator.model }); }
         if (method === 'POST' && url.pathname === '/api/live/transcript') {
           if (typeof data.id !== 'string' || data.id.length > 200 || !Array.isArray(data.captions)) throw new Error('A voice session and captions are required.');

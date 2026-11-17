@@ -157,3 +157,9 @@ export async function speakDesktopText(sessionId: string, voice: string, text: s
   if (!response.ok) { const result = await response.json().catch(() => ({})); throw new Error(result.error || 'Speech generation failed.') }
   return response.arrayBuffer()
 }
+
+export async function speakTalkText(voice: string, text: string, signal: AbortSignal): Promise<ArrayBuffer> {
+  const response = await fetch('/api/talk/speak', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ voice, text }), signal })
+  if (!response.ok) { const result = await response.json().catch(() => ({})); throw new Error(result.error || 'Speech generation failed.') }
+  return response.arrayBuffer()
+}

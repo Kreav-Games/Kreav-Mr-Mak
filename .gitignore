@@ -45,3 +45,6 @@ Thumbs.db
 # Tharrn remake wiki card: a published copy of the GDD viewer in D:\Tharrn-GDD-New,
 # which is versioned in that repository (tools/publish_to_workspace.py refreshes it).
 workspace/2026-10-24_tharrn-gdd/
+
+# Assistant long-term memory (personal; stays on this computer)
+context/memory.md

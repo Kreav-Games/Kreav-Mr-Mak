@@ -1,4 +1,4 @@
-export const readingVoices = [{ id: 'am_michael', label: 'Michael · US man' }, { id: 'bf_emma', label: 'Emma · UK woman' }]
+export const readingVoices = [{ id: 'am_michael', label: 'Michael · US man' }, { id: 'bf_emma', label: 'Emma · UK woman' }, { id: 'bm_lewis', label: 'Lewis · UK man' }]
 export const readingVoiceKey = 'mrmak.mobile.read-aloud.voice'
 export const readingVoiceChanged = 'mrmak-reading-voice-changed'
 let currentVoice = 'am_michael'

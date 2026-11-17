@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const worker = fileURLToPath(new URL('./local-read-aloud.py', import.meta.url));
 const fail = (message, status = 400) => Object.assign(new Error(message), { status });
-export const readingVoices = [{ id: 'am_michael', label: 'Michael · US man' }, { id: 'bf_emma', label: 'Emma · UK woman' }];
+export const readingVoices = [{ id: 'am_michael', label: 'Michael · US man' }, { id: 'bf_emma', label: 'Emma · UK woman' }, { id: 'bm_lewis', label: 'Lewis · UK man' }];
 export class LocalReadAloud {
   constructor(repo) { this.root = path.join(repo, '.cache', 'read-aloud'); this.python = path.join(this.root, 'venv', process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python'); }
   async status() {
@@ -29,7 +29,7 @@ export class LocalReadAloud {
     child.on('error', ended); child.on('exit', ended); child.stdin.on('error', ended);
   }
   async synthesize(deviceId, { voice, text }, signal) {
-    if (!readingVoices.some(item => item.id === voice) || typeof text !== 'string' || !text.trim() || text.length > 2000) throw fail('Choose Michael or Emma and a short text segment.');
+    if (!readingVoices.some(item => item.id === voice) || typeof text !== 'string' || !text.trim() || text.length > 2000) throw fail('Choose a reading voice and a short text segment.');
     if (this.pending) throw fail('Speech is busy. Try again in a moment.', 429);
     if (!(await this.status()).available) throw fail('Set up local Read aloud on your computer first.', 503);
     if (this.pending) throw fail('Speech is busy. Try again in a moment.', 429);
