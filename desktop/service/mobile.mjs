@@ -25,8 +25,8 @@ const DEVICE_TTL = 180 * 24 * 60 * 60 * 1000;
 const send = (ws, value) => { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(value)); };
 
 export class MobileGateway {
-  constructor({ repo, uiDir, stateDir, sessions, attachments, settings, changed, closeChat, transport = new TailscaleTransport(), dictation = new MobileDictation(repo), chooseDictation, readAloud = new LocalReadAloud(repo), transcripts = new ConversationTranscripts() }) {
-    Object.assign(this, { repo, uiDir, sessions, attachments, settings, changed, closeChat, transport });
+  constructor({ repo, uiDir, stateDir, sessions, attachments, settings, changed, closeChat, transport = new TailscaleTransport(), dictation = new MobileDictation(repo), chooseDictation, readAloud = new LocalReadAloud(repo), transcripts = new ConversationTranscripts(), ask = null }) {
+    Object.assign(this, { repo, uiDir, sessions, attachments, settings, changed, closeChat, transport, ask });
     this.file = path.join(stateDir, 'mobile-access.json');
     this.saves = Promise.resolve(); this.pending = new Map(); this.clients = new Set(); this.inflight = new Map(); this.uploads = new Map(); this.queues = new Map();
     this.transcripts = transcripts; this.conversationMedia = new ConversationMedia(); this.active = false; this.error = ''; this.origin = ''; this.rate = { at: Date.now(), count: 0 };
@@ -266,6 +266,23 @@ export class MobileGateway {
         if (method === 'GET' && route === '/mobile/api/dictation') return json(response, 200, await this.dictation.status());
         if (method === 'POST' && route === '/mobile/api/dictation') return json(response, 200, await this.chooseDictation(data.provider));
         if (method === 'POST' && route === '/mobile/api/transcribe') return json(response, 200, await this.dictation.transcribe(request, device.id, () => this.active && this.state.devices.some(item => item.id === device.id && item.expires > Date.now())));
+        if (method === 'POST' && route === '/mobile/api/talk/ask') {
+          // Talk mode on the phone: a spoken request to Jarvis (text only, no images).
+          if (!this.ask) fail('Jarvis is not available.', 503);
+          if (typeof data.text !== 'string' || !data.text.trim() || data.text.length > 4000) fail('Say a request.');
+          const operation = await this.ask({ id: randomUUID(), text: data.text.trim(), conversation: typeof data.conversation === 'string' ? data.conversation.slice(-15000) : '', images: [] });
+          return json(response, 200, { status: operation.status, result: operation.result });
+        }
+        if (method === 'POST' && route === '/mobile/api/talk/speak') {
+          const controller = new AbortController(); let complete = false;
+          const abort = () => { if (!complete) controller.abort(); };
+          response.once('close', abort);
+          try {
+            const audio = await this.readAloud.synthesize(device.id, { voice: typeof data.voice === 'string' ? data.voice : this.settings().talkVoice || 'bm_lewis', text: data.text }, controller.signal);
+            if (!this.active || !this.state.devices.some(item => item.id === device.id && item.expires > Date.now())) fail('Phone disconnected', 401);
+            complete = true; response.writeHead(200, { 'Content-Type': 'audio/wav', 'Content-Length': audio.length, 'Cache-Control': 'no-store' }); response.end(audio); return;
+          } finally { response.off('close', abort); }
+        }
         if (method === 'GET' && route === '/mobile/api/reports') return json(response, 200, await this.reports.list());
         if (method === 'POST' && route === '/mobile/api/reports/open') return json(response, 200, await this.reports.open(device, data));
         if (method === 'GET' && route === '/mobile/api/bootstrap') return json(response, 200, { sessions: this.list(), agents: inventory().filter(item => item.id !== 'shell'), device: { id: device.id, name: device.name }, defaultAgent: this.settings().defaultAgent, defaultBypass: this.settings().defaultBypass, dictation: await this.dictation.status() });

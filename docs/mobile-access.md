@@ -62,6 +62,16 @@ Selecting a tab, scrolling or opening a report on the phone does not select a
 different tab on the desktop. Conversation contents and task activity are shared.
 Reading a completed turn marks it seen across devices.
 
+## Talk to Jarvis
+
+Tap the **microphone** in the phone header and speak. Jarvis answers aloud
+with the same free local voice as the desktop, and the wake word works the
+same way: after a pause he sleeps until you say "Hey Jarvis". The phone sends
+your speech to your computer over the private connection; Whisper, Claude and
+the voice all run there. Keep the page open: the screen stays on while Jarvis
+listens, and phone browsers stop the microphone when the page is in the
+background or the screen locks. Tap **Stop** to end.
+
 ## Voice input
 
 1. On the computer, complete the optional [local voice setup](#local-voice-setup-on-the-computer), or select your existing paid provider in Phone settings.

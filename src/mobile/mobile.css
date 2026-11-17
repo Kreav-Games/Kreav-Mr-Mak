@@ -136,3 +136,26 @@
 .mobile-pull-refresh.ready, .mobile-pull-refresh.refreshing { color: var(--m-accent); border-color: #896076; }
 .mobile-pull-refresh.refreshing svg { animation: mobile-pull-spin .8s linear infinite; }
 @keyframes mobile-pull-spin { to { transform: rotate(360deg); } }
+/* Jarvis talk sheet */
+.mobile-app .mobile-jarvis-button.active { color: #f0c6da; background: #e4b6cd1c; }
+.mobile-app .mobile-jarvis-button.is-sleeping { color: #a99bb6; }
+.mobile-jarvis { flex-shrink: 0; border-bottom: 1px solid var(--m-line); background: linear-gradient(180deg, #1b1520, var(--m-panel)); padding: 10px 12px; display: grid; gap: 8px; }
+.mobile-jarvis > header { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.mobile-jarvis > header > div { flex: 1; min-width: 0; display: grid; }
+.mobile-jarvis > header strong { font-size: 14px; }
+.mobile-jarvis > header small { font-size: 11px; color: var(--m-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mobile-app .mobile-jarvis-orb { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; border: 1px solid #e4b6cd55; background: radial-gradient(circle, #e4b6cd22, #0d0e12); display: grid; place-items: center; padding: 0; }
+.mobile-jarvis-orb span { width: 16px; height: 16px; border-radius: 50%; background: var(--m-accent); box-shadow: 0 0 14px #e4b6cdaa; transition: transform .08s linear; }
+.mobile-jarvis.is-sleeping .mobile-jarvis-orb span { background: #8f8499; box-shadow: none; }
+.mobile-jarvis.is-thinking .mobile-jarvis-orb span { animation: jarvis-pulse 1s ease-in-out infinite alternate; }
+.mobile-jarvis.is-speaking .mobile-jarvis-orb span { background: #9fd7ff; box-shadow: 0 0 16px #9fd7ffaa; animation: jarvis-pulse .45s ease-in-out infinite alternate; }
+@keyframes jarvis-pulse { from { transform: scale(.85); } to { transform: scale(1.35); } }
+.mobile-jarvis-wake { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--m-muted); white-space: nowrap; }
+.mobile-app .mobile-jarvis-wake input { width: 16px; height: 16px; padding: 0; accent-color: var(--m-accent); }
+.mobile-app .mobile-jarvis-stop { border: 1px solid var(--m-line); border-radius: 9px; padding: 7px 10px; font-size: 12px; }
+.mobile-jarvis-lines { display: grid; gap: 6px; max-height: 30dvh; overflow-y: auto; }
+.mobile-jarvis-lines p { font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+.mobile-jarvis-lines p span { display: block; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--m-muted); }
+.mobile-jarvis-lines p.assistant { color: #f0dbe6; }
+.mobile-jarvis-hint { font-size: 12px; color: var(--m-muted); }
+@media (max-width: 360px) { .mobile-jarvis-wake { display: none; } }

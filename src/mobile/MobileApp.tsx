@@ -18,6 +18,7 @@ import ActivityStatus from './ActivityStatus'
 import BackgroundWork, { type BackgroundCommand, type WorkingAgent } from './BackgroundWork'
 import { useInstall } from './useInstall'
 import { visibleUserMessage } from './workspace-context'
+import { JarvisButton, JarvisSheet } from './JarvisTalk'
 import './mobile.css'
 
 interface Pending { id: string; claim: string; code: string }
@@ -218,8 +219,10 @@ export default function MobileApp() {
       <button className={`mobile-icon ${view === 'chat' || (view === 'list' && !history) ? 'active' : ''}`} aria-label="Chats" title="Chats" aria-current={view === 'chat' || (view === 'list' && !history) ? 'page' : undefined} onClick={() => { setMobileHistory(false); setMobileView(session ? 'chat' : 'list') }}><Icon name="chats" size={19} /></button>
       <button className={`mobile-icon ${view === 'results' ? 'active' : ''}`} aria-label="Results" title="Workspace" aria-current={view === 'results' ? 'page' : undefined} onClick={() => setMobileView('results')}><Icon name="workspace" size={19} /></button>
     </nav>
+    <JarvisButton connected={state.connected} />
     <button className="mobile-icon" aria-label="Phone settings" title="Phone settings" onClick={() => setSettings(!settings)}><Icon name="phone" size={19} /></button>
   </header>
+    <JarvisSheet />
     {installation.available && !installation.dismissed && <aside className="mobile-install" aria-label="Install Mr. Mak"><div><strong>Keep Mr. Mak on your phone</strong><p>Add the nose to your Home Screen and open it as an app.</p></div><button onClick={() => void installation.install()} disabled={installation.busy}>Install</button><button className="mobile-icon" aria-label="Not now" title="Not now" onClick={installation.dismiss}><Icon name="close" size={17} /></button></aside>}
     {installation.error && <p className="mobile-error" role="alert">{installation.error}</p>}
     {!state.connected && <div className="mobile-offline" role="status">{state.error || 'Reconnecting… Keep Tailscale connected and your computer awake.'}</div>}

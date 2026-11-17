@@ -30,15 +30,25 @@ Checked: a fake microphone in Chromium with the real Claude coordinator and
 real Kokoro speech completed listen → think → speak. Whisper was stubbed in
 that run because it is not installed in the test container.
 
-## Phase 2: phone Talk mode
+## Phase 2 and 3: Jarvis on the phone, and "Hey Jarvis" (done)
 
-Expose Talk mode through the phone gateway: coordinator route for paired
-devices, Lewis replies played on the phone, and a big talk button.
+- The assistant is named Jarvis (system prompt persona; UI labels).
+- One shared voice loop (`src/lib/talk.ts`) drives desktop and phone.
+- Wake word: while asleep, short speech bursts are transcribed locally and
+  checked for "Hey Jarvis" or "Jarvis …" (`src/lib/wake.ts`, with common
+  Whisper mishearings). Whisper gets "Jarvis" as a hotword. A chime plays on
+  waking; a bare "Hey Jarvis" gets "Yes, sir?". He stays awake ~9 s for
+  follow-ups; "That's all" or "Goodbye" sends him back to sleep.
+- Phone: header microphone button and a Jarvis sheet; gateway routes
+  `/mobile/api/talk/ask` and `/mobile/api/talk/speak`; replies play through
+  Web Audio; the screen is kept on while he listens.
 
-## Phase 3: wake word
+Checked: desktop slept after a goodbye, ignored chatter, woke on "Hey Jarvis"
+and answered with real Claude and Kokoro; the phone answered "Hey Jarvis" with
+"Yes, sir?" and then the follow-up. Whisper was stubbed in the container.
 
-"Hey Mak" (or another chosen name) with openWakeWord on the PC, so no button
-is needed. Optional push-to-talk hotkey.
+Possible upgrade: a dedicated wake-word model (openWakeWord ships a
+"hey_jarvis" model) would use less CPU than transcribing speech while asleep.
 
 ## Phase 4: more abilities
 

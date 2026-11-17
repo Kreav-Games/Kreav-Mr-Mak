@@ -317,6 +317,7 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
           if (['medium', 'high'].includes(data.coordinatorEffort)) settings.coordinatorEffort = data.coordinatorEffort;
           if (['talk', 'live'].includes(data.voiceEngine)) settings.voiceEngine = data.voiceEngine;
           if (readingVoices.some(item => item.id === data.talkVoice)) settings.talkVoice = data.talkVoice;
+          if (typeof data.talkWake === 'boolean') settings.talkWake = data.talkWake;
           if (['claude', 'codex'].includes(data.coordinatorAgent)) settings.coordinatorAgent = data.coordinatorAgent;
           if (['cedar', 'marin'].includes(data.voiceName)) settings.voiceName = data.voiceName;
           if (data.groupColors && typeof data.groupColors === 'object' && !Array.isArray(data.groupColors)) settings.groupColors = Object.fromEntries(Object.entries(data.groupColors).filter(([name, value]) => name.length <= 60 && typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)).slice(0, 200).map(([name, value]) => [name, value.toLowerCase()]));
@@ -456,7 +457,7 @@ export async function createService({ repo, uiDir, stateDir, token = secret(), n
   });
   const origin = await listen(server);
   files.uiOrigin = origin;
-  mobile = await new MobileGateway({ ...mobileOptions, transcripts, readAloud, dictation, chooseDictation, repo, uiDir, stateDir, sessions, attachments, closeChat, settings: () => settings, changed: state => broadcast('mobile-state', { mobile: state }) }).init();
+  mobile = await new MobileGateway({ ...mobileOptions, transcripts, readAloud, dictation, chooseDictation, ask: askMak, repo, uiDir, stateDir, sessions, attachments, closeChat, settings: () => settings, changed: state => broadcast('mobile-state', { mobile: state }) }).init();
   const wss = new WebSocketServer({ noServer: true, maxPayload: 128 * 1024 });
   server.on('upgrade', (request, socket, head) => {
     const url = new URL(request.url, origin);

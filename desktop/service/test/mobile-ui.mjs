@@ -194,7 +194,7 @@ try {
   await desktop.getByRole('button', { name: 'Connect phone', exact: true }).click();
   await phone.getByRole('heading', { name: 'Chats', exact: true }).waitFor();
   await desktop.getByText('Connected now', { exact: true }).waitFor();
-  assert.deepEqual(await phone.locator('.mobile-header button').evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label'))), ['Reconnect', 'New chat', 'History', 'Chats', 'Results', 'Phone settings']);
+  assert.deepEqual(await phone.locator('.mobile-header button').evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label'))), ['Reconnect', 'New chat', 'History', 'Chats', 'Results', 'Talk to Jarvis', 'Phone settings']);
   await phone.getByRole('button', { name: 'History', exact: true }).click();
   await phone.getByRole('heading', { name: 'History', exact: true }).waitFor();
   assert.deepEqual(await phone.locator('.mobile-main-nav button.active').evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label'))), ['History']);

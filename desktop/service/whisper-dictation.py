@@ -12,5 +12,5 @@ model = WhisperModel(args.model, device='cpu', compute_type='int8', cpu_threads=
 audio = decode_audio(args.audio, sampling_rate=16000)
 if len(audio) > 125 * 16000:
     raise ValueError('Recording exceeds two minutes')
-segments, info = model.transcribe(audio, task='transcribe', vad_filter=True, beam_size=5, condition_on_previous_text=False)
+segments, info = model.transcribe(audio, task='transcribe', vad_filter=True, beam_size=5, condition_on_previous_text=False, hotwords='Jarvis')
 print(json.dumps({'text': ' '.join(segment.text.strip() for segment in segments).strip()}))

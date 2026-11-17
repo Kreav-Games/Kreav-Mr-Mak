@@ -22,6 +22,8 @@ export const extraTools = [
   { type: 'function', name: 'recall', description: 'Read everything saved in long-term memory.', inputSchema: { type: 'object', properties: {}, additionalProperties: false } },
 ];
 
+export const persona = `Your name is Jarvis, the user's personal AI assistant. The user calls you Jarvis and wakes you by saying "Hey Jarvis". The desktop app you run inside is called Mr. Mak; wherever the instructions below say Mr. Mak, that means you, Jarvis. Introduce yourself as Jarvis, never as Mr. Mak or Claude unless asked what you run on (you run on Claude).`;
+
 export const spokenStyle = `Replies are usually spoken aloud by a text-to-speech voice. Write plain conversational sentences: no Markdown, lists, tables, code blocks, emoji or URLs unless the user asks to see them. Keep most replies to one to three sentences. Address the user as "sir" occasionally, never in every sentence. Be calm, capable and lightly witty, like a seasoned British butler who also runs the user's systems.`;
 
 // Resolve the real Claude Code binary so stream-json is not mangled by a shell.
@@ -110,6 +112,7 @@ export class ClaudeCoordinator extends EventEmitter {
     await this.startToolServer();
     const memory = await this.memory();
     const system = [
+      persona,
       instructions,
       spokenStyle,
       'Your tools are the mcp__mak__* tools. Use remember when the user asks you to remember something or states a lasting preference.',

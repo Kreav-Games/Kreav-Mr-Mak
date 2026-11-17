@@ -94,10 +94,18 @@ The Help button opens a quick guide without creating a new chat.
 
 ### Free Talk mode (default)
 
-Press the Mak button and speak. Mr. Mak listens hands-free, transcribes with
-free local Whisper, asks the coordinator, and answers aloud with a free local
-voice (Lewis, a British man, by default). Tap the button while it speaks to
-interrupt, and tap again while it listens to stop. Run both local voice setups
+The voice assistant is called **Jarvis**. Press the Mak button and speak: he
+listens hands-free, transcribes with free local Whisper, asks the coordinator,
+and answers aloud with a free local voice (Lewis, a British man, by default).
+After a reply he keeps listening for about nine seconds for a follow-up, then
+sleeps until you say **"Hey Jarvis"**. You can say it with the request in one
+breath ("Hey Jarvis, open the Dream Game chat") or on its own ("Yes, sir?").
+"That's all" or "Goodbye" puts him back to sleep. Tap the button to wake him,
+to interrupt a reply, or (while he listens) to stop. Untick **Hey Jarvis** in
+the conversation panel to keep him always listening instead.
+
+While asleep, each burst of speech is transcribed on your computer only to
+check for his name; nothing is shown, saved or sent unless he hears it. Run both local voice setups
 once (`dictation` and `read-aloud`, see
 [local voice setup](mobile-access.md#local-voice-setup-on-the-computer)) and
 choose **Local Whisper** as the speech-to-text provider.

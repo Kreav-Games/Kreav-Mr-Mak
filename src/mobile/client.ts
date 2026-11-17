@@ -123,3 +123,17 @@ window.addEventListener('pagehide', releaseConnection)
 window.addEventListener('pageshow', resumeMobile)
 
 export async function chooseMobileDictation(provider: string) { const dictation = await mobileApi<DictationInfo>('/dictation', { provider }); update({ dictation }); return dictation }
+
+// Talk mode: ask Jarvis and hear the reply in the local voice.
+export async function askJarvis(text: string, conversation: string, signal: AbortSignal): Promise<string> {
+  // Not mobileApi: Jarvis may need longer than its 25-second limit.
+  const response = await fetch('/mobile/api/talk/ask', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, conversation }), signal: anySignal([signal, AbortSignal.timeout(200000)]) })
+  const result = await response.json().catch(() => ({})) as { status?: string; result?: string; error?: string }
+  if (!response.ok) throw new MobileError(result.error || 'Jarvis could not be reached.', response.status)
+  return result.status === 'completed' ? result.result || 'Done.' : result.result || 'I could not complete that request.'
+}
+export async function speakJarvis(voice: string, text: string, signal: AbortSignal): Promise<ArrayBuffer> {
+  const response = await fetch('/mobile/api/talk/speak', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice, text }), signal })
+  if (!response.ok) { const result = await response.json().catch(() => ({})); throw new MobileError(result.error || 'Speech generation failed.', response.status) }
+  return response.arrayBuffer()
+}
