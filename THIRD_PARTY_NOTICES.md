@@ -17,6 +17,11 @@ Third-party components retain their own licenses.
   to third-party characters. The sample makes no exclusivity claim.
 - Mr. Mak 64 also includes camera renders of the creator's Unity prototype scene.
   They document its appearance; no Unity project or playable build is bundled.
+- `src/assets/jarvis-head.glb`, used for Jarvis's holographic face, is
+  "Infinite, 3D Head Scan" by Lee Perry-Smith, licensed under Creative Commons
+  Attribution 3.0 Unported (https://creativecommons.org/licenses/by/3.0/). Based on
+  a work at www.triplegangers.com; this glTF copy comes from the three.js examples
+  (https://github.com/mrdoob/three.js). It is shown as a stylised hologram.
 - The Mr. Mak photograph is supplied by the repository creator for this project.
   It may remain in forks and copies of the template.
 

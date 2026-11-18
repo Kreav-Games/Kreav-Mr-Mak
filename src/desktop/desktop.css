@@ -207,19 +207,19 @@
 .voice-settings .voice-wake{gap:5px;cursor:pointer;color:#c8afce}.voice-settings .voice-wake input{margin:0;accent-color:#e8a4b5}
 /* Jarvis's holographic face on the Workspace home */
 .home-hero.has-face{align-items:stretch;flex-direction:column;gap:14px}
-.jarvis-face{position:relative;display:flex;align-items:center;gap:26px;min-height:360px;padding:10px 26px 10px 10px;border-radius:18px;overflow:hidden;background:radial-gradient(ellipse at 28% 55%,#0f3440 0%,#081a22 38%,#05090d 75%);border:1px solid #5ee8ff22;box-shadow:inset 0 0 60px #000a,0 10px 40px #0006;color:#bff6ff}
-.jarvis-face::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#ffffff05 0 1px,transparent 1px 3px)}
-.jarvis-face-stage{position:relative;flex:0 0 min(420px,48%);height:360px;padding:0;border:0;background:none;cursor:pointer;border-radius:14px}
+.jarvis-face{position:relative;display:flex;align-items:center;justify-content:flex-end;min-height:400px;padding:24px 34px;border-radius:18px;overflow:hidden;background:#020611;border:1px solid #3fb6ff26;box-shadow:inset 0 0 80px #000c,0 10px 40px #0007;color:#cfe9ff}
+.jarvis-face::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 45%,#020611cc 80%),repeating-linear-gradient(0deg,#ffffff04 0 1px,transparent 1px 3px)}
+.jarvis-face-stage{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer;border-radius:18px}
 .jarvis-face-stage:focus-visible{outline:2px solid #5ee8ff88;outline-offset:2px}
 .jarvis-face-stage canvas{display:block;width:100%;height:100%}
-.jarvis-face-caption{position:relative;z-index:1;display:grid;gap:6px;align-content:center;min-width:0;max-width:520px}
-.jarvis-face-caption strong{font:600 13px/1 var(--font-mono,ui-monospace),monospace;letter-spacing:.5em;color:#7ff0ff;text-shadow:0 0 12px #5ee8ff88}
+.jarvis-face-caption{position:relative;z-index:1;display:grid;gap:6px;align-content:center;width:min(44%,500px);min-width:0}
+.jarvis-face-caption strong{font:600 13px/1 var(--font-mono,ui-monospace),monospace;letter-spacing:.5em;color:#8fd3ff;text-shadow:0 0 12px #3fb6ff99}
 .jarvis-face-caption span{font-size:1.35rem;font-weight:600;color:#e6fdff;text-shadow:0 0 18px #5ee8ff55}
 .jarvis-face-caption small{font-size:.8rem;color:#8fc9d3}
 .jarvis-face-caption p{margin-top:8px;font-size:.92rem;line-height:1.55;color:#cdeff5;max-height:9.5em;overflow:hidden;border-left:2px solid #5ee8ff44;padding-left:12px}
 .jarvis-face-caption .jarvis-face-error{color:#ffb3bd;border-left-color:#e0727f88}
 .jarvis-face-off{justify-self:start;margin-top:8px;font-size:.75rem;padding:5px 12px;border-radius:999px;border:1px solid #5ee8ff33;background:#5ee8ff0d;color:#9fe9f5;cursor:pointer}
 .jarvis-face-off:hover{background:#5ee8ff1f}
-.jarvis-face.is-sleeping{border-color:#8f7cf022;background:radial-gradient(ellipse at 28% 55%,#211a44 0%,#110d24 38%,#07060d 75%)}
+.jarvis-face.is-sleeping{border-color:#6d5cf026}
 .jarvis-face.is-sleeping .jarvis-face-caption strong{color:#b3a6ff;text-shadow:0 0 12px #8f7cf088}
-@media (max-width:760px){.jarvis-face{flex-direction:column;padding:10px}.jarvis-face-stage{flex-basis:auto;width:100%;height:300px}}
+@media (max-width:760px){.jarvis-face{flex-direction:column;justify-content:flex-end;min-height:520px;padding:16px}.jarvis-face::after{background:linear-gradient(180deg,transparent 45%,#020611dd 75%)}.jarvis-face-caption{width:100%}}
