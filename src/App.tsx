@@ -22,7 +22,7 @@ const statusRank = (e: WorkspaceEntity) => (e.status === 'active' ? 0 : 1)
 const byFreshness = (a: WorkspaceEntity, b: WorkspaceEntity) =>
   lastTouched(b).localeCompare(lastTouched(a)) || statusRank(a) - statusRank(b)
 
-export default function App() {
+export default function App({ homeHero }: { homeHero?: import('react').ReactNode } = {}) {
   const { workspace, offline, lastSync, reload } = useWorkspace()
   const [route, setRoute] = useState<Route>(parseHash)
   const [query, setQuery] = useState('')
@@ -184,6 +184,7 @@ export default function App() {
               offline={offline}
               searching={searching}
               query={query}
+              hero={homeHero}
             />
           )}
           </ReportBoundary>

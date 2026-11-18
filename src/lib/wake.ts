@@ -21,5 +21,5 @@ export function detectWake(text: string): Wake {
 
 // A goodbye ends the conversation and puts the assistant back to sleep.
 export function isGoodbye(text: string) {
-  return /^\W*(?:that'?s all|that is all|thanks?,? that'?s all|goodbye|good night|bye|go to sleep|stand by|never ?mind)\W*(?:jarvis)?\W*$/i.test(text.trim())
+  return /^\W*(?:(?:ok(?:ay)?|right|alright),?\s+)?(?:that'?s all(?: for now)?|that is all|thanks?,? that'?s all|goodbye|good ?night|bye|(?:you can )?go (?:back )?to sleep|sleep|stand by|never ?mind)(?:\s+now)?\W*(?:jarvis)?\W*$/i.test(text.trim())
 }

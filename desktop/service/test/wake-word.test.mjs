@@ -24,5 +24,7 @@ test('wake phrase starts a request and keeps the command', () => {
 });
 
 test('goodbyes put Jarvis to sleep', () => {
-  assert.deepEqual(run([['bye', "That's all, Jarvis."], ['bye', 'Goodbye'], ['bye', 'Stand by.'], ['bye', 'Thanks, that is all for the game']]), [true, true, true, false]);
+  assert.deepEqual(run([['bye', "That's all, Jarvis."], ['bye', 'Goodbye'], ['bye', 'Stand by.'], ['bye', 'Thanks, that is all for the game'], ['bye', 'Go to sleep, Jarvis.'], ['bye', 'Go to sleep now'], ['bye', 'Okay, you can go back to sleep.'], ['bye', 'How did you sleep?']]), [true, true, true, false, true, true, true, false]);
+  // "Jarvis, go to sleep" loses its name to wake detection first, then is a goodbye.
+  assert.deepEqual(run([['wake', 'Jarvis, go to sleep.']]), [{ woke: true, command: 'go to sleep.' }]);
 });

@@ -1,7 +1,7 @@
 // The hands-free voice loop shared by the desktop and phone apps.
 // Microphone → local Whisper → the Claude coordinator → local Kokoro voice.
-// With the wake word on, Jarvis sleeps until he hears "Hey Jarvis", then
-// stays awake for follow-ups until a pause or a goodbye.
+// Once woken (a tap or "Hey Jarvis") he stays awake and keeps listening until
+// told "go to sleep, Jarvis"; asleep, he waits for "Hey Jarvis" or a tap.
 import { detectWake, isGoodbye } from './wake'
 
 export type TalkStatus = 'off' | 'starting' | 'sleeping' | 'listening' | 'hearing' | 'thinking' | 'speaking' | 'error'
@@ -19,10 +19,9 @@ const END_SILENCE_MS = 1100     // silence this long ends it
 const MAX_UTTERANCE_MS = 45000  // hard stop for one request
 const MAX_SLEEPING_MS = 15000   // longer chatter while asleep is not a wake phrase
 const MIN_UTTERANCE_MS = 450    // shorter blips are ignored
-const FOLLOW_UP_MS = 9000       // awake time after a reply before sleeping again
 
 export const talkLabels: Record<TalkStatus, string> = {
-  off: 'Talk to Jarvis', error: 'Talk to Jarvis', starting: 'Starting', sleeping: 'Say “Hey Jarvis”',
+  off: 'Talk to Jarvis', error: 'Talk to Jarvis', starting: 'Starting', sleeping: 'Asleep · say “Hey Jarvis”',
   listening: 'Listening', hearing: 'Hearing you', thinking: 'Thinking', speaking: 'Speaking · tap to interrupt',
 }
 
@@ -49,6 +48,33 @@ export function speechChunks(text: string, limit = 360, first = 160): string[] {
   return chunks
 }
 
+// Whisper invents these from background noise; never send them to Jarvis.
+const PHANTOM = /^\W*(?:thanks? (?:you )?for watching|subtitles? by\b.*|please subscribe\b.*|you|uh+|um+|hmm+|\.+)\W*$/i
+
+// Loudness of a 16-bit PCM WAV, 0–1, sixty values a second, for the talking face.
+export function wavEnvelope(wav: ArrayBuffer, fps = 60): { values: Float32Array; fps: number } {
+  const view = new DataView(wav)
+  let rate = 24000, bits = 16, channels = 1, offset = 12, start = 44, length = Math.max(0, wav.byteLength - 44)
+  while (offset + 8 <= view.byteLength) {
+    const id = String.fromCharCode(view.getUint8(offset), view.getUint8(offset + 1), view.getUint8(offset + 2), view.getUint8(offset + 3))
+    const size = view.getUint32(offset + 4, true)
+    if (id === 'fmt ') { channels = view.getUint16(offset + 10, true); rate = view.getUint32(offset + 12, true); bits = view.getUint16(offset + 22, true) }
+    if (id === 'data') { start = offset + 8; length = Math.min(size, view.byteLength - start); break }
+    offset += 8 + size + (size % 2)
+  }
+  if (bits !== 16) return { values: new Float32Array(0), fps }
+  const step = Math.max(1, Math.round(rate / fps)), frames = Math.floor(length / 2 / channels / step)
+  const values = new Float32Array(frames)
+  let peak = 1e-6
+  for (let frame = 0; frame < frames; frame++) {
+    let sum = 0
+    for (let index = 0; index < step; index++) { const sample = view.getInt16(start + ((frame * step + index) * channels) * 2, true) / 32768; sum += sample * sample }
+    values[frame] = Math.sqrt(sum / step); peak = Math.max(peak, values[frame])
+  }
+  for (let frame = 0; frame < frames; frame++) values[frame] = Math.min(1, values[frame] / (peak * 0.8))
+  return { values, fps }
+}
+
 export class TalkMode {
   state: TalkState = { status: 'off', error: '', lines: [], level: 0, wake: true }
   voice = 'bm_lewis'
@@ -64,7 +90,8 @@ export class TalkMode {
   private loud = 0
   private quietSince = 0
   private utteranceStart = 0
-  private awakeUntil = 0
+  private envelope: { values: Float32Array; fps: number } | null = null
+  private sourceStarted = 0
   private source: AudioBufferSourceNode | null = null
   private element: HTMLAudioElement | null = null
   private abort: AbortController | null = null
@@ -78,9 +105,18 @@ export class TalkMode {
   dismissError() { this.update({ error: '', status: this.active ? this.state.status : 'off' }) }
   setWake(wake: boolean) {
     this.update({ wake })
-    if (!wake && this.state.status === 'sleeping') this.update({ status: 'listening' })
-    if (wake && this.state.status === 'listening') this.awakeUntil = performance.now() + FOLLOW_UP_MS
+    if (!wake && this.state.status === 'sleeping') this.awake()
   }
+  // How loud Jarvis's voice is right now (0–1), for animating a face.
+  outputLevel() {
+    const envelope = this.envelope
+    if (!envelope || this.state.status !== 'speaking') return 0
+    const time = this.element ? this.element.currentTime : this.source && this.context ? this.context.currentTime - this.sourceStarted : -1
+    if (time < 0) return 0
+    return envelope.values[Math.floor(time * envelope.fps)] ?? 0
+  }
+  // How loud the microphone is right now (0–1).
+  inputLevel() { return Math.min(1, this.state.level * 8) }
 
   // The button: start, interrupt a reply, wake a sleeping Jarvis, or stop.
   tap() {
@@ -156,16 +192,18 @@ export class TalkMode {
     }
   }
 
-  private awake() { this.awakeUntil = performance.now() + FOLLOW_UP_MS; this.listen('listening') }
-  private sleep() { this.listen(this.state.wake ? 'sleeping' : 'listening') }
+  private awake() { this.listen('listening') }
+  private sleep() { this.listen('sleeping') }
 
   private listen(mode: 'sleeping' | 'listening') {
-    // Whenever he listens awake, give the user a full follow-up window.
-    if (mode === 'listening') this.awakeUntil = Math.max(this.awakeUntil, performance.now() + FOLLOW_UP_MS)
     if (!this.analyser || !this.stream) return
+    // One listening loop at a time (a tap can wake him while the asleep loop runs).
+    cancelAnimationFrame(this.frame)
     const generation = this.generation
     this.loud = 0; this.quietSince = 0; this.utteranceStart = 0
-    let asleep = mode === 'sleeping'
+    const asleep = mode === 'sleeping'
+    // While asleep he only checks for his name, so the label stays "Asleep".
+    let hearing = false
     this.update({ status: mode })
     const samples = new Float32Array(this.analyser.fftSize)
     let last = performance.now()
@@ -178,16 +216,13 @@ export class TalkMode {
       const level = Math.sqrt(sum / samples.length)
       if (Math.abs(level - this.state.level) > 0.01) this.update({ level })
       const speaking = level > SPEECH_LEVEL
-      const status = this.state.status
-      if (status === 'listening' || status === 'sleeping') {
-        // No follow-up in time: back to waiting for the wake phrase.
-        if (status === 'listening' && this.state.wake && now > this.awakeUntil) { asleep = true; this.update({ status: 'sleeping' }) }
+      if (!hearing) {
         this.loud = speaking ? this.loud + elapsed : Math.max(0, this.loud - elapsed * 2)
         if (!this.recorder) this.record()
-        if (this.loud >= START_MS) { asleep = this.state.status === 'sleeping'; this.utteranceStart = now - this.loud; this.quietSince = 0; this.update({ status: 'hearing' }) }
+        if (this.loud >= START_MS) { hearing = true; this.utteranceStart = now - this.loud; this.quietSince = 0; if (!asleep) this.update({ status: 'hearing' }) }
         // Keep only a short rolling pre-roll while waiting for speech.
         else if (this.recorder && now - this.recorderStarted > 8000) this.restartRecorder()
-      } else if (status === 'hearing') {
+      } else {
         if (speaking) this.quietSince = 0
         else if (!this.quietSince) this.quietSince = now
         const limit = asleep ? MAX_SLEEPING_MS : MAX_UTTERANCE_MS
@@ -247,11 +282,13 @@ export class TalkMode {
         }
         this.update({ status: 'thinking', level: 0 })
       }
-      if (!request || /^\W*$/.test(request)) { this.awakeUntil = Math.max(this.awakeUntil, performance.now() + 3000); resume(); return }
-      if (this.state.wake && isGoodbye(request)) {
+      if (!request || /^\W*$/.test(request) || PHANTOM.test(request)) { resume(); return }
+      if (isGoodbye(request)) {
+        // "Go to sleep, Jarvis": asleep until "Hey Jarvis" or a tap (or off, without the wake word).
         this.say('user', request)
-        await this.speak('Very good, sir.', generation, controller.signal)
-        if (generation === this.generation) this.sleep()
+        await this.speak('Very good, sir. Say “Hey Jarvis” when you need me.', generation, controller.signal)
+        if (generation !== this.generation) return
+        if (this.state.wake) this.sleep(); else this.stop()
         return
       }
       this.say('user', request)
@@ -274,6 +311,7 @@ export class TalkMode {
   // unlocked by the tap. Either way playback ends, so Jarvis never sticks on
   // "Speaking".
   private async play(audio: ArrayBuffer, generation: number, signal: AbortSignal) {
+    this.envelope = wavEnvelope(audio)
     const url = URL.createObjectURL(new Blob([audio], { type: 'audio/wav' }))
     const element = new Audio()
     this.element = element
@@ -300,7 +338,7 @@ export class TalkMode {
       const timer = setTimeout(resolve, buffer.duration * 1000 + 1500)
       source.onended = () => { clearTimeout(timer); resolve() }
       signal.addEventListener('abort', () => { clearTimeout(timer); resolve() }, { once: true })
-      this.source = source; source.start()
+      this.source = source; this.sourceStarted = context.currentTime; source.start()
     })
     this.source = null
   }

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { WorkspaceEntity } from '../types'
 import { categoryIcon } from '../lib/categories'
 import MakCard from './MakCard'
@@ -10,6 +11,8 @@ interface HomeGridProps {
   offline: boolean
   searching: boolean
   query: string
+  // The desktop app shows Jarvis's face here instead of the logo.
+  hero?: ReactNode
 }
 
 function greeting(): string {
@@ -27,6 +30,7 @@ export default function HomeGrid({
   offline,
   searching,
   query,
+  hero,
 }: HomeGridProps) {
   const activeCount = entities.filter(e => e.status === 'active').length
   const categoryCount = new Set(entities.map(e => e.category || 'other')).size
@@ -34,8 +38,8 @@ export default function HomeGrid({
 
   return (
     <div className="home">
-      <header className="home-hero">
-        <MakLogo size={84} />
+      <header className={`home-hero ${hero ? 'has-face' : ''}`}>
+        {hero ?? <MakLogo size={84} />}
         <div>
           <h1 className="home-title">{greeting()}</h1>
           <p className="home-sub">
