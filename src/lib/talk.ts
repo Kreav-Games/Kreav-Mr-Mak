@@ -62,6 +62,7 @@ export class TalkMode {
   private utteranceStart = 0
   private awakeUntil = 0
   private source: AudioBufferSourceNode | null = null
+  private element: HTMLAudioElement | null = null
   private abort: AbortController | null = null
   private screenLock: { release: () => Promise<void> } | null = null
   constructor(private adapter: TalkAdapter, private keepScreenOn = false) {}
@@ -122,7 +123,7 @@ export class TalkMode {
     this.awake()
   }
 
-  private silence() { try { this.source?.stop() } catch { /* Already stopped. */ } this.source = null }
+  private silence() { try { this.source?.stop() } catch { /* Already stopped. */ } this.source = null; this.element?.pause(); this.element = null }
 
   private async lockScreen() {
     try { this.screenLock = await (navigator as Navigator & { wakeLock?: { request: (type: 'screen') => Promise<{ release: () => Promise<void> }> } }).wakeLock?.request('screen') ?? null } catch { /* Optional. */ }
@@ -263,6 +264,43 @@ export class TalkMode {
     } finally { if (this.abort === controller) this.abort = null }
   }
 
+  // Play one WAV reply. An <audio> element first: it uses the normal speakers
+  // and works in the Windows app. Where it is blocked (the phone page allows no
+  // blob URLs, phones block late playback), fall back to the Web Audio context
+  // unlocked by the tap. Either way playback ends, so Jarvis never sticks on
+  // "Speaking".
+  private async play(audio: ArrayBuffer, generation: number, signal: AbortSignal) {
+    const url = URL.createObjectURL(new Blob([audio], { type: 'audio/wav' }))
+    const element = new Audio()
+    this.element = element
+    try {
+      const played = await new Promise<boolean>(resolve => {
+        let started = false
+        element.onplaying = () => { started = true }
+        element.onended = () => resolve(true)
+        element.onerror = () => resolve(started)
+        signal.addEventListener('abort', () => { element.pause(); resolve(true) }, { once: true })
+        element.src = url
+        element.play().catch(() => resolve(false))
+      })
+      if (played || generation !== this.generation || signal.aborted) return
+    } finally { URL.revokeObjectURL(url); element.onended = element.onerror = element.onplaying = null; if (this.element === element) this.element = null }
+    const context = this.context
+    if (!context) return
+    if (context.state !== 'running') await context.resume().catch(() => {})
+    const buffer = await context.decodeAudioData(audio.slice(0))
+    if (generation !== this.generation) return
+    await new Promise<void>(resolve => {
+      const source = context.createBufferSource(); source.buffer = buffer; source.connect(context.destination)
+      // A suspended context never reports the end; stop waiting after the clip's length.
+      const timer = setTimeout(resolve, buffer.duration * 1000 + 1500)
+      source.onended = () => { clearTimeout(timer); resolve() }
+      signal.addEventListener('abort', () => { clearTimeout(timer); resolve() }, { once: true })
+      this.source = source; source.start()
+    })
+    this.source = null
+  }
+
   private async speak(text: string, generation: number, signal: AbortSignal) {
     this.update({ status: 'speaking', level: 0 })
     const chunks = speechChunks(text)
@@ -273,18 +311,7 @@ export class TalkMode {
       next = index + 1 < chunks.length ? this.adapter.speak(this.voice, chunks[index + 1], signal) : null
       next?.catch(() => {})
       if (generation !== this.generation) return
-      const context = this.context
-      if (!context) return
-      // Web Audio rather than <audio>: no blob URLs, and phones keep it unlocked.
-      const buffer = await context.decodeAudioData(audio)
-      if (generation !== this.generation) return
-      await new Promise<void>(resolve => {
-        const source = context.createBufferSource(); source.buffer = buffer; source.connect(context.destination)
-        source.onended = () => resolve()
-        signal.addEventListener('abort', () => resolve(), { once: true })
-        this.source = source; source.start()
-      })
-      this.source = null
+      await this.play(audio, generation, signal)
       if (generation !== this.generation) return
     }
   }
