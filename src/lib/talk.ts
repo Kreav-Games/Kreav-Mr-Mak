@@ -26,19 +26,23 @@ export const talkLabels: Record<TalkStatus, string> = {
   listening: 'Listening', hearing: 'Hearing you', thinking: 'Thinking', speaking: 'Speaking · tap to interrupt',
 }
 
-// Split a reply into sentence groups the local voice can read (≤ 2000 chars each).
-export function speechChunks(text: string, limit = 600): string[] {
+// Split a reply into sentence groups the local voice can read. The first group
+// is kept short (usually one sentence) so speech starts quickly on a slow CPU;
+// later groups are made while the earlier ones play.
+export function speechChunks(text: string, limit = 360, first = 160): string[] {
   const clean = text.replace(/```[\s\S]*?```/g, ' ').replace(/[*_#`>|]/g, '').replace(/\]\([^)]*\)/g, ']').replace(/\s+/g, ' ').trim()
   if (!clean) return []
   const sentences = clean.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [clean]
   const chunks: string[] = []
   let current = ''
   for (const sentence of sentences) {
-    for (let piece = sentence; piece; piece = piece.slice(limit)) {
-      const part = piece.slice(0, limit)
-      if (current && current.length + part.length > limit) { chunks.push(current.trim()); current = '' }
+    for (let piece = sentence; piece;) {
+      const max = chunks.length ? limit : first
+      const part = piece.slice(0, max)
+      if (current && current.length + part.length > max) { chunks.push(current.trim()); current = ''; continue }
       current += part
-      if (piece.length <= limit) break
+      if (piece.length <= max) break
+      piece = piece.slice(max); chunks.push(current.trim()); current = ''
     }
   }
   if (current.trim()) chunks.push(current.trim())
@@ -302,7 +306,6 @@ export class TalkMode {
   }
 
   private async speak(text: string, generation: number, signal: AbortSignal) {
-    this.update({ status: 'speaking', level: 0 })
     const chunks = speechChunks(text)
     // Prepare the next chunk while the current one plays (one request at a time).
     let next = chunks.length ? this.adapter.speak(this.voice, chunks[0], signal) : null
@@ -311,6 +314,8 @@ export class TalkMode {
       next = index + 1 < chunks.length ? this.adapter.speak(this.voice, chunks[index + 1], signal) : null
       next?.catch(() => {})
       if (generation !== this.generation) return
+      // "Speaking" only once there is sound; until then he is still preparing it.
+      if (this.state.status !== 'speaking') this.update({ status: 'speaking', level: 0 })
       await this.play(audio, generation, signal)
       if (generation !== this.generation) return
     }
