@@ -1,6 +1,25 @@
 {
   "entities": [
     {
+      "id": "clover-creek-farm",
+      "title": "Clover Creek Farm",
+      "description": "A cozy isometric farm-management game for the phone: crops, animals, factories, orders, staff, machinery and land expansions, with short timers.",
+      "type": "group",
+      "category": "project",
+      "created": "2026-11-21",
+      "updated": "2026-11-21",
+      "folder": "2026-11-21_clover-creek-farm",
+      "steps": [
+        {
+          "name": "Play",
+          "path": "index.html"
+        }
+      ],
+      "status": "active",
+      "pinned": true,
+      "defaultStep": 0
+    },
+    {
       "id": "tharrn-gdd",
       "title": "Tharrn Wiki",
       "description": "The Tharrn remake's game design document: overview, mechanics, levels, story, art, technical details, milestones, ideas and appendices. A read-only copy of the GDD viewer in D:\\Tharrn-GDD-New, refreshed by its build.",
