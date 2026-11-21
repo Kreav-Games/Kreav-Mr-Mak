@@ -1,6 +1,29 @@
 {
   "entities": [
     {
+      "id": "iron-clash",
+      "title": "Iron Clash",
+      "description": "A 3D robot fighting RPG: modular robot building, five classes, 30 AI fighters with bosses, five arenas, career, tournaments and touch controls.",
+      "type": "group",
+      "category": "project",
+      "created": "2026-11-21",
+      "updated": "2026-11-21",
+      "folder": "2026-11-21_iron-clash",
+      "steps": [
+        {
+          "name": "Play",
+          "path": "index.html"
+        },
+        {
+          "name": "Source notes",
+          "path": "README.md"
+        }
+      ],
+      "status": "active",
+      "pinned": true,
+      "defaultStep": 0
+    },
+    {
       "id": "clover-creek-farm",
       "title": "Clover Creek Farm",
       "description": "A cozy isometric farm-management game for the phone: crops, animals, factories, orders, staff, machinery and land expansions, with short timers.",
