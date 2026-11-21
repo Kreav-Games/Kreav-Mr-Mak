@@ -11,6 +11,6 @@ const rest = keepHead.replace(titleMatch[0], '');
 // Title first so it falls in the first 8KB; scripts move after the body markup.
 const scripts = [];
 const restNoScripts = rest.replace(/<script\b[\s\S]*?<\/script>/gi, m => { scripts.push(m); return ''; });
-const out = `${titleMatch[0]}\n${restNoScripts.trim()}\n${body.trim()}\n${scripts.join('\n')}\n`;
+const out = `${titleMatch[0]}\n<meta name="claude:viewport-fit-sides" content="cover">\n${restNoScripts.trim()}\n${body.trim()}\n${scripts.join('\n')}\n`;
 writeFileSync(new URL('../../index.html', import.meta.url), out);
 console.log('packed', (out.length / 1024 / 1024).toFixed(2), 'MB');

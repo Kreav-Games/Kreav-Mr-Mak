@@ -25,6 +25,7 @@ import type { FightContext, FightResult } from '../core/economy';
 import type { MoveDef } from '../data/moves';
 import { MOVES } from '../data/moves';
 import { Hud } from '../ui/hud';
+import { goFullscreen } from '../main';
 import { audio } from '../audio/audio';
 import type { Input } from '../input/input';
 
@@ -194,10 +195,11 @@ export class Match {
     if (this.phase !== 'paused') {
       this.pausedFrom = this.phase; this.phase = 'paused'; this.input.releaseLock();
       const el = this.pauseEl = document.createElement('div'); el.className = 'modal pause';
-      el.innerHTML = `<div class="panel"><h2>PAUSED</h2><button class="btn primary" data-a="resume">Resume</button>${this.o.tutorial ? '<button class="btn" data-a="skip">Skip training</button>' : ''}<button class="btn danger" data-a="forfeit">${this.o.tutorial ? 'Leave training' : 'Forfeit fight'}</button></div>`;
+      el.innerHTML = `<div class="panel"><h2>PAUSED</h2><button class="btn primary" data-a="resume">Resume</button><button class="btn" data-a="fs">Full screen</button>${this.o.tutorial ? '<button class="btn" data-a="skip">Skip training</button>' : ''}<button class="btn danger" data-a="forfeit">${this.o.tutorial ? 'Leave training' : 'Forfeit fight'}</button></div>`;
       el.addEventListener('click', ev => {
         const a = (ev.target as HTMLElement).closest('[data-a]')?.getAttribute('data-a');
         if (a === 'resume') this.togglePause();
+        if (a === 'fs') { goFullscreen(true); this.togglePause(); }
         if (a === 'forfeit') { this.closePause(); this.winner = this.e; this.endMethod = 'TKO'; this.finish(true); }
         if (a === 'skip') { this.closePause(); this.winner = this.p; this.endMethod = 'KO'; this.finish(true); }
       });

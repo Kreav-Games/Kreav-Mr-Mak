@@ -1,4 +1,6 @@
 import type { Game } from '../main';
+import { goFullscreen, fullscreenAvailable } from '../main';
+import { isMobile } from '../core/save';
 import { robotSpec, opponentSpec } from '../main';
 import type { ClassId, PartItem, Rarity, SlotId, StatBlock, Materials, FighterStats } from '../core/types';
 import { STAT_KEYS, STAT_LABEL, LOWER_BETTER } from '../core/types';
@@ -70,7 +72,7 @@ export class UI {
     return `<header class="topbar">
       ${back ? `<button class="iconbtn" data-act="go" data-arg="${back}" aria-label="Back">‹</button>` : ''}
       <h1>${esc(title)}</h1>
-      <div class="tb-right">
+      <div class="tb-right">${fullscreenAvailable() ? '<button class="iconbtn fsbtn" data-act="fs" aria-label="Full screen">⛶</button>' : ''}
         <div class="chip lvl"><span>LV ${p.level}</span><i style="width:${(p.xp / need * 100).toFixed(0)}%"></i></div>
         <div class="chip cr"><b>¢</b>${fmt(p.credits)}</div>
         <div class="chip mats">${(Object.keys(p.mats) as (keyof Materials)[]).map(k => `<span title="${MAT_LABEL[k]}" style="--c:${MAT_COLOR[k]}"><em></em>${p.mats[k]}</span>`).join('')}</div>
@@ -490,7 +492,8 @@ export class UI {
     audio.unlock(); audio.sfx('click');
     const p = this.p, r = this.robot;
     switch (act) {
-      case 'start': audio.music('menu'); if (!p.tutorialDone) { this.modal(`<h2>Welcome to Iron Clash</h2><p>You are a rookie robot owner with one boxer frame and a garage full of spare parts. Start with a quick training session to learn to fight.</p><div class="actions"><button class="btn" data-mact="skip">Skip</button><button class="btn primary" data-mact="train">Start training</button></div>`, a => { if (a === 'train') this.startTutorial(); else { p.tutorialDone = true; this.save(); this.show('hub'); } }); } else this.show('hub'); break;
+      case 'fs': goFullscreen(true); break;
+      case 'start': if (isMobile()) goFullscreen(); audio.music('menu'); if (!p.tutorialDone) { this.modal(`<h2>Welcome to Iron Clash</h2><p>You are a rookie robot owner with one boxer frame and a garage full of spare parts. Start with a quick training session to learn to fight.</p><div class="actions"><button class="btn" data-mact="skip">Skip</button><button class="btn primary" data-mact="train">Start training</button></div>`, a => { if (a === 'train') this.startTutorial(); else { p.tutorialDone = true; this.save(); this.show('hub'); } }); } else this.show('hub'); break;
       case 'go': if (arg === 'career') this.sel.league = Math.min(this.sel.league, p.career.league) || p.career.league; this.show(arg as Screen); break;
       case 'tutorial': this.startTutorial(); break;
       case 'league': if (Number(arg) <= p.career.league) { this.sel.league = Number(arg); this.rerender(); } else this.toast('Win the previous belt first', 'bad'); break;

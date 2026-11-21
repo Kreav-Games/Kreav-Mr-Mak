@@ -40,7 +40,11 @@ export class Game {
     const s = this.profile.settings;
     this.engine = new Engine(this.canvas, s.quality !== 'low', { preserveDrawingBuffer: false, stencil: true, powerPreference: 'high-performance' }, true);
     this.applyScaling();
-    addEventListener('resize', () => { this.applyScaling(); this.engine.resize(); });
+    const fit = () => { this.applyScaling(); this.engine.resize(); };
+    addEventListener('resize', fit);
+    addEventListener('orientationchange', () => { fit(); setTimeout(fit, 250); setTimeout(fit, 700); });
+    visualViewport?.addEventListener('resize', fit);
+    document.addEventListener('fullscreenchange', () => setTimeout(fit, 100));
     this.touch = this.computeTouch();
     this.input = new Input(this.canvas);
     this.input.sens = s.sens; this.input.invertY = s.invertY;
@@ -101,6 +105,20 @@ export class Game {
 }
 
 document.addEventListener('gesturestart', e => e.preventDefault());
+
+/** Ask for real fullscreen and landscape lock. Some app views refuse; that is fine. */
+export function goFullscreen(toggle = false) {
+  const d = document as any, el = document.documentElement as any;
+  try {
+    if (toggle && (d.fullscreenElement || d.webkitFullscreenElement)) { (d.exitFullscreen || d.webkitExitFullscreen)?.call(d)?.catch?.(() => { }); return; }
+    if (d.fullscreenElement || d.webkitFullscreenElement) return;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    const pr = req?.call(el, { navigationUI: 'hide' });
+    const lock = () => { try { (screen.orientation as any)?.lock?.('landscape')?.catch?.(() => { }); } catch { /* not supported */ } };
+    if (pr?.then) pr.then(lock).catch(() => { }); else lock();
+  } catch { /* fullscreen not available here */ }
+}
+export const fullscreenAvailable = () => !!((document as any).fullscreenEnabled || (document as any).webkitFullscreenEnabled);
 document.addEventListener('dblclick', e => e.preventDefault());
 
 function boot() {
